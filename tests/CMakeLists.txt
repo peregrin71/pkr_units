@@ -7,12 +7,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 set(TEST_SOURCES
   main.cpp
   test_si_length.cpp
+  test_si_mass.cpp
+  test_si_time.cpp
+  test_si_current.cpp
+  test_si_temperature.cpp
+  test_si_amount.cpp
+  test_si_intensity.cpp
   test_arithmetic_optimizations.cpp
   # test_si_length_imperial.cpp
   # test_si_length_astronomical.cpp
   # test_si_length_cast.cpp
   # test_si_length_formatting.cpp
-  # test_si_mass.cpp
   # test_si_multi_cast.cpp
 )
 

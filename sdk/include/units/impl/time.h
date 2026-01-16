@@ -8,25 +8,89 @@
 
 namespace si
 {
-    // Time unit type aliases
-    // SI base unit
-    using seconds = unit_t<double, std::ratio<1>, time_dimension>;
-    
-    // Metric prefixes
-    using milliseconds = unit_t<double, std::milli, time_dimension>;
-    using microseconds = unit_t<double, std::micro, time_dimension>;
-    using nanoseconds = unit_t<double, std::nano, time_dimension>;
-    using picoseconds = unit_t<double, std::pico, time_dimension>;
-    
-    // Common units
-    using minutes = unit_t<double, std::ratio<60>, time_dimension>;
-    using hours = unit_t<double, std::ratio<3600>, time_dimension>;
-    using days = unit_t<double, std::ratio<86400>, time_dimension>;
-    using weeks = unit_t<double, std::ratio<604800>, time_dimension>;
+// Time quantity template
+template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using time = unit_t<type_t, ratio_t, time_dimension>;
 
-    // Template alias for generic time quantity
-    template<typename type_t, typename ratio_t>
-    using time = unit_t<type_t, ratio_t, time_dimension>;
+// Strong type for second (SI base unit)
+struct second : public unit_t<double, std::ratio<1, 1>, time_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, time_dimension>;
+    using _base::_base;
+};
+
+// Metric time prefixes (strong types)
+struct attosecond : public unit_t<double, std::atto, time_dimension>
+{
+    using _base = unit_t<double, std::atto, time_dimension>;
+    using _base::_base;
+};
+
+struct femtosecond : public unit_t<double, std::femto, time_dimension>
+{
+    using _base = unit_t<double, std::femto, time_dimension>;
+    using _base::_base;
+};
+
+struct picosecond : public unit_t<double, std::pico, time_dimension>
+{
+    using _base = unit_t<double, std::pico, time_dimension>;
+    using _base::_base;
+};
+
+struct nanosecond : public unit_t<double, std::nano, time_dimension>
+{
+    using _base = unit_t<double, std::nano, time_dimension>;
+    using _base::_base;
+};
+
+struct microsecond : public unit_t<double, std::micro, time_dimension>
+{
+    using _base = unit_t<double, std::micro, time_dimension>;
+    using _base::_base;
+};
+
+struct millisecond : public unit_t<double, std::milli, time_dimension>
+{
+    using _base = unit_t<double, std::milli, time_dimension>;
+    using _base::_base;
+};
+
+struct centisecond : public unit_t<double, std::centi, time_dimension>
+{
+    using _base = unit_t<double, std::centi, time_dimension>;
+    using _base::_base;
+};
+
+struct decisecond : public unit_t<double, std::deci, time_dimension>
+{
+    using _base = unit_t<double, std::deci, time_dimension>;
+    using _base::_base;
+};
+
+struct decasecond : public unit_t<double, std::deca, time_dimension>
+{
+    using _base = unit_t<double, std::deca, time_dimension>;
+    using _base::_base;
+};
+
+struct hectosecond : public unit_t<double, std::hecto, time_dimension>
+{
+    using _base = unit_t<double, std::hecto, time_dimension>;
+    using _base::_base;
+};
+
+struct kilosecond : public unit_t<double, std::kilo, time_dimension>
+{
+    using _base = unit_t<double, std::kilo, time_dimension>;
+    using _base::_base;
+};
+
+struct megasecond : public unit_t<double, std::mega, time_dimension>
+{
+    using _base = unit_t<double, std::mega, time_dimension>;
+    using _base::_base;
+};
 
 } // namespace si
 
