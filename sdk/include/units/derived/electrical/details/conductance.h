@@ -1,0 +1,21 @@
+// Copyright (c) 2026 by Thermo Fisher Scientific
+// All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
+
+#pragma once
+
+#include <units/impl/details/si_unit.h>
+#include <units/impl/details/dimension.h>
+
+namespace si
+{
+
+// Conductance dimension: S = A²·s³·kg⁻¹·m⁻²
+inline constexpr dimension_t conductance_v{.length = -2, .mass = -1, .time = 3, .current = 2};
+
+// Conductance units (Siemens and derived)
+// Base unit: Siemens (S) = kg⁻¹·m⁻²·s³·A²
+using siemens = unit_t<double, std::ratio<1, 1>, conductance_v>;
+using millisiemens = unit_t<double, std::ratio<1, 1000>, conductance_v>;
+using microsiemens = unit_t<double, std::ratio<1, 1000000>, conductance_v>;
+
+} // namespace si
