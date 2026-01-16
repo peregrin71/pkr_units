@@ -25,6 +25,7 @@
 
 // Free-function operator* for any two si_unit types
 // Combines dimensions (adds exponents) and ratios (multiplies them)
+// Optimization: if either ratio is ratio<1,1>, skip the multiplication
 template<si_unit_type T1, si_unit_type T2>
 constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
 {
@@ -35,7 +36,17 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
     constexpr dimension_t dim2 = is_si_unit<T2>::value_dimension;
     
     // Combine ratios and dimensions
-    using combined_ratio = std::ratio_multiply<ratio1, ratio2>;
+    // Optimization: if either ratio is 1/1, skip the ratio multiplication
+    using combined_ratio = std::conditional_t<
+        std::is_same_v<ratio1, std::ratio<1, 1>>,
+        ratio2,
+        std::conditional_t<
+            std::is_same_v<ratio2, std::ratio<1, 1>>,
+            ratio1,
+            std::ratio_multiply<ratio1, ratio2>
+        >
+    >;
+    
     constexpr dimension_t combined_dim{
         .length = dim1.length + dim2.length,
         .mass = dim1.mass + dim2.mass,

@@ -7,6 +7,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 set(TEST_SOURCES
   main.cpp
   test_si_length.cpp
+  test_arithmetic_optimizations.cpp
   # test_si_length_imperial.cpp
   # test_si_length_astronomical.cpp
   # test_si_length_cast.cpp

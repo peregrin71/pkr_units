@@ -26,6 +26,10 @@
 
 // Free-function operator/ for any two si_unit types
 // Combines dimensions (subtracts exponents) and ratios (divides them)
+// Optimizations:
+// - If result dimensions are scalar (all zero), return value directly as dimensionless unit_t
+// - If both ratios are identical, skip the ratio division (result is always 1/1)
+// - If divisor ratio is ratio<1,1>, skip the division
 template<si_unit_type T1, si_unit_type T2>
 constexpr auto operator/(const T1& lhs, const T2& rhs)
 {
@@ -36,7 +40,17 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
     constexpr dimension_t dim2 = is_si_unit<T2>::value_dimension;
     
     // Combine ratios and dimensions
-    using combined_ratio = std::ratio_divide<ratio1, ratio2>;
+    // Optimization: if divisor is 1/1, use dividend ratio; if both same, use 1/1; else divide
+    using combined_ratio = std::conditional_t<
+        std::is_same_v<ratio2, std::ratio<1, 1>>,
+        ratio1,
+        std::conditional_t<
+            std::is_same_v<ratio1, ratio2>,
+            std::ratio<1, 1>,
+            std::ratio_divide<ratio1, ratio2>
+        >
+    >;
+    
     constexpr dimension_t combined_dim{
         .length = dim1.length - dim2.length,
         .mass = dim1.mass - dim2.mass,

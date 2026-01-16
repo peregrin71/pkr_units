@@ -30,22 +30,42 @@ constexpr type_t convert_ratio_to(type_t value) noexcept
 
 // Helper: add two values with different ratios, result in canonical ratio (1/1)
 // Only templated on value type and ratios, not on unit types
+// Optimization: if ratios are identical, skip conversion and add directly
 template<typename type_t, typename ratio_t1, typename ratio_t2>
 constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
 {
-    type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-    type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-    return canonical1 + canonical2;
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        // Same ratio - no conversion needed
+        return val1 + val2;
+    }
+    else
+    {
+        // Different ratios - convert to canonical
+        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical1 + canonical2;
+    }
 }
 
 // Helper: subtract two values with different ratios, result in canonical ratio (1/1)
 // Only templated on value type and ratios, not on unit types
+// Optimization: if ratios are identical, skip conversion and subtract directly
 template<typename type_t, typename ratio_t1, typename ratio_t2>
 constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
 {
-    type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-    type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-    return canonical1 - canonical2;
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        // Same ratio - no conversion needed
+        return val1 - val2;
+    }
+    else
+    {
+        // Different ratios - convert to canonical
+        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical1 - canonical2;
+    }
 }
 
 // Helper: multiply two values
