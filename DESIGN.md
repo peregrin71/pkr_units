@@ -359,7 +359,74 @@ Arithmetic helpers automatically support new types (e.g., `float`, `long double`
 
 ---
 
-## 8. Summary of Trade-offs
+## 8. Imperial and Non-SI Units: Design Philosophy
+
+### 8.1 SI-First Architecture
+
+**Decision**: SI (Système International d'Unités) units are the default and primary focus. Imperial and non-SI units are **deliberately excluded from the default includes** to encourage SI-based business logic.
+
+**Rationale**:
+- **SI as the standard**: The library enforces SI as the canonical system for scientific and engineering calculations
+- **Conscious choice required**: Using imperial units requires explicit inclusion (`#include <si_units/imperial.h>`) or (`#include <si_units/imperial_literals.h>`), making it a deliberate decision
+- **Prevents accidental mixing**: Developers cannot accidentally mix SI and imperial units without conscious intent
+- **Promotes best practices**: Business logic and scientific calculations should use SI; imperial/custom units belong in UI/presentation layers only
+
+### 8.2 When to Use Imperial Units
+
+**Appropriate use cases** (UI and presentation layer only):
+```cpp
+// ✓ GOOD: Display layer converting SI to imperial for user interface
+double km = distance_in_meters.value() / 1000.0;
+double miles = km * 0.621371;  // Convert to miles for display
+ui::display_distance(miles);  // Show in miles to user
+
+// ✓ GOOD: Input conversion - user enters imperial, convert to SI
+double user_input_pounds = get_user_weight_input();
+si::kilogram weight{user_input_pounds * 0.453592};  // Convert to kg
+calculate_force(weight);  // Use SI internally
+```
+
+**Inappropriate use cases** (business logic should always use SI):
+```cpp
+// ✗ BAD: Using imperial in calculations
+si::imperial::pound weight{150.0};
+calculate_nutritional_requirements(weight);  // Wrong: use kg instead
+
+// ✗ BAD: Mixing SI and imperial in business logic
+auto speed_mph = 60.0;
+auto distance_km = 100.0;
+auto time = distance_km / (speed_mph * 1.60934);  // Confusing and error-prone
+```
+
+### 8.3 Include Organization
+
+**Default (SI-focused)**:
+```cpp
+#include <si_units/si.h>                    // All 7 SI base units + casting
+#include <si_units/si_literals.h>           // SI unit literal operators
+```
+
+**With Imperial Support**:
+```cpp
+#include <si_units/si.h>                    // SI units
+#include <si_units/imperial.h>              // Imperial units (conscious choice)
+#include <si_units/imperial_literals.h>     // Imperial literal operators
+```
+
+**The barrier to entry** (explicit include requirement) serves as a visual reminder that you're leaving the SI standard and entering a domain that may have compatibility issues or ambiguity.
+
+### 8.4 Design Trade-off
+
+| Aspect | Benefit | Cost |
+|--------|---------|------|
+| Imperial excluded by default | Encourages SI usage, prevents accidents | Requires extra include for imperial |
+| Explicit inclusion required | Clear intent, auditable in code review | Slightly more typing |
+| Separate literal headers | Modular, can choose features à la carte | More headers to manage |
+| SI as primary standard | Standards compliance, scientific rigor | Less convenient for legacy systems |
+
+---
+
+## 9. Summary of Trade-offs
 
 | Decision | Benefits | Trade-offs |
 |----------|----------|-----------|
@@ -369,6 +436,7 @@ Arithmetic helpers automatically support new types (e.g., `float`, `long double`
 | Dimension matching only | Type safety | Cannot combine different physical quantities |
 | Arithmetic factoring | Smaller binaries, better optimization | Additional indirection layer |
 | Strong types via inheritance | Type safety, readability | Requires explicit strong type declarations |
+| SI-first, imperial opt-in | Encourages best practices, prevents mistakes | Requires conscious choice for imperial |
 
 ---
 
@@ -377,3 +445,5 @@ Arithmetic helpers automatically support new types (e.g., `float`, `long double`
 - [C++20 Concepts](https://en.cppreference.com/w/cpp/language/constraints)
 - [std::ratio](https://en.cppreference.com/w/cpp/numeric/ratio)
 - [Template Specialization](https://en.cppreference.com/w/cpp/language/template_specialization)
+- [SI System](https://www.bipm.org/en/measurement-units/si-system)
+
