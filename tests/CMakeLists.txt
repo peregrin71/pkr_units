@@ -14,9 +14,9 @@ set(TEST_SOURCES
   test_si_amount.cpp
   test_si_intensity.cpp
   test_arithmetic_optimizations.cpp
+  # test_si_length_cast.cpp  (casting tests - will enable later)
   # test_si_length_imperial.cpp
   # test_si_length_astronomical.cpp
-  # test_si_length_cast.cpp
   # test_si_length_formatting.cpp
   # test_si_multi_cast.cpp
 )

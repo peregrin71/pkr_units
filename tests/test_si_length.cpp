@@ -100,6 +100,7 @@ TEST_F(SiLengthTest, add_meters)
     si::meter m1{3.0};
     si::meter m2{2.0};
     auto result = m1 + m2;
+    static_assert(std::is_same_v<decltype(result), si::meter>);
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
@@ -108,6 +109,7 @@ TEST_F(SiLengthTest, add_kilometer_to_meter)
     si::kilometer km{1.0};
     si::meter m{500.0};
     auto result = km + m;
+    static_assert(std::is_same_v<decltype(result), si::kilometer>);
     // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
@@ -117,6 +119,7 @@ TEST_F(SiLengthTest, add_meter_to_kilometer)
     si::meter m{500.0};
     si::kilometer km{1.0};
     auto result = m + km;
+    static_assert(std::is_same_v<decltype(result), si::meter>);
     // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
@@ -126,6 +129,9 @@ TEST_F(SiLengthTest, subtract_meters)
     si::meter m1{5.0};
     si::meter m2{2.0};
     auto result = m1 - m2;
+    
+    static_assert(std::is_same_v<decltype(result), si::meter>);
+
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
@@ -134,6 +140,7 @@ TEST_F(SiLengthTest, subtract_kilometer_from_meter)
     si::meter m{1500.0};
     si::kilometer km{1.0};
     auto result = m - km;
+    static_assert(std::is_same_v<decltype(result), si::meter>);
     // Result is in m (LHS ratio), so 1km = 1000m, result = 500m
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
@@ -143,6 +150,7 @@ TEST_F(SiLengthTest, subtract_meter_from_kilometer)
     si::kilometer km{2.0};
     si::meter m{500.0};
     auto result = km - m;
+    static_assert(std::is_same_v<decltype(result), si::kilometer>);
     // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
@@ -152,6 +160,7 @@ TEST_F(SiLengthTest, add_millimeter_to_meter)
     si::meter m{1.0};
     si::millimeter mm{500.0};
     auto result = m + mm;
+    static_assert(std::is_same_v<decltype(result), si::meter>);
     // Result is in canonical unit (meter), so 500mm = 0.5m, result = 1.5m
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
@@ -164,6 +173,7 @@ TEST_F(SiLengthTest, multiply_meter_by_scalar)
 {
     si::meter m{5.0};
     auto result = m * 2.0;
+    // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 10.0);
 }
 
@@ -171,6 +181,7 @@ TEST_F(SiLengthTest, divide_meter_by_scalar)
 {
     si::meter m{10.0};
     auto result = m / 2.0;
+    // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
@@ -191,6 +202,7 @@ TEST_F(SiLengthTest, multiply_meter_by_zero)
 {
     si::meter m{5.0};
     auto result = m * 0.0;
+    // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 0.0);
 }
 
@@ -198,6 +210,7 @@ TEST_F(SiLengthTest, multiply_meter_by_fraction)
 {
     si::meter m{10.0};
     auto result = m * 0.5;
+    // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 

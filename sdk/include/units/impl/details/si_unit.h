@@ -185,7 +185,7 @@ public:
             .intensity = dim_v.intensity + dim_u.intensity};
 
         type_t result_value = m_value * other.value();
-        return unit_t<type_t, combined_ratio, combined_dim_v>(result_value);
+        return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
     }
 
     // Divide by another si_unit quantity (combine dimensions and ratios)
@@ -215,13 +215,13 @@ public:
             .intensity = dim_v.intensity - dim_u.intensity};
 
         type_t result_value = m_value / other.value();
-        return unit_t<type_t, combined_ratio, combined_dim_v>(result_value);
+        return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
     }
 
     // Multiply by scalar
     constexpr unit_t<type_t, ratio_t, dim_v> operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        return unit_t<type_t, ratio_t, dim_v>(m_value * scalar);
+        return unit_t<type_t, ratio_t, dim_v>{m_value * scalar};
     }
 
     constexpr unit_t<type_t, ratio_t, dim_v> operator/(std::same_as<type_t> auto scalar) const
@@ -230,7 +230,7 @@ public:
         {
             throw std::invalid_argument("Division by zero in si_unit::operator/");
         }
-        return unit_t<type_t, ratio_t, dim_v>(m_value / scalar);
+        return unit_t<type_t, ratio_t, dim_v>{m_value / scalar};
     }
 
     // Get raw value

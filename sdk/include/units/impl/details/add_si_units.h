@@ -27,7 +27,7 @@
 // Returns result in LHS unit type
 template<si_unit_type T1, si_unit_type T2>
 requires (is_si_unit<T1>::value_dimension == is_si_unit<T2>::value_dimension)
-constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename is_si_unit<T1>::value_type;
     constexpr dimension_t dim = is_si_unit<T1>::value_dimension;
@@ -38,13 +38,11 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
     // Optimization: if both have same ratio, just add and keep the type
     if constexpr (std::is_same_v<ratio1, ratio2>)
     {
-        using result_type = unit_t<value_type, result_ratio, dim>;
-        return result_type(lhs.value() + rhs.value());
+        return T1{lhs.value() + rhs.value()};
     }
     else
     {
         // Different ratios: convert both to canonical, add, then convert back to LHS ratio
-        using result_type = unit_t<value_type, result_ratio, dim>;
         value_type canonical_sum = si::add_canonical<value_type, ratio1, ratio2>(
             lhs.value(), rhs.value()
         );
@@ -52,7 +50,7 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
         value_type converted = si::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(
             canonical_sum
         );
-        return result_type(converted);
+        return T1{converted};
     }
 }
 
@@ -87,5 +85,5 @@ constexpr auto add(const T1& lhs, const T2& rhs) noexcept
         canonical_sum
     );
     
-    return unit_t<value_type, result_ratio, dim>(converted);
+    return unit_t<value_type, result_ratio, dim>{converted};
 }

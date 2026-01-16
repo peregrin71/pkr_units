@@ -61,5 +61,5 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
         .intensity = dim1.intensity - dim2.intensity};
     
     using result_type = unit_t<value_type, combined_ratio, combined_dim>;
-    return result_type(si::divide_values(lhs.value(), rhs.value()));
+    return result_type{si::divide_values(lhs.value(), rhs.value())};
 }
