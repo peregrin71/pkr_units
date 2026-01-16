@@ -14,7 +14,7 @@ using mass = unit_t<type_t, ratio_t, mass_dimension>;
 
 // Strong type for kilogram (SI base unit for mass)
 // NOTE: Kilogram is the base SI unit, not gram (unlike length where meter is base)
-struct kilogram : public unit_t<double, std::ratio<1, 1>, mass_dimension>
+struct kilogram final : public unit_t<double, std::ratio<1, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1>, mass_dimension>;
     using _base::_base;
@@ -22,99 +22,99 @@ struct kilogram : public unit_t<double, std::ratio<1, 1>, mass_dimension>
 
 // Metric mass prefixes (applied relative to kilogram)
 // All mass units are defined relative to kilogram (ratio 1/1) as the base
-struct attogram : public unit_t<double, std::ratio<1, 1000000000000000000000>, mass_dimension>
+struct attogram final : public unit_t<double, std::ratio<1, 1000000000000000000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000000000000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct femtogram : public unit_t<double, std::ratio<1, 1000000000000000000>, mass_dimension>
+struct femtogram final : public unit_t<double, std::ratio<1, 1000000000000000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000000000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct picogram : public unit_t<double, std::ratio<1, 1000000000000000>, mass_dimension>
+struct picogram final : public unit_t<double, std::ratio<1, 1000000000000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct nanogram : public unit_t<double, std::ratio<1, 1000000000000>, mass_dimension>
+struct nanogram final : public unit_t<double, std::ratio<1, 1000000000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct microgram : public unit_t<double, std::ratio<1, 1000000000>, mass_dimension>
+struct microgram final : public unit_t<double, std::ratio<1, 1000000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct milligram : public unit_t<double, std::ratio<1, 1000000>, mass_dimension>
+struct milligram final : public unit_t<double, std::ratio<1, 1000000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000000>, mass_dimension>;
     using _base::_base;
 };
 
-struct centigram : public unit_t<double, std::ratio<1, 100000>, mass_dimension>
+struct centigram final : public unit_t<double, std::ratio<1, 100000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 100000>, mass_dimension>;
     using _base::_base;
 };
 
-struct decigram : public unit_t<double, std::ratio<1, 10000>, mass_dimension>
+struct decigram final : public unit_t<double, std::ratio<1, 10000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 10000>, mass_dimension>;
     using _base::_base;
 };
 
 // gram is 1/1000 of kilogram
-struct gram : public unit_t<double, std::ratio<1, 1000>, mass_dimension>
+struct gram final : public unit_t<double, std::ratio<1, 1000>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000>, mass_dimension>;
     using _base::_base;
 };
 
-struct decagram : public unit_t<double, std::ratio<1, 100>, mass_dimension>
+struct decagram final : public unit_t<double, std::ratio<1, 100>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 100>, mass_dimension>;
     using _base::_base;
 };
 
-struct hectogram : public unit_t<double, std::ratio<1, 10>, mass_dimension>
+struct hectogram final : public unit_t<double, std::ratio<1, 10>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 10>, mass_dimension>;
     using _base::_base;
 };
 
 // Larger mass units
-struct megagram : public unit_t<double, std::ratio<1000, 1>, mass_dimension>
+struct megagram final : public unit_t<double, std::ratio<1000, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1000, 1>, mass_dimension>;
     using _base::_base;
 };
 
-struct gigagram : public unit_t<double, std::ratio<1000000, 1>, mass_dimension>
+struct gigagram final : public unit_t<double, std::ratio<1000000, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1000000, 1>, mass_dimension>;
     using _base::_base;
 };
 
-struct teragram : public unit_t<double, std::ratio<1000000000, 1>, mass_dimension>
+struct teragram final : public unit_t<double, std::ratio<1000000000, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1000000000, 1>, mass_dimension>;
     using _base::_base;
 };
 
-struct petagram : public unit_t<double, std::ratio<1000000000000, 1>, mass_dimension>
+struct petagram final : public unit_t<double, std::ratio<1000000000000, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1000000000000, 1>, mass_dimension>;
     using _base::_base;
 };
 
-struct exagram : public unit_t<double, std::ratio<1000000000000000, 1>, mass_dimension>
+struct exagram final : public unit_t<double, std::ratio<1000000000000000, 1>, mass_dimension>
 {
     using _base = unit_t<double, std::ratio<1000000000000000, 1>, mass_dimension>;
     using _base::_base;

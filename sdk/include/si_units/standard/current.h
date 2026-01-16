@@ -13,80 +13,80 @@ template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using current = unit_t<type_t, ratio_t, current_dimension>;
 
 // Strong type for ampere (SI base unit)
-struct ampere : public unit_t<double, std::ratio<1, 1>, current_dimension>
+struct ampere final : public unit_t<double, std::ratio<1, 1>, current_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1>, current_dimension>;
     using _base::_base;
 };
 
 // Metric current prefixes (strong types)
-struct attoampere : public unit_t<double, std::atto, current_dimension>
+struct attoampere final : public unit_t<double, std::atto, current_dimension>
 {
     using _base = unit_t<double, std::atto, current_dimension>;
     using _base::_base;
 };
 
-struct femtoampere : public unit_t<double, std::femto, current_dimension>
+struct femtoampere final : public unit_t<double, std::femto, current_dimension>
 {
     using _base = unit_t<double, std::femto, current_dimension>;
     using _base::_base;
 };
 
-struct picoampere : public unit_t<double, std::pico, current_dimension>
+struct picoampere final : public unit_t<double, std::pico, current_dimension>
 {
     using _base = unit_t<double, std::pico, current_dimension>;
     using _base::_base;
 };
 
-struct nanoampere : public unit_t<double, std::nano, current_dimension>
+struct nanoampere final : public unit_t<double, std::nano, current_dimension>
 {
     using _base = unit_t<double, std::nano, current_dimension>;
     using _base::_base;
 };
 
-struct microampere : public unit_t<double, std::micro, current_dimension>
+struct microampere final : public unit_t<double, std::micro, current_dimension>
 {
     using _base = unit_t<double, std::micro, current_dimension>;
     using _base::_base;
 };
 
-struct milliampere : public unit_t<double, std::milli, current_dimension>
+struct milliampere final : public unit_t<double, std::milli, current_dimension>
 {
     using _base = unit_t<double, std::milli, current_dimension>;
     using _base::_base;
 };
 
-struct centiampere : public unit_t<double, std::centi, current_dimension>
+struct centiampere final : public unit_t<double, std::centi, current_dimension>
 {
     using _base = unit_t<double, std::centi, current_dimension>;
     using _base::_base;
 };
 
-struct deciampere : public unit_t<double, std::deci, current_dimension>
+struct deciampere final : public unit_t<double, std::deci, current_dimension>
 {
     using _base = unit_t<double, std::deci, current_dimension>;
     using _base::_base;
 };
 
-struct decaampere : public unit_t<double, std::deca, current_dimension>
+struct decaampere final : public unit_t<double, std::deca, current_dimension>
 {
     using _base = unit_t<double, std::deca, current_dimension>;
     using _base::_base;
 };
 
-struct hectoampere : public unit_t<double, std::hecto, current_dimension>
+struct hectoampere final : public unit_t<double, std::hecto, current_dimension>
 {
     using _base = unit_t<double, std::hecto, current_dimension>;
     using _base::_base;
 };
 
-struct kiloampere : public unit_t<double, std::kilo, current_dimension>
+struct kiloampere final : public unit_t<double, std::kilo, current_dimension>
 {
     using _base = unit_t<double, std::kilo, current_dimension>;
     using _base::_base;
 };
 
-struct megaampere : public unit_t<double, std::mega, current_dimension>
+struct megaampere final : public unit_t<double, std::mega, current_dimension>
 {
     using _base = unit_t<double, std::mega, current_dimension>;
     using _base::_base;

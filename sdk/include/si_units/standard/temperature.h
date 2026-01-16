@@ -13,80 +13,80 @@ template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using temperature = unit_t<type_t, ratio_t, temperature_dimension>;
 
 // Strong type for kelvin (SI base unit)
-struct kelvin : public unit_t<double, std::ratio<1, 1>, temperature_dimension>
+struct kelvin final : public unit_t<double, std::ratio<1, 1>, temperature_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1>, temperature_dimension>;
     using _base::_base;
 };
 
 // Metric temperature prefixes (strong types)
-struct attokelvin : public unit_t<double, std::atto, temperature_dimension>
+struct attokelvin final : public unit_t<double, std::atto, temperature_dimension>
 {
     using _base = unit_t<double, std::atto, temperature_dimension>;
     using _base::_base;
 };
 
-struct femtokelvin : public unit_t<double, std::femto, temperature_dimension>
+struct femtokelvin final : public unit_t<double, std::femto, temperature_dimension>
 {
     using _base = unit_t<double, std::femto, temperature_dimension>;
     using _base::_base;
 };
 
-struct picokelvin : public unit_t<double, std::pico, temperature_dimension>
+struct picokelvin final : public unit_t<double, std::pico, temperature_dimension>
 {
     using _base = unit_t<double, std::pico, temperature_dimension>;
     using _base::_base;
 };
 
-struct nanokelvin : public unit_t<double, std::nano, temperature_dimension>
+struct nanokelvin final : public unit_t<double, std::nano, temperature_dimension>
 {
     using _base = unit_t<double, std::nano, temperature_dimension>;
     using _base::_base;
 };
 
-struct microkelvin : public unit_t<double, std::micro, temperature_dimension>
+struct microkelvin final : public unit_t<double, std::micro, temperature_dimension>
 {
     using _base = unit_t<double, std::micro, temperature_dimension>;
     using _base::_base;
 };
 
-struct millikelvin : public unit_t<double, std::milli, temperature_dimension>
+struct millikelvin final : public unit_t<double, std::milli, temperature_dimension>
 {
     using _base = unit_t<double, std::milli, temperature_dimension>;
     using _base::_base;
 };
 
-struct centikelvin : public unit_t<double, std::centi, temperature_dimension>
+struct centikelvin final : public unit_t<double, std::centi, temperature_dimension>
 {
     using _base = unit_t<double, std::centi, temperature_dimension>;
     using _base::_base;
 };
 
-struct decikelvin : public unit_t<double, std::deci, temperature_dimension>
+struct decikelvin final : public unit_t<double, std::deci, temperature_dimension>
 {
     using _base = unit_t<double, std::deci, temperature_dimension>;
     using _base::_base;
 };
 
-struct decakelvin : public unit_t<double, std::deca, temperature_dimension>
+struct decakelvin final : public unit_t<double, std::deca, temperature_dimension>
 {
     using _base = unit_t<double, std::deca, temperature_dimension>;
     using _base::_base;
 };
 
-struct hectokelvin : public unit_t<double, std::hecto, temperature_dimension>
+struct hectokelvin final : public unit_t<double, std::hecto, temperature_dimension>
 {
     using _base = unit_t<double, std::hecto, temperature_dimension>;
     using _base::_base;
 };
 
-struct kilokelvin : public unit_t<double, std::kilo, temperature_dimension>
+struct kilokelvin final : public unit_t<double, std::kilo, temperature_dimension>
 {
     using _base = unit_t<double, std::kilo, temperature_dimension>;
     using _base::_base;
 };
 
-struct megakelvin : public unit_t<double, std::mega, temperature_dimension>
+struct megakelvin final : public unit_t<double, std::mega, temperature_dimension>
 {
     using _base = unit_t<double, std::mega, temperature_dimension>;
     using _base::_base;

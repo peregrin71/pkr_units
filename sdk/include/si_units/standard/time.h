@@ -13,80 +13,80 @@ template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using time = unit_t<type_t, ratio_t, time_dimension>;
 
 // Strong type for second (SI base unit)
-struct second : public unit_t<double, std::ratio<1, 1>, time_dimension>
+struct second final : public unit_t<double, std::ratio<1, 1>, time_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1>, time_dimension>;
     using _base::_base;
 };
 
 // Metric time prefixes (strong types)
-struct attosecond : public unit_t<double, std::atto, time_dimension>
+struct attosecond final : public unit_t<double, std::atto, time_dimension>
 {
     using _base = unit_t<double, std::atto, time_dimension>;
     using _base::_base;
 };
 
-struct femtosecond : public unit_t<double, std::femto, time_dimension>
+struct femtosecond final : public unit_t<double, std::femto, time_dimension>
 {
     using _base = unit_t<double, std::femto, time_dimension>;
     using _base::_base;
 };
 
-struct picosecond : public unit_t<double, std::pico, time_dimension>
+struct picosecond final : public unit_t<double, std::pico, time_dimension>
 {
     using _base = unit_t<double, std::pico, time_dimension>;
     using _base::_base;
 };
 
-struct nanosecond : public unit_t<double, std::nano, time_dimension>
+struct nanosecond final : public unit_t<double, std::nano, time_dimension>
 {
     using _base = unit_t<double, std::nano, time_dimension>;
     using _base::_base;
 };
 
-struct microsecond : public unit_t<double, std::micro, time_dimension>
+struct microsecond final : public unit_t<double, std::micro, time_dimension>
 {
     using _base = unit_t<double, std::micro, time_dimension>;
     using _base::_base;
 };
 
-struct millisecond : public unit_t<double, std::milli, time_dimension>
+struct millisecond final : public unit_t<double, std::milli, time_dimension>
 {
     using _base = unit_t<double, std::milli, time_dimension>;
     using _base::_base;
 };
 
-struct centisecond : public unit_t<double, std::centi, time_dimension>
+struct centisecond final : public unit_t<double, std::centi, time_dimension>
 {
     using _base = unit_t<double, std::centi, time_dimension>;
     using _base::_base;
 };
 
-struct decisecond : public unit_t<double, std::deci, time_dimension>
+struct decisecond final : public unit_t<double, std::deci, time_dimension>
 {
     using _base = unit_t<double, std::deci, time_dimension>;
     using _base::_base;
 };
 
-struct decasecond : public unit_t<double, std::deca, time_dimension>
+struct decasecond final : public unit_t<double, std::deca, time_dimension>
 {
     using _base = unit_t<double, std::deca, time_dimension>;
     using _base::_base;
 };
 
-struct hectosecond : public unit_t<double, std::hecto, time_dimension>
+struct hectosecond final : public unit_t<double, std::hecto, time_dimension>
 {
     using _base = unit_t<double, std::hecto, time_dimension>;
     using _base::_base;
 };
 
-struct kilosecond : public unit_t<double, std::kilo, time_dimension>
+struct kilosecond final : public unit_t<double, std::kilo, time_dimension>
 {
     using _base = unit_t<double, std::kilo, time_dimension>;
     using _base::_base;
 };
 
-struct megasecond : public unit_t<double, std::mega, time_dimension>
+struct megasecond final : public unit_t<double, std::mega, time_dimension>
 {
     using _base = unit_t<double, std::mega, time_dimension>;
     using _base::_base;
