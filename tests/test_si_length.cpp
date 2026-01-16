@@ -108,8 +108,8 @@ TEST_F(SiLengthTest, add_kilometer_to_meter)
     si::kilometer km{1.0};
     si::meter m{500.0};
     auto result = km + m;
-    // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
-    ASSERT_DOUBLE_EQ(result.value(), 1500.0);
+    // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
+    ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
 TEST_F(SiLengthTest, add_meter_to_kilometer)
@@ -143,8 +143,8 @@ TEST_F(SiLengthTest, subtract_meter_from_kilometer)
     si::kilometer km{2.0};
     si::meter m{500.0};
     auto result = km - m;
-    // Result is in canonical unit (meter), so 2km = 2000m, 500m, result = 1500m
-    ASSERT_DOUBLE_EQ(result.value(), 1500.0);
+    // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
+    ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
 TEST_F(SiLengthTest, add_millimeter_to_meter)

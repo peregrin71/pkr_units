@@ -61,38 +61,41 @@ TEST_F(ArithmeticOptimizationsTest, add_same_ratio_millimeters)
 TEST_F(ArithmeticOptimizationsTest, add_different_ratio_meter_kilometer)
 {
     // Non-optimized path: meter (ratio 1/1) + kilometer (ratio 1000/1)
-    // Must convert to canonical (meter)
+    // Result is in LHS type (meter)
     si::meter m{500.0};
     si::kilometer km{1.0};
     auto result = m + km;
     
-    ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // Result in meters
+    ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // 500m + 1000m = 1500m
+    // Result is meter (LHS type), not canonical meter
     ASSERT_EQ(decltype(result)::ratio_type::num, 1);
-    ASSERT_EQ(decltype(result)::ratio_type::den, 1);  // Canonical ratio
+    ASSERT_EQ(decltype(result)::ratio_type::den, 1);
 }
 
 TEST_F(ArithmeticOptimizationsTest, add_different_ratio_kilometer_meter)
 {
     // Non-optimized path: kilometer (ratio 1000/1) + meter (ratio 1/1)
+    // Result is in LHS type (kilometer)
     si::kilometer km{1.0};
     si::meter m{500.0};
     auto result = km + m;
     
-    ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // Result in meters (canonical)
-    ASSERT_EQ(decltype(result)::ratio_type::num, 1);
-    ASSERT_EQ(decltype(result)::ratio_type::den, 1);
+    ASSERT_DOUBLE_EQ(result.value(), 1.5);  // 1km + 0.5km = 1.5km
+    ASSERT_EQ(decltype(result)::ratio_type::num, 1000);
+    ASSERT_EQ(decltype(result)::ratio_type::den, 1);  // LHS ratio (kilometer)
 }
 
 TEST_F(ArithmeticOptimizationsTest, add_different_ratio_millimeter_meter)
 {
     // Non-optimized path: millimeter (ratio 1/1000) + meter (ratio 1/1)
+    // Result is in LHS type (millimeter)
     si::millimeter mm{500.0};
     si::meter m{1.0};
     auto result = mm + m;
     
-    ASSERT_DOUBLE_EQ(result.value(), 1.5);  // Result in meters (canonical)
+    ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // 500mm + 1000mm = 1500mm
     ASSERT_EQ(decltype(result)::ratio_type::num, 1);
-    ASSERT_EQ(decltype(result)::ratio_type::den, 1);
+    ASSERT_EQ(decltype(result)::ratio_type::den, 1000);  // LHS ratio (millimeter)
 }
 
 // ============================================================================
@@ -141,26 +144,27 @@ TEST_F(ArithmeticOptimizationsTest, subtract_same_ratio_millimeters)
 TEST_F(ArithmeticOptimizationsTest, subtract_different_ratio_meter_kilometer)
 {
     // Non-optimized path: meter (ratio 1/1) - kilometer (ratio 1000/1)
-    // Must convert to canonical (meter)
+    // Result is in LHS type (meter)
     si::meter m{1500.0};
     si::kilometer km{1.0};
     auto result = m - km;
     
-    ASSERT_DOUBLE_EQ(result.value(), 500.0);  // Result in meters
+    ASSERT_DOUBLE_EQ(result.value(), 500.0);  // 1500m - 1000m = 500m
     ASSERT_EQ(decltype(result)::ratio_type::num, 1);
-    ASSERT_EQ(decltype(result)::ratio_type::den, 1);  // Canonical ratio
+    ASSERT_EQ(decltype(result)::ratio_type::den, 1);  // LHS ratio (meter)
 }
 
 TEST_F(ArithmeticOptimizationsTest, subtract_different_ratio_kilometer_meter)
 {
     // Non-optimized path: kilometer (ratio 1000/1) - meter (ratio 1/1)
+    // Result is in LHS type (kilometer)
     si::kilometer km{2.0};
     si::meter m{500.0};
     auto result = km - m;
     
-    ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // Result in meters (canonical)
-    ASSERT_EQ(decltype(result)::ratio_type::num, 1);
-    ASSERT_EQ(decltype(result)::ratio_type::den, 1);
+    ASSERT_DOUBLE_EQ(result.value(), 1.5);  // 2km - 0.5km = 1.5km
+    ASSERT_EQ(decltype(result)::ratio_type::num, 1000);
+    ASSERT_EQ(decltype(result)::ratio_type::den, 1);  // LHS ratio (kilometer)
 }
 
 // ============================================================================

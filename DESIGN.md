@@ -85,24 +85,58 @@ struct si_unit_type_impl<length_dimension> {
 
 ## 3. Arithmetic Operations
 
-### 3.1 Canonical Unit Returns
+### 3.1 Addition and Subtraction Return Type (Option 2: LHS Type)
 
-**Decision**: All addition and subtraction operations return results in the **canonical base SI unit** (ratio `<1,1>`):
-- Length operations → `meter`
-- Mass operations → `kilogram`
-- Time operations → `second`
+**Decision**: Addition and subtraction operations return results in the **same unit type as the left-hand side (LHS) operand**, converting the right-hand side as needed:
 
 **Example**:
 ```cpp
-kilometer(5) + decimeter(20)  // → meter(5.002)
-meter(1000) + kilometer(1)     // → meter(2000)
+meter(500) + kilometer(1)    // → meter(1500)      [LHS type: meter]
+kilometer(1) + meter(500)    // → kilometer(1.5)   [LHS type: kilometer]
+millimeter(500) + meter(1)   // → millimeter(1500) [LHS type: millimeter]
+meter(1500) - kilometer(1)   // → meter(500)       [LHS type: meter]
+kilometer(2) - meter(500)    // → kilometer(1.5)   [LHS type: kilometer]
 ```
 
 **Rationale**:
-- **Predictable return type**: Users always know the result dimension without needing type inference
-- **Eliminates ambiguity**: No question about which ratio to use (would it be km, dm, or m?)
-- **Type safety**: Impossible to accidentally mix units of different dimensions
-- **Normalization**: Reduces result type explosion in complex expressions
+- **Predictable return type**: Return type is always determined by LHS operand type
+- **User intent preservation**: The programmer's choice of LHS unit is honored in the result
+- **Intuitive arithmetic**: Matches mathematical expectations (left-hand side "wins")
+- **Eliminates design inconsistency**: Previously, same-ratio operations returned input type, but different-ratio operations returned canonical type—creating unpredictable behavior
+
+**Design Alternatives Considered**:
+
+1. **Option 1 - Always Canonical**: Return canonical SI unit (`meter`, `kilogram`, etc.)
+   - ✓ Normalizes all results
+   - ✗ Loses user's original unit choice
+   - ✗ Unexpected for users coming from physics libraries
+
+2. **Option 2 - LHS Type (Selected)**: Return LHS operand type
+   - ✓ Predictable and intuitive
+   - ✓ Honors user intent
+   - ✓ Consistent across same-ratio and different-ratio cases
+   - ✗ May return non-standard SI units
+
+3. **Option 3 - Document the Behavior**: Keep mixed behavior, document clearly
+   - ✓ Minimal code changes
+   - ✗ Confusing and error-prone for users
+   - ✗ Violates principle of least surprise
+
+**Optimization**: When both operands have **identical ratios**, the operation is optimized:
+```cpp
+// Optimized path: both are kilometers (ratio<1000,1>)
+kilometer(5) + kilometer(3)  // → kilometer(8)
+// No conversion to canonical needed, just add values directly
+```
+
+When ratios differ:
+```cpp
+// Non-optimized path: meter (ratio<1,1>) + kilometer (ratio<1000,1>)
+meter(500) + kilometer(1)
+// 1. Convert both to canonical: 500m + 1000m = 1500m
+// 2. Convert result back to LHS ratio: 1500m → 1500 meters
+// 3. Return: meter(1500)
+```
 
 ### 3.2 Dimension Matching Constraint
 
@@ -153,22 +187,56 @@ meter(5) / second(2)  // → unit_t<..., length:1, time:-1> with value 2.5
 - **Precise ratio arithmetic**: Using `std::ratio` for exact calculations
 - **Type-safe dimensional analysis**: Result dimensions computed at compile-time
 
-### 3.5 Arithmetic Helper Functions
+### 3.5 Arithmetic Helper Functions and Compile-Time Optimizations
 
-**Decision**: Factor arithmetic into standalone functions templated **only on value type and ratios**, not on unit types:
+**Decision**: Factor arithmetic into standalone functions templated **only on value type and ratios**, not on unit types, with compile-time optimization for special cases:
 
 ```cpp
+// Optimized for identical ratios at compile-time
 template<typename type_t, typename ratio_t1, typename ratio_t2>
-constexpr type_t add_canonical(type_t val1, type_t val2) noexcept;
+constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
+{
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        // Same ratio: no conversion needed
+        return val1 + val2;
+    }
+    else
+    {
+        // Different ratios: convert to canonical, add, convert back
+        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical1 + canonical2;
+    }
+}
 
 template<typename type_t>
 constexpr type_t multiply_values(type_t val1, type_t val2) noexcept;
 ```
 
+**Optimization Details**:
+
+1. **Ratio Identity Detection (Multiply/Divide)**:
+   ```cpp
+   // When either operand has ratio<1,1>, avoid std::ratio_multiply/divide
+   std::conditional_t<std::is_same_v<ratio1, std::ratio<1, 1>>, 
+                      ratio2,    // Identity: 1 * X = X
+                      std::conditional_t<std::is_same_v<ratio2, std::ratio<1, 1>>,
+                                         ratio1,  // Identity: X * 1 = X
+                                         std::ratio_multiply<ratio1, ratio2>>>
+   ```
+
+2. **Same-Ratio Fast Path (Add/Subtract)**:
+   ```cpp
+   if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+       return val1 + val2;  // Skip all conversions
+   ```
+
 **Rationale**:
 - **Smaller binary size**: The actual arithmetic is instantiated once per value type (e.g., one for `double`), 
   not once per unit-type pair (could be thousands of instantiations)
-- **Better link-time optimization**: Compiler can inline and optimize pure arithmetic functions more aggressively
+- **Better compile-time optimization**: Using `if constexpr` allows the compiler to eliminate unused branches entirely
+- **Zero runtime overhead**: Optimized paths compile to identical machine code as if written directly
 - **Cleaner separation of concerns**: Type checking in operators, computation in helpers
 - **Easier to profile/optimize**: Arithmetic logic is isolated and simple
 
@@ -179,11 +247,17 @@ operator+(meter, kilometer) → specialized implementation
 operator+(meter, millimeter) → another specialized implementation
 // ... one instantiation per unit pair
 
-// With factoring:
-operator+(meter, kilometer) → delegates to add_canonical<double, ratio<1,1>, std::kilo>
-operator+(meter, millimeter) → delegates to add_canonical<double, ratio<1,1>, std::milli>
+// With factoring and optimization:
+operator+(meter, kilometer) → delegates to add_canonical<double, ratio<1,1>, ratio<1000,1>>
+operator+(meter, millimeter) → delegates to add_canonical<double, ratio<1,1>, ratio<1,1000>>
 // ... one add_canonical per value type, shared across all unit pairs
+// ... same-ratio branch compiled away for identical ratio cases
 ```
+
+**Compile-Time Decision Tree** (Demonstrated in Tests):
+- **Addition/Subtraction**: If both operands have identical ratios → skip conversion; else → convert to canonical, operate, convert back to LHS ratio
+- **Multiplication**: If either operand has ratio<1,1> → use the other ratio directly; else → call std::ratio_multiply
+- **Division**: If both operands have same ratio → result ratio is <1,1>; if denominator is <1,1> → result ratio is numerator ratio; else → call std::ratio_divide
 
 ---
 
@@ -290,7 +364,8 @@ Arithmetic helpers automatically support new types (e.g., `float`, `long double`
 | Decision | Benefits | Trade-offs |
 |----------|----------|-----------|
 | Template specialization for dimension mapping | Faster compilation, extensibility | More boilerplate code |
-| Canonical unit returns | Type predictability | Users lose the original unit scale |
+| LHS-type returns for addition/subtraction | Intuitive, predictable, honors user intent | May return non-canonical units |
+| Compile-time ratio optimization | Zero runtime overhead, smaller binaries | Slightly more complex implementation |
 | Dimension matching only | Type safety | Cannot combine different physical quantities |
 | Arithmetic factoring | Smaller binaries, better optimization | Additional indirection layer |
 | Strong types via inheritance | Type safety, readability | Requires explicit strong type declarations |
