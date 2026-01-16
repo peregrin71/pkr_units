@@ -2,7 +2,7 @@
 // All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
 
 #include <gtest/gtest.h>
-#include <units/impl/current.h>
+#include <si_units/standard/current.h>
 
 using namespace ::testing;
 
@@ -304,3 +304,5 @@ TEST_F(SiCurrentTest, subtract_resulting_in_negative)
     auto result = a1 - a2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
+
+

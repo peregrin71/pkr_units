@@ -2,7 +2,7 @@
 // All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
 
 #include <gtest/gtest.h>
-#include <units/impl/intensity.h>
+#include <si_units/standard/intensity.h>
 
 using namespace ::testing;
 
@@ -304,3 +304,5 @@ TEST_F(SiIntensityTest, subtract_resulting_in_negative)
     auto result = cd1 - cd2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
+
+

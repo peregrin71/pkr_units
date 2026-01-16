@@ -85,3 +85,4 @@ macro(check_build_type_defined)
                             "adding the '-DCMAKE_BUILD_TYPE=<build_type>' argument.")
     endif()
 endmacro()
+

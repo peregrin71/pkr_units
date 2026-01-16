@@ -15,3 +15,4 @@ find_package(GTest REQUIRED CONFIG)
 
 # Add the tests subdirectory
 add_subdirectory(tests)
+

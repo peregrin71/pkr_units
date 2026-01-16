@@ -46,3 +46,4 @@ find_package_handle_standard_args(GTest
                                   REQUIRED_VARS GTest_VERSION
                                   VERSION_VAR GTest_VERSION)
 mark_as_advanced(GTest_FOUND GTest_VERSION)
+

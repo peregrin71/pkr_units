@@ -29,3 +29,4 @@ target_link_libraries(si_units_test PRIVATE GTest::gtest)
 
 # Register the test executable as a test that CTest will run
 add_test(NAME si_units_test COMMAND si_units_test)
+
