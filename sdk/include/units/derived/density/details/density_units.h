@@ -10,6 +10,6 @@ namespace si
 {
 
 // Density dimension: kg·m⁻³
-inline constexpr dimension_t density_v{.mass = 1, .length = -3};
+inline constexpr dimension_t density_dimension{.mass = 1, .length = -3};
 
 } // namespace si

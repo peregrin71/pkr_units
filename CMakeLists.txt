@@ -5,6 +5,9 @@ project(si_units CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Enable testing
+enable_testing()
+
 # Add SDK include directory to global include paths
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 

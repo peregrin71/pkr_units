@@ -8,8 +8,9 @@
 namespace si
 {
 
-// Imperial force units
-using poundal = unit_t<double, std::ratio<45359237, 1000000000>, force_v>;  // 1 pdl = 0.138255 N
-using pound_force = unit_t<double, std::ratio<4448222, 1000000>, force_v>;  // 1 lbf ≈ 4.448 N
+// CGS (Gaussian) magnetic units
+// Gauss (CGS unit for magnetic flux density)
+// 1 Gauss = 10⁻⁴ Tesla
+using gauss = unit_t<double, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
 
 } // namespace si

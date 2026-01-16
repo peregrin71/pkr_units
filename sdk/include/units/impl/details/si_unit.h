@@ -46,7 +46,7 @@ enum class si_unit_type
 template<dimension_t dim_v>
 constexpr si_unit_type get_si_unit_type() noexcept
 {
-    if constexpr (dim_v == length_v)
+    if constexpr (dim_v == length_dimension)
         return si_unit_type::meter;
     else if constexpr (
         dim_v.mass == 1 && dim_v.length == 0 && dim_v.time == 0 && dim_v.current == 0 && dim_v.temperature == 0 && dim_v.amount == 0 &&

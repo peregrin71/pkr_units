@@ -8,8 +8,8 @@
 #include <units/impl/details/si_unit.h>
 #include <units/impl/length.h>
 #include <units/impl/mass.h>
-#include <units/non_si_units/imperial_lengths.h>
-#include <units/non_si_units/imperial_mass.h>
+#include <units/imperial/length.h>
+#include <units/imperial/mass.h>
 
 namespace std
 {

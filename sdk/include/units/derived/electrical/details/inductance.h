@@ -10,13 +10,13 @@ namespace si
 {
 
 // Inductance dimension
-inline constexpr dimension_t inductance_v{2, 1, -2, -2, 0, 0, 0};
+inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
 
 // Inductance units (Henry and derived)
 // Base unit: Henry (H) = kg·m²·s⁻²·A⁻²
-using henry = unit_t<double, std::ratio<1, 1>, inductance_v>;
-using millihenry = unit_t<double, std::ratio<1, 1000>, inductance_v>;
-using microhenry = unit_t<double, std::ratio<1, 1000000>, inductance_v>;
-using nanohenry = unit_t<double, std::ratio<1, 1000000000>, inductance_v>;
+using henry = unit_t<double, std::ratio<1, 1>, inductance_dimension>;
+using millihenry = unit_t<double, std::ratio<1, 1000>, inductance_dimension>;
+using microhenry = unit_t<double, std::ratio<1, 1000000>, inductance_dimension>;
+using nanohenry = unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>;
 
 } // namespace si

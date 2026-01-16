@@ -23,10 +23,14 @@ struct dimension_t
 
 // Common dimension constants
 inline constexpr dimension_t scalar{};
-inline constexpr dimension_t length_v{.length = 1};
-inline constexpr dimension_t mass_v{.mass = 1};
-inline constexpr dimension_t time_v{.time = 1};
-inline constexpr dimension_t frequency_v{.time = -1};
+inline constexpr dimension_t length_dimension{.length = 1};
+inline constexpr dimension_t mass_dimension{.mass = 1};
+inline constexpr dimension_t time_dimension{.time = 1};
+inline constexpr dimension_t current_dimension{.current = 1};
+inline constexpr dimension_t temperature_dimension{.temperature = 1};
+inline constexpr dimension_t amount_dimension{.amount = 1};
+inline constexpr dimension_t intensity_dimension{.intensity = 1};
+inline constexpr dimension_t frequency_dimension{.time = -1};
 
 } // namespace si
 
