@@ -40,40 +40,63 @@ enum class si_unit_type
     scalar        // For dimensionless quantities
 };
 
-// Helper to get the SI unit type from a dimension
-// Todo in derived units we need to add specializations for derived units instead of solving by constexpr if's
-// Todo shouldn't si_unit_type meter etc, be derived instead of just being weak type aliases? (this should also help with formatting etc since we can use template specializations directly))
+// Helper implementation to get the SI unit type from a dimension
+// Uses template specialization for faster compilation and better extensibility
+template<dimension_t dim_v>
+struct si_unit_type_impl
+{
+    static constexpr si_unit_type value = si_unit_type::scalar;
+};
+
+// Specializations for base SI units
+template<>
+struct si_unit_type_impl<length_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::meter;
+};
+
+template<>
+struct si_unit_type_impl<mass_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::kilogram;
+};
+
+template<>
+struct si_unit_type_impl<time_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::second;
+};
+
+template<>
+struct si_unit_type_impl<current_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::ampere;
+};
+
+template<>
+struct si_unit_type_impl<temperature_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::kelvin;
+};
+
+template<>
+struct si_unit_type_impl<amount_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::mole;
+};
+
+template<>
+struct si_unit_type_impl<intensity_dimension>
+{
+    static constexpr si_unit_type value = si_unit_type::candela;
+};
+
+// Primary function template to get the SI unit type from a dimension
+// Dispatches to specializations for faster compilation
 template<dimension_t dim_v>
 constexpr si_unit_type get_si_unit_type() noexcept
 {
-    if constexpr (dim_v == length_dimension)
-        return si_unit_type::meter;
-    else if constexpr (
-        dim_v.mass == 1 && dim_v.length == 0 && dim_v.time == 0 && dim_v.current == 0 && dim_v.temperature == 0 && dim_v.amount == 0 &&
-        dim_v.intensity == 0)
-        return si_unit_type::kilogram;
-    else if constexpr (
-        dim_v.time == 1 && dim_v.length == 0 && dim_v.mass == 0 && dim_v.current == 0 && dim_v.temperature == 0 && dim_v.amount == 0 &&
-        dim_v.intensity == 0)
-        return si_unit_type::second;
-    else if constexpr (
-        dim_v.current == 1 && dim_v.length == 0 && dim_v.mass == 0 && dim_v.time == 0 && dim_v.temperature == 0 && dim_v.amount == 0 &&
-        dim_v.intensity == 0)
-        return si_unit_type::ampere;
-    else if constexpr (
-        dim_v.temperature == 1 && dim_v.length == 0 && dim_v.mass == 0 && dim_v.time == 0 && dim_v.current == 0 && dim_v.amount == 0 &&
-        dim_v.intensity == 0)
-        return si_unit_type::kelvin;
-    else if constexpr (
-        dim_v.amount == 1 && dim_v.length == 0 && dim_v.mass == 0 && dim_v.time == 0 && dim_v.current == 0 && dim_v.temperature == 0 &&
-        dim_v.intensity == 0)
-        return si_unit_type::mole;
-    else if constexpr (
-        dim_v.intensity == 1 && dim_v.length == 0 && dim_v.mass == 0 && dim_v.time == 0 && dim_v.current == 0 && dim_v.temperature == 0 &&
-        dim_v.amount == 0)
-        return si_unit_type::candela;
-    else
-        return si_unit_type::scalar;
+    return si_unit_type_impl<dim_v>::value;
 }
 
 // Helper to get the SI unit symbol, TOOD move to seperate formatting header
@@ -143,42 +166,6 @@ public:
     constexpr unit_t(unit_t&&) noexcept = default;
     constexpr unit_t& operator=(const unit_t&) noexcept = default;
     constexpr unit_t& operator=(unit_t&&) noexcept = default;
-
-    // Add quantities with different ratios, result in left-hand side ratio
-    template<typename ratio_u>
-    constexpr unit_t<type_t, ratio_t, dim_v> operator+(const unit_t<type_t, ratio_u, dim_v>& other) const noexcept
-    {
-        // Convert other to this ratio using std::ratio_divide for precision
-        // conversion_ratio = ratio_u / ratio_t (exact rational arithmetic)
-        using conversion_ratio = std::ratio_divide<ratio_u, ratio_t>;
-        
-        // Apply conversion carefully: divide first, then multiply to preserve precision
-        // This avoids computing large intermediate values like (1e9 * 1) before dividing by 1e9
-        type_t converted_value = 
-            (other.value() / static_cast<type_t>(conversion_ratio::den)) * 
-            static_cast<type_t>(conversion_ratio::num);
-        
-        type_t result_value = m_value + converted_value;
-        return unit_t<type_t, ratio_t, dim_v>(result_value);
-    }
-
-    // Subtract quantities with different ratios, result in left-hand side ratio
-    template<typename ratio_u>
-    constexpr unit_t<type_t, ratio_t, dim_v> operator-(const unit_t<type_t, ratio_u, dim_v>& other) const noexcept
-    {
-        // Convert other to this ratio using std::ratio_divide for precision
-        // conversion_ratio = ratio_u / ratio_t (exact rational arithmetic)
-        using conversion_ratio = std::ratio_divide<ratio_u, ratio_t>;
-        
-        // Apply conversion carefully: divide first, then multiply to preserve precision
-        // This avoids computing large intermediate values like (1e9 * 1) before dividing by 1e9
-        type_t converted_value = 
-            (other.value() / static_cast<type_t>(conversion_ratio::den)) * 
-            static_cast<type_t>(conversion_ratio::num);
-        
-        type_t result_value = m_value - converted_value;
-        return unit_t<type_t, ratio_t, dim_v>(result_value);
-    }
 
     // Multiply by another si_unit quantity (combine dimensions and ratios)
     template<typename ratio_u, dimension_t dim_u>
@@ -268,6 +255,7 @@ struct is_si_unit : std::false_type
 {
 };
 
+// Specialization for direct unit_t types
 template<typename type_t, typename ratio_t, dimension_t dim_v>
 struct is_si_unit<unit_t<type_t, ratio_t, dim_v>> : std::true_type
 {
@@ -277,9 +265,27 @@ struct is_si_unit<unit_t<type_t, ratio_t, dim_v>> : std::true_type
     static constexpr dimension_t value_dimension = dim_v;
 };
 
+// Specialization for derived types that inherit from unit_t
+// (e.g., struct meter : public unit_t<...>)
+template<typename T>
+requires std::is_base_of_v<typename T::_base, T>
+struct is_si_unit<T> : std::true_type
+{
+    static constexpr bool value = true;
+    using value_type = typename T::_base::value_type;
+    using ratio_type = typename T::_base::ratio_type;
+    static constexpr dimension_t value_dimension = T::_base::dimension::value;
+};
+
 // Concept for any si_unit type
 template<typename T>
 concept si_unit_type = is_si_unit<T>::value;
+
+// Include arithmetic operations
+#include "add_si_units.h"
+#include "subtract_si_units.h"
+#include "multiply_si_units.h"
+#include "divide_si_units.h"
 
 } // namespace si
 

@@ -108,8 +108,8 @@ TEST_F(SiLengthTest, add_kilometer_to_meter)
     si::kilometer km{1.0};
     si::meter m{500.0};
     auto result = km + m;
-    // Result is in km (LHS ratio), so 500m = 0.5km, result = 1.5km
-    ASSERT_DOUBLE_EQ(result.value(), 1.5);
+    // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
+    ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
 TEST_F(SiLengthTest, add_meter_to_kilometer)
@@ -117,7 +117,7 @@ TEST_F(SiLengthTest, add_meter_to_kilometer)
     si::meter m{500.0};
     si::kilometer km{1.0};
     auto result = m + km;
-    // Result is in m (LHS ratio), so 1km = 1000m, result = 1500m
+    // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -143,8 +143,8 @@ TEST_F(SiLengthTest, subtract_meter_from_kilometer)
     si::kilometer km{2.0};
     si::meter m{500.0};
     auto result = km - m;
-    // Result is in km (LHS ratio), so 500m = 0.5km, result = 1.5km
-    ASSERT_DOUBLE_EQ(result.value(), 1.5);
+    // Result is in canonical unit (meter), so 2km = 2000m, 500m, result = 1500m
+    ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
 TEST_F(SiLengthTest, add_millimeter_to_meter)
@@ -152,7 +152,7 @@ TEST_F(SiLengthTest, add_millimeter_to_meter)
     si::meter m{1.0};
     si::millimeter mm{500.0};
     auto result = m + mm;
-    // Result is in m, 500mm = 0.5m, result = 1.5m
+    // Result is in canonical unit (meter), so 500mm = 0.5m, result = 1.5m
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
@@ -379,6 +379,24 @@ TEST_F(SiLengthTest, constexpr_meter_multiplication_and_division)
     static_assert(decltype(area)::dimension::value.length == 2, "Area should have length dimension of 2");
     static_assert(decltype(area2)::dimension::value.length == 2, "Area should have length dimension of 2");
     static_assert(decltype(volume)::dimension::value.length == 3, "Volume should have length dimension of 3");
+}
+
+TEST_F(SiLengthTest, add_to)
+{
+    si::decimeter m1{3.0};       // 3 decimeters = 0.3 meters
+    si::kilometer m2{2.0};       // 2 kilometers = 2000 meters
+    auto result = si::add<si::millimeter>(m1, m2);
+    // 0.3 + 2000 = 2000.3 meters = 2000300 millimeters
+    ASSERT_DOUBLE_EQ(result.value(), 2000300.0);
+}
+
+TEST_F(SiLengthTest, constexpr_add_to)
+{
+    constexpr si::meter m1{1.0};           // 1 meter
+    constexpr si::decimeter m2{30.0};      // 30 decimeters = 3 meters
+    constexpr auto result = si::add<si::millimeter>(m1, m2);
+    // 1 + 3 = 4 meters = 4000 millimeters (power of 2 in meters domain)
+    static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
 }
 
 
