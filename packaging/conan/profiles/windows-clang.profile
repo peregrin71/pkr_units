@@ -1,5 +1,6 @@
 # Clang Compiler Profile (Windows)
 # For LLVM Clang on Windows x86_64
+# Uses Ninja generator for direct clang compilation
 
 [settings]
 os=Windows
@@ -10,4 +11,10 @@ compiler.libcxx=c++_shared
 compiler.cppstd=20
 build_type=Debug
 
+[conf]
+tools.cmake.cmaketoolchain:generator=Ninja
+tools.env.virtualenv:powershell=True
+
 [buildenv]
+CC=clang
+CXX=clang
