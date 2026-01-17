@@ -1,6 +1,3 @@
-// Copyright (c) 2026 by Thermo Fisher Scientific
-// All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
-
 #pragma once
 
 #include <ratio>
@@ -287,6 +284,7 @@ concept si_unit_type = is_si_unit<T>::value;
 #include "subtract_si_units.h"
 #include "multiply_si_units.h"
 #include "divide_si_units.h"
+#include "compare_si_units.h"
 
 PKR_SI_NAMESPACE_END
 

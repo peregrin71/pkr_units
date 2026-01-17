@@ -1,6 +1,3 @@
-// Copyright (c) 2026 by Thermo Fisher Scientific
-// All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
-
 #pragma once
 
 #include "arithmetic_helpers.h"
@@ -59,5 +56,19 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
     using result_type = unit_t<value_type, combined_ratio, combined_dim>;
     return result_type{si::multiply_values(lhs.value(), rhs.value())};
 }
+
+// Scalar * unit operator (right-hand scalar multiplication)
+// Allows expressions like 3.0 * meter(5)
+template<si_unit_type T>
+requires std::is_floating_point_v<typename is_si_unit<T>::value_type>
+constexpr auto operator*(typename is_si_unit<T>::value_type scalar, const T& rhs) noexcept
+{
+    using value_type = typename is_si_unit<T>::value_type;
+    using ratio_type = typename is_si_unit<T>::ratio_type;
+    constexpr dimension_t dim = is_si_unit<T>::value_dimension;
+    
+    return unit_t<value_type, ratio_type, dim>{scalar * rhs.value()};
+}
+
 
 

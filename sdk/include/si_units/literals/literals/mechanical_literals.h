@@ -1,6 +1,3 @@
-// Copyright (c) 2026 by Thermo Fisher Scientific
-// All rights reserved. This file includes confidential and proprietary information of Thermo Fisher Scientific
-
 #pragma once
 
 #include "mechanical.h"
