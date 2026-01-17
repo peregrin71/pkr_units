@@ -280,4 +280,3 @@ set(CMAKE_MODULE_PATH ${gtest_BUILD_DIRS_DEBUG} ${CMAKE_MODULE_PATH})
 
 ########## For the modules (FindXXX)
 set(gtest_LIBRARIES_DEBUG gtest::gtest)
-

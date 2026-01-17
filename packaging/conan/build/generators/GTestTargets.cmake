@@ -1,5 +1,5 @@
 # Load the debug and release variables
-file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/module-GTest-*-data.cmake")
+file(GLOB DATA_FILES "${CMAKE_CURRENT_LIST_DIR}/GTest-*-data.cmake")
 
 foreach(f ${DATA_FILES})
     include(${f})
@@ -26,7 +26,7 @@ if(NOT TARGET GTest::Main)
     set_property(TARGET GTest::Main PROPERTY INTERFACE_LINK_LIBRARIES GTest::gtest_main)
 endif()
 # Load the debug and release library finders
-file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/module-GTest-Target-*.cmake")
+file(GLOB CONFIG_FILES "${CMAKE_CURRENT_LIST_DIR}/GTest-Target-*.cmake")
 
 foreach(f ${CONFIG_FILES})
     include(${f})

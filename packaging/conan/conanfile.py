@@ -48,7 +48,12 @@ class SiUnitsConan(ConanFile):
         self.requires("gtest/1.15.0")
 
     def layout(self):
-        cmake_layout(self)
+        # Output generators to the build directory (.vs_build)
+        # Use absolute path relative to project root
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        generators_path = os.path.join(project_root, ".vs_build", "generators")
+        self.folders.generators = generators_path
 
     def build(self):
         cmake = CMake(self)

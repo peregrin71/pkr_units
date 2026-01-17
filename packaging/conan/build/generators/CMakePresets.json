@@ -25,8 +25,8 @@
                 "value": "x64",
                 "strategy": "external"
             },
-            "toolchainFile": "C:\\Data\\projects\\si_units\\build\\generators\\conan_toolchain.cmake",
-            "binaryDir": "C:\\Data\\projects\\si_units\\build"
+            "toolchainFile": "C:\\Data\\projects\\si_units\\packaging\\conan\\build\\generators\\conan_toolchain.cmake",
+            "binaryDir": "C:\\Data\\projects\\si_units\\packaging\\conan\\build"
         }
     ],
     "buildPresets": [

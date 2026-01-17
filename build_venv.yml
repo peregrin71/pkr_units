@@ -1,0 +1,26 @@
+# SI Units Build Environment
+# Environment name: build_si_units_1.0
+# Auto-generated: Do not edit manually
+# Update tool versions in build/setup_build_venv.ps1 or build/setup_build_venv.sh
+
+name: build_si_units_1.0
+channels:
+  - conda-forge
+dependencies:
+  # Core tools
+  - python=3.12
+  - cmake>=4.2
+  - conan>=2.24
+  
+  # LLVM/Clang toolchain
+  - llvm-tools>=21
+  - clang>=21
+  - clang-tools>=21
+  - lld>=21
+  
+  # GCC toolchain
+  - gcc>=13
+  - gxx>=13
+  
+  # Build utilities
+  - ninja>=1.13
