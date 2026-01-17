@@ -13,14 +13,14 @@ ENV_NAME="build_si_units_1.0"
 CONDA_CHANNEL="conda-forge"
 
 declare -A TOOL_VERSIONS=(
-    ["python"]="3.12"
+    ["clang"]="21"
     ["cmake"]="4.2"
     ["conan2"]="2.24"
-    ["llvm"]="21"
-    ["clang"]="21"
     ["gcc"]="13"
     ["gxx"]="13"
+    ["llvm"]="21"
     ["ninja"]="1.13"
+    ["python"]="3.12"
 )
 
 # ============================================================================
@@ -173,9 +173,10 @@ dependencies:
   - clang-tools>=${TOOL_VERSIONS[clang]}
   - lld>=${TOOL_VERSIONS[llvm]}
   
-  # GCC toolchain
+  # GCC toolchain with build tools
   - gcc>=${TOOL_VERSIONS[gcc]}
   - gxx>=${TOOL_VERSIONS[gxx]}
+  - binutils
   
   # Build utilities
   - ninja>=${TOOL_VERSIONS[ninja]}
@@ -210,14 +211,12 @@ test_versions_match() {
         return 1
     fi
 
-    # List of core tools to verify (the ones we directly configure in TOOL_VERSIONS)
-    local core_tools=("python" "cmake" "conan2" "gcc" "gxx" "ninja")
-    
-    # Check each core tool exists and matches
-    for tool in "${core_tools[@]}"; do
+    # Check all tools in TOOL_VERSIONS against what's in the yml file
+    for tool in "${!TOOL_VERSIONS[@]}"; do
         local expected_version="${TOOL_VERSIONS[$tool]}"
         
-        if [ -z "$expected_version" ]; then
+        # Skip LLVM/clang compound checks - they're checked separately
+        if [ "$tool" = "llvm" ] || [ "$tool" = "clang" ]; then
             continue
         fi
         
@@ -233,12 +232,14 @@ test_versions_match() {
             sed "s/.*$package_name[=>]*\([0-9.]*\).*/\1/" | head -1)
         
         if [ -z "$file_version" ]; then
-            # Tool is new, not in yaml file
+            # Tool is missing from yaml file
+            echo "Tool '$package_name' missing from build_venv.yml" >&2
             return 1
         fi
         
         # Check version match
         if [ "${expected_version}" != "${file_version}" ]; then
+            echo "Version mismatch for '$package_name': expected ${expected_version}, found ${file_version}" >&2
             return 1
         fi
     done

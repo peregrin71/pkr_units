@@ -28,7 +28,18 @@ def install(project_root: Path, build_path: Path, configuration: str, compiler: 
         build_path: Build output directory (where generators will be written)
         configuration: Build configuration (Debug or Release)
         compiler: Compiler to use (msvc, clang, gcc)
+        
+    Raises:
+        BuildException: If GCC compiler is requested (not supported on Windows)
     """
+    # Block GCC on Windows - not supported
+    if compiler.lower() == "gcc":
+        raise BuildException(
+            "ERROR: GCC compilation on Windows is NOT SUPPORTED\n"
+            "GCC on Windows uses a cross-compiler configuration that does not work for native development.\n"
+            "GCC builds work best on Linux. Use MSVC or Clang on Windows instead."
+        )
+    
     conanfile = Path(project_root) / "packaging" / "conan" / "conanfile.py"
     
     if not conanfile.exists():

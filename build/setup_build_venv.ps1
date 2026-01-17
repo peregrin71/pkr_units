@@ -17,14 +17,14 @@ $ENV_NAME = "build_si_units_1.0"
 $CONDA_CHANNEL = "conda-forge"
 
 $TOOL_VERSIONS = @{
-    "python"  = "3.12"
+    "clang"   = "21"
     "cmake"   = "4.2"
     "conan2"  = "2.24"
-    "llvm"    = "21"
-    "clang"   = "21"
     "gcc"     = "13"
     "gxx"     = "13"
+    "llvm"    = "21"
     "ninja"   = "1.13"
+    "python"  = "3.12"
 }
 
 # ============================================================================
@@ -194,9 +194,10 @@ dependencies:
   - clang-tools>=$($TOOL_VERSIONS['clang'])
   - lld>=$($TOOL_VERSIONS['llvm'])
   
-  # GCC toolchain
+  # GCC toolchain with build tools
   - gcc>=$($TOOL_VERSIONS['gcc'])
   - gxx>=$($TOOL_VERSIONS['gxx'])
+  - binutils
   
   # Build utilities
   - ninja>=$($TOOL_VERSIONS['ninja'])
@@ -247,27 +248,35 @@ function Test-VersionsMatch {
         return $false
     }
 
-    # List of core tools to verify (the ones we directly configure in TOOL_VERSIONS)
-    $coreTools = @("python", "cmake", "conan2", "gcc", "gxx", "ninja")
+    # Check all tools in TOOL_VERSIONS against what's in the yml file
+    # Special mappings for tools with different names in yml vs TOOL_VERSIONS
+    $toolMappings = @{
+        "conan2"  = "conan"           # Internal name vs package name
+        # All other tools map directly: gcc->gcc, python->python, etc.
+    }
     
-    # Check all core tools exist in current and file versions
-    foreach ($tool in $coreTools) {
-        # Map internal names to package names
-        # conan2 -> conan (internal naming for clarity, package is called conan)
-        $packageName = if ($tool -eq "conan2") { "conan" } else { $tool }
-        
-        if (-not $CurrentVersions.ContainsKey($tool)) {
-            # Tool missing from current config
-            return $false
+    foreach ($tool in $CurrentVersions.Keys) {
+        # Skip LLVM/clang compound checks - they're checked separately
+        if ($tool -eq "llvm" -or $tool -eq "clang") {
+            continue
         }
         
+        # Get the package name (handles special cases like conan2->conan)
+        $packageName = if ($toolMappings.ContainsKey($tool)) { 
+            $toolMappings[$tool] 
+        } else { 
+            $tool 
+        }
+        
+        # Check if tool exists in file versions
         if (-not $FileVersions.ContainsKey($packageName)) {
-            # Tool is new, not in yaml file
+            Write-Info "  Tool '$packageName' missing from build_venv.yml"
             return $false
         }
         
+        # Check if version matches (exact match required)
         if ($CurrentVersions[$tool] -ne $FileVersions[$packageName]) {
-            # Version mismatch
+            Write-Info "  Version mismatch for '$packageName': expected $($CurrentVersions[$tool]), found $($FileVersions[$packageName])"
             return $false
         }
     }

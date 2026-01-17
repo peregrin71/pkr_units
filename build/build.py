@@ -142,8 +142,8 @@ def main():
     )
     parser.add_argument(
         "--compilers",
-        default="msvc",
-        help="Comma-separated list of compilers to build with (msvc,clang,gcc). Default: msvc",
+        default="msvc,clang",
+        help="Comma-separated list of compilers to build with (msvc,clang,gcc). Default: msvc,clang",
     )
     parser.add_argument(
         "--clean", action="store_true", help="Clean build directory before building"

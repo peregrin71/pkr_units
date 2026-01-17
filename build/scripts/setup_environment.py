@@ -17,14 +17,14 @@ CONDA_ENV_NAME = "build_si_units_1.0"
 
 # Tool versions (must match setup_build_venv.ps1 and setup_build_venv.sh)
 TOOL_VERSIONS = {
-    "python": "3.12",
+    "clang": "21",
     "cmake": "4.2",
     "conan2": "2.24",
-    "llvm": "21",
-    "clang": "21",
     "gcc": "13",
     "gxx": "13",
+    "llvm": "21",
     "ninja": "1.13",
+    "python": "3.12",
 }
 
 

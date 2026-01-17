@@ -18,9 +18,10 @@ dependencies:
   - clang-tools>=21
   - lld>=21
   
-  # GCC toolchain
+  # GCC toolchain with build tools
   - gcc>=13
   - gxx>=13
+  - binutils
   
   # Build utilities
   - ninja>=1.13
