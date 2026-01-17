@@ -5,13 +5,14 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Density dimension: kg·m⁻³
 inline constexpr dimension_t density_dimension{.mass = 1, .length = -3};
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

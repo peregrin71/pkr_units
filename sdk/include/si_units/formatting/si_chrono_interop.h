@@ -5,8 +5,9 @@
 
 #include <chrono>
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 // Convert from std::chrono::duration to si_unit with time dimension
 template<typename rep, typename period>
@@ -57,7 +58,7 @@ constexpr std::chrono::duration<type_t, ratio_t> to_chrono(const unit_t<type_t, 
 
 } // namespace details
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

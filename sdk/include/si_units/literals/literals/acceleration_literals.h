@@ -4,6 +4,7 @@
 #pragma once
 
 #include "acceleration.h"
+#include "../../namespace_config.h"
 
 namespace si::si_literals
 {
@@ -33,7 +34,7 @@ namespace si::si_literals
         return si::standard_gravity{static_cast<double>(value});
     }
 
-} // namespace si::si_literals
+PKR_SI_NAMESPACE_END::si_literals
 
 
 

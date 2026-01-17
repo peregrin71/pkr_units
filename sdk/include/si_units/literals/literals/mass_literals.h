@@ -4,6 +4,7 @@
 #pragma once
 
 #include "mass.h"
+#include "../../namespace_config.h"
 
 namespace si::si_literals
 {
@@ -130,7 +131,7 @@ namespace si::si_literals
         return si::long_ton{static_cast<double>(value});
     }
 
-} // namespace si::si_literals
+PKR_SI_NAMESPACE_END::si_literals
 
 
 

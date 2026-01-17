@@ -4,6 +4,7 @@
 #pragma once
 
 #include "length.h"
+#include "../../namespace_config.h"
 
 namespace si::si_literals
 {

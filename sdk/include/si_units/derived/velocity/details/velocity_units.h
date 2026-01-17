@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Velocity dimension
@@ -26,6 +27,6 @@ using kilometers_per_hour = unit_t<double, std::ratio<5, 18>, velocity_dimension
 // Metric centimeters per second
 using centimeters_per_second = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

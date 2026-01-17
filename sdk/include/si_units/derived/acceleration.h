@@ -5,11 +5,12 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/derived/acceleration/details/acceleration_units.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

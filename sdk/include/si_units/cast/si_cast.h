@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Internal cast function (preserves dimension, converts ratio)
@@ -64,6 +65,6 @@ constexpr auto si_cast(const source_unit_t& source) noexcept
     }
 }
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

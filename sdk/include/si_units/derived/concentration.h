@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/derived/concentration/details/concentration_units.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 {
 // Mass concentration units (mass per volume)
@@ -42,7 +43,7 @@ using mole_per_milliliter = unit_t<double, std::ratio<1000000000, 1>, molar_conc
 using osmole_per_liter = unit_t<double, std::ratio<1000, 1>, molar_concentration_v>;  // 1 osmol/L = 1000 osmol/m³
 using milliosmole_per_liter = unit_t<double, std::ratio<1, 1>, molar_concentration_v>;  // 1 mOsmol/L = 1 osmol/m³
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

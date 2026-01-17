@@ -9,8 +9,9 @@
 #include <tuple>
 #include <ratio>
 #include <utility>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
     // ========================================================================
     // Marker wrapper to indicate units in the denominator and their powers
@@ -226,7 +227,7 @@ namespace si
         return result_unit(source.value());
     }
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 // ============================================================================
 // Public API: Overloads for si_cast_multi
@@ -358,7 +359,7 @@ constexpr auto si_cast_multi(const source_t& source) noexcept
     return _si_cast_multi_detail::si_cast_multi_helper3<num1_t, num2_t, num3_t, per_unit>::call(source);
 }
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

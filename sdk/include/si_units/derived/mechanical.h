@@ -12,11 +12,12 @@
 #include <si_units/derived/mechanical/details/pressure.h>
 #include <si_units/derived/mechanical/details/energy.h>
 #include <si_units/derived/mechanical/details/power.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

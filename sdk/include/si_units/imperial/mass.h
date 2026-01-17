@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Imperial mass units
@@ -18,6 +19,6 @@ using hundredweight = unit_t<double, std::ratio<50802345, 1000000>, mass_v>; // 
 using us_ton = unit_t<double, std::ratio<907184740, 1000000000>, mass_v>;     // 1 short ton = 907.18474 kg
 using long_ton = unit_t<double, std::ratio<1016046909, 1000000000>, mass_v>; // 1 long ton = 1016.0469088 kg
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

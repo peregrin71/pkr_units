@@ -4,8 +4,9 @@
 #pragma once
 #include <concepts>
 #include <complex>
+#include "../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Concept for types that can represent SI quantity values
@@ -28,7 +29,7 @@ static_assert(is_si_type_c<float>);
 static_assert(is_si_type_c<double>);
 static_assert(is_si_type_c<int>);
 
-}
+} // PKR_SI_NAMESPACE
 
 
 

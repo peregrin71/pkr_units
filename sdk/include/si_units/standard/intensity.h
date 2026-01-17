@@ -5,8 +5,9 @@
 
 #include "../impl/details/si_unit.h"
 #include "../impl/details/dimension.h"
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 // Intensity quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
@@ -92,6 +93,6 @@ struct megacandela final : public unit_t<double, std::mega, intensity_dimension>
     using _base::_base;
 };
 
-} // namespace si
+PKR_SI_NAMESPACE_END
 
 

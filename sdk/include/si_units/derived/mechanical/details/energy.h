@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Energy dimension
@@ -29,6 +30,6 @@ using kiloelectronvolt = unit_t<double, std::ratio<80108000, 500000000000000000L
 using megaelectronvolt = unit_t<double, std::ratio<80108000000, 500000000000000000LL>, energy_dimension>;
 using gigaelectronvolt = unit_t<double, std::ratio<80108000000000LL, 500000000000000000LL>, energy_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

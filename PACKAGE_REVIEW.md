@@ -9,7 +9,7 @@ The SI Units library is a **well-architected, production-quality C++20 header-on
 - ✅ Basic SI units (4 of 7): Complete
 - 🟡 Derived units: Partially implemented
 - 🟡 String formatting: Basic implementation exists
-- 🟡 Type conversions: Implicit conversion works, explicit casting in progress
+- 🟡 Type conversions: Explicit casting in progress
 - ⚠️ Advanced features: Limited
 
 **Test Coverage: 272 tests passing** across all basic unit types with constexpr evaluation and edge case handling.
@@ -34,7 +34,7 @@ The SI Units library is a **well-architected, production-quality C++20 header-on
 ✅ Mass:         kilogram, gram, milligram, microgram, nanogram
 ✅ Time:         second, millisecond, microsecond, nanosecond
 ✅ Current:      ampere, milliampere, microampere, nanoampere
-✅ Temperature:  kelvin (with implicit offset-free conversions)
+✅ Temperature:  kelvin (offset-free arithmetic)
 ✅ Amount:       mole, millimole, micromole, nanomole
 ✅ Intensity:    candela (basic, fewer prefixes)
 ```
@@ -115,7 +115,7 @@ std::cout << distance;  // Outputs dimension struct, not "5 m"
 **Status**: Partial implementation
 
 - ✅ `si_cast<>` exists for unit conversions
-- ❌ **No safe implicit conversions**: meter ↔ kilometer requires explicit cast
+- ✅ **Explicit conversions only**: meter ↔ kilometer requires explicit `si_cast<>` (intentional design)
 - ❌ **Complex casting**: Multiple unit conversions in one expression are verbose
 - ❌ **No runtime value checking**: Cannot validate conversion safety at runtime
 
@@ -278,14 +278,13 @@ auto b = 1_km;
 
 **Solution**:
 ```cpp
-// Make implicit conversions for same-dimension units
-template<typename T1, typename T2, dimension_t D>
-requires (dim_v == D)  // Same dimension
-constexpr unit_t<double, std::ratio<1,1>, D> 
-  operator+(const unit_t<double, T1, D>& lhs, 
-            const unit_t<double, T2, D>& rhs) {
-    // Convert both to base unit, add, convert back
-}
+// Explicit conversions for same-dimension units using si_cast<>
+auto a = 1000_m;
+auto b = si_cast<meter>(1_km);  // Explicit conversion
+auto result = a + b;  // Now both are same type, addition works
+
+// Or use si_cast for result:
+auto meters = si_cast<meter>(1_km) + si_cast<meter>(500_m);
 ```
 
 ---
@@ -471,12 +470,80 @@ auto in_micrometers = si_cast<micrometers>(distance2);
 std::cout << format(in_micrometers);  // Outputs "1 μm"
 ```
 **Design Philosophy**: No hidden automatic conversions in formatting. The output type matches the input type, making it explicit and clear. Users control prefix/unit via explicit `si_cast`.
-**Benefit**: Transparent, predictable output; no surprise unit conversions
-**Use case**: Clear, debuggable output; code intent is obvious from type
+
+**Canonical Form Convention**: Derived units should follow BIPM SI convention for dimension ordering:
+- Order: length, mass, time, current, temperature, amount, intensity
+- Positive exponents first, then negative exponents
+- Example: Force (Newton) → `kg⋅m⋅s⁻²`, not `s⁻²⋅kg⋅m`
+- The `dimension_t` struct already implements this ordering
+- When formatting derived units, canonical representation ensures consistency with international SI standards
+
+**Character Encoding & Exponent Notation**: The formatter supports configurable output based on character encoding support:
+```cpp
+// UTF-8 formatting (preferred for modern systems, unicode support)
+auto velocity = 10_mps;
+std::cout << format(velocity, encoding::utf8);           // "10 m⋅s⁻¹" (superscript minus-one)
+auto force = 5_N;
+std::cout << format(force, encoding::utf8);              // "5 kg⋅m⋅s⁻²" (superscript powers)
+
+// ASCII/ANSI fallback (for terminals with limited character support, logging systems)
+std::cout << format(velocity, encoding::ascii);          // "10 m*s^-1" (caret notation)
+std::cout << format(force, encoding::ascii);             // "5 kg*m*s^-2"
+
+// Wide character (Windows console, wchar_t streams)
+std::wcout << format(velocity, encoding::wide_char);    // L"10 m·s⁻¹" (wide-compatible unicode)
+
+// Auto-detect based on stream type (default)
+std::cout << format(velocity);                           // UTF-8 for std::cout
+std::wcout << format(velocity);                          // Wide for std::wcout
+```
+
+**Character Set Details**:
+- **UTF-8** (default for std::cout): Uses Unicode superscripts (⁻, ¹, ², ³, etc.) and middle-dot (⋅) for multiplication
+- **ASCII**: Uses `*` for multiplication, `^` for exponents (e.g., `s^-2`), avoids all unicode
+- **Wide-char** (std::wcout): Unicode superscripts compatible with Windows console wide character output
+
+**Benefit**: Transparent, predictable output; no surprise unit conversions; internationally consistent notation; adapts to output stream capabilities
+**Use case**: Clear, debuggable output; code intent is obvious from type; compatibility with legacy systems and logging frameworks
 
 ---
 
-#### 2. **Context-Aware Formatting (Explicit)**
+#### 2. **Customizable Root Namespace (Integration)**
+For codebases that already have a `si` namespace or prefer a different root namespace, the library supports namespace customization via preprocessor:
+
+```cpp
+// Option 1: Custom namespace (define BEFORE including si_units headers)
+#define PKR_SI_NAMESPACE physics
+#include <si_units/si.h>
+
+auto distance = physics::meter{5.0};
+physics::kilogram mass = 10.0_kg;
+
+// Option 2: Nested namespace
+#define PKR_SI_NAMESPACE my_app::units::si
+#include <si_units/si.h>
+
+my_app::units::si::meter height = 2.0_m;
+
+// Option 3: Default (if PKR_SI_NAMESPACE not defined)
+#include <si_units/si.h>
+
+si::meter distance = 5.0_m;  // Uses default 'si' namespace
+```
+
+**Implementation**: The `namespace_config.h` header defines `PKR_SI_NAMESPACE` to `si` by default, but users can override it. All SI unit definitions use `PKR_SI_BEGIN_NAMESPACE` and `PKR_SI_END_NAMESPACE` macros that expand to the configured namespace.
+
+**Rationale**: Namespace conflicts are common in large codebases. Providing customization at the preprocessor level (before compilation) ensures zero runtime overhead and clean integration with existing code. This is particularly valuable for:
+- Legacy systems with existing `si` namespaces
+- Organizations with strict naming conventions
+- Multi-domain applications (physics, finance, engineering using different unit systems)
+
+**Benefit**: Seamless integration with any existing codebase; no naming conflicts; zero overhead
+**Use case**: Integration with legacy systems, multi-namespace applications, organizational standards compliance
+
+---
+
+#### 3. **Context-Aware Formatting (Explicit)**
 ```cpp
 distance d = 1_km;
 std::cout << format(d, context::imperial);    // "0.621371 mile" (explicit conversion requested)
@@ -921,10 +988,11 @@ The SI Units library has **excellent foundational architecture** and is **well-t
 
 ## Questions for Discussion
 
-1. **Should implicit conversions be allowed** (meter ↔ kilometer)?
-   - Pro: More ergonomic
-   - Con: Could hide precision loss
-   - Recommendation: Yes, for same-dimension units
+1. **Explicit conversions via si_cast<>** (meter ↔ kilometer) - ENFORCED
+   - Pro: Makes code intent explicit, prevents accidental conversions
+   - Pro: No hidden precision loss or type confusion
+   - Design decision: Only explicit `si_cast<>` allowed, no implicit conversions
+   - Rationale: Follows C++ best practice; implicit conversions are historical mistake
 
 2. **Temperature: How to handle offsets elegantly?**
    - Option A: Separate `temperature` and `temperature_delta`
@@ -936,7 +1004,9 @@ The SI Units library has **excellent foundational architecture** and is **well-t
    - Recommendation: Add with careful documentation
 
 4. **Should parsing be supported?**
-   - "5 meters" → meter{5}
-   - Adds dependencies (regex or similar)
-   - Recommendation: Yes, important for real applications
+   - String parsing: "5 meters" → meter{5}
+   - JSON integration: Optional nlohmann/json adapters for configuration/serialization
+   - Design: Parsing as opt-in feature (no required regex dependency in core library)
+   - Recommendation: Yes, important for real applications; offer as optional modules
+   - Use cases: Config files, JSON APIs, data pipelines
 

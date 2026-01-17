@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
@@ -15,6 +16,6 @@ inline constexpr dimension_t magnetic_flux_dimension{.mass = 1, .length = 2, .ti
 // Magnetic flux density dimension: kg·s⁻²·A⁻¹
 inline constexpr dimension_t magnetic_flux_density_dimension{.mass = 1, .time = -2, .current = -1};
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

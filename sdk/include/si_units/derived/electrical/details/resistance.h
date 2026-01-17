@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Electric resistance dimension
@@ -21,6 +22,6 @@ using gigohm = unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dim
 using milliohm = unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>;
 using microohm = unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

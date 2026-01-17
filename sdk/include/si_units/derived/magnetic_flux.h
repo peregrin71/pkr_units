@@ -5,10 +5,11 @@
 
 #include <si_units/impl/details/si_unit.h>
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 // Forward declare or include the detail constants
 #include <si_units/derived/magnetic_flux/details/magnetic_flux_units.h>
+#include "../namespace_config.h"
 // Magnetic flux units (Weber and derived)
 // Base unit: Weber (Wb) = kg·m²·s⁻²·A⁻¹
 using weber = unit_t<double, std::ratio<1, 1>, magnetic_flux_dimension>;
@@ -26,7 +27,7 @@ using nanotesla = unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_densit
 using kilotesla = unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
 using megatesla = unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

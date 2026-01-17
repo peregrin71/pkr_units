@@ -4,6 +4,7 @@
 #pragma once
 
 #include "velocity.h"
+#include "../../namespace_config.h"
 
 namespace si::si_literals
 {
@@ -38,7 +39,7 @@ namespace si::si_literals
         return si::feet_per_second{static_cast<double>(value});
     }
 
-} // namespace si::si_literals
+PKR_SI_NAMESPACE_END::si_literals
 
 
 

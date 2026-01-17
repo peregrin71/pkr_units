@@ -5,8 +5,9 @@
 
 #include "../impl/details/si_unit.h"
 #include "../impl/details/dimension.h"
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 // Mass quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
@@ -123,7 +124,7 @@ struct exagram final : public unit_t<double, std::ratio<1000000000000000, 1>, ma
 // Common aliases
 using metric_ton = megagram;  // 1 metric ton = 1,000 kg (same as megagram)
 
-} // namespace si
+PKR_SI_NAMESPACE_END
 
 
 

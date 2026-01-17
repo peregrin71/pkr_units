@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/derived/density/details/density_units.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 // Density units (mass per volume)
 // Base unit: kilogram per cubic meter (kg/m³)
@@ -30,7 +31,7 @@ using ounce_per_fluid_ounce = unit_t<double, std::ratio<33814, 1000>, density_di
 using ton_per_cubic_meter = unit_t<double, std::ratio<1000000, 1>, density_dimension>;  // 1 t/m³ = 1000 kg/m³
 using atomic_mass_unit_per_cubic_angstrom = unit_t<double, std::ratio<166054, 1>, density_dimension>;  // ≈ 166.054 kg/m³
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

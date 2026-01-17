@@ -63,9 +63,21 @@ def run_command(
             )
             return result.stdout.strip()
         else:
-            subprocess.run(cmd, cwd=cwd, check=True, env=env)
+            result = subprocess.run(
+                cmd, cwd=cwd, capture_output=True, text=True, check=True, env=env
+            )
+            # Filter out harmless warnings about -m64 flag
+            output = result.stdout
+            filtered_lines = []
+            for line in output.split('\n'):
+                # Skip D9002 and LNK4044 warnings (Conan clang profile on Windows)
+                if 'warning D9002' in line or 'ignoring unknown option' in line or 'LNK4044' in line:
+                    continue
+                filtered_lines.append(line)
+            print('\n'.join(filtered_lines))
             return ""
     except subprocess.CalledProcessError as e:
         raise BuildException(f"Command failed: {' '.join(cmd)}\n{e.stderr}")
     except FileNotFoundError:
         raise BuildException(f"Command not found: {cmd[0]}")
+

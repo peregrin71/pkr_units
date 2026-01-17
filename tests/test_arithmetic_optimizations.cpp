@@ -313,6 +313,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_meter_by_kilometer)
     // Result ratio should be 1/1000
     ASSERT_EQ(decltype(result)::ratio_type::num, 1);
     ASSERT_EQ(decltype(result)::ratio_type::den, 1000);
+
+    
 }
 
 TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_kilometer_by_millimeter)

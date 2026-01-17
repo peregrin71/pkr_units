@@ -5,8 +5,9 @@
 
 #include <si_units/impl/details/si_unit.h>
 #include <si_units/impl/details/dimension.h>
+#include "../../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Electric potential dimension
@@ -20,6 +21,6 @@ using megavolt = unit_t<double, std::ratio<1000000, 1>, electric_potential_dimen
 using millivolt = unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>;
 using microvolt = unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

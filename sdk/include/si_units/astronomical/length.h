@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Astronomical units
@@ -15,6 +16,6 @@ using au = unit_t<double, std::ratio<149597870700, 1>, length_dimension>;       
 using light_year = unit_t<double, std::ratio<94607304725808000, 1>, length_dimension>; // 1 light-year ≈ 9.4607 × 10^15 meter
 using parsec = unit_t<double, std::ratio<30856775814913673, 1>, length_dimension>;     // 1 parsec ≈ 3.0857 × 10^16 meter
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
     // Constexpr power function for compile-time exponentiation
     constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
@@ -90,7 +91,7 @@ namespace si
         static constexpr dimension_t value_dimension = Pow<unit_type, power_v>::powered_dim;
     };
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
 

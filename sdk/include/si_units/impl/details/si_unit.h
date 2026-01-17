@@ -8,8 +8,9 @@
 #include <string_view>
 #include "dimension.h"
 #include "../concepts/si_concepts.h"
+#include "../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Portable constexpr function that mimics std::unreachable() for C++20
@@ -287,7 +288,7 @@ concept si_unit_type = is_si_unit<T>::value;
 #include "multiply_si_units.h"
 #include "divide_si_units.h"
 
-} // namespace si
+PKR_SI_NAMESPACE_END
 
 
 

@@ -3,7 +3,9 @@
 
 #pragma once
 
-namespace si
+#include "../../namespace_config.h"
+
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Dimension struct for dimensional analysis (C++20 as NTTP)
@@ -32,7 +34,7 @@ inline constexpr dimension_t amount_dimension{.amount = 1};
 inline constexpr dimension_t intensity_dimension{.intensity = 1};
 inline constexpr dimension_t frequency_dimension{.time = -1};
 
-} // namespace si
+PKR_SI_NAMESPACE_END
 
 
 

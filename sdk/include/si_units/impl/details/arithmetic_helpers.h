@@ -5,8 +5,9 @@
 
 #include <ratio>
 #include <stdexcept>
+#include "../../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // ============================================================================
@@ -92,6 +93,6 @@ constexpr type_t divide_values(type_t val1, type_t val2)
     return val1 / val2;
 }
 
-} // namespace si
+PKR_SI_NAMESPACE_END
 
 

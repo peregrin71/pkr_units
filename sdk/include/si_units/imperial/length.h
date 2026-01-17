@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // Imperial length units
@@ -20,6 +21,6 @@ using furlong = unit_t<double, std::ratio<201168, 1000>, length_dimension>;    /
 using mile = unit_t<double, std::ratio<1609344, 1000>, length_dimension>;      // 1 mile = 1609.344 meter
 using nautical_mile = unit_t<double, std::ratio<1852, 1>, length_dimension>;   // 1 nautical mile = 1852 meter
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 

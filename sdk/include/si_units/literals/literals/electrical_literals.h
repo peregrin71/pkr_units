@@ -4,6 +4,7 @@
 #pragma once
 
 #include "electrical.h"
+#include "../../namespace_config.h"
 
 namespace si::si_literals
 {
@@ -158,7 +159,7 @@ namespace si::si_literals
         return si::microsiemens{static_cast<double>(value});
     }
 
-} // namespace si::si_literals
+PKR_SI_NAMESPACE_END::si_literals
 
 
 

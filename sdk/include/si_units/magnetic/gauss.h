@@ -4,8 +4,9 @@
 #pragma once
 
 #include <si_units/impl/details/si_unit.h>
+#include "../namespace_config.h"
 
-namespace si
+PKR_SI_BEGIN_NAMESPACE
 {
 
 // CGS (Gaussian) magnetic units
@@ -13,6 +14,6 @@ namespace si
 // 1 Gauss = 10⁻⁴ Tesla
 using gauss = unit_t<double, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
 
-} // namespace si
+} // PKR_SI_NAMESPACE
 
 
