@@ -16,16 +16,14 @@ def run_tests(configuration: str) -> None:
     Raises:
         BuildException: If tests fail
     """
-    cmd = ["ctest", "-C", configuration, "--output-on-failure"]
+    cmd = ["ctest", "-C", configuration, "--output-on-failure", "-V"]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
-        
-        if "No tests were found" in result.stdout:
-            raise BuildException("No tests found in the test executable!")
+        # Run without capturing output so test results are visible in console
+        result = subprocess.run(cmd, check=False)
         
         if result.returncode != 0:
-            raise BuildException(f"Tests failed:\n{result.stdout}\n{result.stderr}")
+            raise BuildException(f"Tests failed with exit code {result.returncode}")
         
         print_success("All tests passed!")
         

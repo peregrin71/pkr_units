@@ -29,11 +29,23 @@ The build system uses a two-tier architecture to ensure clean separation of conc
 The build system is fully automated. On first run, it will:
 1. Auto-install Miniconda if not present
 2. Create a managed Conda environment with all build tools
-3. Run the complete build (Conan → CMake → Tests)
+3. Run the complete build for selected compilers (Conan → CMake → Tests)
 
-### Basic Debug build
+### Basic Debug build (MSVC only)
 ```bash
 python build/build.py
+```
+
+### Build for multiple compilers
+```bash
+# Build with MSVC, Clang, and GCC
+python build/build.py --compilers msvc,clang,gcc
+
+# Build with MSVC and Clang only
+python build/build.py --compilers msvc,clang
+
+# Build with specific compiler
+python build/build.py --compilers clang
 ```
 
 ### Release build
@@ -66,7 +78,8 @@ python build/build.py --skip-venv-setup
 | Option | Values | Default | Description |
 |--------|--------|---------|-------------|
 | `--config` | `Debug`, `Release` | `Debug` | CMake build configuration |
-| `--clean` | - | - | Clean build directory before building |
+| `--compilers` | `msvc,clang,gcc` | `msvc` | Comma-separated list of compilers to build with |
+| `--clean` | - | - | Clean build directories before building |
 | `--rebuild` | - | - | Alias for `--clean` |
 | `--no-tests` | - | - | Skip running tests after build |
 | `--skip-setup` | - | - | Skip Conan dependency verification |
@@ -75,6 +88,7 @@ python build/build.py --skip-venv-setup
 
 ## Build Flow
 
+### Single Compiler Build
 ```
 1. Parse arguments
    ↓
@@ -83,19 +97,61 @@ python build/build.py --skip-venv-setup
    - Unix/macOS: Run build/setup_build_venv.sh via Bash
    - Only updates if tool versions have changed
    ↓
-3. Activate Conda environment (single activation for entire build)
+3. For each selected compiler:
+   a. Initialize compiler-specific build directory (.msvc_build, .clang_build, .gcc_build)
+   b. Activate Conda environment (single activation for entire compiler build)
+   c. Run build_impl.py inside activated environment:
+      - Verify build directory
+      - Install Conan dependencies with compiler profile
+      - Configure CMake with compiler toolchain
+      - Build with appropriate generator (MSVC/Ninja)
+      - Run tests (unless --no-tests)
+   d. Deactivate Conda environment (guaranteed, even on error)
    ↓
-4. Run build_impl.py inside activated environment:
-   a. Verify build directory
-   b. Install Conan dependencies
-   c. Configure CMake
-   d. Build with appropriate generator (MSVC/Ninja)
-   e. Run tests (unless --no-tests)
+4. Print build summary for all compilers
    ↓
-5. Deactivate Conda environment (guaranteed, even on error)
-   ↓
-6. Return exit code
+5. Return exit code (0 if all passed, 1 if any failed)
 ```
+
+### Build Directory Structure
+```
+.msvc_build/       # MSVC compiler build output
+  generators/      # Conan-generated files
+  build/          # CMake build output
+  tests/          # Compiled test executables
+  
+.clang_build/      # Clang compiler build output
+  generators/
+  build/
+  tests/
+  
+.gcc_build/        # GCC compiler build output
+  generators/
+  build/
+  tests/
+```
+
+### Compiler Profiles
+Each compiler uses a specific Conan profile:
+```
+packaging/conan/profiles/windows-msvc.profile   # Visual Studio / MSVC
+packaging/conan/profiles/windows-clang.profile  # LLVM Clang
+packaging/conan/profiles/windows-gcc.profile    # GNU Compiler Collection
+```
+
+**Note**: Profiles are currently Windows-specific. Future profiles for other platforms:
+```
+packaging/conan/profiles/linux-gcc.profile      # GCC on Linux
+packaging/conan/profiles/macos-clang.profile    # Clang on macOS
+packaging/conan/profiles/android-gcc.profile    # GCC for Android (future)
+```
+
+Profiles specify:
+- OS and architecture
+- Compiler identity and version
+- C++ standard (C++14)
+- Build type (Debug/Release)
+- Compiler-specific settings (runtime, libcxx, etc.)
 
 ## Module Structure
 
@@ -145,14 +201,14 @@ python build/build.py --skip-venv-setup
   - Provides diagnostic information
 
 - **build_directory.py** - Build directory management
-  - Creates `.vs_build/` output directory
+  - Creates compiler-specific output directories (`.msvc_build/`, `.clang_build/`, `.gcc_build/`)
   - Handles clean rebuild operations
   - Manages CMake intermediate files
 
 - **conan_utils.py** - Conan dependency management
   - Verifies Conan installation
-  - Installs project dependencies
-  - Handles different build configurations
+  - Installs project dependencies with compiler-specific profiles
+  - Handles different build configurations and compilers
 
 - **cmake_configure.py** - CMake configuration
   - Configures build with appropriate generator
@@ -160,7 +216,7 @@ python build/build.py --skip-venv-setup
   - Configures build options
 
 - **cmake_build.py** - CMake build execution
-  - Builds with MSVC or Ninja
+  - Builds with MSVC, Ninja (for Clang/GCC), or appropriate backend
   - Captures build output
   - Reports build status and errors
 
@@ -228,8 +284,20 @@ Both setup scripts include intelligent version detection:
 
 ## Important Design Decisions
 
+### Multi-Compiler Strategy
+The build system supports building and testing with multiple compilers in a single invocation:
+- Each compiler gets its own isolated build directory
+- Each compiler uses a dedicated Conan profile
+- Tests run separately for each compiler
+- Build summary shows results for all compilers
+- Useful for:
+  - Code portability validation
+  - Compiler-specific warning detection
+  - Performance comparison across compilers
+  - Pre-commit multi-compiler verification in CI/CD
+
 ### Single Activation Lifecycle
-The build activates the Conda environment exactly once at the start and deactivates at the end. This approach:
+The build activates the Conda environment exactly once at the start of each compiler build and deactivates at the end. This approach:
 - Avoids repeated activation overhead
 - Ensures all build tools use the managed environment consistently
 - Simplifies debugging and reproducibility
@@ -282,6 +350,48 @@ si_units/                   # Project root
 ├── tests/                  # Test code
 └── ...
 ```
+
+## Testing Build Scripts
+
+Unit tests are provided for the version matching and parsing logic used in environment setup scripts.
+
+### Running Tests
+
+```bash
+cd build/scripts/test
+python run_tests.py        # Run all tests (verbose)
+python run_tests.py -q     # Quiet output
+python -m unittest test_version_utils -v  # Alternative method
+```
+
+### Test Coverage
+
+The test suite (`test_version_utils.py`) validates:
+
+- **YmlVersionParser**: Parsing conda yml files for tool versions
+  - Simple versions, whitespace handling, hyphenated tool names
+  - Comment handling, version operators (=, >=, <=, <, >)
+  - Full yml file parsing
+
+- **VersionMatcher**: Comparing configured versions with yml versions
+  - Matching and mismatching versions
+  - Missing tools detection
+  - Internal name mapping (conan2 → conan)
+  - LLVM/Clang toolchain multi-part verification
+  - Multiple mismatches detection
+
+**Test Results**: 26 tests covering all major scenarios (all passing)
+
+### Version Control
+
+Before modifying `setup_build_venv.ps1` or `setup_build_venv.sh`:
+
+1. Add test cases to `test_version_utils.py`
+2. Update `version_utils.py` if needed
+3. Run `python run_tests.py` to verify
+4. Commit once tests pass
+
+This ensures version matching logic works correctly before deployment.
 
 ## Troubleshooting
 

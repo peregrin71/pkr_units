@@ -28,23 +28,25 @@ from cmake_build import CMakeBuild
 from test_runner import run_tests
 
 
-def run_build(project_root: Path, build_path: Path, config: str, skip_tests: bool, skip_setup: bool):
+def run_build(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
     """
-    Execute the complete build process
+    Execute the complete build process for a specific compiler
     Assumes Conda environment is already activated
     
     Args:
         project_root: Root of the project
-        build_path: Build output directory
+        build_path: Build output directory (specific to compiler)
         config: Build configuration (Debug/Release)
+        compiler: Compiler to use (msvc, clang, gcc)
         skip_tests: Skip running tests
         skip_setup: Skip environment setup
     """
     try:
-        print_header("SI Units Build Implementation (running in Conda environment)")
+        print_header(f"SI Units Build Implementation - {compiler.upper()} (running in Conda environment)")
         print_info(f"Project Root: {project_root}")
         print_info(f"Build Directory: {build_path}")
         print_info(f"Configuration: {config}")
+        print_info(f"Compiler: {compiler.upper()}")
         print_info("")
 
         # Initialize environment
@@ -68,9 +70,9 @@ def run_build(project_root: Path, build_path: Path, config: str, skip_tests: boo
         # Change to build directory
         os.chdir(build_path)
 
-        # Install dependencies
-        print_step("Installing dependencies with Conan")
-        conan_install(project_root, config)
+        # Install dependencies with compiler-specific profile
+        print_step(f"Installing dependencies with Conan ({compiler})")
+        conan_install(project_root, build_path, config, compiler)
         print()
 
         # Configure with CMake
@@ -106,6 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("project_root", help="Project root directory")
     parser.add_argument("build_path", help="Build output directory")
     parser.add_argument("--config", default="Debug", help="Build configuration")
+    parser.add_argument("--compiler", default="msvc", choices=["msvc", "clang", "gcc"], help="Compiler to use")
     parser.add_argument("--no-tests", action="store_true", help="Skip tests")
     parser.add_argument("--skip-setup", action="store_true", help="Skip environment setup")
     
@@ -113,5 +116,14 @@ if __name__ == "__main__":
     
     project_root = Path(args.project_root)
     build_path = Path(args.build_path)
+    
+    sys.exit(run_build(
+        project_root,
+        build_path,
+        args.config,
+        args.compiler,
+        args.no_tests,
+        args.skip_setup
+    ))
     
     sys.exit(run_build(project_root, build_path, args.config, args.no_tests, args.skip_setup))

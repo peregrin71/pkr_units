@@ -226,10 +226,12 @@ function Get-YmlVersions {
     $content = Get-Content $envFile
 
     foreach ($line in $content) {
-        # Match lines like "- python=3.12"
-        if ($line -match '^\s*-\s+(\w+)=(.+)$') {
+        # Match lines like "- python=3.12" or "- cmake>=4.2"
+        # Skip lines that don't have version operators (= or >=)
+        if ($line -match '^\s*-\s+([\w-]+)\s*([><=]+)\s*(.+)$') {
             $tool = $matches[1]
-            $version = $matches[2] -replace '[><=]+', '' -replace '^\s+|\s+$', ''
+            $operator = $matches[2]
+            $version = $matches[3] -replace '^\s+|\s+$', ''
             $versions[$tool] = $version
         }
     }
@@ -245,23 +247,41 @@ function Test-VersionsMatch {
         return $false
     }
 
-    # Check all tools in CurrentVersions
-    foreach ($tool in $CurrentVersions.Keys) {
-        if (-not $FileVersions.ContainsKey($tool)) {
+    # List of core tools to verify (the ones we directly configure in TOOL_VERSIONS)
+    $coreTools = @("python", "cmake", "conan2", "gcc", "gxx", "ninja")
+    
+    # Check all core tools exist in current and file versions
+    foreach ($tool in $coreTools) {
+        # Map internal names to package names
+        # conan2 -> conan (internal naming for clarity, package is called conan)
+        $packageName = if ($tool -eq "conan2") { "conan" } else { $tool }
+        
+        if (-not $CurrentVersions.ContainsKey($tool)) {
+            # Tool missing from current config
+            return $false
+        }
+        
+        if (-not $FileVersions.ContainsKey($packageName)) {
             # Tool is new, not in yaml file
             return $false
         }
         
-        if ($CurrentVersions[$tool] -ne $FileVersions[$tool]) {
+        if ($CurrentVersions[$tool] -ne $FileVersions[$packageName]) {
             # Version mismatch
             return $false
         }
     }
 
-    # Check if any tools in FileVersions are no longer in CurrentVersions
-    foreach ($tool in $FileVersions.Keys) {
-        if (-not $CurrentVersions.ContainsKey($tool)) {
-            # Tool was removed from config
+    # For LLVM/Clang, we check that at least llvm-tools and clang are present with matching versions
+    if ($CurrentVersions.ContainsKey("llvm") -and $CurrentVersions.ContainsKey("clang")) {
+        $llvmVersion = $CurrentVersions["llvm"]
+        $clangVersion = $CurrentVersions["clang"]
+        
+        if ($FileVersions.ContainsKey("llvm-tools") -and $FileVersions["llvm-tools"] -ne $llvmVersion) {
+            return $false
+        }
+        
+        if ($FileVersions.ContainsKey("clang") -and $FileVersions["clang"] -ne $clangVersion) {
             return $false
         }
     }
@@ -290,7 +310,7 @@ function New-Environment {
 
     Write-Step "Creating Conda environment '$ENV_NAME'"
 
-    & $CondaExe env create --file $EnvFile --yes
+    & $CondaExe env create --file $EnvFile
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error-Custom "Failed to create environment"
@@ -305,7 +325,7 @@ function Update-Environment {
 
     Write-Step "Updating Conda environment '$ENV_NAME'"
 
-    & $CondaExe env update --file $EnvFile --name $ENV_NAME --yes
+    & $CondaExe env update --file $EnvFile --name $ENV_NAME
     
     if ($LASTEXITCODE -ne 0) {
         Write-Error-Custom "Failed to update environment"
@@ -363,10 +383,12 @@ function Invoke-Setup {
             $envFile = $projectEnvFile
         } else {
             Write-Info "Tool versions mismatch, will update environment"
+            $needsUpdate = $true
             $envFile = Write-EnvironmentYml -ProjectRoot $projectRoot
         }
     } else {
         Write-Info "build_venv.yml not found, generating..."
+        $needsUpdate = $true
         $envFile = Write-EnvironmentYml -ProjectRoot $projectRoot
     }
     Write-Info ""
@@ -376,14 +398,8 @@ function Invoke-Setup {
         Write-Info "Environment '$ENV_NAME' already exists"
         
         if ($needsUpdate) {
-            if ($Update) {
-                Update-Environment -CondaExe $condaExe -EnvFile $envFile
-            } else {
-                $response = Read-Host "Update environment with new versions? (y/n) [y]"
-                if ($response -ne "n") {
-                    Update-Environment -CondaExe $condaExe -EnvFile $envFile
-                }
-            }
+            Write-Info "Updating environment with new tool versions..."
+            Update-Environment -CondaExe $condaExe -EnvFile $envFile
         } else {
             Write-Success "Environment is up to date, skipping update"
         }

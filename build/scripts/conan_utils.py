@@ -2,6 +2,7 @@
 Conan package manager utilities
 """
 
+import os
 from pathlib import Path
 from build_utils import run_command, BuildException, print_info
 
@@ -18,18 +19,26 @@ def verify_installation() -> None:
         )
 
 
-def install(project_root: Path, configuration: str) -> None:
+def install(project_root: Path, build_path: Path, configuration: str, compiler: str = "msvc") -> None:
     """
-    Install dependencies using Conan
+    Install dependencies using Conan with compiler-specific profile
     
     Args:
         project_root: Root project directory
+        build_path: Build output directory (where generators will be written)
         configuration: Build configuration (Debug or Release)
+        compiler: Compiler to use (msvc, clang, gcc)
     """
     conanfile = Path(project_root) / "packaging" / "conan" / "conanfile.py"
     
     if not conanfile.exists():
         raise BuildException(f"Conanfile not found at: {conanfile}")
+
+    # Use compiler-specific profile (Windows-specific for now)
+    profile_name = f"windows-{compiler}.profile"
+    profile_path = Path(project_root) / "packaging" / "conan" / "profiles" / profile_name
+    if not profile_path.exists():
+        raise BuildException(f"Profile not found for compiler '{compiler}': {profile_path}")
 
     cmd = [
         "conan",
@@ -37,9 +46,16 @@ def install(project_root: Path, configuration: str) -> None:
         str(conanfile.parent),
         "--build=missing",
         f"-s=build_type={configuration}",
+        f"--profile={str(profile_path)}",
+        f"--output-folder={str(build_path)}",
     ]
 
+    # Set environment variable for conanfile to know which build folder to use
+    env = os.environ.copy()
+    build_folder_name = build_path.name  # Get folder name (e.g., ".msvc_build")
+    env['CONAN_BUILD_FOLDER'] = build_folder_name
+
     try:
-        run_command(cmd)
+        run_command(cmd, env=env)
     except BuildException as e:
         raise BuildException(f"Conan install failed: {e}")

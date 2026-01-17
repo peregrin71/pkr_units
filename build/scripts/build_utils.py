@@ -39,7 +39,7 @@ def print_info(text: str) -> None:
 
 
 def run_command(
-    cmd: List[str], cwd: Optional[str] = None, capture_output: bool = False
+    cmd: List[str], cwd: Optional[str] = None, capture_output: bool = False, env: Optional[dict] = None
 ) -> str:
     """
     Run a shell command and handle errors
@@ -48,6 +48,7 @@ def run_command(
         cmd: List of command arguments
         cwd: Working directory to run command in
         capture_output: If True, return output as string
+        env: Environment variables dictionary (uses current env if None)
         
     Returns:
         Command output if capture_output is True, else empty string
@@ -58,11 +59,11 @@ def run_command(
     try:
         if capture_output:
             result = subprocess.run(
-                cmd, cwd=cwd, capture_output=True, text=True, check=True
+                cmd, cwd=cwd, capture_output=True, text=True, check=True, env=env
             )
             return result.stdout.strip()
         else:
-            subprocess.run(cmd, cwd=cwd, check=True)
+            subprocess.run(cmd, cwd=cwd, check=True, env=env)
             return ""
     except subprocess.CalledProcessError as e:
         raise BuildException(f"Command failed: {' '.join(cmd)}\n{e.stderr}")

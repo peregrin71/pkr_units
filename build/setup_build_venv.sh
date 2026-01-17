@@ -195,13 +195,12 @@ get_yml_versions() {
     local env_file="$1"
     
     if [ ! -f "$env_file" ]; then
-        echo ""
         return
     fi
 
-    grep "^\s*-\s" "$env_file" | grep -E "(python|cmake|conan|llvm|clang)" | \
-        sed 's/.*-\s\+\([^=]*\)=\([^ ]*/\1=\2/' | \
-        sed 's/[><=]*//g'
+    # Extract tool=version pairs from yml, handling >= and = operators
+    # Handle tools with hyphens in names like llvm-tools, clang-tools
+    grep "^\s*-\s" "$env_file" | sed -E 's/^[[:space:]]*-[[:space:]]+([a-z-]+)[[:space:]]*([><=]+)[[:space:]]*([0-9.]+).*/\1=\3/'
 }
 
 test_versions_match() {
@@ -211,13 +210,27 @@ test_versions_match() {
         return 1
     fi
 
-    # Check each tool in TOOL_VERSIONS exists and matches in file
-    for tool in "${!TOOL_VERSIONS[@]}"; do
+    # List of core tools to verify (the ones we directly configure in TOOL_VERSIONS)
+    local core_tools=("python" "cmake" "conan2" "gcc" "gxx" "ninja")
+    
+    # Check each core tool exists and matches
+    for tool in "${core_tools[@]}"; do
         local expected_version="${TOOL_VERSIONS[$tool]}"
         
+        if [ -z "$expected_version" ]; then
+            continue
+        fi
+        
+        # Map internal names to package names
+        # conan2 -> conan (internal naming for clarity, package is called conan)
+        local package_name="$tool"
+        if [ "$tool" = "conan2" ]; then
+            package_name="conan"
+        fi
+        
         # Extract version from yml file - handle various formats like "python=3.12" or "cmake>=3.28"
-        local file_version=$(grep "^\s*-\s*$tool" "$env_file" 2>/dev/null | \
-            sed "s/.*$tool[=>]*\([0-9.]*\).*/\1/" | head -1)
+        local file_version=$(grep "^\s*-\s*$package_name" "$env_file" 2>/dev/null | \
+            sed "s/.*$package_name[=>]*\([0-9.]*\).*/\1/" | head -1)
         
         if [ -z "$file_version" ]; then
             # Tool is new, not in yaml file
@@ -230,19 +243,27 @@ test_versions_match() {
         fi
     done
 
-    # Check if any tools in file are no longer in TOOL_VERSIONS
-    # Extract all tool names from dependencies section
-    local file_tools=$(grep "^\s*-\s" "$env_file" | \
-        grep -E "(python|cmake|conan|llvm|clang|ninja|git)" | \
-        sed 's/.*-\s*\([a-z-]*\).*/\1/' | sort -u)
+    # For LLVM/Clang, check that at least llvm-tools and clang are present with matching versions
+    local llvm_version="${TOOL_VERSIONS[llvm]}"
+    local clang_version="${TOOL_VERSIONS[clang]}"
     
-    for file_tool in $file_tools; do
-        # Check if this tool is in TOOL_VERSIONS
-        if [ -z "${TOOL_VERSIONS[$file_tool]}" ] 2>/dev/null; then
-            # Tool was removed from config
+    if [ -n "$llvm_version" ] && [ -n "$clang_version" ]; then
+        # Check llvm-tools version
+        local llvm_tools_version=$(grep "^\s*-\s*llvm-tools" "$env_file" 2>/dev/null | \
+            sed "s/.*llvm-tools[=>]*\([0-9.]*\).*/\1/" | head -1)
+        
+        if [ -n "$llvm_tools_version" ] && [ "${llvm_version}" != "${llvm_tools_version}" ]; then
             return 1
         fi
-    done
+        
+        # Check clang version
+        local clang_file_version=$(grep "^\s*-\s*clang" "$env_file" 2>/dev/null | \
+            grep -v "clang-tools" | sed "s/.*clang[=>]*\([0-9.]*\).*/\1/" | head -1)
+        
+        if [ -n "$clang_file_version" ] && [ "${clang_version}" != "${clang_file_version}" ]; then
+            return 1
+        fi
+    fi
 
     return 0
 }
@@ -266,7 +287,7 @@ new_environment() {
 
     print_step "Creating Conda environment '$ENV_NAME'"
 
-    if ! "$conda_exe" env create --file "$env_file" --force; then
+    if ! "$conda_exe" env create --file "$env_file"; then
         print_error "Failed to create environment"
         exit 1
     fi
@@ -330,10 +351,12 @@ invoke_setup() {
             env_file="$project_env_file"
         else
             print_info "Tool versions mismatch, will update environment"
+            needs_update=true
             env_file=$(write_environment_yml "$project_root")
         fi
     else
         print_info "build_venv.yml not found, generating..."
+        needs_update=true
         env_file=$(write_environment_yml "$project_root")
     fi
     print_info ""
@@ -343,14 +366,8 @@ invoke_setup() {
         print_info "Environment '$ENV_NAME' already exists"
         
         if [ "$needs_update" = true ]; then
-            if [ "$UPDATE_FLAG" = true ]; then
-                update_environment "$conda_exe" "$env_file"
-            else
-                read -p "Update environment with new versions? (y/n) [y]: " -r response
-                if [[ ! $response =~ ^[Nn]$ ]]; then
-                    update_environment "$conda_exe" "$env_file"
-                fi
-            fi
+            print_info "Updating environment with new tool versions..."
+            update_environment "$conda_exe" "$env_file"
         else
             print_success "Environment is up to date, skipping update"
         fi

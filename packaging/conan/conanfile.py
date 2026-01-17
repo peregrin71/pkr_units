@@ -48,11 +48,15 @@ class SiUnitsConan(ConanFile):
         self.requires("gtest/1.15.0")
 
     def layout(self):
-        # Output generators to the build directory (.vs_build)
-        # Use absolute path relative to project root
+        # Output generators to the build directory
+        # Use compiler-specific build folder if specified, otherwise default to .msvc_build
+        # The build folder can be set via CONAN_BUILD_FOLDER environment variable
         import os
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        generators_path = os.path.join(project_root, ".vs_build", "generators")
+        
+        # Check if build folder is specified via environment or use default
+        build_folder = os.environ.get('CONAN_BUILD_FOLDER', '.msvc_build')
+        generators_path = os.path.join(project_root, build_folder, "generators")
         self.folders.generators = generators_path
 
     def build(self):
