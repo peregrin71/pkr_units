@@ -47,7 +47,7 @@ def install(project_root: Path, build_path: Path, configuration: str, compiler: 
 
     # Use compiler-specific profile (Windows-specific for now)
     profile_name = f"windows-{compiler}.profile"
-    profile_path = Path(project_root) / "packaging" / "conan" / "profiles" / profile_name
+    profile_path = Path(project_root) / "build" / "profiles" / profile_name
     if not profile_path.exists():
         raise BuildException(f"Profile not found for compiler '{compiler}': {profile_path}")
 

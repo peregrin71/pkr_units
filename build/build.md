@@ -134,16 +134,16 @@ python build/build.py --skip-venv-setup
 ### Compiler Profiles
 Each compiler uses a specific Conan profile:
 ```
-packaging/conan/profiles/windows-msvc.profile   # Visual Studio / MSVC
-packaging/conan/profiles/windows-clang.profile  # LLVM Clang
-packaging/conan/profiles/windows-gcc.profile    # GNU Compiler Collection
+build/profiles/windows-msvc.profile   # Visual Studio / MSVC
+build/profiles/windows-clang.profile  # LLVM Clang
+build/profiles/windows-gcc.profile    # GNU Compiler Collection
 ```
 
 **Note**: Profiles are currently Windows-specific. Future profiles for other platforms:
 ```
-packaging/conan/profiles/linux-gcc.profile      # GCC on Linux
-packaging/conan/profiles/macos-clang.profile    # Clang on macOS
-packaging/conan/profiles/android-gcc.profile    # GCC for Android (future)
+build/profiles/linux-gcc.profile      # GCC on Linux
+build/profiles/macos-clang.profile    # Clang on macOS
+build/profiles/android-gcc.profile    # GCC for Android (future)
 ```
 
 Profiles specify:
