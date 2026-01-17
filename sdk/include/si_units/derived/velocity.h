@@ -7,23 +7,69 @@
 PKR_SI_BEGIN_NAMESPACE
 {
 
-// Velocity units (length per time)
-// Base unit: meter per second (m/s)
+// Velocity quantity template
+template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using velocity = unit_t<type_t, ratio_t, velocity_dimension>;
 
 // SI metric velocity units
-using meter_per_second = unit_t<double, std::ratio<1, 1>, velocity_dimension>;
-using kilometer_per_hour = unit_t<double, std::ratio<5, 18>, velocity_dimension>;  // 1 km/h = 5/18 m/s
-using centimeter_per_second = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
-using millimeter_per_second = unit_t<double, std::ratio<1, 1000>, velocity_dimension>;
-using kilometer_per_second = unit_t<double, std::ratio<1000, 1>, velocity_dimension>;
+
+// Base unit: meter per second (m/s)
+struct meter_per_second final : public unit_t<double, std::ratio<1, 1>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, velocity_dimension>;
+    using _base::_base;
+};
+
+// Other SI velocity units
+struct kilometer_per_hour final : public unit_t<double, std::ratio<5, 18>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<5, 18>, velocity_dimension>;
+    using _base::_base;
+};
+
+struct centimeter_per_second final : public unit_t<double, std::ratio<1, 100>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
+    using _base::_base;
+};
+
+struct millimeter_per_second final : public unit_t<double, std::ratio<1, 1000>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1000>, velocity_dimension>;
+    using _base::_base;
+};
+
+struct kilometer_per_second final : public unit_t<double, std::ratio<1000, 1>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1000, 1>, velocity_dimension>;
+    using _base::_base;
+};
 
 // Imperial velocity units
-using miles_per_hour = unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>;  // 1 mph ≈ 0.44704 m/s
-using feet_per_second = unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;  // 1 ft/s = 0.3048 m/s
-using inches_per_second = unit_t<double, std::ratio<254, 10000>, velocity_dimension>;  // 1 in/s = 0.0254 m/s
+struct miles_per_hour final : public unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>;
+    using _base::_base;
+};
+
+struct feet_per_second final : public unit_t<double, std::ratio<3048, 10000>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;
+    using _base::_base;
+};
+
+struct inches_per_second final : public unit_t<double, std::ratio<254, 10000>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<254, 10000>, velocity_dimension>;
+    using _base::_base;
+};
 
 // Maritime velocity units
-using knots = unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;  // 1 knot = 1852/3600 m/s
+struct knots final : public unit_t<double, std::ratio<1852, 3600>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;
+    using _base::_base;
+};
 
 } // PKR_SI_NAMESPACE
 
