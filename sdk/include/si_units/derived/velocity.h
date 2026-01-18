@@ -1,8 +1,8 @@
 #pragma once
 
-#include <si_units/impl/details/si_unit.h>
+#include "../impl/namespace_config.h"
+#include "../impl/common/velocity_def.h"
 #include <si_units/impl/details/dimension.h>
-#include "../namespace_config.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
@@ -12,10 +12,10 @@ inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0};
 
 // Velocity quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using velocity = unit_t<type_t, ratio_t, velocity_dimension>;
+using velocity_unit_t = unit_t<type_t, ratio_t, velocity_dimension>;
 
 // Strong type for meter per second (SI base unit)
-struct meter_per_second final : public unit_t<double, std::ratio<1, 1>, velocity_dimension>
+struct meter_per_second_t final : public unit_t<double, std::ratio<1, 1>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1>, velocity_dimension>;
     using _base::_base;
@@ -26,7 +26,7 @@ struct meter_per_second final : public unit_t<double, std::ratio<1, 1>, velocity
 };
 
 // Strong type for kilometer per hour
-struct kilometer_per_hour final : public unit_t<double, std::ratio<5, 18>, velocity_dimension>
+struct kilometer_per_hour_t final : public unit_t<double, std::ratio<5, 18>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<5, 18>, velocity_dimension>;
     using _base::_base;
@@ -37,7 +37,7 @@ struct kilometer_per_hour final : public unit_t<double, std::ratio<5, 18>, veloc
 };
 
 // Strong type for centimeter per second
-struct centimeter_per_second final : public unit_t<double, std::ratio<1, 100>, velocity_dimension>
+struct centimeter_per_second_t final : public unit_t<double, std::ratio<1, 100>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
     using _base::_base;
@@ -48,7 +48,7 @@ struct centimeter_per_second final : public unit_t<double, std::ratio<1, 100>, v
 };
 
 // Strong type for millimeter per second
-struct millimeter_per_second final : public unit_t<double, std::ratio<1, 1000>, velocity_dimension>
+struct millimeter_per_second_t final : public unit_t<double, std::ratio<1, 1000>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1, 1000>, velocity_dimension>;
     using _base::_base;
@@ -59,7 +59,7 @@ struct millimeter_per_second final : public unit_t<double, std::ratio<1, 1000>, 
 };
 
 // Strong type for kilometer per second
-struct kilometer_per_second final : public unit_t<double, std::ratio<1000, 1>, velocity_dimension>
+struct kilometer_per_second_t final : public unit_t<double, std::ratio<1000, 1>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1000, 1>, velocity_dimension>;
     using _base::_base;
@@ -70,7 +70,7 @@ struct kilometer_per_second final : public unit_t<double, std::ratio<1000, 1>, v
 };
 
 // Strong type for miles per hour
-struct miles_per_hour final : public unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
+struct miles_per_hour_t final : public unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>;
     using _base::_base;
@@ -81,7 +81,7 @@ struct miles_per_hour final : public unit_t<double, std::ratio<1609344, 3600000>
 };
 
 // Strong type for feet per second
-struct feet_per_second final : public unit_t<double, std::ratio<3048, 10000>, velocity_dimension>
+struct feet_per_second_t final : public unit_t<double, std::ratio<3048, 10000>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;
     using _base::_base;
@@ -92,7 +92,7 @@ struct feet_per_second final : public unit_t<double, std::ratio<3048, 10000>, ve
 };
 
 // Strong type for inches per second
-struct inches_per_second final : public unit_t<double, std::ratio<254, 10000>, velocity_dimension>
+struct inches_per_second_t final : public unit_t<double, std::ratio<254, 10000>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<254, 10000>, velocity_dimension>;
     using _base::_base;
@@ -103,7 +103,7 @@ struct inches_per_second final : public unit_t<double, std::ratio<254, 10000>, v
 };
 
 // Strong type for knots
-struct knots final : public unit_t<double, std::ratio<1852, 3600>, velocity_dimension>
+struct knots_t final : public unit_t<double, std::ratio<1852, 3600>, velocity_dimension>
 {
     using _base = unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;
     using _base::_base;

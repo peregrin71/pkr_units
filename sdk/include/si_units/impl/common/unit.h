@@ -158,7 +158,7 @@ constexpr si_unit_type get_si_unit_type() noexcept
     return si_unit_type_impl<dim_v>::value;
 }
 
-template<si::is_si_type_c type_t, typename ratio_t, dimension_t dim_v>
+template<PKR_SI_NAMESPACE::is_si_type_c type_t, typename ratio_t, dimension_t dim_v>
 class unit_t
 {
 public:
@@ -312,7 +312,7 @@ struct is_si_unit<T> : std::true_type
 
 // Concept for any si_unit type
 template<typename T>
-concept si_unit_type = is_si_unit<T>::value;
+concept si_unit_concept = is_si_unit<T>::value;
 
 PKR_SI_DETAILS_END_NAMESPACE
 
@@ -323,8 +323,14 @@ PKR_SI_BEGIN_NAMESPACE
 {
 
 // Addition operator
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -350,9 +356,21 @@ constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 }
 
 // Named add function
-template<details::si_unit_type ResultType, details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<ResultType>::value_dimension)
+template<typename ResultType, typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity &&
+           details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<ResultType>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<ResultType>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<ResultType>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<ResultType>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<ResultType>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<ResultType>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<ResultType>::value_dimension.intensity))
 constexpr auto add(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<ResultType>::value_type;
@@ -373,8 +391,14 @@ constexpr auto add(const T1& lhs, const T2& rhs) noexcept
 }
 
 // Subtraction operator
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -398,9 +422,9 @@ constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
         return T1{converted};
     }
 }
-
 // Multiplication operators
-template<details::si_unit_type T1, details::si_unit_type T2>
+template<typename T1, typename T2>
+requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value)
 constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -432,31 +456,9 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
     return result_type{details::multiply_values(lhs.value(), rhs.value())};
 }
 
-// Multiplication by scalar
-template<typename T, details::si_unit_type U>
-requires (!details::is_si_unit<T>::value && details::is_si_unit<U>::value)
-constexpr auto operator*(const T& scalar, const U& rhs) noexcept
-{
-    using value_type = typename details::is_si_unit<U>::value_type;
-    using ratio_type = typename details::is_si_unit<U>::ratio_type;
-    constexpr auto dim = details::is_si_unit<U>::value_dimension;
-    
-    return details::unit_t<value_type, ratio_type, dim>{scalar * rhs.value()};
-}
-
-template<details::si_unit_type T, typename U>
-requires (details::is_si_unit<T>::value && !details::is_si_unit<U>::value)
-constexpr auto operator*(const T& lhs, const U& scalar) noexcept
-{
-    using value_type = typename details::is_si_unit<T>::value_type;
-    using ratio_type = typename details::is_si_unit<T>::ratio_type;
-    constexpr auto dim = details::is_si_unit<T>::value_dimension;
-    
-    return details::unit_t<value_type, ratio_type, dim>{scalar * lhs.value()};
-}
-
 // Division operator
-template<details::si_unit_type T1, details::si_unit_type T2>
+template<typename T1, typename T2>
+requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value)
 constexpr auto operator/(const T1& lhs, const T2& rhs)
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -489,9 +491,14 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
 }
 
 // Comparison operators
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
 {
     using lhs_ratio = typename details::is_si_unit<T1>::ratio_type;
@@ -513,46 +520,72 @@ constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
 {
     auto to_canonical = [](const auto& unit) {
-        using ratio_type = typename details::is_si_unit<decltype(unit)>::ratio_type;
+        using unit_type = std::remove_cvref_t<decltype(unit)>;
+        using ratio_type = typename details::is_si_unit<unit_type>::ratio_type;
         return static_cast<double>(unit.value()) * 
                (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
     };
     return to_canonical(lhs) < to_canonical(rhs);
 }
 
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
 {
     return lhs < rhs || lhs == rhs;
 }
 
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs <= rhs);
 }
 
-template<details::si_unit_type T1, details::si_unit_type T2>
-requires (details::is_si_unit<T1>::value && details::is_si_unit<T2>::value &&
-          details::is_si_unit<T1>::value_dimension == details::is_si_unit<T2>::value_dimension)
+template<typename T1, typename T2>
+requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
+           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
+           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
+           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
+           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
+           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
+           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
 constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs < rhs);

@@ -1,19 +1,15 @@
 #pragma once
 
-#include "../impl/details/si_unit.h"
-#include "../impl/details/dimension.h"
-#include "../namespace_config.h"
+#include "../impl/namespace_config.h"
+#include "../impl/common/time_def.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
-// Time quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using time = unit_t<type_t, ratio_t, time_dimension>;
 
 // Strong type for second (SI base unit)
-struct second final : public unit_t<double, std::ratio<1, 1>, time_dimension>
+struct second_t final : public details::unit_t<double, std::ratio<1, 1>, details::time_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1>, time_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"second"};
     static constexpr std::string_view symbol{"s"};
@@ -22,9 +18,9 @@ struct second final : public unit_t<double, std::ratio<1, 1>, time_dimension>
 };
 
 // Metric time prefixes (strong types)
-struct attosecond final : public unit_t<double, std::atto, time_dimension>
+struct attosecond_t final : public details::unit_t<double, std::atto, details::time_dimension>
 {
-    using _base = unit_t<double, std::atto, time_dimension>;
+    using _base = details::unit_t<double, std::atto, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"attosecond"};
     static constexpr std::string_view symbol{"as"};
@@ -32,9 +28,9 @@ struct attosecond final : public unit_t<double, std::atto, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"as"};
 };
 
-struct femtosecond final : public unit_t<double, std::femto, time_dimension>
+struct femtosecond_t final : public details::unit_t<double, std::femto, details::time_dimension>
 {
-    using _base = unit_t<double, std::femto, time_dimension>;
+    using _base = details::unit_t<double, std::femto, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"femtosecond"};
     static constexpr std::string_view symbol{"fs"};
@@ -42,9 +38,9 @@ struct femtosecond final : public unit_t<double, std::femto, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"fs"};
 };
 
-struct picosecond final : public unit_t<double, std::pico, time_dimension>
+struct picosecond_t final : public details::unit_t<double, std::pico, details::time_dimension>
 {
-    using _base = unit_t<double, std::pico, time_dimension>;
+    using _base = details::unit_t<double, std::pico, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"picosecond"};
     static constexpr std::string_view symbol{"ps"};
@@ -52,9 +48,9 @@ struct picosecond final : public unit_t<double, std::pico, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ps"};
 };
 
-struct nanosecond final : public unit_t<double, std::nano, time_dimension>
+struct nanosecond_t final : public details::unit_t<double, std::nano, details::time_dimension>
 {
-    using _base = unit_t<double, std::nano, time_dimension>;
+    using _base = details::unit_t<double, std::nano, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"nanosecond"};
     static constexpr std::string_view symbol{"ns"};
@@ -62,9 +58,9 @@ struct nanosecond final : public unit_t<double, std::nano, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ns"};
 };
 
-struct microsecond final : public unit_t<double, std::micro, time_dimension>
+struct microsecond_t final : public details::unit_t<double, std::micro, details::time_dimension>
 {
-    using _base = unit_t<double, std::micro, time_dimension>;
+    using _base = details::unit_t<double, std::micro, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microsecond"};
     static constexpr std::string_view symbol{"us"};
@@ -72,9 +68,9 @@ struct microsecond final : public unit_t<double, std::micro, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"µs"};
 };
 
-struct millisecond final : public unit_t<double, std::milli, time_dimension>
+struct millisecond_t final : public details::unit_t<double, std::milli, details::time_dimension>
 {
-    using _base = unit_t<double, std::milli, time_dimension>;
+    using _base = details::unit_t<double, std::milli, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"millisecond"};
     static constexpr std::string_view symbol{"ms"};
@@ -82,9 +78,9 @@ struct millisecond final : public unit_t<double, std::milli, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ms"};
 };
 
-struct centisecond final : public unit_t<double, std::centi, time_dimension>
+struct centisecond_t final : public details::unit_t<double, std::centi, details::time_dimension>
 {
-    using _base = unit_t<double, std::centi, time_dimension>;
+    using _base = details::unit_t<double, std::centi, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"centisecond"};
     static constexpr std::string_view symbol{"cs"};
@@ -92,9 +88,9 @@ struct centisecond final : public unit_t<double, std::centi, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"cs"};
 };
 
-struct decisecond final : public unit_t<double, std::deci, time_dimension>
+struct decisecond_t final : public details::unit_t<double, std::deci, details::time_dimension>
 {
-    using _base = unit_t<double, std::deci, time_dimension>;
+    using _base = details::unit_t<double, std::deci, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decisecond"};
     static constexpr std::string_view symbol{"ds"};
@@ -102,9 +98,9 @@ struct decisecond final : public unit_t<double, std::deci, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ds"};
 };
 
-struct decasecond final : public unit_t<double, std::deca, time_dimension>
+struct decasecond_t final : public details::unit_t<double, std::deca, details::time_dimension>
 {
-    using _base = unit_t<double, std::deca, time_dimension>;
+    using _base = details::unit_t<double, std::deca, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decasecond"};
     static constexpr std::string_view symbol{"das"};
@@ -112,9 +108,9 @@ struct decasecond final : public unit_t<double, std::deca, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"das"};
 };
 
-struct hectosecond final : public unit_t<double, std::hecto, time_dimension>
+struct hectosecond_t final : public details::unit_t<double, std::hecto, details::time_dimension>
 {
-    using _base = unit_t<double, std::hecto, time_dimension>;
+    using _base = details::unit_t<double, std::hecto, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"hectosecond"};
     static constexpr std::string_view symbol{"hs"};
@@ -122,9 +118,9 @@ struct hectosecond final : public unit_t<double, std::hecto, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"hs"};
 };
 
-struct kilosecond final : public unit_t<double, std::kilo, time_dimension>
+struct kilosecond_t final : public details::unit_t<double, std::kilo, details::time_dimension>
 {
-    using _base = unit_t<double, std::kilo, time_dimension>;
+    using _base = details::unit_t<double, std::kilo, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilosecond"};
     static constexpr std::string_view symbol{"ks"};
@@ -132,9 +128,9 @@ struct kilosecond final : public unit_t<double, std::kilo, time_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ks"};
 };
 
-struct megasecond final : public unit_t<double, std::mega, time_dimension>
+struct megasecond_t final : public details::unit_t<double, std::mega, details::time_dimension>
 {
-    using _base = unit_t<double, std::mega, time_dimension>;
+    using _base = details::unit_t<double, std::mega, details::time_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"megasecond"};
     static constexpr std::string_view symbol{"Ms"};

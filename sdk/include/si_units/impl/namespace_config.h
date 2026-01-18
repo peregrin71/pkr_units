@@ -31,7 +31,7 @@
  */
 
 #ifndef PKR_SI_NAMESPACE
-    #define PKR_SI_NAMESPACE si
+    #define PKR_SI_NAMESPACE pkr::units
 #endif
 
 /**

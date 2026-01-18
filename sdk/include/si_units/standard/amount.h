@@ -1,19 +1,15 @@
 #pragma once
 
-#include "../impl/details/si_unit.h"
-#include "../impl/details/dimension.h"
-#include "../namespace_config.h"
+#include "../impl/namespace_config.h"
+#include "../impl/common/amount_def.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
-// Amount quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using amount = unit_t<type_t, ratio_t, amount_dimension>;
 
 // Strong type for mole (SI base unit)
-struct mole final : public unit_t<double, std::ratio<1, 1>, amount_dimension>
+struct mole_t final : public details::unit_t<double, std::ratio<1, 1>, details::amount_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1>, amount_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"mole"};
     static constexpr std::string_view symbol{"mol"};
@@ -22,9 +18,9 @@ struct mole final : public unit_t<double, std::ratio<1, 1>, amount_dimension>
 };
 
 // Metric amount prefixes (strong types)
-struct attomole final : public unit_t<double, std::atto, amount_dimension>
+struct attomole_t final : public details::unit_t<double, std::atto, details::amount_dimension>
 {
-    using _base = unit_t<double, std::atto, amount_dimension>;
+    using _base = details::unit_t<double, std::atto, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"attomole"};
     static constexpr std::string_view symbol{"amol"};
@@ -32,9 +28,9 @@ struct attomole final : public unit_t<double, std::atto, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"amol"};
 };
 
-struct femtomole final : public unit_t<double, std::femto, amount_dimension>
+struct femtomole_t final : public details::unit_t<double, std::femto, details::amount_dimension>
 {
-    using _base = unit_t<double, std::femto, amount_dimension>;
+    using _base = details::unit_t<double, std::femto, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"femtomole"};
     static constexpr std::string_view symbol{"fmol"};
@@ -42,9 +38,9 @@ struct femtomole final : public unit_t<double, std::femto, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"fmol"};
 };
 
-struct picomole final : public unit_t<double, std::pico, amount_dimension>
+struct picomole_t final : public details::unit_t<double, std::pico, details::amount_dimension>
 {
-    using _base = unit_t<double, std::pico, amount_dimension>;
+    using _base = details::unit_t<double, std::pico, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"picomole"};
     static constexpr std::string_view symbol{"pmol"};
@@ -52,9 +48,9 @@ struct picomole final : public unit_t<double, std::pico, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"pmol"};
 };
 
-struct nanomole final : public unit_t<double, std::nano, amount_dimension>
+struct nanomole_t final : public details::unit_t<double, std::nano, details::amount_dimension>
 {
-    using _base = unit_t<double, std::nano, amount_dimension>;
+    using _base = details::unit_t<double, std::nano, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"nanomole"};
     static constexpr std::string_view symbol{"nmol"};
@@ -62,9 +58,9 @@ struct nanomole final : public unit_t<double, std::nano, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"nmol"};
 };
 
-struct micromole final : public unit_t<double, std::micro, amount_dimension>
+struct micromole_t final : public details::unit_t<double, std::micro, details::amount_dimension>
 {
-    using _base = unit_t<double, std::micro, amount_dimension>;
+    using _base = details::unit_t<double, std::micro, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"micromole"};
     static constexpr std::string_view symbol{"umol"};
@@ -72,9 +68,9 @@ struct micromole final : public unit_t<double, std::micro, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"µmol"};
 };
 
-struct millimole final : public unit_t<double, std::milli, amount_dimension>
+struct millimole_t final : public details::unit_t<double, std::milli, details::amount_dimension>
 {
-    using _base = unit_t<double, std::milli, amount_dimension>;
+    using _base = details::unit_t<double, std::milli, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"millimole"};
     static constexpr std::string_view symbol{"mmol"};
@@ -82,9 +78,9 @@ struct millimole final : public unit_t<double, std::milli, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"mmol"};
 };
 
-struct centimole final : public unit_t<double, std::centi, amount_dimension>
+struct centimole_t final : public details::unit_t<double, std::centi, details::amount_dimension>
 {
-    using _base = unit_t<double, std::centi, amount_dimension>;
+    using _base = details::unit_t<double, std::centi, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"centimole"};
     static constexpr std::string_view symbol{"cmol"};
@@ -92,9 +88,9 @@ struct centimole final : public unit_t<double, std::centi, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"cmol"};
 };
 
-struct decimole final : public unit_t<double, std::deci, amount_dimension>
+struct decimole_t final : public details::unit_t<double, std::deci, details::amount_dimension>
 {
-    using _base = unit_t<double, std::deci, amount_dimension>;
+    using _base = details::unit_t<double, std::deci, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decimole"};
     static constexpr std::string_view symbol{"dmol"};
@@ -102,9 +98,9 @@ struct decimole final : public unit_t<double, std::deci, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"dmol"};
 };
 
-struct decamole final : public unit_t<double, std::deca, amount_dimension>
+struct decamole_t final : public details::unit_t<double, std::deca, details::amount_dimension>
 {
-    using _base = unit_t<double, std::deca, amount_dimension>;
+    using _base = details::unit_t<double, std::deca, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decamole"};
     static constexpr std::string_view symbol{"damol"};
@@ -112,9 +108,9 @@ struct decamole final : public unit_t<double, std::deca, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"damol"};
 };
 
-struct hectomole final : public unit_t<double, std::hecto, amount_dimension>
+struct hectomole_t final : public details::unit_t<double, std::hecto, details::amount_dimension>
 {
-    using _base = unit_t<double, std::hecto, amount_dimension>;
+    using _base = details::unit_t<double, std::hecto, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"hectomole"};
     static constexpr std::string_view symbol{"hmol"};
@@ -122,9 +118,9 @@ struct hectomole final : public unit_t<double, std::hecto, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"hmol"};
 };
 
-struct kilomole final : public unit_t<double, std::kilo, amount_dimension>
+struct kilomole_t final : public details::unit_t<double, std::kilo, details::amount_dimension>
 {
-    using _base = unit_t<double, std::kilo, amount_dimension>;
+    using _base = details::unit_t<double, std::kilo, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilomole"};
     static constexpr std::string_view symbol{"kmol"};
@@ -132,9 +128,9 @@ struct kilomole final : public unit_t<double, std::kilo, amount_dimension>
     static constexpr std::u8string_view u8_symbol{u8"kmol"};
 };
 
-struct megamole final : public unit_t<double, std::mega, amount_dimension>
+struct megamole_t final : public details::unit_t<double, std::mega, details::amount_dimension>
 {
-    using _base = unit_t<double, std::mega, amount_dimension>;
+    using _base = details::unit_t<double, std::mega, details::amount_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"megamole"};
     static constexpr std::string_view symbol{"Mmol"};

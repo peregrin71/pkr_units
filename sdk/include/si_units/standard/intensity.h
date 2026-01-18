@@ -1,19 +1,15 @@
 #pragma once
 
-#include "../impl/details/si_unit.h"
-#include "../impl/details/dimension.h"
-#include "../namespace_config.h"
+#include "../impl/namespace_config.h"
+#include "../impl/common/intensity_def.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
-// Intensity quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using intensity = unit_t<type_t, ratio_t, intensity_dimension>;
 
 // Strong type for candela (SI base unit)
-struct candela final : public unit_t<double, std::ratio<1, 1>, intensity_dimension>
+struct candela_t final : public details::unit_t<double, std::ratio<1, 1>, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1>, intensity_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"candela"};
     static constexpr std::string_view symbol{"cd"};
@@ -22,9 +18,9 @@ struct candela final : public unit_t<double, std::ratio<1, 1>, intensity_dimensi
 };
 
 // Metric intensity prefixes (strong types)
-struct attocandela final : public unit_t<double, std::atto, intensity_dimension>
+struct attocandela_t final : public details::unit_t<double, std::atto, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::atto, intensity_dimension>;
+    using _base = details::unit_t<double, std::atto, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"attocandela"};
     static constexpr std::string_view symbol{"acd"};
@@ -32,9 +28,9 @@ struct attocandela final : public unit_t<double, std::atto, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"acd"};
 };
 
-struct femtocandela final : public unit_t<double, std::femto, intensity_dimension>
+struct femtocandela_t final : public details::unit_t<double, std::femto, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::femto, intensity_dimension>;
+    using _base = details::unit_t<double, std::femto, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"femtocandela"};
     static constexpr std::string_view symbol{"fcd"};
@@ -42,9 +38,9 @@ struct femtocandela final : public unit_t<double, std::femto, intensity_dimensio
     static constexpr std::u8string_view u8_symbol{u8"fcd"};
 };
 
-struct picocandela final : public unit_t<double, std::pico, intensity_dimension>
+struct picocandela_t final : public details::unit_t<double, std::pico, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::pico, intensity_dimension>;
+    using _base = details::unit_t<double, std::pico, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"picocandela"};
     static constexpr std::string_view symbol{"pcd"};
@@ -52,9 +48,9 @@ struct picocandela final : public unit_t<double, std::pico, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"pcd"};
 };
 
-struct nanocandela final : public unit_t<double, std::nano, intensity_dimension>
+struct nanocandela_t final : public details::unit_t<double, std::nano, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::nano, intensity_dimension>;
+    using _base = details::unit_t<double, std::nano, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"nanocandela"};
     static constexpr std::string_view symbol{"ncd"};
@@ -62,9 +58,9 @@ struct nanocandela final : public unit_t<double, std::nano, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"ncd"};
 };
 
-struct microcandela final : public unit_t<double, std::micro, intensity_dimension>
+struct microcandela_t final : public details::unit_t<double, std::micro, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::micro, intensity_dimension>;
+    using _base = details::unit_t<double, std::micro, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microcandela"};
     static constexpr std::string_view symbol{"ucd"};
@@ -72,9 +68,9 @@ struct microcandela final : public unit_t<double, std::micro, intensity_dimensio
     static constexpr std::u8string_view u8_symbol{u8"µcd"};
 };
 
-struct millicandela final : public unit_t<double, std::milli, intensity_dimension>
+struct millicandela_t final : public details::unit_t<double, std::milli, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::milli, intensity_dimension>;
+    using _base = details::unit_t<double, std::milli, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"millicandela"};
     static constexpr std::string_view symbol{"mcd"};
@@ -82,9 +78,9 @@ struct millicandela final : public unit_t<double, std::milli, intensity_dimensio
     static constexpr std::u8string_view u8_symbol{u8"mcd"};
 };
 
-struct centicandela final : public unit_t<double, std::centi, intensity_dimension>
+struct centicandela_t final : public details::unit_t<double, std::centi, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::centi, intensity_dimension>;
+    using _base = details::unit_t<double, std::centi, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"centicandela"};
     static constexpr std::string_view symbol{"ccd"};
@@ -92,9 +88,9 @@ struct centicandela final : public unit_t<double, std::centi, intensity_dimensio
     static constexpr std::u8string_view u8_symbol{u8"ccd"};
 };
 
-struct decicandela final : public unit_t<double, std::deci, intensity_dimension>
+struct decicandela_t final : public details::unit_t<double, std::deci, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::deci, intensity_dimension>;
+    using _base = details::unit_t<double, std::deci, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decicandela"};
     static constexpr std::string_view symbol{"dcd"};
@@ -102,9 +98,9 @@ struct decicandela final : public unit_t<double, std::deci, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"dcd"};
 };
 
-struct decacandela final : public unit_t<double, std::deca, intensity_dimension>
+struct decacandela_t final : public details::unit_t<double, std::deca, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::deca, intensity_dimension>;
+    using _base = details::unit_t<double, std::deca, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decacandela"};
     static constexpr std::string_view symbol{"dacd"};
@@ -112,9 +108,9 @@ struct decacandela final : public unit_t<double, std::deca, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"dacd"};
 };
 
-struct hectocandela final : public unit_t<double, std::hecto, intensity_dimension>
+struct hectocandela_t final : public details::unit_t<double, std::hecto, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::hecto, intensity_dimension>;
+    using _base = details::unit_t<double, std::hecto, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"hectocandela"};
     static constexpr std::string_view symbol{"hcd"};
@@ -122,9 +118,9 @@ struct hectocandela final : public unit_t<double, std::hecto, intensity_dimensio
     static constexpr std::u8string_view u8_symbol{u8"hcd"};
 };
 
-struct kilocandela final : public unit_t<double, std::kilo, intensity_dimension>
+struct kilocandela_t final : public details::unit_t<double, std::kilo, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::kilo, intensity_dimension>;
+    using _base = details::unit_t<double, std::kilo, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilocandela"};
     static constexpr std::string_view symbol{"kcd"};
@@ -132,9 +128,9 @@ struct kilocandela final : public unit_t<double, std::kilo, intensity_dimension>
     static constexpr std::u8string_view u8_symbol{u8"kcd"};
 };
 
-struct megacandela final : public unit_t<double, std::mega, intensity_dimension>
+struct megacandela_t final : public details::unit_t<double, std::mega, details::intensity_dimension>
 {
-    using _base = unit_t<double, std::mega, intensity_dimension>;
+    using _base = details::unit_t<double, std::mega, details::intensity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"megacandela"};
     static constexpr std::string_view symbol{"Mcd"};

@@ -18,8 +18,8 @@ TEST_F(ArithmeticOptimizationsTest, add_same_ratio_meters)
 {
     // Optimized path: both meter have ratio<1,1>
     // Result stays as meter (not converted to canonical)
-    si::meter m1{5.0};
-    si::meter m2{3.0};
+    pkr::units::meter_t m1{5.0};
+    pkr::units::meter_t m2{3.0};
     auto result = m1 + m2;
     
     ASSERT_DOUBLE_EQ(result.value(), 8.0);
@@ -33,8 +33,8 @@ TEST_F(ArithmeticOptimizationsTest, add_same_ratio_kilometers)
 {
     // Optimized path: both kilometer have ratio<1000,1>
     // Result stays as kilometer (not converted to meter)
-    si::kilometer km1{2.0};
-    si::kilometer km2{3.0};
+    pkr::units::kilometer_t km1{2.0};
+    pkr::units::kilometer_t km2{3.0};
     auto result = km1 + km2;
     
     ASSERT_DOUBLE_EQ(result.value(), 5.0);  // Still in kilometers
@@ -46,8 +46,8 @@ TEST_F(ArithmeticOptimizationsTest, add_same_ratio_millimeters)
 {
     // Optimized path: both millimeter have ratio<1,1000>
     // Result stays as millimeter
-    si::millimeter mm1{1500.0};
-    si::millimeter mm2{500.0};
+    pkr::units::millimeter_t mm1{1500.0};
+    pkr::units::millimeter_t mm2{500.0};
     auto result = mm1 + mm2;
     
     ASSERT_DOUBLE_EQ(result.value(), 2000.0);  // Still in millimeters
@@ -59,8 +59,8 @@ TEST_F(ArithmeticOptimizationsTest, add_different_ratio_meter_kilometer)
 {
     // Non-optimized path: meter (ratio 1/1) + kilometer (ratio 1000/1)
     // Result is in LHS type (meter)
-    si::meter m{500.0};
-    si::kilometer km{1.0};
+    pkr::units::meter_t m{500.0};
+    pkr::units::kilometer_t km{1.0};
     auto result = m + km;
     
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // 500m + 1000m = 1500m
@@ -73,8 +73,8 @@ TEST_F(ArithmeticOptimizationsTest, add_different_ratio_kilometer_meter)
 {
     // Non-optimized path: kilometer (ratio 1000/1) + meter (ratio 1/1)
     // Result is in LHS type (kilometer)
-    si::kilometer km{1.0};
-    si::meter m{500.0};
+    pkr::units::kilometer_t km{1.0};
+    pkr::units::meter_t m{500.0};
     auto result = km + m;
     
     ASSERT_DOUBLE_EQ(result.value(), 1.5);  // 1km + 0.5km = 1.5km
@@ -86,8 +86,8 @@ TEST_F(ArithmeticOptimizationsTest, add_different_ratio_millimeter_meter)
 {
     // Non-optimized path: millimeter (ratio 1/1000) + meter (ratio 1/1)
     // Result is in LHS type (millimeter)
-    si::millimeter mm{500.0};
-    si::meter m{1.0};
+    pkr::units::millimeter_t mm{500.0};
+    pkr::units::meter_t m{1.0};
     auto result = mm + m;
     
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // 500mm + 1000mm = 1500mm
@@ -103,8 +103,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_same_ratio_meters)
 {
     // Optimized path: both meter have ratio<1,1>
     // Result stays as meter
-    si::meter m1{8.0};
-    si::meter m2{3.0};
+    pkr::units::meter_t m1{8.0};
+    pkr::units::meter_t m2{3.0};
     auto result = m1 - m2;
     
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -116,8 +116,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_same_ratio_kilometers)
 {
     // Optimized path: both kilometer have ratio<1000,1>
     // Result stays as kilometer
-    si::kilometer km1{5.0};
-    si::kilometer km2{2.0};
+    pkr::units::kilometer_t km1{5.0};
+    pkr::units::kilometer_t km2{2.0};
     auto result = km1 - km2;
     
     ASSERT_DOUBLE_EQ(result.value(), 3.0);  // Still in kilometers
@@ -129,8 +129,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_same_ratio_millimeters)
 {
     // Optimized path: both millimeter have ratio<1,1000>
     // Result stays as millimeter
-    si::millimeter mm1{2000.0};
-    si::millimeter mm2{500.0};
+    pkr::units::millimeter_t mm1{2000.0};
+    pkr::units::millimeter_t mm2{500.0};
     auto result = mm1 - mm2;
     
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);  // Still in millimeters
@@ -142,8 +142,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_different_ratio_meter_kilometer)
 {
     // Non-optimized path: meter (ratio 1/1) - kilometer (ratio 1000/1)
     // Result is in LHS type (meter)
-    si::meter m{1500.0};
-    si::kilometer km{1.0};
+    pkr::units::meter_t m{1500.0};
+    pkr::units::kilometer_t km{1.0};
     auto result = m - km;
     
     ASSERT_DOUBLE_EQ(result.value(), 500.0);  // 1500m - 1000m = 500m
@@ -155,8 +155,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_different_ratio_kilometer_meter)
 {
     // Non-optimized path: kilometer (ratio 1000/1) - meter (ratio 1/1)
     // Result is in LHS type (kilometer)
-    si::kilometer km{2.0};
-    si::meter m{500.0};
+    pkr::units::kilometer_t km{2.0};
+    pkr::units::meter_t m{500.0};
     auto result = km - m;
     
     ASSERT_DOUBLE_EQ(result.value(), 1.5);  // 2km - 0.5km = 1.5km
@@ -173,8 +173,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_both_ratio_one_meters)
 {
     // Optimized path: both meter have ratio<1,1>
     // Combined ratio should be ratio<1,1> directly (no std::ratio_multiply called)
-    si::meter m1{2.0};
-    si::meter m2{3.0};
+    pkr::units::meter_t m1{2.0};
+    pkr::units::meter_t m2{3.0};
     auto result = m1 * m2;
     
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -188,8 +188,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_one_ratio_one_meter_by_kilometer)
 {
     // Optimized path: meter has ratio<1,1>, kilometer has ratio<1000,1>
     // Result ratio should be ratio<1000,1> directly (no multiplication needed)
-    si::meter m{5.0};
-    si::kilometer km{2.0};
+    pkr::units::meter_t m{5.0};
+    pkr::units::kilometer_t km{2.0};
     auto result = m * km;
     
     ASSERT_DOUBLE_EQ(result.value(), 10.0);
@@ -203,8 +203,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_ratio_one_by_millimeter)
 {
     // Optimized path: meter has ratio<1,1>, millimeter has ratio<1,1000>
     // Result ratio should be ratio<1,1000> directly
-    si::meter m{5.0};
-    si::millimeter mm{2000.0};
+    pkr::units::meter_t m{5.0};
+    pkr::units::millimeter_t mm{2000.0};
     auto result = m * mm;
     
     ASSERT_DOUBLE_EQ(result.value(), 10000.0);
@@ -218,8 +218,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_kilometers)
 {
     // Non-optimized path: both kilometer have ratio<1000,1>
     // Must call std::ratio_multiply<ratio<1000,1>, ratio<1000,1>> = ratio<1000000,1>
-    si::kilometer km1{2.0};
-    si::kilometer km2{3.0};
+    pkr::units::kilometer_t km1{2.0};
+    pkr::units::kilometer_t km2{3.0};
     auto result = km1 * km2;
     
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -233,8 +233,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_millimeter_kilomete
 {
     // Non-optimized path: millimeter ratio<1,1000> * kilometer ratio<1000,1>
     // Must call std::ratio_multiply<ratio<1,1000>, ratio<1000,1>> = ratio<1,1>
-    si::millimeter mm{1000.0};
-    si::kilometer km{1.0};
+    pkr::units::millimeter_t mm{1000.0};
+    pkr::units::kilometer_t km{1.0};
     auto result = mm * km;
     
     ASSERT_DOUBLE_EQ(result.value(), 1000.0);
@@ -252,8 +252,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_meters)
 {
     // Optimized path: both have ratio<1,1>, same ratio detected
     // Result ratio should be ratio<1,1> without calling std::ratio_divide
-    si::meter m1{10.0};
-    si::meter m2{2.0};
+    pkr::units::meter_t m1{10.0};
+    pkr::units::meter_t m2{2.0};
     auto result = m1 / m2;
     
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -268,8 +268,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_kilometers)
 {
     // Optimized path: both have ratio<1000,1>, same ratio detected
     // Result ratio should be ratio<1,1> without calling std::ratio_divide
-    si::kilometer km1{5.0};
-    si::kilometer km2{2.0};
+    pkr::units::kilometer_t km1{5.0};
+    pkr::units::kilometer_t km2{2.0};
     auto result = km1 / km2;
     
     ASSERT_DOUBLE_EQ(result.value(), 2.5);
@@ -283,8 +283,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_kilometers)
 TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_millimeters)
 {
     // Optimized path: both have ratio<1,1000>, same ratio detected
-    si::millimeter mm1{2000.0};
-    si::millimeter mm2{500.0};
+    pkr::units::millimeter_t mm1{2000.0};
+    pkr::units::millimeter_t mm2{500.0};
     auto result = mm1 / mm2;
     
     ASSERT_DOUBLE_EQ(result.value(), 4.0);
@@ -299,8 +299,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_meter_by_kilometer)
 {
     // Non-optimized path: different ratios (meter 1/1 vs kilometer 1000/1)
     // Must call std::ratio_divide<ratio<1,1>, ratio<1000,1>> = ratio<1,1000>
-    si::meter m{1000.0};
-    si::kilometer km{1.0};
+    pkr::units::meter_t m{1000.0};
+    pkr::units::kilometer_t km{1.0};
     auto result = m / km;
     
     // 1000m / 1000m = 1.0, stored with ratio 1/1000
@@ -318,8 +318,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_kilometer_by_millimet
 {
     // Non-optimized path: different ratios (kilometer 1000/1 vs millimeter 1/1000)
     // Must call std::ratio_divide<ratio<1000,1>, ratio<1,1000>> = ratio<1000000,1>
-    si::kilometer km{1.0};
-    si::millimeter mm{1.0};
+    pkr::units::kilometer_t km{1.0};
+    pkr::units::millimeter_t mm{1.0};
     auto result = km / mm;
     
     // 1000m / 0.001m = 1000000, stored with ratio 1000000/1
@@ -339,8 +339,8 @@ TEST_F(ArithmeticOptimizationsTest, add_same_ratio_grams)
 {
     // Optimized path: both gram have ratio<1,1000>
     // Result stays as gram
-    si::gram g1{500.0};
-    si::gram g2{250.0};
+    pkr::units::gram_t g1{500.0};
+    pkr::units::gram_t g2{250.0};
     auto result = g1 + g2;
     
     ASSERT_DOUBLE_EQ(result.value(), 750.0);  // Still in grams
@@ -352,8 +352,8 @@ TEST_F(ArithmeticOptimizationsTest, subtract_same_ratio_kilograms)
 {
     // Optimized path: both kilogram have ratio<1,1> (kilogram is base SI unit)
     // Result stays as kilogram
-    si::kilogram kg1{3.0};
-    si::kilogram kg2{1.0};
+    pkr::units::kilogram_t kg1{3.0};
+    pkr::units::kilogram_t kg2{1.0};
     auto result = kg1 - kg2;
     
     ASSERT_DOUBLE_EQ(result.value(), 2.0);  // Still in kilograms
@@ -365,8 +365,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_both_ratio_one_kilograms)
 {
     // Optimized path: both kilogram have ratio<1,1> (kilogram is base SI unit)
     // Result ratio should be ratio<1,1> directly
-    si::kilogram kg1{2.0};
-    si::kilogram kg2{3.0};
+    pkr::units::kilogram_t kg1{2.0};
+    pkr::units::kilogram_t kg2{3.0};
     auto result = kg1 * kg2;
     
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -379,8 +379,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_both_ratio_one_kilograms)
 TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_grams)
 {
     // Optimized path: both gram have ratio<1,1000>, same ratio detected
-    si::gram g1{2000.0};
-    si::gram g2{500.0};
+    pkr::units::gram_t g1{2000.0};
+    pkr::units::gram_t g2{500.0};
     auto result = g1 / g2;
     
     ASSERT_DOUBLE_EQ(result.value(), 4.0);
@@ -390,5 +390,6 @@ TEST_F(ArithmeticOptimizationsTest, divide_same_ratio_grams)
     ASSERT_EQ(decltype(result)::ratio_type::num, 1);
     ASSERT_EQ(decltype(result)::ratio_type::den, 1);
 }
+
 
 

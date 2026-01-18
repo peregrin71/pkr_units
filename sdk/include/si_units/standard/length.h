@@ -7,7 +7,7 @@ PKR_SI_BEGIN_NAMESPACE
 {
 
 // Strong type for meter (SI base unit)
-struct meter final : public details::unit_t<double, std::ratio<1, 1>, details::length_dimension>
+struct meter_t final : public details::unit_t<double, std::ratio<1, 1>, details::length_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, details::length_dimension>;
     using _base::_base;
@@ -18,7 +18,7 @@ struct meter final : public details::unit_t<double, std::ratio<1, 1>, details::l
 };
 
 // Metric length prefixes (strong types)
-struct attometer final : public details::unit_t<double, std::atto, details::length_dimension>
+struct attometer_t final : public details::unit_t<double, std::atto, details::length_dimension>
 {
     using _base = details::unit_t<double, std::atto, details::length_dimension>;
     using _base::_base;
@@ -28,7 +28,7 @@ struct attometer final : public details::unit_t<double, std::atto, details::leng
     static constexpr std::u8string_view u8_symbol{u8"am"};
 };
 
-struct femtometer final : public details::unit_t<double, std::femto, details::length_dimension>
+struct femtometer_t final : public details::unit_t<double, std::femto, details::length_dimension>
 {
     using _base = details::unit_t<double, std::femto, details::length_dimension>;
     using _base::_base;
@@ -38,7 +38,7 @@ struct femtometer final : public details::unit_t<double, std::femto, details::le
     static constexpr std::u8string_view u8_symbol{u8"fm"};
 };
 
-struct picometer final : public details::unit_t<double, std::pico, details::length_dimension>
+struct picometer_t final : public details::unit_t<double, std::pico, details::length_dimension>
 {
     using _base = details::unit_t<double, std::pico, details::length_dimension>;
     using _base::_base;
@@ -48,7 +48,7 @@ struct picometer final : public details::unit_t<double, std::pico, details::leng
     static constexpr std::u8string_view u8_symbol{u8"pm"};
 };
 
-struct nanometer final : public details::unit_t<double, std::nano, details::length_dimension>
+struct nanometer_t final : public details::unit_t<double, std::nano, details::length_dimension>
 {
     using _base = details::unit_t<double, std::nano, details::length_dimension>;
     using _base::_base;
@@ -58,7 +58,7 @@ struct nanometer final : public details::unit_t<double, std::nano, details::leng
     static constexpr std::u8string_view u8_symbol{u8"nm"};
 };
 
-struct micrometer final : public details::unit_t<double, std::micro, details::length_dimension>
+struct micrometer_t final : public details::unit_t<double, std::micro, details::length_dimension>
 {
     using _base = details::unit_t<double, std::micro, details::length_dimension>;
     using _base::_base;
@@ -68,7 +68,7 @@ struct micrometer final : public details::unit_t<double, std::micro, details::le
     static constexpr std::u8string_view u8_symbol{u8"µm"};
 };
 
-struct millimeter final : public details::unit_t<double, std::milli, details::length_dimension>
+struct millimeter_t final : public details::unit_t<double, std::milli, details::length_dimension>
 {
     using _base = details::unit_t<double, std::milli, details::length_dimension>;
     using _base::_base;
@@ -78,7 +78,7 @@ struct millimeter final : public details::unit_t<double, std::milli, details::le
     static constexpr std::u8string_view u8_symbol{u8"mm"};
 };
 
-struct centimeter final : public details::unit_t<double, std::centi, details::length_dimension>
+struct centimeter_t final : public details::unit_t<double, std::centi, details::length_dimension>
 {
     using _base = details::unit_t<double, std::centi, details::length_dimension>;
     using _base::_base;
@@ -88,7 +88,7 @@ struct centimeter final : public details::unit_t<double, std::centi, details::le
     static constexpr std::u8string_view u8_symbol{u8"cm"};
 };
 
-struct decimeter final : public details::unit_t<double, std::deci, details::length_dimension>
+struct decimeter_t final : public details::unit_t<double, std::deci, details::length_dimension>
 {
     using _base = details::unit_t<double, std::deci, details::length_dimension>;
     using _base::_base;
@@ -98,7 +98,7 @@ struct decimeter final : public details::unit_t<double, std::deci, details::leng
     static constexpr std::u8string_view u8_symbol{u8"dm"};
 };
 
-struct decameter final : public details::unit_t<double, std::deca, details::length_dimension>
+struct decameter_t final : public details::unit_t<double, std::deca, details::length_dimension>
 {
     using _base = details::unit_t<double, std::deca, details::length_dimension>;
     using _base::_base;
@@ -108,7 +108,7 @@ struct decameter final : public details::unit_t<double, std::deca, details::leng
     static constexpr std::u8string_view u8_symbol{u8"dam"};
 };
 
-struct hectometer final : public details::unit_t<double, std::hecto, details::length_dimension>
+struct hectometer_t final : public details::unit_t<double, std::hecto, details::length_dimension>
 {
     using _base = details::unit_t<double, std::hecto, details::length_dimension>;
     using _base::_base;
@@ -118,7 +118,7 @@ struct hectometer final : public details::unit_t<double, std::hecto, details::le
     static constexpr std::u8string_view u8_symbol{u8"hm"};
 };
 
-struct kilometer final : public details::unit_t<double, std::kilo, details::length_dimension>
+struct kilometer_t final : public details::unit_t<double, std::kilo, details::length_dimension>
 {
     using _base = details::unit_t<double, std::kilo, details::length_dimension>;
     using _base::_base;
@@ -128,7 +128,7 @@ struct kilometer final : public details::unit_t<double, std::kilo, details::leng
     static constexpr std::u8string_view u8_symbol{u8"km"};
 };
 
-struct megameter final : public details::unit_t<double, std::mega, details::length_dimension>
+struct megameter_t final : public details::unit_t<double, std::mega, details::length_dimension>
 {
     using _base = details::unit_t<double, std::mega, details::length_dimension>;
     using _base::_base;
@@ -138,7 +138,7 @@ struct megameter final : public details::unit_t<double, std::mega, details::leng
     static constexpr std::u8string_view u8_symbol{u8"Mm"};
 };
 
-struct gigameter final : public details::unit_t<double, std::giga, details::length_dimension>
+struct gigameter_t final : public details::unit_t<double, std::giga, details::length_dimension>
 {
     using _base = details::unit_t<double, std::giga, details::length_dimension>;
     using _base::_base;
@@ -148,7 +148,7 @@ struct gigameter final : public details::unit_t<double, std::giga, details::leng
     static constexpr std::u8string_view u8_symbol{u8"Gm"};
 };
 
-struct terameter final : public details::unit_t<double, std::tera, details::length_dimension>
+struct terameter_t final : public details::unit_t<double, std::tera, details::length_dimension>
 {
     using _base = details::unit_t<double, std::tera, details::length_dimension>;
     using _base::_base;
@@ -158,7 +158,7 @@ struct terameter final : public details::unit_t<double, std::tera, details::leng
     static constexpr std::u8string_view u8_symbol{u8"Tm"};
 };
 
-struct petameter final : public details::unit_t<double, std::peta, details::length_dimension>
+struct petameter_t final : public details::unit_t<double, std::peta, details::length_dimension>
 {
     using _base = details::unit_t<double, std::peta, details::length_dimension>;
     using _base::_base;
@@ -168,7 +168,7 @@ struct petameter final : public details::unit_t<double, std::peta, details::leng
     static constexpr std::u8string_view u8_symbol{u8"Pm"};
 };
 
-struct exameter final : public details::unit_t<double, std::exa, details::length_dimension>
+struct exameter_t final : public details::unit_t<double, std::exa, details::length_dimension>
 {
     using _base = details::unit_t<double, std::exa, details::length_dimension>;
     using _base::_base;

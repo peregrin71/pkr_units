@@ -1,8 +1,8 @@
 #pragma once
 
-#include <si_units/impl/details/si_unit.h>
+#include "../impl/namespace_config.h"
+#include "../impl/common/concentration_def.h"
 #include <si_units/impl/details/dimension.h>
-#include "../namespace_config.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
@@ -15,26 +15,26 @@ inline constexpr dimension_t molar_concentration_v{.amount = 1, .length = -3};
 
 // Mass concentration quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass_concentration = unit_t<type_t, ratio_t, mass_concentration_v>;
+using mass_concentration_unit_t = unit_t<type_t, ratio_t, mass_concentration_v>;
 
 // Molar concentration quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using molar_concentration = unit_t<type_t, ratio_t, molar_concentration_v>;
+using molar_concentration_unit_t = unit_t<type_t, ratio_t, molar_concentration_v>;
 
 // Mass concentration units (mass per volume)
 
 // Base unit: kilogram per cubic meter (kg/m³)
-struct kilogram_per_cubic_meter final : public unit_t<double, std::ratio<1, 1>, mass_concentration_v>
+struct kilogram_per_cubic_meter_t final : public unit_t<double, std::ratio<1, 1>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1>, mass_concentration_v>;
     using _base::_base;
     static constexpr std::string_view name{"kilogram_per_cubic_meter"};
-    static constexpr std::string_view symbol{"kg/m³"};
+    static constexpr std::string_view symbol{"kg/m^3"};
     static constexpr std::wstring_view w_symbol{L"kg/m³"};
     static constexpr std::u8string_view u8_symbol{u8"kg/m³"};
 };
 
-struct gram_per_cubic_meter final : public unit_t<double, std::ratio<1, 1000>, mass_concentration_v>
+struct gram_per_cubic_meter_t final : public unit_t<double, std::ratio<1, 1000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000>, mass_concentration_v>;
     using _base::_base;
@@ -44,7 +44,7 @@ struct gram_per_cubic_meter final : public unit_t<double, std::ratio<1, 1000>, m
     static constexpr std::u8string_view u8_symbol{u8"g/m³"};
 };
 
-struct gram_per_liter final : public unit_t<double, std::ratio<1, 1>, mass_concentration_v>
+struct gram_per_liter_t final : public unit_t<double, std::ratio<1, 1>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1>, mass_concentration_v>;
     using _base::_base;
@@ -54,7 +54,7 @@ struct gram_per_liter final : public unit_t<double, std::ratio<1, 1>, mass_conce
     static constexpr std::u8string_view u8_symbol{u8"g/L"};
 };
 
-struct milligram_per_liter final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
+struct milligram_per_liter_t final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>;
     using _base::_base;
@@ -64,7 +64,7 @@ struct milligram_per_liter final : public unit_t<double, std::ratio<1, 1000000>,
     static constexpr std::u8string_view u8_symbol{u8"mg/L"};
 };
 
-struct milligram_per_cubic_meter final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
+struct milligram_per_cubic_meter_t final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>;
     using _base::_base;
@@ -74,7 +74,7 @@ struct milligram_per_cubic_meter final : public unit_t<double, std::ratio<1, 100
     static constexpr std::u8string_view u8_symbol{u8"mg/m³"};
 };
 
-struct microgram_per_liter final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
+struct microgram_per_liter_t final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>;
     using _base::_base;
@@ -84,7 +84,7 @@ struct microgram_per_liter final : public unit_t<double, std::ratio<1, 100000000
     static constexpr std::u8string_view u8_symbol{u8"µg/L"};
 };
 
-struct microgram_per_cubic_meter final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
+struct microgram_per_cubic_meter_t final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>;
     using _base::_base;
@@ -95,7 +95,7 @@ struct microgram_per_cubic_meter final : public unit_t<double, std::ratio<1, 100
 };
 
 // Parts per million (by mass) - ppm
-struct parts_per_million final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
+struct parts_per_million_t final : public unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000>, mass_concentration_v>;
     using _base::_base;
@@ -106,7 +106,7 @@ struct parts_per_million final : public unit_t<double, std::ratio<1, 1000000>, m
 };
 
 // Parts per billion (by mass) - ppb
-struct parts_per_billion final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
+struct parts_per_billion_t final : public unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>
 {
     using _base = unit_t<double, std::ratio<1, 1000000000>, mass_concentration_v>;
     using _base::_base;
@@ -124,7 +124,7 @@ struct mole_per_cubic_meter final : public unit_t<double, std::ratio<1, 1>, mola
     using _base = unit_t<double, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
     static constexpr std::string_view name{"mole_per_cubic_meter"};
-    static constexpr std::string_view symbol{"mol/m³"};
+    static constexpr std::string_view symbol{"mol/m^3"};
     static constexpr std::wstring_view w_symbol{L"mol/m³"};
     static constexpr std::u8string_view u8_symbol{u8"mol/m³"};
 };

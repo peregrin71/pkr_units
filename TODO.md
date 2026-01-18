@@ -1,25 +1,44 @@
 # SI Units Library - Development Roadmap
 
+## Build System & Infrastructure
+
+### Completed
+- [x] MSVC compiler support with full test suite passing (367 tests: 366 PASSED, 1 known precision issue)
+- [x] GTest integration with Conan
+- [x] CMake build configuration
+- [x] Separate build profiles for MSVC and Clang
+- [x] Remove stale compiler flags from Clang profile
+
+### In Progress / Known Issues
+- [ ] Fix Clang build issue (Windows ABI/GTest linking - linker undefined references to testing::Test symbols)
+- [ ] Fix floating-point precision test (SiMassTest.add_very_different_scales)
+
+### Code Refactoring
+- [ ] Rename all strong type structs to use `_t` suffix
+- [ ] Refactor electrical/magnetic_flux units to match standard/derived design
+
+---
+
 ## 1. Complete Basic SI Units
 
 ### Length Units
 - [x] meter
 - [x] kilometer
 - [x] millimeter
-- [ ] centimeter
-- [ ] micrometer
-- [ ] nanometer
-- [ ] decimeter
-- [ ] hectometer
+- [x] centimeter
+- [x] micrometer
+- [x] nanometer
+- [x] decimeter
+- [x] hectometer
 
 ### Mass Units
 - [x] kilogram
 - [x] gram
-- [ ] milligram
-- [ ] microgram
-- [ ] nanogram
-- [ ] picogram
-- [ ] megagram (tonne)
+- [x] milligram
+- [x] microgram
+- [x] nanogram
+- [x] picogram
+- [x] megagram (tonne)
 
 ### Time Units
 - [x] second
@@ -34,24 +53,34 @@
 - [ ] year (estimated)
 
 ### Electric Current Units
-- [ ] ampere
-- [ ] milliampere
-- [ ] microampere
-- [ ] nanoampere
+- [x] ampere
+- [x] milliampere
+- [x] microampere
+- [x] nanoampere
+- [x] kiloampere
 
 ### Temperature Units
-- [ ] kelvin
+- [x] kelvin
+- [x] millikelvin
+- [x] microkelvin
+- [x] nanokelvin
+- [x] kilokelvin
 - [ ] celsius (conversion handling)
 - [ ] fahrenheit (conversion handling)
 
 ### Amount of Substance Units
-- [ ] mole
-- [ ] millimole
-- [ ] micromole
-- [ ] nanomole
+- [x] mole
+- [x] millimole
+- [x] micromole
+- [x] nanomole
+- [x] kilomole
 
 ### Luminous Intensity Units
-- [ ] candela
+- [x] candela
+- [x] millicandela
+- [x] microcandela
+- [x] nanocandela
+- [x] kilocandela
 
 ---
 
@@ -90,19 +119,12 @@
 ## 3. String Formatting and Parsing
 
 ### Formatting
-- [x] Basic output formatting (partial implementation exists)
+- [ ] Basic output formatting (partial implementation exists)
 - [ ] Format units with proper SI symbols (m, kg, s, etc.)
 - [ ] Format with exponents (m², m³, m/s)
 - [ ] Format with metric prefixes (km, mm, μm)
 - [ ] Support for std::format with custom format specs
 - [ ] Pretty printing with Unicode symbols (μ, Ω, Å, etc.)
-
-### Parsing
-- [ ] Parse strings like "5.0 meters"
-- [ ] Parse strings like "1.5 km"
-- [ ] Parse strings like "10 m/s"
-- [ ] Parse strings like "100 m²"
-- [ ] Handle invalid input gracefully
 
 ---
 
@@ -292,6 +314,13 @@
 - [ ] Should comparison operators be supported? (Currently intentionally omitted)
 - [ ] How to handle temperature offset-based conversions elegantly?
 - [ ] Should implicit conversions be allowed, or always explicit?
+
+### Low Priority: String Parsing (Future Enhancement)
+- [ ] Parse strings like "5.0 meters"
+- [ ] Parse strings like "1.5 km"
+- [ ] Parse strings like "10 m/s"
+- [ ] Parse strings like "100 m²"
+- [ ] Handle invalid input gracefully
 
 ---
 

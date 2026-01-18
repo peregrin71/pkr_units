@@ -5,6 +5,13 @@ project(si_units CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Treat warnings as errors
+if(MSVC)
+    add_compile_options(/WX)
+else()
+    add_compile_options(-Werror)
+endif()
+
 # Enable testing
 enable_testing()
 

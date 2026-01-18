@@ -1,20 +1,16 @@
 #pragma once
 
-#include "../impl/details/si_unit.h"
-#include "../impl/details/dimension.h"
-#include "../namespace_config.h"
+#include "../impl/namespace_config.h"
+#include "../impl/common/mass_def.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {
-// Mass quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass = unit_t<type_t, ratio_t, mass_dimension>;
 
 // Strong type for kilogram (SI base unit for mass)
 // NOTE: Kilogram is the base SI unit, not gram (unlike length where meter is base)
-struct kilogram final : public unit_t<double, std::ratio<1, 1>, mass_dimension>
+struct kilogram_t final : public details::unit_t<double, std::ratio<1, 1>, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilogram"};
     static constexpr std::string_view symbol{"kg"};
@@ -24,29 +20,12 @@ struct kilogram final : public unit_t<double, std::ratio<1, 1>, mass_dimension>
 
 // Metric mass prefixes (applied relative to kilogram)
 // All mass units are defined relative to kilogram (ratio 1/1) as the base
-struct attogram final : public unit_t<double, std::ratio<1, 1000000000000000000000>, mass_dimension>
-{
-    using _base = unit_t<double, std::ratio<1, 1000000000000000000000>, mass_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"attogram"};
-    static constexpr std::string_view symbol{"ag"};
-    static constexpr std::wstring_view w_symbol{L"ag"};
-    static constexpr std::u8string_view u8_symbol{u8"ag"};
-};
+// NOTE: attogram (10^-21) and femtogram (10^-18) exceed std::ratio limits
+// and are omitted. The smallest representable is picogram (10^-12).
 
-struct femtogram final : public unit_t<double, std::ratio<1, 1000000000000000000>, mass_dimension>
+struct picogram_t final : public details::unit_t<double, std::pico, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000000000000000000>, mass_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"femtogram"};
-    static constexpr std::string_view symbol{"fg"};
-    static constexpr std::wstring_view w_symbol{L"fg"};
-    static constexpr std::u8string_view u8_symbol{u8"fg"};
-};
-
-struct picogram final : public unit_t<double, std::ratio<1, 1000000000000000>, mass_dimension>
-{
-    using _base = unit_t<double, std::ratio<1, 1000000000000000>, mass_dimension>;
+    using _base = details::unit_t<double, std::pico, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"picogram"};
     static constexpr std::string_view symbol{"pg"};
@@ -54,9 +33,9 @@ struct picogram final : public unit_t<double, std::ratio<1, 1000000000000000>, m
     static constexpr std::u8string_view u8_symbol{u8"pg"};
 };
 
-struct nanogram final : public unit_t<double, std::ratio<1, 1000000000000>, mass_dimension>
+struct nanogram_t final : public details::unit_t<double, std::nano, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000000000000>, mass_dimension>;
+    using _base = details::unit_t<double, std::nano, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"nanogram"};
     static constexpr std::string_view symbol{"ng"};
@@ -64,9 +43,9 @@ struct nanogram final : public unit_t<double, std::ratio<1, 1000000000000>, mass
     static constexpr std::u8string_view u8_symbol{u8"ng"};
 };
 
-struct microgram final : public unit_t<double, std::ratio<1, 1000000000>, mass_dimension>
+struct microgram_t final : public details::unit_t<double, std::micro, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000000000>, mass_dimension>;
+    using _base = details::unit_t<double, std::micro, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microgram"};
     static constexpr std::string_view symbol{"ug"};
@@ -74,9 +53,9 @@ struct microgram final : public unit_t<double, std::ratio<1, 1000000000>, mass_d
     static constexpr std::u8string_view u8_symbol{u8"µg"};
 };
 
-struct milligram final : public unit_t<double, std::ratio<1, 1000000>, mass_dimension>
+struct milligram_t final : public details::unit_t<double, std::milli, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000000>, mass_dimension>;
+    using _base = details::unit_t<double, std::milli, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"milligram"};
     static constexpr std::string_view symbol{"mg"};
@@ -84,9 +63,9 @@ struct milligram final : public unit_t<double, std::ratio<1, 1000000>, mass_dime
     static constexpr std::u8string_view u8_symbol{u8"mg"};
 };
 
-struct centigram final : public unit_t<double, std::ratio<1, 100000>, mass_dimension>
+struct centigram_t final : public details::unit_t<double, std::centi, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 100000>, mass_dimension>;
+    using _base = details::unit_t<double, std::centi, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"centigram"};
     static constexpr std::string_view symbol{"cg"};
@@ -94,9 +73,9 @@ struct centigram final : public unit_t<double, std::ratio<1, 100000>, mass_dimen
     static constexpr std::u8string_view u8_symbol{u8"cg"};
 };
 
-struct decigram final : public unit_t<double, std::ratio<1, 10000>, mass_dimension>
+struct decigram_t final : public details::unit_t<double, std::deci, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 10000>, mass_dimension>;
+    using _base = details::unit_t<double, std::deci, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decigram"};
     static constexpr std::string_view symbol{"dg"};
@@ -105,9 +84,9 @@ struct decigram final : public unit_t<double, std::ratio<1, 10000>, mass_dimensi
 };
 
 // gram is 1/1000 of kilogram
-struct gram final : public unit_t<double, std::ratio<1, 1000>, mass_dimension>
+struct gram_t final : public details::unit_t<double, std::milli, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000>, mass_dimension>;
+    using _base = details::unit_t<double, std::milli, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"gram"};
     static constexpr std::string_view symbol{"g"};
@@ -115,9 +94,9 @@ struct gram final : public unit_t<double, std::ratio<1, 1000>, mass_dimension>
     static constexpr std::u8string_view u8_symbol{u8"g"};
 };
 
-struct decagram final : public unit_t<double, std::ratio<1, 100>, mass_dimension>
+struct decagram_t final : public details::unit_t<double, std::deca, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 100>, mass_dimension>;
+    using _base = details::unit_t<double, std::deca, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"decagram"};
     static constexpr std::string_view symbol{"dag"};
@@ -125,9 +104,9 @@ struct decagram final : public unit_t<double, std::ratio<1, 100>, mass_dimension
     static constexpr std::u8string_view u8_symbol{u8"dag"};
 };
 
-struct hectogram final : public unit_t<double, std::ratio<1, 10>, mass_dimension>
+struct hectogram_t final : public details::unit_t<double, std::hecto, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 10>, mass_dimension>;
+    using _base = details::unit_t<double, std::hecto, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"hectogram"};
     static constexpr std::string_view symbol{"hg"};
@@ -136,9 +115,9 @@ struct hectogram final : public unit_t<double, std::ratio<1, 10>, mass_dimension
 };
 
 // Larger mass units
-struct megagram final : public unit_t<double, std::ratio<1000, 1>, mass_dimension>
+struct megagram_t final : public details::unit_t<double, std::kilo, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::kilo, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"megagram"};
     static constexpr std::string_view symbol{"Mg"};
@@ -146,9 +125,9 @@ struct megagram final : public unit_t<double, std::ratio<1000, 1>, mass_dimensio
     static constexpr std::u8string_view u8_symbol{u8"Mg"};
 };
 
-struct gigagram final : public unit_t<double, std::ratio<1000000, 1>, mass_dimension>
+struct gigagram_t final : public details::unit_t<double, std::mega, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::mega, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"gigagram"};
     static constexpr std::string_view symbol{"Gg"};
@@ -156,9 +135,9 @@ struct gigagram final : public unit_t<double, std::ratio<1000000, 1>, mass_dimen
     static constexpr std::u8string_view u8_symbol{u8"Gg"};
 };
 
-struct teragram final : public unit_t<double, std::ratio<1000000000, 1>, mass_dimension>
+struct teragram_t final : public details::unit_t<double, std::giga, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000000, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::giga, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"teragram"};
     static constexpr std::string_view symbol{"Tg"};
@@ -166,9 +145,9 @@ struct teragram final : public unit_t<double, std::ratio<1000000000, 1>, mass_di
     static constexpr std::u8string_view u8_symbol{u8"Tg"};
 };
 
-struct petagram final : public unit_t<double, std::ratio<1000000000000, 1>, mass_dimension>
+struct petagram_t final : public details::unit_t<double, std::tera, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000000000, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::tera, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"petagram"};
     static constexpr std::string_view symbol{"Pg"};
@@ -176,9 +155,9 @@ struct petagram final : public unit_t<double, std::ratio<1000000000000, 1>, mass
     static constexpr std::u8string_view u8_symbol{u8"Pg"};
 };
 
-struct exagram final : public unit_t<double, std::ratio<1000000000000000, 1>, mass_dimension>
+struct exagram_t final : public details::unit_t<double, std::peta, details::mass_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000000000000, 1>, mass_dimension>;
+    using _base = details::unit_t<double, std::peta, details::mass_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"exagram"};
     static constexpr std::string_view symbol{"Eg"};
@@ -187,9 +166,10 @@ struct exagram final : public unit_t<double, std::ratio<1000000000000000, 1>, ma
 };
 
 // Common aliases
-using metric_ton = megagram;  // 1 metric ton = 1,000 kg (same as megagram)
+using metric_ton = megagram_t;  // 1 metric ton = 1,000 kg (same as megagram)
 
 PKR_SI_NAMESPACE_END
+
 
 
 

@@ -22,8 +22,8 @@ class SiMultiCastTest : public Test
 TEST_F(SiMultiCastTest, velocity_meters_per_seconds)
 {
     // Create base SI units
-    auto distance = si::kilometer{60000.0};  // 60000 meters
-    auto time = si::hours{1.0};
+    auto distance = pkr::units::kilometer_t{60000.0};  // 60000 meters
+    auto time = pkr::units::hours{1.0};
     
     // Create a composite velocity unit (km/h converted to meters/seconds)
     auto speed = distance / time;
@@ -36,12 +36,12 @@ TEST_F(SiMultiCastTest, velocity_meters_per_seconds)
 TEST_F(SiMultiCastTest, specialized_templates_per_unit_squared_and_cubed)
 {
     // Demonstrate per_unit_squared specialized template usage
-    auto distance = si::kilometer{100.0};
-    auto time = si::hours{1.0};
+    auto distance = pkr::units::kilometer_t{100.0};
+    auto time = pkr::units::hours{1.0};
 
     // Verify specialized templates compile correctly
-    auto squared_template = si::per_unit_squared<si::seconds>{};
-    auto cubed_template = si::per_unit_cubed<si::hours>{};
+    auto squared_template = pkr::units::per_unit_squared<pkr::units::seconds>{};
+    auto cubed_template = pkr::units::per_unit_cubed<pkr::units::hours>{};
 
     (void)squared_template;
     (void)cubed_template;
@@ -51,17 +51,18 @@ TEST_F(SiMultiCastTest, specialized_templates_per_unit_squared_and_cubed)
 
 TEST_F(SiMultiCastTest, kilowatthour_unit_value)
 {
-    auto kilowatthour = si::kilowatthour{1.0};
+    auto kilowatthour = pkr::units::kilowatthour{1.0};
 
     // Demonstrate si_cast_multi usage - verify basic unit types work
     // Kilowatthour is a composite energy unit, testing with basic SI units
-    auto meter_unit = si::meter{1.0};
-    auto second_unit = si::seconds{1.0};
+    auto meter_unit = pkr::units::meter_t{1.0};
+    auto second_unit = pkr::units::seconds{1.0};
     
     // Verify concepts accept SI units
     ASSERT_EQ(kilowatthour.value(), 1.0);
 }
 } // namespace test
+
 
 
 

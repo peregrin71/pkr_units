@@ -47,6 +47,49 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
 - Inheriting constructors (`using _base::_base`) provides clean initialization
 - Allows derived unit specializations while maintaining a common base
 
+### 1.3 Type Naming Convention: The `_t` Postfix
+
+**Decision**: All strong type struct names use the `_t` postfix (e.g., `meter_t`, `kilogram_t`, `ampere_t`).
+
+```cpp
+struct meter_t final : public unit_t<double, std::ratio<1, 1>, length_dimension> { /* ... */ };
+struct kilogram_t final : public unit_t<double, std::ratio<1, 1>, mass_dimension> { /* ... */ };
+struct second_t final : public unit_t<double, std::ratio<1, 1>, time_dimension> { /* ... */ };
+struct ampere_t final : public unit_t<double, std::ratio<1, 1>, current_dimension> { /* ... */ };
+```
+
+**Rationale**:
+- **Consistent naming discipline**: Applies the same naming convention as template aliases (`length_unit_t`, `mass_unit_t`), reinforcing the pattern that `_t` and `_unit_t` denote concrete strong types
+- **C++ naming conventions alignment**: Follows the common C++ convention of using `_t` to denote type aliases and strong types (inherited from POSIX where applicable)
+- **Prevents naming collisions**: Ensures that non-suffixed names (e.g., `meter`, `kilogram`) are available for future use without conflicts with the strong type definitions
+
+**POSIX Compatibility Considerations**:
+
+This library prioritizes **type safety and clarity over strict POSIX compatibility**. While POSIX defines several `_t` types (e.g., `time_t`, `pid_t`, `size_t`), the SI units library consciously chooses to use the `_t` postfix for all strong types.
+
+**Known POSIX Conflicts Avoided**:
+- ✗ `time_t` conflict → Resolved by using `second_t` instead of `time_t` or `second`
+- ✗ `pid_t` conflict → Not applicable (no "process ID" unit)
+- ✗ `size_t` conflict → Not applicable (no "size" unit in SI)
+
+**Deliberate Trade-off**:
+The decision to use `_t` universally, rather than conditionally avoid POSIX conflicts, prioritizes:
+1. **Internal consistency**: All strong types follow the same naming pattern
+2. **Clarity**: The `_t` suffix immediately indicates "this is a strong type"
+3. **Forward compatibility**: Prevents future naming conflicts if new POSIX types are introduced
+4. **Code readability**: Type definitions are unmistakably identified as strong types
+
+**Usage Pattern**:
+```cpp
+// Recommended: Use the _t suffix directly
+pkr::units::meter_t distance{100.0};
+pkr::units::kilogram_t mass{75.0};
+pkr::units::second_t time_elapsed{30.0};
+
+// Type aliases (optional, for backward compatibility where needed)
+using meter = meter_t;  // If desired for specific contexts
+```
+
 ---
 
 ## 2. Unit Type Identification

@@ -9,7 +9,7 @@ os=Windows
 arch=x86_64
 compiler=clang
 compiler.version=18
-compiler.libcxx=c++_static
+compiler.libcxx=libstdc++11
 compiler.cppstd=20
 build_type=Debug
 

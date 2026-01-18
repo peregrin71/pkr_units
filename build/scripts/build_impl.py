@@ -77,13 +77,13 @@ def run_build(project_root: Path, build_path: Path, config: str, compiler: str, 
 
         # Configure with CMake
         print_step("Configuring CMake")
-        cmake_config = CMakeConfig(project_root, build_path)
+        cmake_config = CMakeConfig(project_root, build_path, compiler)
         cmake_config.configure(config)
         print()
 
         # Build
         print_step("Building project")
-        cmake_build = CMakeBuild(build_path)
+        cmake_build = CMakeBuild(build_path, compiler)
         cmake_build.build(config)
         print()
 
