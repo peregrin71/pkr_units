@@ -70,7 +70,7 @@ See [VCPKG.md](VCPKG.md) for complete installation and usage documentation.
 To publish to ConanCenter:
 
 1. Fork [conan-center-index](https://github.com/conan-io/conan-center-index)
-2. Create a new recipe directory: `recipes/si_units/`
+2. Create a new recipe directory: `recipes/pkr_units/`
 3. Copy `conanfile.py` and update metadata
 4. Submit pull request with full test results
 

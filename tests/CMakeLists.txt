@@ -23,6 +23,9 @@ set(TEST_SOURCES
   intensity/test_si_intensity.cpp
   intensity/test_si_intensity_operators.cpp
   
+  # Formatting tests (disabled - requires proper formatter implementation)
+  # test_formatting.cpp
+  
   # Derived unit tests
   # velocity/test_si_velocity.cpp
   

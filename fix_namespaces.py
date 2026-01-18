@@ -8,7 +8,7 @@ from pathlib import Path
 
 def get_include_path(file_path):
     """Determine the appropriate include path based on file location"""
-    rel_to_sdk = Path(file_path).relative_to(Path('c:/Data/projects/si_units/sdk/include/si_units'))
+    rel_to_sdk = Path(file_path).relative_to(Path('c:/Data/projects/si_units/sdk/include/pkr_units'))
     depth = len(rel_to_sdk.parts) - 1  # -1 because last part is filename
     
     return "../" * depth + "namespace_config.h"
@@ -66,7 +66,7 @@ def update_file(file_path):
     return True, "Updated successfully"
 
 def main():
-    base_path = Path('c:/Data/projects/si_units/sdk/include/si_units')
+    base_path = Path('c:/Data/projects/si_units/sdk/include/pkr_units')
     
     # Find all .h files
     header_files = list(base_path.glob('**/*.h'))

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <si_units/standard/intensity.h>
+#include <pkr_units/standard/intensity.h>
 
 using namespace ::testing;
 

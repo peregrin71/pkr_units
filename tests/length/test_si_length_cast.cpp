@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <si_units/standard/length.h>
-#include <si_units/cast/si_cast.h>
+#include <pkr_units/standard/length.h>
+#include <pkr_units/cast/unit_cast.h>
 
 namespace test
 {

@@ -512,21 +512,21 @@ std::wcout << format(velocity);                          // Wide for std::wcout
 For codebases that already have a `si` namespace or prefer a different root namespace, the library supports namespace customization via preprocessor:
 
 ```cpp
-// Option 1: Custom namespace (define BEFORE including si_units headers)
+// Option 1: Custom namespace (define BEFORE including pkr_units headers)
 #define PKR_SI_NAMESPACE physics
-#include <si_units/si.h>
+#include <pkr_units/si.h>
 
 auto distance = physics::meter{5.0};
 physics::kilogram mass = 10.0_kg;
 
 // Option 2: Nested namespace
 #define PKR_SI_NAMESPACE my_app::units::si
-#include <si_units/si.h>
+#include <pkr_units/si.h>
 
 my_app::units::si::meter height = 2.0_m;
 
 // Option 3: Default (if PKR_SI_NAMESPACE not defined)
-#include <si_units/si.h>
+#include <pkr_units/si.h>
 
 si::meter distance = 5.0_m;  // Uses default 'si' namespace
 ```

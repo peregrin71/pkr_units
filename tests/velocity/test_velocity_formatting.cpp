@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <format>
-#include <si_units/derived/velocity.h>
+#include <pkr_units/derived/velocity.h>
 
 using namespace ::testing;
 

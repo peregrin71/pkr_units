@@ -57,8 +57,8 @@ target_link_libraries(myapp PRIVATE si-units::si-units)
 ## Usage in Code
 
 ```cpp
-#include <si_units/si.h>
-#include <si_units/si_literals.h>
+#include <pkr_units/si.h>
+#include <pkr_units/si_literals.h>
 #include <iostream>
 
 using namespace si::si_literals;

@@ -14,7 +14,7 @@ def fix_includes(file_path):
     original = content
     
     # Determine correct path based on file location relative to si_units root
-    rel_to_root = Path(file_path).relative_to(Path('c:/Data/projects/si_units/sdk/include/si_units'))
+    rel_to_root = Path(file_path).relative_to(Path('c:/Data/projects/si_units/sdk/include/pkr_units'))
     depth = len(rel_to_root.parts) - 1  # -1 because last part is filename
     
     correct_path = "../" * depth + "namespace_config.h"
@@ -27,9 +27,9 @@ def fix_includes(file_path):
         content
     )
     
-    # Pattern 2: <si_units/impl/details/namespace_config.h>
+    # Pattern 2: <pkr_units/impl/details/namespace_config.h>
     content = re.sub(
-        r'#include\s+<si_units/impl/details/namespace_config\.h>',
+        r'#include\s+<pkr_units/impl/details/namespace_config\.h>',
         f'#include "{correct_path}"',
         content
     )
@@ -41,7 +41,7 @@ def fix_includes(file_path):
     return False, correct_path
 
 def main():
-    base_path = Path('c:/Data/projects/si_units/sdk/include/si_units')
+    base_path = Path('c:/Data/projects/si_units/sdk/include/pkr_units')
     header_files = list(base_path.glob('**/*.h'))
     
     print(f"Checking {len(header_files)} header files...")
