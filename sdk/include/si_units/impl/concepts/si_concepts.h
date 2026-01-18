@@ -1,7 +1,7 @@
 #pragma once
 #include <concepts>
 #include <complex>
-#include "../../namespace_config.h"
+#include "../namespace_config.h"
 
 PKR_SI_BEGIN_NAMESPACE
 {

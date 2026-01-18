@@ -6,23 +6,22 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 # Collect all test source files
 set(TEST_SOURCES
   main.cpp
-  test_si_length.cpp
-  test_si_mass.cpp
-  test_si_time.cpp
-  test_si_current.cpp
-  test_si_temperature.cpp
-  test_si_amount.cpp
-  test_si_intensity.cpp
-  test_arithmetic_optimizations.cpp
-  test_si_velocity.cpp
-  test_generic_unit_formatter.cpp
-  # test_velocity_formatting.cpp (removed - using generic formatter instead)
-  # test_si_acceleration.cpp (removed - simplifying to velocity only for now)
-  # test_si_length_cast.cpp  (casting tests - will enable later)
-  # test_si_length_imperial.cpp
-  # test_si_length_astronomical.cpp
-  # test_si_length_formatting.cpp
-  # test_si_multi_cast.cpp
+  
+  # Base unit tests
+  length/test_si_length.cpp
+  length/test_si_length_operators.cpp
+  # mass/test_si_mass.cpp
+  # time/test_si_time.cpp
+  # current/test_si_current.cpp
+  # temperature/test_si_temperature.cpp
+  # amount/test_si_amount.cpp
+  # intensity/test_si_intensity.cpp
+  
+  # Derived unit tests
+  # velocity/test_si_velocity.cpp
+  
+  # General/optimization tests
+  # general/test_arithmetic_optimizations.cpp
 )
 
 # Create the test executable

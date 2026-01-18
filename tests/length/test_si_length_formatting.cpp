@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <sstream>
-#include <si_units/formatting/si_units_formatters.h>
 #include <si_units/standard/length.h>
 
 using namespace ::testing;

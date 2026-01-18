@@ -54,3 +54,24 @@
  * @brief End the SI Units namespace block (matches PKR_SI_BEGIN_NAMESPACE)
  */
 #define PKR_SI_NAMESPACE_END }
+
+/**
+ * @def PKR_SI_DETAILS_BEGIN_NAMESPACE
+ * @brief Begin the SI Units details namespace block (for implementation details)
+ * 
+ * Usage in headers:
+ * @code
+ * PKR_SI_DETAILS_BEGIN_NAMESPACE
+ * {
+ *     // Implementation details go here
+ * }
+ * PKR_SI_DETAILS_END
+ * @endcode
+ */
+#define PKR_SI_DETAILS_BEGIN_NAMESPACE namespace PKR_SI_NAMESPACE { namespace details {
+
+/**
+ * @def PKR_SI_DETAILS_END
+ * @brief End the SI Units details namespace block (matches PKR_SI_DETAILS_BEGIN_NAMESPACE)
+ */
+#define PKR_SI_DETAILS_END_NAMESPACE } }

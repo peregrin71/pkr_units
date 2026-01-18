@@ -14,15 +14,38 @@ inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0};
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using velocity = unit_t<type_t, ratio_t, velocity_dimension>;
 
-// SI base: meters per second (m/s)
-using meters_per_second = unit_t<double, std::ratio<1, 1>, velocity_dimension>;
+// Strong type for meter per second (SI base unit)
+struct meter_per_second final : public unit_t<double, std::ratio<1, 1>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, velocity_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"meter per second"};
+    static constexpr std::string_view symbol{"m/s"};
+    static constexpr std::wstring_view w_symbol{L"m/s"};
+    static constexpr std::u8string_view u8_symbol{u8"m/s"};
+};
 
-// Metric: kilometers per hour
-// 1 km/h = 1000 m / 3600 s = ratio<1000, 3600> = ratio<5, 18> m/s
-using kilometers_per_hour = unit_t<double, std::ratio<5, 18>, velocity_dimension>;
+// Strong type for kilometer per hour
+struct kilometer_per_hour final : public unit_t<double, std::ratio<5, 18>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<5, 18>, velocity_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"kilometer per hour"};
+    static constexpr std::string_view symbol{"km/h"};
+    static constexpr std::wstring_view w_symbol{L"km/h"};
+    static constexpr std::u8string_view u8_symbol{u8"km/h"};
+};
 
-// Metric centimeters per second
-using centimeters_per_second = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
+// Strong type for centimeter per second
+struct centimeter_per_second final : public unit_t<double, std::ratio<1, 100>, velocity_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 100>, velocity_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"centimeter per second"};
+    static constexpr std::string_view symbol{"cm/s"};
+    static constexpr std::wstring_view w_symbol{L"cm/s"};
+    static constexpr std::u8string_view u8_symbol{u8"cm/s"};
+};
 
 } // PKR_SI_NAMESPACE
 

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <si_units/derived/velocity.h>
-#include <si_units/formatting/si_units_formatters.h>
 
 using namespace ::testing;
 

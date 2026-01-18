@@ -7,7 +7,7 @@ arch=x86_64
 compiler=msvc
 compiler.version=193
 compiler.runtime=dynamic
-compiler.cppstd=14
+compiler.cppstd=20
 build_type=Debug
 
 [buildenv]

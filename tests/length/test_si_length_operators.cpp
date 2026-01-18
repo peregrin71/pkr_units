@@ -3,96 +3,17 @@
 #include <si_units/imperial/length.h>
 #include <si_units/astronomical/length.h>
 
-namespace si
-{
-// Test support namespace
-}
-
 using namespace ::testing;
 
-class SiLengthTest : public Test
+class SiLengthOperatorsTest : public Test
 {
 };
-
-// ============================================================================
-// Basic Construction and Value Access Tests
-// ============================================================================
-
-TEST_F(SiLengthTest, meter_construction)
-{
-    si::meter m{5.0};
-    ASSERT_DOUBLE_EQ(m.value(), 5.0);
-}
-
-TEST_F(SiLengthTest, meter_dereference_operator)
-{
-    si::meter m{5.0};
-    ASSERT_DOUBLE_EQ(*m, 5.0);
-}
-
-TEST_F(SiLengthTest, meter_zero_value)
-{
-    si::meter m{0.0};
-    ASSERT_DOUBLE_EQ(m.value(), 0.0);
-}
-
-TEST_F(SiLengthTest, meter_negative_value)
-{
-    si::meter m{-3.5};
-    ASSERT_DOUBLE_EQ(m.value(), -3.5);
-}
-
-TEST_F(SiLengthTest, kilometer_construction)
-{
-    si::kilometer km{2.5};
-    ASSERT_DOUBLE_EQ(km.value(), 2.5);
-}
-
-TEST_F(SiLengthTest, millimeter_construction)
-{
-    si::millimeter mm{1500.0};
-    ASSERT_DOUBLE_EQ(mm.value(), 1500.0);
-}
-
-// ============================================================================
-// Copy and Move Semantics Tests
-// ============================================================================
-
-TEST_F(SiLengthTest, copy_constructor)
-{
-    si::meter m1{5.0};
-    si::meter m2{m1};
-    ASSERT_DOUBLE_EQ(m2.value(), 5.0);
-}
-
-TEST_F(SiLengthTest, move_constructor)
-{
-    si::meter m1{5.0};
-    si::meter m2{std::move(m1)};
-    ASSERT_DOUBLE_EQ(m2.value(), 5.0);
-}
-
-TEST_F(SiLengthTest, copy_assignment)
-{
-    si::meter m1{5.0};
-    si::meter m2{0.0};
-    m2 = m1;
-    ASSERT_DOUBLE_EQ(m2.value(), 5.0);
-}
-
-TEST_F(SiLengthTest, move_assignment)
-{
-    si::meter m1{5.0};
-    si::meter m2{0.0};
-    m2 = std::move(m1);
-    ASSERT_DOUBLE_EQ(m2.value(), 5.0);
-}
 
 // ============================================================================
 // Arithmetic Operations: Addition/Subtraction (Same Dimension, Different Ratios)
 // ============================================================================
 
-TEST_F(SiLengthTest, add_meters)
+TEST_F(SiLengthOperatorsTest, add_meters)
 {
     si::meter m1{3.0};
     si::meter m2{2.0};
@@ -101,7 +22,7 @@ TEST_F(SiLengthTest, add_meters)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiLengthTest, add_kilometer_to_meter)
+TEST_F(SiLengthOperatorsTest, add_kilometer_to_meter)
 {
     si::kilometer km{1.0};
     si::meter m{500.0};
@@ -111,7 +32,7 @@ TEST_F(SiLengthTest, add_kilometer_to_meter)
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
-TEST_F(SiLengthTest, add_meter_to_kilometer)
+TEST_F(SiLengthOperatorsTest, add_meter_to_kilometer)
 {
     si::meter m{500.0};
     si::kilometer km{1.0};
@@ -121,7 +42,7 @@ TEST_F(SiLengthTest, add_meter_to_kilometer)
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
-TEST_F(SiLengthTest, subtract_meters)
+TEST_F(SiLengthOperatorsTest, subtract_meters)
 {
     si::meter m1{5.0};
     si::meter m2{2.0};
@@ -132,7 +53,7 @@ TEST_F(SiLengthTest, subtract_meters)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiLengthTest, subtract_kilometer_from_meter)
+TEST_F(SiLengthOperatorsTest, subtract_kilometer_from_meter)
 {
     si::meter m{1500.0};
     si::kilometer km{1.0};
@@ -142,7 +63,7 @@ TEST_F(SiLengthTest, subtract_kilometer_from_meter)
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
-TEST_F(SiLengthTest, subtract_meter_from_kilometer)
+TEST_F(SiLengthOperatorsTest, subtract_meter_from_kilometer)
 {
     si::kilometer km{2.0};
     si::meter m{500.0};
@@ -152,7 +73,7 @@ TEST_F(SiLengthTest, subtract_meter_from_kilometer)
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
-TEST_F(SiLengthTest, add_millimeter_to_meter)
+TEST_F(SiLengthOperatorsTest, add_millimeter_to_meter)
 {
     si::meter m{1.0};
     si::millimeter mm{500.0};
@@ -166,7 +87,7 @@ TEST_F(SiLengthTest, add_millimeter_to_meter)
 // Scalar Multiplication/Division Tests
 // ============================================================================
 
-TEST_F(SiLengthTest, multiply_meter_by_scalar)
+TEST_F(SiLengthOperatorsTest, multiply_meter_by_scalar)
 {
     si::meter m{5.0};
     auto result = m * 2.0;
@@ -174,7 +95,7 @@ TEST_F(SiLengthTest, multiply_meter_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 10.0);
 }
 
-TEST_F(SiLengthTest, divide_meter_by_scalar)
+TEST_F(SiLengthOperatorsTest, divide_meter_by_scalar)
 {
     si::meter m{10.0};
     auto result = m / 2.0;
@@ -182,20 +103,20 @@ TEST_F(SiLengthTest, divide_meter_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiLengthTest, divide_by_zero_scalar_throws)
+TEST_F(SiLengthOperatorsTest, divide_by_zero_scalar_throws)
 {
     si::meter m{10.0};
     ASSERT_THROW(m / 0.0, std::invalid_argument);
 }
 
-TEST_F(SiLengthTest, divide_by_zero_si_unit_throws)
+TEST_F(SiLengthOperatorsTest, divide_by_zero_si_unit_throws)
 {
     si::meter m1{10.0};
     si::meter m2{0.0};
     ASSERT_THROW(m1 / m2, std::invalid_argument);
 }
 
-TEST_F(SiLengthTest, multiply_meter_by_zero)
+TEST_F(SiLengthOperatorsTest, multiply_meter_by_zero)
 {
     si::meter m{5.0};
     auto result = m * 0.0;
@@ -203,7 +124,7 @@ TEST_F(SiLengthTest, multiply_meter_by_zero)
     ASSERT_DOUBLE_EQ(result.value(), 0.0);
 }
 
-TEST_F(SiLengthTest, multiply_meter_by_fraction)
+TEST_F(SiLengthOperatorsTest, multiply_meter_by_fraction)
 {
     si::meter m{10.0};
     auto result = m * 0.5;
@@ -215,7 +136,7 @@ TEST_F(SiLengthTest, multiply_meter_by_fraction)
 // Dimensional Analysis: Multiplication (Area)
 // ============================================================================
 
-TEST_F(SiLengthTest, multiply_length_by_length_produces_area)
+TEST_F(SiLengthOperatorsTest, multiply_length_by_length_produces_area)
 {
     si::meter m1{2.0};
     si::meter m2{3.0};
@@ -225,7 +146,7 @@ TEST_F(SiLengthTest, multiply_length_by_length_produces_area)
     ASSERT_EQ(decltype(area)::dimension::value.length, 2);
 }
 
-TEST_F(SiLengthTest, multiply_kilometer_by_kilometer)
+TEST_F(SiLengthOperatorsTest, multiply_kilometer_by_kilometer)
 {
     si::kilometer km1{2.0};
     si::kilometer km2{3.0};
@@ -234,7 +155,7 @@ TEST_F(SiLengthTest, multiply_kilometer_by_kilometer)
     ASSERT_EQ(decltype(area)::dimension::value.length, 2);
 }
 
-TEST_F(SiLengthTest, multiply_meter_by_kilometer_produces_area)
+TEST_F(SiLengthOperatorsTest, multiply_meter_by_kilometer_produces_area)
 {
     si::meter m{1000.0};
     si::kilometer km{1.0};
@@ -245,7 +166,7 @@ TEST_F(SiLengthTest, multiply_meter_by_kilometer_produces_area)
     ASSERT_EQ(decltype(area)::dimension::value.length, 2);
 }
 
-TEST_F(SiLengthTest, multiply_meter_by_millimeter_produces_area)
+TEST_F(SiLengthOperatorsTest, multiply_meter_by_millimeter_produces_area)
 {
     si::meter m{5.0};
     si::millimeter mm{2000.0};  // 2000mm = 2m
@@ -261,7 +182,7 @@ TEST_F(SiLengthTest, multiply_meter_by_millimeter_produces_area)
 // Dimensional Analysis: Division (Velocity)
 // ============================================================================
 
-TEST_F(SiLengthTest, divide_length_by_time_produces_velocity)
+TEST_F(SiLengthOperatorsTest, divide_length_by_time_produces_velocity)
 {
     // This test demonstrates the concept - actual time type would need time dimension
     // Just verify that length division works
@@ -274,76 +195,10 @@ TEST_F(SiLengthTest, divide_length_by_time_produces_velocity)
 }
 
 // ============================================================================
-// Dimension Tests
+// Edge Case Tests with Operators
 // ============================================================================
 
-TEST_F(SiLengthTest, meter_has_length_dimension)
-{
-    si::meter m{5.0};
-    ASSERT_EQ(decltype(m)::dimension::value.length, 1);
-    ASSERT_EQ(decltype(m)::dimension::value.mass, 0);
-    ASSERT_EQ(decltype(m)::dimension::value.time, 0);
-}
-
-TEST_F(SiLengthTest, area_has_correct_dimension)
-{
-    si::meter m1{5.0};
-    si::meter m2{3.0};
-    auto area = m1 * m2;
-    ASSERT_EQ(decltype(area)::dimension::value.length, 2);
-    ASSERT_EQ(decltype(area)::dimension::value.mass, 0);
-    ASSERT_EQ(decltype(area)::dimension::value.time, 0);
-}
-
-TEST_F(SiLengthTest, volume_has_correct_dimension)
-{
-    si::meter m1{5.0};
-    si::meter m2{3.0};
-    si::meter m3{2.0};
-    auto area = m1 * m2;
-    auto volume = area * m3;
-    ASSERT_EQ(decltype(volume)::dimension::value.length, 3);
-}
-
-// ============================================================================
-// Template Parameter Tests
-// ============================================================================
-
-TEST_F(SiLengthTest, length_with_float)
-{
-    si::length<float> m{5.0f};
-    ASSERT_FLOAT_EQ(m.value(), 5.0f);
-}
-
-TEST_F(SiLengthTest, length_with_custom_ratio)
-{
-    si::length<double, std::kilo> km{2.5};
-    ASSERT_DOUBLE_EQ(km.value(), 2.5);
-}
-
-TEST_F(SiLengthTest, length_with_float_and_kilo)
-{
-    si::length<float, std::kilo> km{2.5f};
-    ASSERT_FLOAT_EQ(km.value(), 2.5f);
-}
-
-// ============================================================================
-// Edge Case Tests
-// ============================================================================
-
-TEST_F(SiLengthTest, very_small_values)
-{
-    si::nanometer nm{0.001};
-    ASSERT_DOUBLE_EQ(nm.value(), 0.001);
-}
-
-TEST_F(SiLengthTest, very_large_values)
-{
-    si::kilometer km{1e6};  // 1 million kilometers
-    ASSERT_DOUBLE_EQ(km.value(), 1e6);
-}
-
-TEST_F(SiLengthTest, add_very_different_scales)
+TEST_F(SiLengthOperatorsTest, add_very_different_scales)
 {
     si::meter m{1.0};
     si::nanometer nm{1e9};  // 1e9 nm = 1 m
@@ -352,7 +207,7 @@ TEST_F(SiLengthTest, add_very_different_scales)
     ASSERT_NEAR(result.value(), 2.0, 1e-10);
 }
 
-TEST_F(SiLengthTest, subtract_resulting_in_negative)
+TEST_F(SiLengthOperatorsTest, subtract_resulting_in_negative)
 {
     si::meter m1{2.0};
     si::meter m2{5.0};
@@ -364,7 +219,7 @@ TEST_F(SiLengthTest, subtract_resulting_in_negative)
 // Constexpr Tests (Runtime Evaluation)
 // ============================================================================
 
-TEST_F(SiLengthTest, constexpr_meter_addition)
+TEST_F(SiLengthOperatorsTest, constexpr_meter_addition)
 {
     constexpr si::meter m1{3.0};
     constexpr si::meter m2{2.0};
@@ -372,7 +227,7 @@ TEST_F(SiLengthTest, constexpr_meter_addition)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiLengthTest, constexpr_meter_multiplication_and_division)
+TEST_F(SiLengthOperatorsTest, constexpr_meter_multiplication_and_division)
 {
     constexpr si::meter m1{2.0};
     constexpr si::meter m2{3.0};
@@ -391,7 +246,7 @@ TEST_F(SiLengthTest, constexpr_meter_multiplication_and_division)
     static_assert(decltype(volume)::dimension::value.length == 3, "Volume should have length dimension of 3");
 }
 
-TEST_F(SiLengthTest, add_to)
+TEST_F(SiLengthOperatorsTest, add_to)
 {
     si::decimeter m1{3.0};       // 3 decimeters = 0.3 meters
     si::kilometer m2{2.0};       // 2 kilometers = 2000 meters
@@ -400,7 +255,7 @@ TEST_F(SiLengthTest, add_to)
     ASSERT_DOUBLE_EQ(result.value(), 2000300.0);
 }
 
-TEST_F(SiLengthTest, constexpr_add_to)
+TEST_F(SiLengthOperatorsTest, constexpr_add_to)
 {
     constexpr si::meter m1{1.0};           // 1 meter
     constexpr si::decimeter m2{30.0};      // 30 decimeters = 3 meters
@@ -408,16 +263,3 @@ TEST_F(SiLengthTest, constexpr_add_to)
     // 1 + 3 = 4 meters = 4000 millimeters (power of 2 in meters domain)
     static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

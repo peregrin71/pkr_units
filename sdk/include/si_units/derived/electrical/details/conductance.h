@@ -10,11 +10,38 @@ PKR_SI_BEGIN_NAMESPACE
 // Conductance dimension: S = A²·s³·kg⁻¹·m⁻²
 inline constexpr dimension_t conductance_dimension{.length = -2, .mass = -1, .time = 3, .current = 2};
 
-// Conductance units (Siemens and derived)
-// Base unit: Siemens (S) = kg⁻¹·m⁻²·s³·A²
-using siemens = unit_t<double, std::ratio<1, 1>, conductance_dimension>;
-using millisiemens = unit_t<double, std::ratio<1, 1000>, conductance_dimension>;
-using microsiemens = unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
+// Strong type for siemens (SI base unit)
+struct siemens final : public unit_t<double, std::ratio<1, 1>, conductance_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, conductance_dimension>;
+    using _base::_base;
+    constexpr std::string_view name{"siemens"};
+    constexpr std::string_view symbol{"S"};
+    constexpr std::wstring_view w_symbol{L"S"};
+    constexpr std::u8string_view u8_symbol{u8"S"};
+};
+
+// Strong type for millisiemens
+struct millisiemens final : public unit_t<double, std::ratio<1, 1000>, conductance_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1000>, conductance_dimension>;
+    using _base::_base;
+    constexpr std::string_view name{"millisiemens"};
+    constexpr std::string_view symbol{"mS"};
+    constexpr std::wstring_view w_symbol{L"mS"};
+    constexpr std::u8string_view u8_symbol{u8"mS"};
+};
+
+// Strong type for microsiemens
+struct microsiemens final : public unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
+    using _base::_base;
+    constexpr std::string_view name{"microsiemens"};
+    constexpr std::string_view symbol{"µS"};
+    constexpr std::wstring_view w_symbol{L"µS"};
+    constexpr std::u8string_view u8_symbol{u8"µS"};
+};
 
 } // PKR_SI_NAMESPACE
 
