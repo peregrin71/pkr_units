@@ -1,0 +1,30 @@
+#pragma once
+
+#include "../impl/namespace_config.h"
+#include "../impl/common/temperature_def.h"
+
+PKR_UNITS_BEGIN_NAMESPACE
+{
+
+// Fahrenheit temperature
+// 
+// NOTE: fahrenheit_t intentionally does NOT define _base typedef.
+// This serves as a marker that prevents it from being used with unit_cast().
+// Temperature conversions between Celsius and Fahrenheit require offset handling
+// that generic unit_cast() doesn't support. Use temperature_cast() instead.
+// 
+// The absence of _base causes SFINAE rejection in unit_cast's requires clause,
+// which accesses target_unit_t::_base. This is an intentional design pattern.
+
+struct fahrenheit_t final : public details::unit_t<double, std::ratio<1, 1>, temperature_dimension>
+{
+    // Intentionally no _base typedef - this is the marker that prevents unit_cast usage
+    using fahrenheit_t::unit_t::unit_t;
+    
+    static constexpr std::string_view name{"fahrenheit"};
+    static constexpr std::string_view symbol{"°F"};
+    static constexpr std::wstring_view w_symbol{L"°F"};
+    static constexpr std::u8string_view u8_symbol{u8"°F"};
+};
+
+}  // PKR_UNITS_END_NAMESPACE

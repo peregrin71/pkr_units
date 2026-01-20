@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pkr_units/impl/details/si_unit.h>
+#include "../common/unit_t_def.h"
 #include "unit_pow.h"
 #include <type_traits>
 #include <tuple>

@@ -3,6 +3,7 @@
 #include <pkr_units/derived/velocity.h>
 #include <pkr_units/standard/length.h>
 #include <pkr_units/standard/time.h>
+#include <pkr_units/cast/unit_cast.h>
 
 using namespace ::testing;
 
@@ -124,6 +125,55 @@ TEST_F(SiVelocityTest, meters_per_second_same_unit_identity)
     pkr::units::meter_per_second_t v1{10.0};
     pkr::units::meter_per_second_t v2 = v1;
     ASSERT_DOUBLE_EQ(v2.value(), 10.0);
+}
+
+// ============================================================================
+// Unit Casting Tests (SI units only)
+// ============================================================================
+
+TEST_F(SiVelocityTest, cast_meter_per_second_to_kilometer_per_hour)
+{
+    // 10 m/s = 36 km/h
+    pkr::units::meter_per_second_t mps{10.0};
+    auto kmh = pkr::units::unit_cast<pkr::units::kilometer_per_hour_t>(mps);
+    static_assert(std::is_same_v<decltype(kmh), pkr::units::kilometer_per_hour_t>);
+    ASSERT_DOUBLE_EQ(kmh.value(), 36.0);
+}
+
+TEST_F(SiVelocityTest, cast_kilometer_per_hour_to_meter_per_second)
+{
+    // 36 km/h = 10 m/s
+    pkr::units::kilometer_per_hour_t kmh{36.0};
+    auto mps = pkr::units::unit_cast<pkr::units::meter_per_second_t>(kmh);
+    static_assert(std::is_same_v<decltype(mps), pkr::units::meter_per_second_t>);
+    ASSERT_DOUBLE_EQ(mps.value(), 10.0);
+}
+
+TEST_F(SiVelocityTest, cast_meter_per_second_to_centimeter_per_second)
+{
+    // 5 m/s = 500 cm/s
+    pkr::units::meter_per_second_t mps{5.0};
+    auto cms = pkr::units::unit_cast<pkr::units::centimeter_per_second_t>(mps);
+    static_assert(std::is_same_v<decltype(cms), pkr::units::centimeter_per_second_t>);
+    ASSERT_DOUBLE_EQ(cms.value(), 500.0);
+}
+
+TEST_F(SiVelocityTest, cast_centimeter_per_second_to_meter_per_second)
+{
+    // 250 cm/s = 2.5 m/s
+    pkr::units::centimeter_per_second_t cms{250.0};
+    auto mps = pkr::units::unit_cast<pkr::units::meter_per_second_t>(cms);
+    static_assert(std::is_same_v<decltype(mps), pkr::units::meter_per_second_t>);
+    ASSERT_DOUBLE_EQ(mps.value(), 2.5);
+}
+
+TEST_F(SiVelocityTest, cast_meter_per_second_to_kilometer_per_second)
+{
+    // 1000 m/s = 1 km/s
+    pkr::units::meter_per_second_t mps{1000.0};
+    auto kms = pkr::units::unit_cast<pkr::units::kilometer_per_second_t>(mps);
+    static_assert(std::is_same_v<decltype(kms), pkr::units::kilometer_per_second_t>);
+    ASSERT_DOUBLE_EQ(kms.value(), 1.0);
 }
 
 // ============================================================================

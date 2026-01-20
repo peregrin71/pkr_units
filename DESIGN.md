@@ -6,6 +6,22 @@ This document outlines the key design decisions made in the SI Units type-safe l
 
 ---
 
+## Design Philosophy
+
+The SI Units library is built on four core principles:
+
+1. **Type Safety**: Prevent mixing incompatible units at compile-time. Dimensional errors are caught by the type system, not at runtime. A `meter` cannot accidentally be added to a `kilogram`.
+
+2. **Clear Semantic Types**: Provide expressive, domain-specific types that help developers express intent directly in code. Types like `meter_t`, `kilogram_t`, `kilometer_per_hour_t` make unit semantics explicit and self-documenting.
+
+3. **(Close to) Zero-Cost Abstraction**: Minimize runtime overhead. All dimensional checking is compile-time. Unit conversions require calculation (hence "close to" rather than absolute zero), but this calculation is optimized to compile away when possible and runs at machine speed otherwise.
+
+4. **Extensibility**: Enable users to define their own unit types in their own code. The library provides the foundation (templates, traits, operators) so applications can add domain-specific units without modifying the library.
+
+These principles guide all architectural decisions and trade-offs in the library.
+
+---
+
 ## 1. Core Type System
 
 ### 1.1 Template-Based Dimensional Analysis
@@ -408,6 +424,51 @@ operator+(meter, millimeter) → delegates to add_canonical<double, ratio<1,1>, 
 - **Addition/Subtraction**: If both operands have identical ratios → skip conversion; else → convert to canonical, operate, convert back to LHS ratio
 - **Multiplication**: If either operand has ratio<1,1> → use the other ratio directly; else → call std::ratio_multiply
 - **Division**: If both operands have same ratio → result ratio is <1,1>; if denominator is <1,1> → result ratio is numerator ratio; else → call std::ratio_divide
+
+### 3.6 Compiler-Optimizable Code Structure: Simplifying Complex Templates for Compiler Analysis
+
+**Core Insight**: Code structure should move toward forms that compilers can analyze and optimize effectively.
+
+**The Pattern**:
+
+We write code that evolves from complex, multi-parameter templates toward simpler, more focused templates. The compiler then recognizes and optimizes these simpler patterns—reducing code size, improving performance, and achieving zero-cost abstraction.
+
+**What the Compiler Sees**:
+
+1. **Complex template initially**:
+   ```cpp
+   template<typename target_ratio_t, typename type_t, typename source_ratio_t, dimension_t dim_v>
+   auto unit_cast_impl(...) {
+       // Multiple type parameters make compiler analysis difficult
+       type_t conversion_factor = complex_calculation_involving_multiple_types();
+   }
+   ```
+
+2. **Compiler discovers a simpler core**:
+   ```cpp
+   template<typename type_t>
+   constexpr type_t compute_conversion_factor(long long src_num, long long src_den,
+                                              long long tgt_num, long long tgt_den) noexcept
+   {
+       return (static_cast<type_t>(src_num) * tgt_den) / 
+              (static_cast<type_t>(src_den) * tgt_num);
+   }
+   ```
+
+3. **Compiler optimizes the simpler version**:
+   - One instantiation per value type (not per ratio pair)
+   - Constants fold during compilation
+   - Function inlines away in optimized builds
+   - Reused across all unit conversion sites
+
+**Design Principle**: Structure code to expose the simpler patterns that compilers are already looking for. By explicitly extracting `compute_conversion_factor<type_t>`, we:
+
+- **Help the compiler's optimizer recognize the intent**: Simple template + constant parameters = obvious optimization target
+- **Enable code reuse across multiple contexts**: All ratio pairs share the same `compute_conversion_factor<type_t>` instantiation
+- **Reduce the optimizer's search space**: Simpler templates are easier to reason about than complex ones
+- **Achieve better inlining decisions**: Focused, simple functions inline more reliably
+
+**Result**: The compiler can apply its standard optimization passes (constant folding, inlining, dead code elimination) more effectively on simpler templates than on complex ones.
 
 ---
 
