@@ -371,6 +371,218 @@ struct horsepower final : public details::unit_t<double, std::ratio<745700, 1000
     static constexpr std::u8string_view u8_symbol{u8"hp"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for mechanical units
+// ============================================================================
+
+// Force units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, force_dimension>
+{
+    using type = newton;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, force_dimension>
+{
+    using type = kilonewton;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, force_dimension>
+{
+    using type = meganewton;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, force_dimension>
+{
+    using type = micronewton;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, force_dimension>
+{
+    using type = millinewton;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, force_dimension>
+{
+    using type = nanonewton;
+};
+
+// Pressure units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, pressure_dimension>
+{
+    using type = pascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, pressure_dimension>
+{
+    using type = kilopascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, pressure_dimension>
+{
+    using type = megapascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, pressure_dimension>
+{
+    using type = micropascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, pressure_dimension>
+{
+    using type = millipascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, pressure_dimension>
+{
+    using type = nanopascal;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<100000, 1>, pressure_dimension>
+{
+    using type = bar;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<101325, 1>, pressure_dimension>
+{
+    using type = atmosphere;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<6894757, 1000>, pressure_dimension>
+{
+    using type = psi;
+};
+
+// Energy units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, energy_dimension>
+{
+    using type = joule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, energy_dimension>
+{
+    using type = kilojoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, energy_dimension>
+{
+    using type = megajoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000000, 1>, energy_dimension>
+{
+    using type = gigajoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, energy_dimension>
+{
+    using type = microjoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, energy_dimension>
+{
+    using type = millijoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, energy_dimension>
+{
+    using type = nanojoule;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<4184, 1000>, energy_dimension>
+{
+    using type = calorie;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<4184, 1>, energy_dimension>
+{
+    using type = kilocalorie;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<3600, 1>, energy_dimension>
+{
+    using type = watt_hour;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<3600000, 1>, energy_dimension>
+{
+    using type = kilowatt_hour;
+};
+
+// Power units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, power_dimension>
+{
+    using type = watt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, power_dimension>
+{
+    using type = kilowatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, power_dimension>
+{
+    using type = megawatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000000, 1>, power_dimension>
+{
+    using type = gigawatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, power_dimension>
+{
+    using type = microwatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, power_dimension>
+{
+    using type = milliwatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, power_dimension>
+{
+    using type = nanowatt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<745700, 1000>, power_dimension>
+{
+    using type = horsepower;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE
 
 

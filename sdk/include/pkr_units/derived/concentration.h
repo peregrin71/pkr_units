@@ -226,6 +226,66 @@ struct milliosmole_per_liter final : public details::unit_t<double, std::ratio<1
     static constexpr std::u8string_view u8_symbol{u8"mOsm/L"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for concentration units
+// ============================================================================
+
+// Mass concentration units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, mass_concentration_v>
+{
+    using type = kilogram_per_cubic_meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, mass_concentration_v>
+{
+    using type = gram_per_cubic_meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, mass_concentration_v>
+{
+    using type = milligram_per_liter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, mass_concentration_v>
+{
+    using type = microgram_per_liter_t;
+};
+
+// Molar concentration units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, molar_concentration_v>
+{
+    using type = mole_per_liter;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, molar_concentration_v>
+{
+    using type = millimolar;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, molar_concentration_v>
+{
+    using type = micromolar;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, molar_concentration_v>
+{
+    using type = nanomolar;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000000, 1>, molar_concentration_v>
+{
+    using type = mole_per_cubic_centimeter;
+};
+
 } // PKR_UNITS_NAMESPACE
 
 

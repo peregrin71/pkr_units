@@ -321,6 +321,190 @@ struct microsiemens final : public details::unit_t<double, std::ratio<1, 1000000
     static constexpr std::u8string_view u8_symbol{u8"µS"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for electrical units
+// ============================================================================
+
+// Electric charge units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, electric_charge_dimension>
+{
+    using type = coulomb;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, electric_charge_dimension>
+{
+    using type = kilocoulomb;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, electric_charge_dimension>
+{
+    using type = millicoulomb;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, electric_charge_dimension>
+{
+    using type = microcoulomb;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, electric_charge_dimension>
+{
+    using type = nanocoulomb;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
+{
+    using type = picocoulomb;
+};
+
+// Electric potential units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, electric_potential_dimension>
+{
+    using type = volt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, electric_potential_dimension>
+{
+    using type = kilovolt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, electric_potential_dimension>
+{
+    using type = megavolt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, electric_potential_dimension>
+{
+    using type = millivolt;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, electric_potential_dimension>
+{
+    using type = microvolt;
+};
+
+// Electric resistance units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, electric_resistance_dimension>
+{
+    using type = ohm;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, electric_resistance_dimension>
+{
+    using type = kilohm;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+{
+    using type = megohm;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+{
+    using type = gigohm;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, electric_resistance_dimension>
+{
+    using type = milliohm;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, electric_resistance_dimension>
+{
+    using type = microohm;
+};
+
+// Capacitance units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, capacitance_v>
+{
+    using type = farad;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, capacitance_v>
+{
+    using type = millifarad;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, capacitance_v>
+{
+    using type = microfarad;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, capacitance_v>
+{
+    using type = nanofarad;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000000>, capacitance_v>
+{
+    using type = picofarad;
+};
+
+// Inductance units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, inductance_dimension>
+{
+    using type = henry;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, inductance_dimension>
+{
+    using type = millihenry;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, inductance_dimension>
+{
+    using type = microhenry;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, inductance_dimension>
+{
+    using type = nanohenry;
+};
+
+// Conductance units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, conductance_dimension>
+{
+    using type = siemens;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, conductance_dimension>
+{
+    using type = millisiemens;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, conductance_dimension>
+{
+    using type = microsiemens;
+};
+
 } // PKR_UNITS_NAMESPACE
 
 

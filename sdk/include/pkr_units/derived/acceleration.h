@@ -65,6 +65,39 @@ struct standard_gravity_t final : public details::unit_t<double, std::ratio<9806
     static constexpr std::u8string_view u8_symbol{u8"g"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for acceleration units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, acceleration_v>
+{
+    using type = meter_per_second_squared_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 100>, acceleration_v>
+{
+    using type = centimeter_per_second_squared_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, acceleration_v>
+{
+    using type = millimeter_per_second_squared_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, acceleration_v>
+{
+    using type = kilometer_per_second_squared_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<980665, 100000>, acceleration_v>
+{
+    using type = standard_gravity_t;
+};
 
 } // PKR_UNITS_NAMESPACE
 

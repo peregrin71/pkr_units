@@ -167,6 +167,76 @@ struct atomic_mass_unit_per_cubic_angstrom_t final : public details::unit_t<doub
     static constexpr std::u8string_view u8_symbol{u8"u/Ų"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for density units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, density_dimension>
+{
+    using type = kilogram_per_cubic_meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, density_dimension>
+{
+    using type = gram_per_cubic_meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, density_dimension>
+{
+    using type = gram_per_cubic_centimeter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, density_dimension>
+{
+    using type = kilogram_per_liter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<27679904, 1000000>, density_dimension>
+{
+    using type = pound_per_cubic_inch_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<16018, 1000000>, density_dimension>
+{
+    using type = pound_per_cubic_foot_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<119826, 1000000>, density_dimension>
+{
+    using type = pound_per_gallon_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1729994, 1000000>, density_dimension>
+{
+    using type = ounce_per_cubic_inch_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<33814, 1000>, density_dimension>
+{
+    using type = ounce_per_fluid_ounce_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, density_dimension>
+{
+    using type = ton_per_cubic_meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<166054, 1>, density_dimension>
+{
+    using type = atomic_mass_unit_per_cubic_angstrom_t;
+};
+
 } // PKR_UNITS_NAMESPACE
 
 

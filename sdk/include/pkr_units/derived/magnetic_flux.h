@@ -137,6 +137,78 @@ struct megatesla final : public details::unit_t<double, std::ratio<1000000, 1>, 
     static constexpr std::u8string_view u8_symbol{u8"MT"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for magnetic flux units
+// ============================================================================
+
+// Magnetic flux units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, magnetic_flux_dimension>
+{
+    using type = weber;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, magnetic_flux_dimension>
+{
+    using type = milliweber;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
+{
+    using type = microweber;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+{
+    using type = nanoweber;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, magnetic_flux_dimension>
+{
+    using type = kiloweber;
+};
+
+// Magnetic flux density units
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
+{
+    using type = tesla;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+{
+    using type = millitesla;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+{
+    using type = microtesla;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+{
+    using type = nanotesla;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+{
+    using type = kilotesla;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+{
+    using type = megatesla;
+};
+
 } // PKR_UNITS_NAMESPACE
 
 
