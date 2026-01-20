@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Treat warnings as errors
 if(MSVC)
-    add_compile_options(/WX)
+    add_compile_options(/WX /permissive-)
 else()
     add_compile_options(-Werror)
 endif()

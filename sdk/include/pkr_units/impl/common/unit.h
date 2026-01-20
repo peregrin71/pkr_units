@@ -15,15 +15,24 @@
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
-// Addition operator
+// Concept for dimension compatibility
+// All dimensions must match between operands
 template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+concept same_dimensions_c = 
+    requires {
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity>; };
+        requires requires { typename std::enable_if_t<details::is_si_unit<T1>::value_dimension.angle == details::is_si_unit<T2>::value_dimension.angle>; };
+    };
+
+// Addition operator
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -49,21 +58,8 @@ constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 }
 
 // Named add function
-template<typename ResultType, typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity &&
-           details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<ResultType>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<ResultType>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<ResultType>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<ResultType>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<ResultType>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<ResultType>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<ResultType>::value_dimension.intensity))
+template<details::si_unit_concept ResultType, details::si_unit_concept T1, details::si_unit_concept T2>
+requires (same_dimensions_c<T1, T2> && same_dimensions_c<T1, ResultType>)
 constexpr auto add(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<ResultType>::value_type;
@@ -84,14 +80,8 @@ constexpr auto add(const T1& lhs, const T2& rhs) noexcept
 }
 
 // Subtraction operator
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_si_unit<T1>::value_type;
@@ -198,14 +188,8 @@ constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
 }
 
 // Comparison operators
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
 {
     using lhs_ratio = typename details::is_si_unit<T1>::ratio_type;
@@ -227,27 +211,15 @@ constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
 {
     auto to_canonical = [](const auto& unit) {
@@ -259,40 +231,22 @@ constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
     return to_canonical(lhs) < to_canonical(rhs);
 }
 
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
 {
     return lhs < rhs || lhs == rhs;
 }
 
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs <= rhs);
 }
 
-template<typename T1, typename T2>
-requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&
-           details::is_si_unit<T1>::value_dimension.mass == details::is_si_unit<T2>::value_dimension.mass &&
-           details::is_si_unit<T1>::value_dimension.time == details::is_si_unit<T2>::value_dimension.time &&
-           details::is_si_unit<T1>::value_dimension.current == details::is_si_unit<T2>::value_dimension.current &&
-           details::is_si_unit<T1>::value_dimension.temperature == details::is_si_unit<T2>::value_dimension.temperature &&
-           details::is_si_unit<T1>::value_dimension.amount == details::is_si_unit<T2>::value_dimension.amount &&
-           details::is_si_unit<T1>::value_dimension.intensity == details::is_si_unit<T2>::value_dimension.intensity))
+template<details::si_unit_concept T1, details::si_unit_concept T2>
+requires same_dimensions_c<T1, T2>
 constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs < rhs);

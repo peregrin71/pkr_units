@@ -26,25 +26,10 @@ public:
         static constexpr PKR_UNITS_NAMESPACE::dimension_t value = dim_v;
     };
 
-    // Explicit constructor from underlying type (general case - requires explicit construction)
-    constexpr explicit unit_t(type_t value) noexcept
-        requires (dim_v != scalar_dimension)
-        : m_value(value)
+    // Allow construction from underlying type
+    explicit constexpr unit_t(type_t value) noexcept
+         : m_value(value)
     {
-    }
-
-    // Implicit constructor from underlying type (only for scalar/dimensionless units)
-    constexpr unit_t(type_t value) noexcept
-        requires (dim_v == scalar_dimension)
-        : m_value(value)
-    {
-    }
-
-    // Implicit conversion to underlying type (only for scalar/dimensionless units)
-    constexpr operator type_t() const noexcept
-        requires (dim_v == scalar_dimension)
-    {
-        return m_value;
     }
 
     // make sure type is default copyable and movable
@@ -234,6 +219,7 @@ struct is_si_unit<unit_t<type_t, ratio_t, dim_v>> : std::true_type
     static constexpr bool value = true;
     using value_type = type_t;
     using ratio_type = ratio_t;
+    using most_derived_type = unit_t<type_t, ratio_t, dim_v>;
     static constexpr dimension_t value_dimension = dim_v;
 };
 
@@ -246,6 +232,7 @@ struct is_si_unit<T> : std::true_type
     static constexpr bool value = true;
     using value_type = typename T::_base::value_type;
     using ratio_type = typename T::_base::ratio_type;
+    using most_derived_type = T;
     // Extract dimension from the base unit_t class
     static constexpr dimension_t value_dimension = T::_base::dimension::value;
 };

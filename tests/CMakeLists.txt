@@ -7,7 +7,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 set(TEST_SOURCES
   main.cpp
   
-  # Base unit tests
+  #Base unit tests
   length/test_si_length.cpp
   length/test_si_length_operators.cpp
   mass/test_si_mass.cpp
@@ -24,6 +24,9 @@ set(TEST_SOURCES
   intensity/test_si_intensity_operators.cpp
 
   velocity/test_si_velocity.cpp
+  
+  # Compile-time safety and dimensional error documentation
+  #test_dimensional_safety.cpp
   
 )
 

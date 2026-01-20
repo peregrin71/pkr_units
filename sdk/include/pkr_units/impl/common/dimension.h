@@ -5,7 +5,15 @@
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
+// ============================================================================
 // Dimension struct for dimensional analysis (C++20 as NTTP)
+// ============================================================================
+// 
+// 8-Dimensional SI System:
+// - Standard 7 SI base units (length, mass, time, current, temperature, amount, intensity)
+// - Extended with plane angle (radians) as 8th dimension for type-safe rotational mechanics
+// 
+// See design.md § 1.4 for rationale on adding angle to the standard SI system.
 struct dimension_t
 {
     int length = 0;         // meter (m)
@@ -15,13 +23,13 @@ struct dimension_t
     int temperature = 0;    // kelvin (K)
     int amount = 0;         // mole (mol)
     int intensity = 0;      // candela (cd)
-    int angle = 0;          // radian (rad) - plane angle
+    int angle = 0;          // radian (rad) - plane angle [NON-STANDARD SI EXTENSION]
 
     constexpr bool operator==(const dimension_t&) const = default;
 };
 
 // Dimensionless (scalar) dimension - default constructed with all zeros
-inline constexpr dimension_t scalar_dimension{};
+inline constexpr dimension_t scalar_dimension{0,0,0,0,0,0,0,0};
 
 }  // namespace PKR_UNITS_NAMESPACE
 

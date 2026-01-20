@@ -90,33 +90,140 @@ pkr::units::second_t time_elapsed{30.0};
 using meter = meter_t;  // If desired for specific contexts
 ```
 
+### 1.4 The 8-Dimensional SI System: Adding Angle as an Explicit Dimension
+
+**Decision**: Extend the standard 7 SI base units with an 8th dimension for plane angle (radians).
+
+**Standard SI Base Units (7)**:
+1. Length [L] - meter (m)
+2. Mass [M] - kilogram (kg)  
+3. Time [T] - second (s)
+4. Electric Current [I] - ampere (A)
+5. Temperature [Θₖ] - kelvin (K)
+6. Amount of Substance [N] - mole (mol)
+7. Luminous Intensity [J] - candela (cd)
+
+**Extended System (8)**:
+8. Plane Angle [Θ] - radian (rad) ← **Non-standard addition**
+
+**Rationale for Adding Angle**:
+
+While ISO 80000-3 officially treats radians as dimensionless supplementary units, treating angle as an explicit dimension provides significant practical benefits for type-safe dimensional analysis in rotational mechanics:
+
+**1. Type Safety in Rotational Code**
+```cpp
+// With angle dimension: compile-time enforcement
+radian_t angular_velocity = meter_per_second_t(5) / meter_t(2);  ✓ Valid
+// Dimension check: [Θ·T⁻¹] = [L/T] / [L] ✓
+
+// Catches this error at compile-time:
+meter_per_second_t linear_vel = radian_t(1);  ✗ Compile error
+```
+
+**2. Dimensional Consistency in Rotational Dynamics**
+```cpp
+// Torque: Force × Radius (angular dimension cancels out correctly)
+// τ [M·L²·T⁻²] = F [M·L·T⁻²] × r [L]
+newton_meter_t torque = newton_t(100) * meter_t(0.5);  ✓
+
+// Angular velocity and linear velocity remain distinct types
+radian_per_second_t omega = /* ... */;
+meter_per_second_t v = /* ... */;
+// Cannot accidentally mix them
+```
+
+**3. Common Engineering Applications**
+- Robotics: servo angles, joint rotations with dimensional validation
+- Mechanics: moment of inertia [M·L²], angular momentum [M·L²·Θ·T⁻¹]
+- Navigation: heading, pitch, roll tracking
+- Control systems: angle feedback with type-safe PID implementations
+- Physics simulations: Euler angles with proper dimensional analysis
+
+**4. Standards Alignment**
+This extension does not violate SI principles but rather implements SI within the constraints of compile-time type systems. The radians unit is defined as `dimensionless` by SI, but treating it as a separate compile-time dimension enables safer scientific computing without changing the underlying physics.
+
+**Design Trade-off**:
+- ✓ Improved type safety and error detection
+- ✓ Enables rotational mechanics without dimensional ambiguity
+- ✓ Catches common errors (e.g., confusing angular and linear velocity)
+- ✗ Deviates from strict SI definition (but only for compile-time analysis)
+- ✗ Requires explicit `radian_t` where SI would use dimensionless
+
+This is a pragmatic extension for compile-time dimensional checking, not a redefinition of physics.
+
 ---
 
 ## 2. Unit Type Identification
 
 ### 2.1 Template Specialization over Constexpr If
 
-**Decision**: Use template specialization with `si_unit_type_impl<dimension_t>` for mapping dimensions to SI unit types.
+**Decision**: Use template specialization with `most_derived_unit_type<type_t, ratio_t, dimension_t>` for mapping unit components to their strong type classes.
 
-**Previous Approach** (rejected):
+**Implementation**:
+
+The `most_derived_unit_type` trait maps a triplet of (type, ratio, dimension) to the most specific strong type available:
+
 ```cpp
-// Old: Multiple constexpr if branches
-if constexpr (dim_v == length_dimension) return si_unit_type::meter;
-else if constexpr (dim_v.mass == 1 && ...) return si_unit_type::kilogram;
-// ... more conditions
-```
+// Forward declaration
+template<typename type_t, typename ratio_t, dimension_t dim_v>
+struct most_derived_unit_type;
 
-**New Approach**:
-```cpp
-template<dimension_t dim_v>
-struct si_unit_type_impl { /* default */ };
+// Default: returns base unit_t<> if no specialization exists
+template<typename type_t, typename ratio_t, dimension_t dim_v>
+struct most_derived_unit_type
+{
+    using type = unit_t<type_t, ratio_t, dim_v>;
+};
 
+// Specialization for meter (length, ratio<1,1>)
 template<>
-struct si_unit_type_impl<length_dimension> { 
-    static constexpr si_unit_type value = si_unit_type::meter; 
+struct most_derived_unit_type<double, std::ratio<1, 1>, length_dimension>
+{
+    using type = meter_t;
+};
+
+// Specialization for kilometer (length, ratio<1000,1>)
+template<>
+struct most_derived_unit_type<double, std::kilo, length_dimension>
+{
+    using type = kilometer_t;
 };
 // ... more specializations
 ```
+
+Each specialization declares a mapping from a specific (type, ratio, dimension) combination to its corresponding strong type class (`meter_t`, `kilometer_t`, etc.). When multiplication/division produces a new unit, we query this trait to get the most derived strong type instead of returning the generic `unit_t<>`.
+
+**Why This Approach**:
+
+1. **Extensibility**: Adding new unit types only requires adding new specializations—no changes to arithmetic operators or existing logic. Want to add `mile_t`? Just add:
+   ```cpp
+   template<>
+   struct most_derived_unit_type<double, std::ratio<1609344, 1000>, length_dimension>
+   {
+       using type = mile_t;
+   };
+   ```
+
+2. **Type Safety & Clarity**: Results of operations return the most specific strong type known to the system:
+   ```cpp
+   meter_t(5) / second_t(2)  // → meter_per_second_t (not generic unit_t<...>)
+   ```
+   This preserves semantic meaning—the result is semantically a velocity, not just "length divided by time."
+
+3. **Future String Formatting**: When implementing `std::formatter`, we can use `most_derived_unit_type` to get the canonical name:
+   ```cpp
+   template<typename T>
+   struct std::formatter<T> {
+       auto format(const T& unit, auto& ctx) {
+           using derived = most_derived_unit_type<typename T::value_type, 
+                                                   typename T::ratio_type,
+                                                   T::dimension::value>::type;
+           return std::format_to(ctx.out(), "{} {}", unit.value(), derived::symbol);
+           // Output: "5 m", "100 km", "2.5 m/s"
+       }
+   };
+   ```
+   The trait gives us direct access to the string symbol and metadata of the result type.
 
 **Rationale**:
 - **Faster compilation**: Direct template matching vs. evaluating multiple conditions
@@ -384,11 +491,12 @@ The design ensures:
 
 ### Adding Derived Units
 
-Add new specializations to `si_unit_type_impl`:
+Add new specializations to `most_derived_unit_type`:
 ```cpp
 template<>
-struct si_unit_type_impl<force_dimension> {
-    static constexpr si_unit_type value = si_unit_type::newton;
+struct most_derived_unit_type<double, std::ratio<1, 1>, force_dimension>
+{
+    using type = newton_t;  // Strong type for newton (force unit)
 };
 ```
 

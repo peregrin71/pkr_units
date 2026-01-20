@@ -27,7 +27,7 @@
 #include "impl/common/dimension.h"
 
 // ============================================================================
-// SI Base Units (7 fundamental units)
+// SI Base Units (8 fundamental units)
 // ============================================================================
 
 #include "standard/length.h"        // meter (m)
@@ -37,6 +37,7 @@
 #include "standard/temperature.h"   // kelvin (K)
 #include "standard/amount.h"        // mole (mol)
 #include "standard/intensity.h"     // candela (cd)
+#include "standard/angle.h"         // radian (rad)
 
 // ============================================================================
 // Derived SI Units (common compound units)

@@ -145,7 +145,40 @@ auto b = 1_km;
 
 ### 🟡 Medium Priority Issues
 
-#### 5. **Incomplete Basic SI Units**
+#### 5. **Solid Angle Support (Future Extension)**
+**Status**: Not yet implemented
+**Complexity**: Medium (requires 9th dimension)
+
+**Rationale**: The library currently includes plane angle (radians) as the 8th SI dimension. Solid angle (steradians) would be a valuable 9th extension for photometry and radiometry applications.
+
+**What is Solid Angle**:
+- Plane angle: arc length / radius = θ [rad]
+- Solid angle: surface area / radius² = Ω [sr] (steradian)
+- Range: 0 to 4π steradians for full sphere
+
+**Use Cases**:
+```cpp
+// Photometry: luminous intensity per solid angle
+candela_t luminous_intensity = lumens / steradian_t;
+
+// Astronomy: angular size of celestial objects
+// Sun solid angle from Earth ≈ 0.0000683 sr
+
+// Antenna/Acoustics: radiation patterns
+// Field of view in steradians
+```
+
+**Implementation**: Add `int solid_angle = 0` to dimension_t struct
+- Enables type-safe photometric and radiometric calculations
+- Prevents mixing plane angle with solid angle
+- Supports luminous intensity [cd] = luminous flux / solid angle [sr]
+- Supports radiance [W/sr] = power / solid angle
+
+**Recommendation**: Phase 3+ feature; low priority unless photometry support is needed
+
+---
+
+#### 6. **Incomplete Basic SI Units**
 Some metric prefixes missing:
 - Length: Missing `decameter`, `hectometer` in some places
 - Mass: Missing `megagram`, `decigram`
@@ -251,7 +284,7 @@ template<> struct std::formatter<si::meter> {
 - Move derived unit definitions from empty headers to actual implementations
 - Add: Area (m²), Volume (m³), Energy/Joule, Work
 - Ensure consistent naming: `square_meter`, `cubic_meter`, `joule`
-- Add specializations in `si_unit_type_impl` for all derived units
+- Add specializations in `most_derived_unit_type` for all derived units
 
 **Example fix**:
 ```cpp
