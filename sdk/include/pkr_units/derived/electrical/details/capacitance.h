@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Capacitance dimension
-inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0};
+inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0, 0};
 
 // Strong type for farad (SI base unit)
 struct farad final : public unit_t<double, std::ratio<1, 1>, capacitance_v>

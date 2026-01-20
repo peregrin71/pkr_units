@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Electric potential dimension
-inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
+inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0, 0};
 
 // Strong type for volt (SI base unit)
 struct volt final : public unit_t<double, std::ratio<1, 1>, electric_potential_dimension>

@@ -8,16 +8,16 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Force dimension: kg·m·s⁻² (M·L·T⁻²)
-inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0};
+inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
 
 // Pressure dimension: kg·m⁻¹·s⁻² (M·L⁻¹·T⁻²)
-inline constexpr dimension_t pressure_dimension{1, -1, -2, 0, 0, 0, 0};
+inline constexpr dimension_t pressure_dimension{1, -1, -2, 0, 0, 0, 0, 0};
 
 // Energy dimension: kg·m²·s⁻² (M·L²·T⁻²)
-inline constexpr dimension_t energy_dimension{1, 2, -2, 0, 0, 0, 0};
+inline constexpr dimension_t energy_dimension{1, 2, -2, 0, 0, 0, 0, 0};
 
 // Power dimension: kg·m²·s⁻³ (M·L²·T⁻³)
-inline constexpr dimension_t power_dimension{1, 2, -3, 0, 0, 0, 0};
+inline constexpr dimension_t power_dimension{1, 2, -3, 0, 0, 0, 0, 0};
 
 // Base unit: Newton (N) = kg·m·s⁻²
 using namespace_force_units_detail = int; // Force namespace detail

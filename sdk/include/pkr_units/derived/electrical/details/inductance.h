@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Inductance dimension
-inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
+inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0, 0};
 
 // Strong type for henry (SI base unit)
 struct henry final : public unit_t<double, std::ratio<1, 1>, inductance_dimension>

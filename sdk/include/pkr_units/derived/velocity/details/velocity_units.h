@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Velocity dimension
-inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0};
+inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0, 0};
 
 // Velocity quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>

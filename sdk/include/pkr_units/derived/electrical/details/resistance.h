@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Electric resistance dimension
-inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0};
+inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0, 0};
 
 // Strong type for ohm (SI base unit)
 struct ohm final : public unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>
