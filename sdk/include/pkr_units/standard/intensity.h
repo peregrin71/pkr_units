@@ -59,4 +59,38 @@ struct kilocandela_t final : public details::unit_t<double, std::kilo, intensity
     static constexpr std::u8string_view u8_symbol{u8"kcd"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for intensity units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, intensity_dimension>
+{
+    using type = candela_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, intensity_dimension>
+{
+    using type = millicandela_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, intensity_dimension>
+{
+    using type = microcandela_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, intensity_dimension>
+{
+    using type = nanocandela_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, intensity_dimension>
+{
+    using type = kilocandela_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

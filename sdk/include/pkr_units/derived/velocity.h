@@ -107,6 +107,75 @@ struct knots_t final : public details::unit_t<double, std::ratio<1852, 3600>, ve
     static constexpr std::u8string_view u8_symbol{u8"kn"};
 };
 
+// Aliases without _t suffix for convenience
+using meter_per_second = meter_per_second_t;
+using kilometer_per_hour = kilometer_per_hour_t;
+using centimeter_per_second = centimeter_per_second_t;
+using millimeter_per_second = millimeter_per_second_t;
+using kilometer_per_second = kilometer_per_second_t;
+using miles_per_hour = miles_per_hour_t;
+using feet_per_second = feet_per_second_t;
+using inches_per_second = inches_per_second_t;
+using knots = knots_t;
+
+// ============================================================================
+// Most derived unit type specializations for velocity units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, velocity_dimension>
+{
+    using type = meter_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<5, 18>, velocity_dimension>
+{
+    using type = kilometer_per_hour_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 100>, velocity_dimension>
+{
+    using type = centimeter_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1000>, velocity_dimension>
+{
+    using type = millimeter_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1000, 1>, velocity_dimension>
+{
+    using type = kilometer_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1609344, 3600000>, velocity_dimension>
+{
+    using type = miles_per_hour_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<3048, 10000>, velocity_dimension>
+{
+    using type = feet_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<254, 10000>, velocity_dimension>
+{
+    using type = inches_per_second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1852, 3600>, velocity_dimension>
+{
+    using type = knots_t;
+};
+
 } // PKR_UNITS_NAMESPACE
 
 

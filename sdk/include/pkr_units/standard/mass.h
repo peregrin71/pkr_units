@@ -169,4 +169,92 @@ struct exagram_t final : public details::unit_t<double, std::peta, mass_dimensio
 // Common aliases
 using metric_ton = megagram_t;  // 1 metric ton = 1,000 kg (same as megagram)
 
+// ============================================================================
+// Most derived unit type specializations for mass units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, mass_dimension>
+{
+    using type = kilogram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::pico, mass_dimension>
+{
+    using type = picogram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, mass_dimension>
+{
+    using type = nanogram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, mass_dimension>
+{
+    using type = microgram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, mass_dimension>
+{
+    using type = milligram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::centi, mass_dimension>
+{
+    using type = centigram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::deci, mass_dimension>
+{
+    using type = decigram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::deca, mass_dimension>
+{
+    using type = decagram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::hecto, mass_dimension>
+{
+    using type = hectogram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, mass_dimension>
+{
+    using type = megagram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::mega, mass_dimension>
+{
+    using type = gigagram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::giga, mass_dimension>
+{
+    using type = teragram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::tera, mass_dimension>
+{
+    using type = petagram_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::peta, mass_dimension>
+{
+    using type = exagram_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

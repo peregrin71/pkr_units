@@ -184,6 +184,19 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
     return result_type{details::divide_values(lhs.value(), rhs.value())};
 }
 
+// Free function scalar multiplication (scalar * unit) - returns the most derived type
+template<typename ScalarType, typename T>
+requires (details::is_si_unit<T>::value && std::is_arithmetic_v<ScalarType>)
+constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
+{
+    using value_type = typename details::is_si_unit<T>::value_type;
+    using ratio_type = typename details::is_si_unit<T>::ratio_type;
+    constexpr auto dim = details::is_si_unit<T>::value_dimension;
+    
+    using result_type = typename details::most_derived_unit_type<value_type, ratio_type, dim>::type;
+    return result_type{details::multiply_values(scalar, unit.value())};
+}
+
 // Comparison operators
 template<typename T1, typename T2>
 requires ((details::is_si_unit<T1>::value_dimension.length == details::is_si_unit<T2>::value_dimension.length &&

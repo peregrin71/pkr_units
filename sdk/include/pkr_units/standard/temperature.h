@@ -59,4 +59,38 @@ struct kilokelvin_t final : public details::unit_t<double, std::kilo, temperatur
     static constexpr std::u8string_view u8_symbol{u8"kK"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for temperature units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, temperature_dimension>
+{
+    using type = kelvin_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, temperature_dimension>
+{
+    using type = millikelvin_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, temperature_dimension>
+{
+    using type = microkelvin_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, temperature_dimension>
+{
+    using type = nanokelvin_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, temperature_dimension>
+{
+    using type = kilokelvin_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

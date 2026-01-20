@@ -59,4 +59,38 @@ struct kiloampere_t final : public details::unit_t<double, std::kilo, current_di
     static constexpr std::u8string_view u8_symbol{u8"kA"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for current units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, current_dimension>
+{
+    using type = ampere_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, current_dimension>
+{
+    using type = milliampere_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, current_dimension>
+{
+    using type = microampere_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, current_dimension>
+{
+    using type = nanoampere_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, current_dimension>
+{
+    using type = kiloampere_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

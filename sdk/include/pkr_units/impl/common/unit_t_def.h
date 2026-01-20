@@ -10,6 +10,10 @@
 
 PKR_UNITS_DETAILS_BEGIN_NAMESPACE
 
+// Forward declaration of most_derived_unit_type
+template<PKR_UNITS_NAMESPACE::is_si_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
+struct most_derived_unit_type;
+
 template<PKR_UNITS_NAMESPACE::is_si_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 class unit_t
 {
@@ -100,19 +104,22 @@ public:
         return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
     }
 
-    // Multiply by scalar
-    constexpr unit_t<type_t, ratio_t, dim_v> operator*(std::same_as<type_t> auto scalar) const noexcept
+    // Multiply by scalar - returns the most derived unit type
+    constexpr auto operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        return unit_t<type_t, ratio_t, dim_v>{m_value * scalar};
+        using result_type = typename most_derived_unit_type<type_t, ratio_t, dim_v>::type;
+        return result_type{m_value * scalar};
     }
 
-    constexpr unit_t<type_t, ratio_t, dim_v> operator/(std::same_as<type_t> auto scalar) const
+    // Divide by scalar - returns the most derived unit type
+    constexpr auto operator/(std::same_as<type_t> auto scalar) const
     {
         if ((scalar < static_cast<type_t>(0) ? -scalar : scalar) == static_cast<type_t>(0))
         {
             throw std::invalid_argument("Division by zero in si_unit::operator/");
         }
-        return unit_t<type_t, ratio_t, dim_v>{m_value / scalar};
+        using result_type = typename most_derived_unit_type<type_t, ratio_t, dim_v>::type;
+        return result_type{m_value / scalar};
     }
 
     // Get raw value
@@ -130,6 +137,23 @@ public:
 private:
     type_t m_value;
 };
+
+// ============================================================================
+// Most derived unit_type deduction helpers
+
+template<PKR_UNITS_NAMESPACE::is_si_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
+struct most_derived_unit_type
+{
+    using type = unit_t<type_t, ratio_t, dim_v>;
+};
+
+// and now we can specialize for derived types everywhere like this
+// and we must place these specializations close to the derived unit type definitions.
+// template<>
+// struct most_derived_unit_type<double, std::ratio<1, 1000>, PKR_UNITS_NAMESPACE::dimension_t{0, 1, 0, 0, 0, 0, 0}>
+// {
+//     using type = PKR_UNITS_NAMESPACE::gram_t;
+// };
 
 
 // ============================================================================
@@ -224,6 +248,24 @@ struct is_si_unit<T> : std::true_type
     using ratio_type = typename T::_base::ratio_type;
     // Extract dimension from the base unit_t class
     static constexpr dimension_t value_dimension = T::_base::dimension::value;
+};
+
+// Specialization for const references
+template<typename T>
+struct is_si_unit<const T&> : is_si_unit<T>
+{
+};
+
+// Specialization for references
+template<typename T>
+struct is_si_unit<T&> : is_si_unit<T>
+{
+};
+
+// Specialization for const
+template<typename T>
+struct is_si_unit<const T> : is_si_unit<T>
+{
 };
 
 // Concept for any si_unit type

@@ -264,3 +264,21 @@ TEST_F(SiLengthOperatorsTest, constexpr_add_to)
     static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
 }
 
+// ============================================================================
+// Scalar Operations: Both LHS and RHS scalar multiplication/division
+// ============================================================================
+
+TEST_F(SiLengthOperatorsTest, scalar_rhs_multiply_meter)
+{
+    pkr::units::meter_t m{5.0};
+    auto result = m * 3.0;
+    ASSERT_DOUBLE_EQ(result.value(), 15.0);
+}
+
+TEST_F(SiLengthOperatorsTest, scalar_rhs_divide_meter)
+{
+    pkr::units::meter_t m{4.0};
+    auto result = m / 2.0;
+    ASSERT_DOUBLE_EQ(result.value(), 2.0);
+}
+

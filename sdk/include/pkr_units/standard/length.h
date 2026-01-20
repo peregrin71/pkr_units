@@ -179,4 +179,110 @@ struct exameter_t final : public details::unit_t<double, std::exa, length_dimens
     static constexpr std::u8string_view u8_symbol{u8"Em"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for length units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, length_dimension>
+{
+    using type = meter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::atto, length_dimension>
+{
+    using type = attometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::femto, length_dimension>
+{
+    using type = femtometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::pico, length_dimension>
+{
+    using type = picometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, length_dimension>
+{
+    using type = nanometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, length_dimension>
+{
+    using type = micrometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, length_dimension>
+{
+    using type = millimeter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::centi, length_dimension>
+{
+    using type = centimeter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::deci, length_dimension>
+{
+    using type = decimeter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::deca, length_dimension>
+{
+    using type = decameter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::hecto, length_dimension>
+{
+    using type = hectometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, length_dimension>
+{
+    using type = kilometer_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::mega, length_dimension>
+{
+    using type = megameter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::giga, length_dimension>
+{
+    using type = gigameter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::tera, length_dimension>
+{
+    using type = terameter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::peta, length_dimension>
+{
+    using type = petameter_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::exa, length_dimension>
+{
+    using type = exameter_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

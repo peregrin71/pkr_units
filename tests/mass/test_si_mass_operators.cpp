@@ -182,3 +182,21 @@ TEST_F(SiMassOperatorsTest, constexpr_kilogram_multiplication_and_division)
     ASSERT_DOUBLE_EQ(divided.value(), 4.0);
 }
 
+// ============================================================================
+// Scalar Operations: RHS scalar multiplication/division
+// ============================================================================
+
+TEST_F(SiMassOperatorsTest, scalar_rhs_multiply_kilogram)
+{
+    pkr::units::kilogram_t kg{5.0};
+    auto result = kg * 3.0;
+    ASSERT_DOUBLE_EQ(result.value(), 15.0);
+}
+
+TEST_F(SiMassOperatorsTest, scalar_rhs_divide_kilogram)
+{
+    pkr::units::kilogram_t kg{4.0};
+    auto result = kg / 2.0;
+    ASSERT_DOUBLE_EQ(result.value(), 2.0);
+}
+

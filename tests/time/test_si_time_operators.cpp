@@ -182,3 +182,21 @@ TEST_F(SiTimeOperatorsTest, constexpr_second_multiplication_and_division)
     ASSERT_DOUBLE_EQ(divided.value(), 4.0);
 }
 
+// ============================================================================
+// Scalar Operations: RHS scalar multiplication/division
+// ============================================================================
+
+TEST_F(SiTimeOperatorsTest, scalar_rhs_multiply_second)
+{
+    pkr::units::second_t s{5.0};
+    auto result = s * 3.0;
+    ASSERT_DOUBLE_EQ(result.value(), 15.0);
+}
+
+TEST_F(SiTimeOperatorsTest, scalar_rhs_divide_second)
+{
+    pkr::units::second_t s{4.0};
+    auto result = s / 2.0;
+    ASSERT_DOUBLE_EQ(result.value(), 2.0);
+}
+

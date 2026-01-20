@@ -59,4 +59,38 @@ struct kilomole_t final : public details::unit_t<double, std::kilo, amount_dimen
     static constexpr std::u8string_view u8_symbol{u8"kmol"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for amount units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, amount_dimension>
+{
+    using type = mole_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, amount_dimension>
+{
+    using type = millimole_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, amount_dimension>
+{
+    using type = micromole_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, amount_dimension>
+{
+    using type = nanomole_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, amount_dimension>
+{
+    using type = kilomole_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE

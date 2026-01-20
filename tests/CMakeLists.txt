@@ -22,15 +22,9 @@ set(TEST_SOURCES
   amount/test_si_amount_operators.cpp
   intensity/test_si_intensity.cpp
   intensity/test_si_intensity_operators.cpp
+
+  velocity/test_si_velocity.cpp
   
-  # Formatting tests (disabled - requires proper formatter implementation)
-  # test_formatting.cpp
-  
-  # Derived unit tests
-  # velocity/test_si_velocity.cpp
-  
-  # General/optimization tests
-  # general/test_arithmetic_optimizations.cpp
 )
 
 # Create the test executable

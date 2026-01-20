@@ -59,4 +59,38 @@ struct kilosecond_t final : public details::unit_t<double, std::kilo, time_dimen
     static constexpr std::u8string_view u8_symbol{u8"ks"};
 };
 
+// ============================================================================
+// Most derived unit type specializations for time units
+// ============================================================================
+
+template<>
+struct details::most_derived_unit_type<double, std::ratio<1, 1>, time_dimension>
+{
+    using type = second_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::milli, time_dimension>
+{
+    using type = millisecond_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::micro, time_dimension>
+{
+    using type = microsecond_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::nano, time_dimension>
+{
+    using type = nanosecond_t;
+};
+
+template<>
+struct details::most_derived_unit_type<double, std::kilo, time_dimension>
+{
+    using type = kilosecond_t;
+};
+
 }  // namespace PKR_UNITS_NAMESPACE
