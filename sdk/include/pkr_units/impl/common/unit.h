@@ -134,7 +134,8 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
         .current = dim1.current + dim2.current,
         .temperature = dim1.temperature + dim2.temperature,
         .amount = dim1.amount + dim2.amount,
-        .intensity = dim1.intensity + dim2.intensity};
+        .intensity = dim1.intensity + dim2.intensity,
+        .angle = dim1.angle + dim2.angle};
     
     using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
     return result_type{details::multiply_values(lhs.value(), rhs.value())};
@@ -168,7 +169,8 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
         .current = dim1.current - dim2.current,
         .temperature = dim1.temperature - dim2.temperature,
         .amount = dim1.amount - dim2.amount,
-        .intensity = dim1.intensity - dim2.intensity};
+        .intensity = dim1.intensity - dim2.intensity,
+        .angle = dim1.angle - dim2.angle};
     
     using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
     return result_type{details::divide_values(lhs.value(), rhs.value())};

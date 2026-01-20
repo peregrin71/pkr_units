@@ -53,7 +53,8 @@ public:
             .current = dim_v.current + dim_u.current,
             .temperature = dim_v.temperature + dim_u.temperature,
             .amount = dim_v.amount + dim_u.amount,
-            .intensity = dim_v.intensity + dim_u.intensity};
+            .intensity = dim_v.intensity + dim_u.intensity,
+            .angle = dim_v.angle + dim_u.angle};
 
         type_t result_value = m_value * other.value();
         return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
@@ -83,7 +84,8 @@ public:
             .current = dim_v.current - dim_u.current,
             .temperature = dim_v.temperature - dim_u.temperature,
             .amount = dim_v.amount - dim_u.amount,
-            .intensity = dim_v.intensity - dim_u.intensity};
+            .intensity = dim_v.intensity - dim_u.intensity,
+            .angle = dim_v.angle - dim_u.angle};
 
         type_t result_value = m_value / other.value();
         return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
@@ -117,6 +119,18 @@ public:
     constexpr type_t operator*() const noexcept
     {
         return m_value;
+    }
+
+    // Convert to SI base units with canonical ratio (1/1)
+    // Returns the most derived unit type in canonical SI form
+    constexpr auto to_si() const noexcept
+    {
+        // Convert value from current ratio to canonical ratio (1/1)
+        type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
+        
+        // Return most derived unit type with canonical ratio and same dimensions
+        using canonical_unit = typename most_derived_unit_type<type_t, std::ratio<1, 1>, dim_v>::type;
+        return canonical_unit{canonical_value};
     }
 
 private:

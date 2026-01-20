@@ -64,7 +64,8 @@ PKR_UNITS_BEGIN_NAMESPACE
             static_cast<int>(left.current + right.current),
             static_cast<int>(left.temperature + right.temperature),
             static_cast<int>(left.amount + right.amount),
-            static_cast<int>(left.intensity + right.intensity)
+            static_cast<int>(left.intensity + right.intensity),
+            static_cast<int>(left.angle + right.angle)
         };
     }
 
@@ -78,7 +79,8 @@ PKR_UNITS_BEGIN_NAMESPACE
             static_cast<int>(left.current - right.current),
             static_cast<int>(left.temperature - right.temperature),
             static_cast<int>(left.amount - right.amount),
-            static_cast<int>(left.intensity - right.intensity)
+            static_cast<int>(left.intensity - right.intensity),
+            static_cast<int>(left.angle - right.angle)
         };
     }
 

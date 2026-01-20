@@ -47,7 +47,8 @@ PKR_UNITS_BEGIN_NAMESPACE
             .current = static_cast<signed char>(source_dim.current * power_v),
             .temperature = static_cast<signed char>(source_dim.temperature * power_v),
             .amount = static_cast<signed char>(source_dim.amount * power_v),
-            .intensity = static_cast<signed char>(source_dim.intensity * power_v)};
+            .intensity = static_cast<signed char>(source_dim.intensity * power_v),
+            .angle = static_cast<signed char>(source_dim.angle * power_v)};
 
         // Compute powered ratio: (num/den)^power = num^power / den^power
         // For negative powers, swap numerator and denominator
