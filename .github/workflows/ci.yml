@@ -37,19 +37,19 @@ jobs:
           - os: ubuntu-latest
             compiler: gcc
             build_type: Debug
-            cmake_extra_flags: ''
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14'
           - os: ubuntu-latest
             compiler: gcc
             build_type: Release
-            cmake_extra_flags: ''
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-14 -DCMAKE_CXX_COMPILER=g++-14'
           - os: ubuntu-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18'
           - os: ubuntu-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18'
 
     steps:
     - name: Checkout code
@@ -61,6 +61,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ninja-build
 
+    - name: Install GCC (Linux)
+      if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'gcc'
+      run: |
+        sudo apt-get install -y gcc-14 g++-14
+
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
       run: |
@@ -70,7 +75,10 @@ jobs:
     - name: Install Clang (Linux)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
       run: |
-        sudo apt-get install -y clang lld
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+        sudo apt-get update
+        sudo apt-get install -y clang-18 lld-18
 
     - name: Install Conan
       run: |
@@ -86,7 +94,13 @@ jobs:
 
     - name: Install dependencies with Conan
       run: |
-        conan install packaging/conan/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build
+        profile_flag=""
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          profile_flag="--profile=build/profiles/windows-${{ matrix.compiler }}.profile"
+        elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
+        fi
+        conan install packaging/conan/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
 
     - name: Configure CMake
       run: |

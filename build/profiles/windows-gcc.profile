@@ -11,7 +11,7 @@
 os=Windows
 arch=x86_64
 compiler=gcc
-compiler.version=13
+compiler.version=14
 compiler.libcxx=libstdc++11
 compiler.cppstd=20
 build_type=Debug
