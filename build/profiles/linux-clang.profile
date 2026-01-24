@@ -3,9 +3,7 @@ os=Linux
 arch=x86_64
 compiler=clang
 compiler.version=17
-compiler.libcxx=libstdc++11
 compiler.cppstd=20
-build_type=Debug
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Unix Makefiles
