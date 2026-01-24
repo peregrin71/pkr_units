@@ -1,0 +1,98 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  build-and-test:
+    name: Build and Test (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows builds
+          - os: windows-latest
+            compiler: msvc
+            build_type: Debug
+            cmake_extra_flags: '-G "Visual Studio 17 2022" -A x64'
+          - os: windows-latest
+            compiler: msvc
+            build_type: Release
+            cmake_extra_flags: '-G "Visual Studio 17 2022" -A x64'
+          - os: windows-latest
+            compiler: clang
+            build_type: Debug
+            cmake_extra_flags: '-G "Visual Studio 17 2022" -T ClangCL -A x64'
+          - os: windows-latest
+            compiler: clang
+            build_type: Release
+            cmake_extra_flags: '-G "Visual Studio 17 2022" -T ClangCL -A x64'
+
+          # Linux builds
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Debug
+            cmake_extra_flags: ''
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Release
+            cmake_extra_flags: ''
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Debug
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++'
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Release
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
+
+    - name: Install Clang (Windows)
+      if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
+      run: |
+        choco install llvm --yes
+        echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: Install Clang (Linux)
+      if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
+      run: |
+        sudo apt-get install -y clang lld
+
+    - name: Install Conan
+      run: |
+        pip install conan
+
+    - name: Configure Conan
+      run: |
+        conan profile detect --force
+
+    - name: Install dependencies with Conan
+      run: |
+        conan install packaging/conan/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build
+
+    - name: Configure CMake
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.cmake_extra_flags }}
+
+    - name: Build project
+      run: |
+        cmake --build build --config ${{ matrix.build_type }}
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
