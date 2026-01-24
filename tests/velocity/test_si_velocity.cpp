@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 #include <format>
-#include <pkr_units/derived/velocity.h>
-#include <pkr_units/standard/length.h>
-#include <pkr_units/standard/time.h>
-#include <pkr_units/cast/unit_cast.h>
+#include <pkr_units/units/derived/velocity.h>
+#include <pkr_units/units/base/length.h>
+#include <pkr_units/units/base/time.h>
+#include <pkr_units/impl/cast/unit_cast.h>
 
 using namespace ::testing;
 
@@ -357,3 +357,5 @@ TEST_F(SiVelocityTest, greater_than_different_units)
     pkr::units::kilometer_per_hour_t v2{36.0};
     ASSERT_TRUE(v1 > v2);
 }
+
+

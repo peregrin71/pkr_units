@@ -173,34 +173,34 @@ This is a pragmatic extension for compile-time dimensional checking, not a redef
 
 ### 2.1 Template Specialization over Constexpr If
 
-**Decision**: Use template specialization with `most_derived_unit_type<type_t, ratio_t, dimension_t>` for mapping unit components to their strong type classes.
+**Decision**: Use template specialization with `named_unit_type_t<type_t, ratio_t, dimension_t>` for mapping unit components to their strong type classes.
 
 **Implementation**:
 
-The `most_derived_unit_type` trait maps a triplet of (type, ratio, dimension) to the most specific strong type available:
+The `named_unit_type_t` trait maps a triplet of (type, ratio, dimension) to the most specific strong type available:
 
 ```cpp
 // Forward declaration
 template<typename type_t, typename ratio_t, dimension_t dim_v>
-struct most_derived_unit_type;
+struct named_unit_type_t;
 
 // Default: returns base unit_t<> if no specialization exists
 template<typename type_t, typename ratio_t, dimension_t dim_v>
-struct most_derived_unit_type
+struct named_unit_type_t
 {
     using type = unit_t<type_t, ratio_t, dim_v>;
 };
 
 // Specialization for meter (length, ratio<1,1>)
 template<>
-struct most_derived_unit_type<double, std::ratio<1, 1>, length_dimension>
+struct named_unit_type_t<double, std::ratio<1, 1>, length_dimension>
 {
     using type = meter_t;
 };
 
 // Specialization for kilometer (length, ratio<1000,1>)
 template<>
-struct most_derived_unit_type<double, std::kilo, length_dimension>
+struct named_unit_type_t<double, std::kilo, length_dimension>
 {
     using type = kilometer_t;
 };
@@ -214,7 +214,7 @@ Each specialization declares a mapping from a specific (type, ratio, dimension) 
 1. **Extensibility**: Adding new unit types only requires adding new specializations—no changes to arithmetic operators or existing logic. Want to add `mile_t`? Just add:
    ```cpp
    template<>
-   struct most_derived_unit_type<double, std::ratio<1609344, 1000>, length_dimension>
+   struct named_unit_type_t<double, std::ratio<1609344, 1000>, length_dimension>
    {
        using type = mile_t;
    };
@@ -226,12 +226,12 @@ Each specialization declares a mapping from a specific (type, ratio, dimension) 
    ```
    This preserves semantic meaning—the result is semantically a velocity, not just "length divided by time."
 
-3. **Future String Formatting**: When implementing `std::formatter`, we can use `most_derived_unit_type` to get the canonical name:
+3. **Future String Formatting**: When implementing `std::formatter`, we can use `named_unit_type_t` to get the canonical name:
    ```cpp
    template<typename T>
    struct std::formatter<T> {
        auto format(const T& unit, auto& ctx) {
-           using derived = most_derived_unit_type<typename T::value_type, 
+           using derived = named_unit_type_t<typename T::value_type, 
                                                    typename T::ratio_type,
                                                    T::dimension::value>::type;
            return std::format_to(ctx.out(), "{} {}", unit.value(), derived::symbol);
@@ -552,10 +552,10 @@ The design ensures:
 
 ### Adding Derived Units
 
-Add new specializations to `most_derived_unit_type`:
+Add new specializations to `named_unit_type_t`:
 ```cpp
 template<>
-struct most_derived_unit_type<double, std::ratio<1, 1>, force_dimension>
+struct named_unit_type_t<double, std::ratio<1, 1>, force_dimension>
 {
     using type = newton_t;  // Strong type for newton (force unit)
 };

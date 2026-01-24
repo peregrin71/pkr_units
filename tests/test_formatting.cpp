@@ -108,3 +108,5 @@ TEST(FormattingTest, ValuePreservation)
     auto formatted = std::format("{}", length);
     EXPECT_EQ(formatted, "123.456 m");
 }
+
+

@@ -12,8 +12,8 @@
 // ============================================================================
 
 #include <gtest/gtest.h>
-#include <pkr_units/standard/length.h>
-#include <pkr_units/standard/time.h>
+#include <pkr_units/units/base/length.h>
+#include <pkr_units/units/base/time.h>
 
 using namespace pkr::units;
 
@@ -123,3 +123,5 @@ TEST_F(DimensionalSafetyTest, multiply_meter_by_second_compiles)
 //    - Prevents entire categories of physics errors
 //
 // ============================================================================
+
+
