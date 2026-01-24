@@ -1,168 +1,141 @@
 #pragma once
 
-#include "length.h"
-#include "../../namespace_config.h"
+#include "../../units/base/length.h"
+#include "../../units/imperial/length.h"
+#include "../../units/astronomical/length.h"
+#include "../namespace_config.h"
 
-namespace si::si_literals
+PKR_UNITS_BEGIN_NAMESPACE
+{
+
+namespace si_literals
 {
     // Metric length prefix literals
-    constexpr si::length<double, std::atto> operator"" _am(long double value) noexcept
+    constexpr attometer_t operator"" _am(long double value) noexcept
     {
-        return si::length<double, std::atto>{static_cast<double>(value});
+        return attometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::femto> operator"" _fm(long double value) noexcept
+    constexpr femtometer_t operator"" _fm(long double value) noexcept
     {
-        return si::length<double, std::femto>{static_cast<double>(value});
+        return femtometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::pico> operator"" _pm(long double value) noexcept
+    constexpr picometer_t operator"" _pm(long double value) noexcept
     {
-        return si::length<double, std::pico>{static_cast<double>(value});
+        return picometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::nano> operator"" _nm(long double value) noexcept
+    constexpr nanometer_t operator"" _nm(long double value) noexcept
     {
-        return si::length<double, std::nano>{static_cast<double>(value});
+        return nanometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::micro> operator"" _um(long double value) noexcept
+    constexpr micrometer_t operator"" _um(long double value) noexcept
     {
-        return si::length<double, std::micro>{static_cast<double>(value});
+        return micrometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::milli> operator"" _mm(long double value) noexcept
+    constexpr millimeter_t operator"" _mm(long double value) noexcept
     {
-        return si::length<double, std::milli>{static_cast<double>(value});
+        return millimeter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::centi> operator"" _cm(long double value) noexcept
+    constexpr centimeter_t operator"" _cm(long double value) noexcept
     {
-        return si::length<double, std::centi>{static_cast<double>(value});
+        return centimeter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::deci> operator"" _dm(long double value) noexcept
+    constexpr decimeter_t operator"" _dm(long double value) noexcept
     {
-        return si::length<double, std::deci>{static_cast<double>(value});
+        return decimeter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::deca> operator"" _dam(long double value) noexcept
+    constexpr meter_t operator"" _m(long double value) noexcept
     {
-        return si::length<double, std::deca>{static_cast<double>(value});
+        return meter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::hecto> operator"" _hm(long double value) noexcept
+    constexpr kilometer_t operator"" _km(long double value) noexcept
     {
-        return si::length<double, std::hecto>{static_cast<double>(value});
+        return kilometer_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<1, 1>> operator"" _m(long double value) noexcept
+    constexpr megameter_t operator"" _Mm(long double value) noexcept
     {
-        return si::length<double, std::ratio<1, 1>>(static_cast<double>(value});
+        return megameter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::kilo> operator"" _km(long double value) noexcept
+    constexpr gigameter_t operator"" _Gm(long double value) noexcept
     {
-        return si::length<double, std::kilo>{static_cast<double>(value});
+        return gigameter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::mega> operator"" _Mm(long double value) noexcept
+    constexpr terameter_t operator"" _Tm(long double value) noexcept
     {
-        return si::length<double, std::mega>{static_cast<double>(value});
+        return terameter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::giga> operator"" _Gm(long double value) noexcept
+    constexpr petameter_t operator"" _Pm(long double value) noexcept
     {
-        return si::length<double, std::giga>{static_cast<double>(value});
+        return petameter_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::tera> operator"" _Tm(long double value) noexcept
+    constexpr exameter_t operator"" _Em(long double value) noexcept
     {
-        return si::length<double, std::tera>{static_cast<double>(value});
-    }
-
-    constexpr si::length<double, std::peta> operator"" _Pm(long double value) noexcept
-    {
-        return si::length<double, std::peta>{static_cast<double>(value});
-    }
-
-    constexpr si::length<double, std::exa> operator"" _Em(long double value) noexcept
-    {
-        return si::length<double, std::exa>{static_cast<double>(value});
+        return exameter_t{static_cast<double>(value)};
     }
 
     // Imperial length literals
-    constexpr si::length<double, std::ratio<254, 10000>> operator"" _in(long double value) noexcept
+    constexpr inch_t operator"" _in(long double value) noexcept
     {
-        return si::length<double, std::ratio<254, 10000>>(static_cast<double>(value});
+        return inch_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<254, 10000000>> operator"" _mil(long double value) noexcept
+    constexpr foot_t operator"" _ft(long double value) noexcept
     {
-        return si::length<double, std::ratio<254, 10000000>>(static_cast<double>(value});
+        return foot_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<3048, 10000>> operator"" _ft(long double value) noexcept
+    constexpr yard_t operator"" _yd(long double value) noexcept
     {
-        return si::length<double, std::ratio<3048, 10000>>(static_cast<double>(value});
+        return yard_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<9144, 10000>> operator"" _yd(long double value) noexcept
+    constexpr mile_t operator"" _mi(long double value) noexcept
     {
-        return si::length<double, std::ratio<9144, 10000>>(static_cast<double>(value});
+        return mile_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<18288, 10000>> operator"" _fathom(long double value) noexcept
+    constexpr nautical_mile_t operator"" _nmi(long double value) noexcept
     {
-        return si::length<double, std::ratio<18288, 10000>>(static_cast<double>(value});
+        return nautical_mile_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<50292, 10000>> operator"" _rod(long double value) noexcept
+    // Astronomical length literals
+    constexpr angstrom_t operator"" _angstrom(long double value) noexcept
     {
-        return si::length<double, std::ratio<50292, 10000>>(static_cast<double>(value});
+        return angstrom_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<201168, 10000>> operator"" _chain(long double value) noexcept
+    constexpr au_t operator"" _au(long double value) noexcept
     {
-        return si::length<double, std::ratio<201168, 10000>>(static_cast<double>(value});
+        return au_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<201168, 1000>> operator"" _furlong(long double value) noexcept
+    constexpr light_year_t operator"" _ly(long double value) noexcept
     {
-        return si::length<double, std::ratio<201168, 1000>>(static_cast<double>(value});
+        return light_year_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<1609344, 1000>> operator"" _mi(long double value) noexcept
+    constexpr parsec_t operator"" _pc(long double value) noexcept
     {
-        return si::length<double, std::ratio<1609344, 1000>>(static_cast<double>(value});
+        return parsec_t{static_cast<double>(value)};
     }
 
-    constexpr si::length<double, std::ratio<1852, 1>> operator"" _nmi(long double value) noexcept
-    {
-        return si::length<double, std::ratio<1852, 1>>(static_cast<double>(value});
-    }
+} // namespace si_literals
 
-    // Astronomical and other units
-    constexpr si::length<double, std::ratio<1, 10000000000>> operator"" _angstrom(long double value) noexcept
-    {
-        return si::length<double, std::ratio<1, 10000000000>>(static_cast<double>(value});
-    }
-
-    constexpr si::length<double, std::ratio<149597870700, 1>> operator"" _au(long double value) noexcept
-    {
-        return si::length<double, std::ratio<149597870700, 1>>(static_cast<double>(value});
-    }
-
-    constexpr si::length<double, std::ratio<9460730472580800, 1>> operator"" _ly(long double value) noexcept
-    {
-        return si::length<double, std::ratio<9460730472580800, 1>>(static_cast<double>(value});
-    }
-
-    constexpr si::length<double, std::ratio<30856775814913673, 1>> operator"" _pc(long double value) noexcept
-    {
-        return si::length<double, std::ratio<30856775814913673, 1>>(static_cast<double>(value});
-    }
-};
+} // PKR_UNITS_NAMESPACE
 
 
 

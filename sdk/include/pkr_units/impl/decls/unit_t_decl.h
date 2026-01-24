@@ -2,7 +2,7 @@
 
 #include <ratio>
 #include <stdexcept>
-#include "dimension.h"
+#include "../dimension.h"
 #include "../namespace_config.h"
 
 // Include concepts BEFORE opening namespace to avoid including headers within namespace
@@ -20,6 +20,7 @@ class unit_t
 public:
     using value_type = type_t;
     using ratio_type = ratio_t;
+    using dimension_type = std::integral_constant<PKR_UNITS_NAMESPACE::dimension_t, dim_v>; // Add this typedef
     // Expose dimension type and value for compile-time access
     struct dimension
     {
@@ -40,7 +41,7 @@ public:
 
     // Multiply by another si_unit quantity (combine dimensions and ratios)
     template<typename ratio_u, dimension_t dim_u>
-    constexpr auto operator*(const unit_t<type_t, ratio_u, dim_u>& other) const noexcept
+    constexpr auto operator*(const details::unit_t<type_t, ratio_u, dim_u>& other) const noexcept
     {
         // Combine ratios: (this_num/this_den) * (other_num/other_den)
         using combined_ratio = std::ratio_multiply<ratio_t, ratio_u>;
@@ -57,12 +58,12 @@ public:
             .angle = dim_v.angle + dim_u.angle};
 
         type_t result_value = m_value * other.value();
-        return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
+        return details::unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
     }
 
     // Divide by another si_unit quantity (combine dimensions and ratios)
     template<typename ratio_u, dimension_t dim_u>
-    constexpr auto operator/(const unit_t<type_t, ratio_u, dim_u>& other) const
+    constexpr auto operator/(const details::unit_t<type_t, ratio_u, dim_u>& other) const
     {
         // Division by zero check: at runtime throw, at compile-time assert
         if (!std::is_constant_evaluated())
@@ -88,7 +89,7 @@ public:
             .angle = dim_v.angle - dim_u.angle};
 
         type_t result_value = m_value / other.value();
-        return unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
+        return details::unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
     }
 
     // Multiply by scalar - returns the most derived unit type
@@ -107,6 +108,35 @@ public:
         }
         using result_type = typename named_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value / scalar};
+    }
+
+    // Compound assignment operators
+    constexpr unit_t& operator+=(const unit_t& other) noexcept
+    {
+        m_value += other.m_value;
+        return *this;
+    }
+
+    constexpr unit_t& operator-=(const unit_t& other) noexcept
+    {
+        m_value -= other.m_value;
+        return *this;
+    }
+
+    constexpr unit_t& operator*=(std::same_as<type_t> auto scalar) noexcept
+    {
+        m_value *= scalar;
+        return *this;
+    }
+
+    constexpr unit_t& operator/=(std::same_as<type_t> auto scalar)
+    {
+        if ((scalar < static_cast<type_t>(0) ? -scalar : scalar) == static_cast<type_t>(0))
+        {
+            throw std::invalid_argument("Division by zero in si_unit::operator/=");
+        }
+        m_value /= scalar;
+        return *this;
     }
 
     // Get raw value
@@ -143,7 +173,7 @@ private:
 template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 struct named_unit_type_t
 {
-    using type = unit_t<type_t, ratio_t, dim_v>;
+    using type = details::unit_t<type_t, ratio_t, dim_v>;
 };
 
 // and now we can specialize for derived types everywhere like this
@@ -228,17 +258,17 @@ struct is_si_unit : std::false_type
 
 // Specialization for direct unit_t types
 template<typename type_t, typename ratio_t, dimension_t dim_v>
-struct is_si_unit<unit_t<type_t, ratio_t, dim_v>> : std::true_type
+struct is_si_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 {
     static constexpr bool value = true;
     using value_type = type_t;
     using ratio_type = ratio_t;
-    using most_derived_type = unit_t<type_t, ratio_t, dim_v>;
+    using most_derived_type = details::unit_t<type_t, ratio_t, dim_v>;
     static constexpr dimension_t value_dimension = dim_v;
 };
 
 // Specialization for derived types that inherit from unit_t
-// (e.g., struct meter : public unit_t<...>)
+// (e.g., struct meter : public details::unit_t<...>)
 template<typename T>
 requires std::is_base_of_v<typename T::_base, T>
 struct is_si_unit<T> : std::true_type

@@ -22,12 +22,13 @@ struct celsius_t final : public details::unit_t<double, std::ratio<1, 1>, temper
     using celsius_t::unit_t::unit_t;
     
     static constexpr std::string_view name{"celsius"};
-    static constexpr std::string_view symbol{"°C"};
+    static constexpr std::string_view symbol{"C"};
     static constexpr std::wstring_view w_symbol{L"°C"};
     static constexpr std::u8string_view u8_symbol{u8"°C"};
 };
 
 }  // PKR_UNITS_END_NAMESPACE
+
 
 
 

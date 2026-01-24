@@ -27,7 +27,7 @@ struct degree_t final : public details::unit_t<double, std::ratio<1745329, 10000
     using _base = details::unit_t<double, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"degree"};
-    static constexpr std::string_view symbol{"°"};
+    static constexpr std::string_view symbol{"deg"};
     static constexpr std::wstring_view w_symbol{L"°"};
     static constexpr std::u8string_view u8_symbol{u8"°"};
 };
@@ -40,7 +40,7 @@ struct gradian_t final : public details::unit_t<double, std::ratio<1570796, 1000
     using _base = details::unit_t<double, std::ratio<1570796, 100000000>, angle_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"gradian"};
-    static constexpr std::string_view symbol{"gon"};
+    static constexpr std::string_view symbol{"grad"};
     static constexpr std::wstring_view w_symbol{L"gon"};
     static constexpr std::u8string_view u8_symbol{u8"gon"};
 };
@@ -68,6 +68,7 @@ struct details::named_unit_type_t<double, std::ratio<1570796, 100000000>, angle_
 };
 
 }  // namespace PKR_UNITS_NAMESPACE
+
 
 
 

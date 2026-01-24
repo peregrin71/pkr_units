@@ -8,18 +8,18 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
-inline constexpr dimension_t magnetic_flux_dimension{.mass = 1, .length = 2, .time = -2, .current = -1};
+inline constexpr dimension_t magnetic_flux_dimension{2, 1, -2, -1, 0, 0, 0, 0};
 
 // Magnetic flux density dimension: kg·s⁻²·A⁻¹
-inline constexpr dimension_t magnetic_flux_density_dimension{.mass = 1, .time = -2, .current = -1};
+inline constexpr dimension_t magnetic_flux_density_dimension{0, 1, -2, -1, 0, 0, 0, 0};
 
 // Magnetic flux quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux = unit_t<type_t, ratio_t, magnetic_flux_dimension>;
+using magnetic_flux = details::unit_t<type_t, ratio_t, magnetic_flux_dimension>;
 
 // Magnetic flux density quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux_density = unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
+using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
 
 // Magnetic flux units (Weber and derived)
 // Base unit: Weber (Wb) = kg·m²·s⁻²·A⁻¹
@@ -49,7 +49,7 @@ struct microweber final : public details::unit_t<double, std::ratio<1, 1000000>,
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microweber"};
-    static constexpr std::string_view symbol{"µWb"};
+    static constexpr std::string_view symbol{"uWb"};
     static constexpr std::wstring_view w_symbol{L"µWb"};
     static constexpr std::u8string_view u8_symbol{u8"µWb"};
 };
@@ -102,7 +102,7 @@ struct microtesla final : public details::unit_t<double, std::ratio<1, 1000000>,
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microtesla"};
-    static constexpr std::string_view symbol{"µT"};
+    static constexpr std::string_view symbol{"uT"};
     static constexpr std::wstring_view w_symbol{L"µT"};
     static constexpr std::u8string_view u8_symbol{u8"µT"};
 };
@@ -210,6 +210,7 @@ struct details::named_unit_type_t<double, std::ratio<1000000, 1>, magnetic_flux_
 };
 
 } // PKR_UNITS_NAMESPACE
+
 
 
 

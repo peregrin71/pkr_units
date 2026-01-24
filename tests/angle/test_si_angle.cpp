@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/si_units.h>
 
-using namespace pkr::units;
-
 class SiAngleTest : public ::testing::Test {
 protected:
     void SetUp() override {

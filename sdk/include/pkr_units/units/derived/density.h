@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../../impl/namespace_config.h"
-#include "../../impl/unit.h"
+#include "../../impl/unit_impl.h"
 #include "../../impl/decls/density_decl.h"
 #include "../../impl/dimension.h"
 
@@ -10,7 +10,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 
 // Density quantity template
 template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using density_unit_t = unit_t<type_t, ratio_t, density_dimension>;
+using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
 
 // Density units (mass per volume)
 
@@ -30,7 +30,7 @@ struct gram_per_cubic_meter_t final : public details::unit_t<double, std::ratio<
     using _base = details::unit_t<double, std::ratio<1, 1000>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"gram_per_cubic_meter"};
-    static constexpr std::string_view symbol{"g/m³"};
+    static constexpr std::string_view symbol{"g/m^3"};
     static constexpr std::wstring_view w_symbol{L"g/m³"};
     static constexpr std::u8string_view u8_symbol{u8"g/m³"};
 };
@@ -80,7 +80,7 @@ struct milligram_per_cubic_centimeter_t final : public details::unit_t<double, s
     using _base = details::unit_t<double, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"milligram_per_cubic_centimeter"};
-    static constexpr std::string_view symbol{"mg/cm³"};
+    static constexpr std::string_view symbol{"mg/cm^3"};
     static constexpr std::wstring_view w_symbol{L"mg/cm³"};
     static constexpr std::u8string_view u8_symbol{u8"mg/cm³"};
 };
@@ -101,7 +101,7 @@ struct pound_per_cubic_inch_t final : public details::unit_t<double, std::ratio<
     using _base = details::unit_t<double, std::ratio<27679904, 1000000>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"pound_per_cubic_inch"};
-    static constexpr std::string_view symbol{"lb/in³"};
+    static constexpr std::string_view symbol{"lb/in^3"};
     static constexpr std::wstring_view w_symbol{L"lb/in³"};
     static constexpr std::u8string_view u8_symbol{u8"lb/in³"};
 };
@@ -111,7 +111,7 @@ struct pound_per_cubic_foot_t final : public details::unit_t<double, std::ratio<
     using _base = details::unit_t<double, std::ratio<16018, 1000000>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"pound_per_cubic_foot"};
-    static constexpr std::string_view symbol{"lb/ft³"};
+    static constexpr std::string_view symbol{"lb/ft^3"};
     static constexpr std::wstring_view w_symbol{L"lb/ft³"};
     static constexpr std::u8string_view u8_symbol{u8"lb/ft³"};
 };
@@ -131,7 +131,7 @@ struct ounce_per_cubic_inch_t final : public details::unit_t<double, std::ratio<
     using _base = details::unit_t<double, std::ratio<1729994, 1000000>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"ounce_per_cubic_inch"};
-    static constexpr std::string_view symbol{"oz/in³"};
+    static constexpr std::string_view symbol{"oz/in^3"};
     static constexpr std::wstring_view w_symbol{L"oz/in³"};
     static constexpr std::u8string_view u8_symbol{u8"oz/in³"};
 };
@@ -152,7 +152,7 @@ struct ton_per_cubic_meter_t final : public details::unit_t<double, std::ratio<1
     using _base = details::unit_t<double, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"ton_per_cubic_meter"};
-    static constexpr std::string_view symbol{"t/m³"};
+    static constexpr std::string_view symbol{"t/m^3"};
     static constexpr std::wstring_view w_symbol{L"t/m³"};
     static constexpr std::u8string_view u8_symbol{u8"t/m³"};
 };
@@ -162,7 +162,7 @@ struct atomic_mass_unit_per_cubic_angstrom_t final : public details::unit_t<doub
     using _base = details::unit_t<double, std::ratio<166054, 1>, density_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"atomic_mass_unit_per_cubic_angstrom"};
-    static constexpr std::string_view symbol{"u/Ų"};
+    static constexpr std::string_view symbol{"u/A^3"};
     static constexpr std::wstring_view w_symbol{L"u/Ų"};
     static constexpr std::u8string_view u8_symbol{u8"u/Ų"};
 };
@@ -226,18 +226,13 @@ struct details::named_unit_type_t<double, std::ratio<33814, 1000>, density_dimen
 };
 
 template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, density_dimension>
-{
-    using type = ton_per_cubic_meter_t;
-};
-
-template<>
 struct details::named_unit_type_t<double, std::ratio<166054, 1>, density_dimension>
 {
     using type = atomic_mass_unit_per_cubic_angstrom_t;
 };
 
 } // PKR_UNITS_NAMESPACE
+
 
 
 

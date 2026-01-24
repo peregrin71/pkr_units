@@ -15,8 +15,6 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/units/base/time.h>
 
-using namespace pkr::units;
-
 class DimensionalSafetyTest : public ::testing::Test
 {
 };
@@ -42,8 +40,8 @@ TEST_F(DimensionalSafetyTest, subtract_meter_from_second_should_not_compile)
     // is_si_unit<T1>::value_dimension == is_si_unit<T2>::value_dimension
     // which evaluates to: length_dimension == time_dimension → FALSE
     
-    meter_t length{5.0};
-    second_t time_val{3.0};
+    pkr::units::meter_t length{5.0};
+    pkr::units::second_t time_val{3.0};
     
     [[maybe_unused]] auto result = length - time_val;  // ✗ COMPILE ERROR: dimension mismatch
 }
@@ -72,8 +70,8 @@ TEST_F(DimensionalSafetyTest, add_meter_to_second_should_not_compile)
 // Adding same dimensions works:
 TEST_F(DimensionalSafetyTest, add_meters_compiles)
 {
-    meter_t m1{5.0};
-    meter_t m2{3.0};
+    pkr::units::meter_t m1{5.0};
+    pkr::units::meter_t m2{3.0};
     
     auto result = m1 + m2;  // ✓ Valid: meter + meter = meter
     ASSERT_DOUBLE_EQ(result.value(), 8.0);
@@ -82,8 +80,8 @@ TEST_F(DimensionalSafetyTest, add_meters_compiles)
 // Adding different ratios of same dimension works:
 TEST_F(DimensionalSafetyTest, add_meters_and_kilometers_compiles)
 {
-    meter_t m{500.0};
-    kilometer_t km{1.0};
+    pkr::units::meter_t m{500.0};
+    pkr::units::kilometer_t km{1.0};
     
     auto result = m + km;  // ✓ Valid: meter + kilometer = meter (LHS type)
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
@@ -92,8 +90,8 @@ TEST_F(DimensionalSafetyTest, add_meters_and_kilometers_compiles)
 // Multiplying different dimensions works (produces new dimension):
 TEST_F(DimensionalSafetyTest, multiply_meter_by_second_compiles)
 {
-    meter_t length{5.0};
-    second_t time_val{3.0};
+    pkr::units::meter_t length{5.0};
+    pkr::units::second_t time_val{3.0};
     
     auto result = length * time_val;  // ✓ Valid: L × T creates new dimension
     ASSERT_DOUBLE_EQ(result.value(), 15.0);

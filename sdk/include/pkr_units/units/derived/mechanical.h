@@ -57,7 +57,7 @@ struct micronewton final : public details::unit_t<double, std::ratio<1, 1000000>
     using _base = details::unit_t<double, std::ratio<1, 1000000>, force_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"micronewton"};
-    static constexpr std::string_view symbol{"µN"};
+    static constexpr std::string_view symbol{"uN"};
     static constexpr std::wstring_view w_symbol{L"µN"};
     static constexpr std::u8string_view u8_symbol{u8"µN"};
 };
@@ -120,7 +120,7 @@ struct micropascal final : public details::unit_t<double, std::ratio<1, 1000000>
     using _base = details::unit_t<double, std::ratio<1, 1000000>, pressure_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"micropascal"};
-    static constexpr std::string_view symbol{"µPa"};
+    static constexpr std::string_view symbol{"uPa"};
     static constexpr std::wstring_view w_symbol{L"µPa"};
     static constexpr std::u8string_view u8_symbol{u8"µPa"};
 };
@@ -223,7 +223,7 @@ struct microjoule final : public details::unit_t<double, std::ratio<1, 1000000>,
     using _base = details::unit_t<double, std::ratio<1, 1000000>, energy_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microjoule"};
-    static constexpr std::string_view symbol{"µJ"};
+    static constexpr std::string_view symbol{"uJ"};
     static constexpr std::wstring_view w_symbol{L"µJ"};
     static constexpr std::u8string_view u8_symbol{u8"µJ"};
 };
@@ -336,7 +336,7 @@ struct microwatt final : public details::unit_t<double, std::ratio<1, 1000000>, 
     using _base = details::unit_t<double, std::ratio<1, 1000000>, power_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microwatt"};
-    static constexpr std::string_view symbol{"µW"};
+    static constexpr std::string_view symbol{"uW"};
     static constexpr std::wstring_view w_symbol{L"µW"};
     static constexpr std::u8string_view u8_symbol{u8"µW"};
 };
@@ -584,6 +584,7 @@ struct details::named_unit_type_t<double, std::ratio<745700, 1000>, power_dimens
 };
 
 }  // namespace PKR_UNITS_NAMESPACE
+
 
 
 

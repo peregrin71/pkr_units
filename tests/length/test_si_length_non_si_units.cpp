@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/length.h>
+#include <pkr_units/imperial_units.h>
+#include <pkr_units/astronomical_units.h>
 
 namespace test
 {

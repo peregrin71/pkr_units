@@ -7,49 +7,50 @@
 #include <ratio>
 #include <utility>
 #include "../namespace_config.h"
+#include "../unit_impl.h"
+
+// ========================================================================
+// Marker wrapper to indicate units in the denominator and their powers
+// ========================================================================
+// Usage patterns for multi_unit_cast:
+//   multi_unit_cast<meter, per<seconds>>(source)                         // m/s  
+//   multi_unit_cast<meter, per_unit_squared<hours>>(source)             // m/h²
+//   multi_unit_cast<meter, per_unit_cubed<seconds>>(source)             // m/s³
+//   multi_unit_cast<kilogram, meter, per<seconds>>(source)              // kg*m/s
+//   multi_unit_cast<meter, per<hours, std::integral_constant<int, 2>>>(source)  // m/h² (explicit power)
+template<typename... Units>
+struct per
+{
+};
+
+// Specialized per templates for common powers to avoid explicit integral_constant
+template<typename Unit>
+struct per_unit_squared : per<Unit, std::integral_constant<int, 2>>
+{
+};
+
+template<typename Unit>
+struct per_unit_cubed : per<Unit, std::integral_constant<int, 3>>
+{
+};
+
+template<typename Unit>
+struct per_unit_quartic : per<Unit, std::integral_constant<int, 4>>
+{
+};
+
+template<typename Unit>
+struct per_unit_inverse : per<Unit, std::integral_constant<int, -1>>
+{
+};
+
+template<typename Unit>
+struct per_unit_inverse_squared : per<Unit, std::integral_constant<int, -2>>
+{
+};
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
-    // ========================================================================
-    // Marker wrapper to indicate units in the denominator and their powers
-    // ========================================================================
-    // Usage patterns for multi_unit_cast:
-    //   multi_unit_cast<meter, per<seconds>>(source)                         // m/s  
-    //   multi_unit_cast<meter, per_unit_squared<hours>>(source)             // m/h²
-    //   multi_unit_cast<meter, per_unit_cubed<seconds>>(source)             // m/s³
-    //   multi_unit_cast<kilogram, meter, per<seconds>>(source)              // kg*m/s
-    //   multi_unit_cast<meter, per<hours, std::integral_constant<int, 2>>>(source)  // m/h² (explicit power)
-    template<typename... Units>
-    struct per
-    {
-    };
-
-    // Specialized per templates for common powers to avoid explicit integral_constant
-    template<typename Unit>
-    struct per_unit_squared : per<Unit, std::integral_constant<int, 2>>
-    {
-    };
-
-    template<typename Unit>
-    struct per_unit_cubed : per<Unit, std::integral_constant<int, 3>>
-    {
-    };
-
-    template<typename Unit>
-    struct per_unit_quartic : per<Unit, std::integral_constant<int, 4>>
-    {
-    };
-
-    template<typename Unit>
-    struct per_unit_inverse : per<Unit, std::integral_constant<int, -1>>
-    {
-    };
-
-    template<typename Unit>
-    struct per_unit_inverse_squared : per<Unit, std::integral_constant<int, -2>>
-    {
-    };
-
     // ========================================================================
     // Dimension combination helpers
     // ========================================================================
@@ -89,7 +90,7 @@ PKR_UNITS_BEGIN_NAMESPACE
     // ========================================================================
 
     template<typename T>
-    constexpr bool is_si_unit_v = is_si_unit<T>::value;
+    constexpr bool is_si_unit_v = PKR_UNITS_NAMESPACE::details::is_si_unit<T>::value;
 
     template<typename T>
     struct is_integral_constant : std::false_type {};
@@ -121,9 +122,9 @@ PKR_UNITS_BEGIN_NAMESPACE
         // Case 1: Single unit (denominator with power 1)
         template<typename Unit>
         constexpr void process_items(intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires is_si_unit_v<Unit>
+            requires PKR_UNITS_NAMESPACE::details::si_unit_concept<Unit>
         {
-            using traits = si::is_si_unit<Unit>;
+            using traits = PKR_UNITS_NAMESPACE::details::is_si_unit<Unit>;
             num *= traits::ratio_type::den;
             den *= traits::ratio_type::num;
             dim = combine_dimensions_divide(dim, traits::value_dimension);
@@ -133,10 +134,10 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit, typename T, T Power>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires is_si_unit_v<Unit> && std::is_integral_v<T>
+            requires PKR_UNITS_NAMESPACE::details::si_unit_concept<Unit> && std::is_integral_v<T>
         {
             constexpr int PowerValue = static_cast<int>(Power);
-            using traits = si::is_si_unit<Unit>;
+            using traits = details::is_si_unit<Unit>;
 
             // Compute powered ratio
             intmax_t powered_num = constexpr_pow(traits::ratio_type::num, 
@@ -172,7 +173,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit1, typename Unit2, typename... Rest>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires is_si_unit_v<Unit1> && is_si_unit_v<Unit2>
+            requires PKR_UNITS_NAMESPACE::details::is_si_unit<Unit1>::value && PKR_UNITS_NAMESPACE::details::is_si_unit<Unit2>::value
         {
             process_items<Unit1>(num, den, dim);
             process_items<Unit2, Rest...>(num, den, dim);
@@ -182,7 +183,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit, typename T, T Power, typename Unit2, typename... Rest>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires is_si_unit_v<Unit> && std::is_integral_v<T> && is_si_unit_v<Unit2>
+            requires PKR_UNITS_NAMESPACE::details::is_si_unit<Unit>::value && std::is_integral_v<T> && PKR_UNITS_NAMESPACE::details::is_si_unit<Unit2>::value
         {
             process_items<Unit, T, Power>(num, den, dim);
             process_items<Unit2, Rest...>(num, den, dim);
@@ -199,7 +200,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         std::tuple<numerator_unit_types...>*,
         std::tuple<denominator_items...>*) noexcept
     {
-        using source_traits = si::is_si_unit<source_unit_t>;
+        using source_traits = details::is_si_unit<source_unit_t>;
         using source_value_type = typename source_traits::value_type;
 
         intmax_t result_num = source_traits::ratio_type::num;
@@ -210,7 +211,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         (
             [&]()
             {
-                using num_traits = si::is_si_unit<numerator_unit_types>;
+                using num_traits = details::is_si_unit<numerator_unit_types>;
                 result_num *= num_traits::ratio_type::num;
                 result_den *= num_traits::ratio_type::den;
                 result_dim = combine_dimensions_multiply(result_dim, num_traits::value_dimension);
@@ -222,7 +223,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         _multi_unit_cast_impl::process_items<denominator_items...>(result_num, result_den, result_dim);
 
         using result_ratio = std::ratio<result_num, result_den>;
-        using result_unit = unit_t<source_value_type, result_ratio, result_dim>;
+        using result_unit = details::unit_t<source_value_type, result_ratio, result_dim>;
         return result_unit(source.value());
     }
 
@@ -238,7 +239,7 @@ namespace _multi_unit_cast_detail {
     struct is_per : std::false_type {};
 
     template<typename... Units>
-    struct is_per<si::per<Units...>> : std::true_type {};
+    struct is_per<per<Units...>> : std::true_type {};
 
     template<typename T>
     constexpr bool is_per_v = is_per<T>::value;
@@ -251,38 +252,38 @@ namespace _multi_unit_cast_detail {
     // Allows any SI unit combination - dimension safety is enforced by ratio calculation
     template<typename NumUnit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_single = 
-        is_si_unit<NumUnit>::value &&
+        details::is_si_unit<NumUnit>::value &&
         is_per_v<DenomPer> &&
-        is_si_unit<SourceUnit>::value;
+        details::is_si_unit<SourceUnit>::value;
 
     // Concept for two numerators (combined as multiply)
     template<typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_dual =
-        is_si_unit<Num1Unit>::value &&
-        is_si_unit<Num2Unit>::value &&
+        details::is_si_unit<Num1Unit>::value &&
+        details::is_si_unit<Num2Unit>::value &&
         is_per_v<DenomPer> &&
-        is_si_unit<SourceUnit>::value;
+        details::is_si_unit<SourceUnit>::value;
 
     // Concept for three numerators (combined as multiply)
     template<typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_triple =
-        is_si_unit<Num1Unit>::value &&
-        is_si_unit<Num2Unit>::value &&
-        is_si_unit<Num3Unit>::value &&
+        details::is_si_unit<Num1Unit>::value &&
+        details::is_si_unit<Num2Unit>::value &&
+        details::is_si_unit<Num3Unit>::value &&
         is_per_v<DenomPer> &&
-        is_si_unit<SourceUnit>::value;
+        details::is_si_unit<SourceUnit>::value;
 
     // Helper struct for single numerator with per denominator
     template<typename num_t, typename per_wrapper>
     struct multi_unit_cast_helper;
 
     template<typename num_t, typename... denoms>
-    struct multi_unit_cast_helper<num_t, si::per<denoms...>>
+    struct multi_unit_cast_helper<num_t, per<denoms...>>
     {
         template<typename source_t>
         static constexpr auto call(const source_t& source) noexcept
         {
-            return ::si::multi_unit_cast_impl(
+            return multi_unit_cast_impl(
                 source,
                 static_cast<std::tuple<num_t>*>(nullptr),
                 static_cast<std::tuple<denoms...>*>(nullptr));
@@ -294,12 +295,12 @@ namespace _multi_unit_cast_detail {
     struct multi_unit_cast_helper2;
 
     template<typename num1_t, typename num2_t, typename... denoms>
-    struct multi_unit_cast_helper2<num1_t, num2_t, si::per<denoms...>>
+    struct multi_unit_cast_helper2<num1_t, num2_t, per<denoms...>>
     {
         template<typename source_t>
         static constexpr auto call(const source_t& source) noexcept
         {
-            return ::si::multi_unit_cast_impl(
+            return multi_unit_cast_impl(
                 source,
                 static_cast<std::tuple<num1_t, num2_t>*>(nullptr),
                 static_cast<std::tuple<denoms...>*>(nullptr));
@@ -311,12 +312,12 @@ namespace _multi_unit_cast_detail {
     struct multi_unit_cast_helper3;
 
     template<typename num1_t, typename num2_t, typename num3_t, typename... denoms>
-    struct multi_unit_cast_helper3<num1_t, num2_t, num3_t, si::per<denoms...>>
+    struct multi_unit_cast_helper3<num1_t, num2_t, num3_t, per<denoms...>>
     {
         template<typename source_t>
         static constexpr auto call(const source_t& source) noexcept
         {
-            return ::si::multi_unit_cast_impl(
+            return multi_unit_cast_impl(
                 source,
                 static_cast<std::tuple<num1_t, num2_t, num3_t>*>(nullptr),
                 static_cast<std::tuple<denoms...>*>(nullptr));

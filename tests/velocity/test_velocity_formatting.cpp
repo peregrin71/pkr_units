@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <pkr_units/units/derived/velocity.h>
+#include <pkr_units/impl/cast/unit_cast.h>
 
 using namespace ::testing;
 
@@ -75,5 +76,17 @@ TEST_F(VelocityFormattingTest, velocity_table_alignment)
     ASSERT_EQ(result3, "       0.8 m/s");
 }
 
+TEST_F(VelocityFormattingTest, kilometer_per_hour_cast_to_meter_per_second_formatting)
+{
+    // Start with 36 km/h, which should be 10 m/s
+    pkr::units::kilometer_per_hour_t kmh{36.0};
+    
+    // Cast to meter_per_second_t
+    auto mps = pkr::units::unit_cast<pkr::units::meter_per_second_t>(kmh);
+    
+    // Format the cast result and verify it uses m/s
+    std::string result = std::format("{}", mps);
+    ASSERT_EQ(result, "10 m/s");
+}
 
 

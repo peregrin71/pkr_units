@@ -189,6 +189,33 @@ constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
     return result_type{details::multiply_values(scalar, unit.value())};
 }
 
+// Free function scalar division (scalar / unit) - returns the most derived type of 1/unit
+template<typename ScalarType, typename T>
+requires (details::is_si_unit<T>::value && std::is_arithmetic_v<ScalarType>)
+constexpr auto operator/(const ScalarType& scalar, const T& unit)
+{
+    using value_type = typename details::is_si_unit<T>::value_type;
+    using ratio_type = typename details::is_si_unit<T>::ratio_type;
+    constexpr auto dim = details::is_si_unit<T>::value_dimension;
+    
+    // Invert the dimensions for division
+    constexpr dimension_t inverted_dim{
+        .length = -dim.length,
+        .mass = -dim.mass,
+        .time = -dim.time,
+        .current = -dim.current,
+        .temperature = -dim.temperature,
+        .amount = -dim.amount,
+        .intensity = -dim.intensity,
+        .angle = -dim.angle};
+    
+    // Invert the ratio for division
+    using inverted_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
+    
+    using result_type = details::unit_t<value_type, inverted_ratio, inverted_dim>;
+    return result_type{details::divide_values(scalar, unit.value())};
+}
+
 // Comparison operators
 template<details::si_unit_concept T1, details::si_unit_concept T2>
 requires same_dimensions_c<T1, T2>

@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
-#include <pkr_units/si.h>
-#include <pkr_units/cast/unit_cast.h>
-#include <pkr_units/cast/multi_unit_cast.h>
-#include <pkr_units/derived/velocity.h>
+#include <pkr_units/si_units.h>
+#include <pkr_units/impl/cast/unit_cast.h>
+#include <pkr_units/impl/cast/multi_unit_cast.h>
+#include <pkr_units/units/derived/velocity.h>
 #include <cmath>
 
 namespace test

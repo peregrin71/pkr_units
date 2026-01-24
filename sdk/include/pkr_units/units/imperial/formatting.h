@@ -1,6 +1,6 @@
 #pragma once
 
-#include <format>
+/*
 #include <cmath>
 
 namespace std
@@ -148,6 +148,8 @@ struct formatter<::si::pound>
 };
 
 } // namespace std
+
+*/
 
 
 

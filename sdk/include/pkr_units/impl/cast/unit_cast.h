@@ -21,7 +21,7 @@ namespace details
 
     // Internal cast function (preserves dimension, converts ratio)
     template<typename target_ratio_t, typename type_t, typename source_ratio_t, dimension_t dim_v>
-    constexpr unit_t<type_t, target_ratio_t, dim_v> unit_cast_impl(const unit_t<type_t, source_ratio_t, dim_v>& source) noexcept
+    constexpr details::unit_t<type_t, target_ratio_t, dim_v> unit_cast_impl(const details::unit_t<type_t, source_ratio_t, dim_v>& source) noexcept
     {
         if constexpr (std::is_same_v<source_ratio_t, target_ratio_t>)
         {
@@ -35,7 +35,7 @@ namespace details
                 source_ratio_t::num, source_ratio_t::den,
                 target_ratio_t::num, target_ratio_t::den);
             type_t converted_value = source.value() * conversion_factor;
-            return unit_t<type_t, target_ratio_t, dim_v>(converted_value);
+            return details::unit_t<type_t, target_ratio_t, dim_v>(converted_value);
         }
     }
 

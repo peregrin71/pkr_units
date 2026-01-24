@@ -22,12 +22,13 @@ struct fahrenheit_t final : public details::unit_t<double, std::ratio<1, 1>, tem
     using fahrenheit_t::unit_t::unit_t;
     
     static constexpr std::string_view name{"fahrenheit"};
-    static constexpr std::string_view symbol{"°F"};
+    static constexpr std::string_view symbol{"F"};
     static constexpr std::wstring_view w_symbol{L"°F"};
     static constexpr std::u8string_view u8_symbol{u8"°F"};
 };
 
 }  // PKR_UNITS_END_NAMESPACE
+
 
 
 

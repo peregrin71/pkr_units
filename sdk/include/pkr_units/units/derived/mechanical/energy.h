@@ -1,8 +1,8 @@
 #pragma once
 
-#include <pkr_units/impl/unit_impl.h>
-#include "../../../../../impl/dimension.h"
-#include "../../../namespace_config.h"
+#include "../../../impl/unit_impl.h"
+#include "../../../impl/dimension.h"
+#include "../../../impl/namespace_config.h"
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
@@ -11,157 +11,157 @@ PKR_UNITS_BEGIN_NAMESPACE
 inline constexpr dimension_t energy_dimension{2, 1, -2, 0, 0, 0, 0};
 
 // Strong type for joule (SI base unit)
-struct joule final : public unit_t<double, std::ratio<1, 1>, energy_dimension>
+struct joule final : public details::unit_t<double, std::ratio<1, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"joule"};
-    constexpr std::string_view symbol{"J"};
-    constexpr std::wstring_view w_symbol{L"J"};
-    constexpr std::u8string_view u8_symbol{u8"J"};
+    const std::string_view name{"joule"};
+    const std::string_view symbol{"J"};
+    const std::wstring_view w_symbol{L"J"};
+    const std::u8string_view u8_symbol{u8"J"};
 };
 
 // Strong type for kilojoule
-struct kilojoule final : public unit_t<double, std::ratio<1000, 1>, energy_dimension>
+struct kilojoule final : public details::unit_t<double, std::ratio<1000, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1000, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"kilojoule"};
-    constexpr std::string_view symbol{"kJ"};
-    constexpr std::wstring_view w_symbol{L"kJ"};
-    constexpr std::u8string_view u8_symbol{u8"kJ"};
+    const std::string_view name{"kilojoule"};
+    const std::string_view symbol{"kJ"};
+    const std::wstring_view w_symbol{L"kJ"};
+    const std::u8string_view u8_symbol{u8"kJ"};
 };
 
 // Strong type for megajoule
-struct megajoule final : public unit_t<double, std::ratio<1000000, 1>, energy_dimension>
+struct megajoule final : public details::unit_t<double, std::ratio<1000000, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1000000, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"megajoule"};
-    constexpr std::string_view symbol{"MJ"};
-    constexpr std::wstring_view w_symbol{L"MJ"};
-    constexpr std::u8string_view u8_symbol{u8"MJ"};
+    const std::string_view name{"megajoule"};
+    const std::string_view symbol{"MJ"};
+    const std::wstring_view w_symbol{L"MJ"};
+    const std::u8string_view u8_symbol{u8"MJ"};
 };
 
 // Strong type for gigajoule
-struct gigajoule final : public unit_t<double, std::ratio<1000000000, 1>, energy_dimension>
+struct gigajoule final : public details::unit_t<double, std::ratio<1000000000, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1000000000, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1000000000, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"gigajoule"};
-    constexpr std::string_view symbol{"GJ"};
-    constexpr std::wstring_view w_symbol{L"GJ"};
-    constexpr std::u8string_view u8_symbol{u8"GJ"};
+    const std::string_view name{"gigajoule"};
+    const std::string_view symbol{"GJ"};
+    const std::wstring_view w_symbol{L"GJ"};
+    const std::u8string_view u8_symbol{u8"GJ"};
 };
 
 // Strong type for millijoule
-struct millijoule final : public unit_t<double, std::ratio<1, 1000>, energy_dimension>
+struct millijoule final : public details::unit_t<double, std::ratio<1, 1000>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1000>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"millijoule"};
-    constexpr std::string_view symbol{"mJ"};
-    constexpr std::wstring_view w_symbol{L"mJ"};
-    constexpr std::u8string_view u8_symbol{u8"mJ"};
+    const std::string_view name{"millijoule"};
+    const std::string_view symbol{"mJ"};
+    const std::wstring_view w_symbol{L"mJ"};
+    const std::u8string_view u8_symbol{u8"mJ"};
 };
 
 // Strong type for microjoule
-struct microjoule final : public unit_t<double, std::ratio<1, 1000000>, energy_dimension>
+struct microjoule final : public details::unit_t<double, std::ratio<1, 1000000>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<1, 1000000>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1000000>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"microjoule"};
-    constexpr std::string_view symbol{"µJ"};
-    constexpr std::wstring_view w_symbol{L"µJ"};
-    constexpr std::u8string_view u8_symbol{u8"µJ"};
+    const std::string_view name{"microjoule"};
+    const std::string_view symbol{"uJ"};
+    const std::wstring_view w_symbol{L"µJ"};
+    const std::u8string_view u8_symbol{u8"µJ"};
 };
 
 // Strong type for calorie
-struct calorie final : public unit_t<double, std::ratio<4184, 1000>, energy_dimension>
+struct calorie final : public details::unit_t<double, std::ratio<4184, 1000>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<4184, 1000>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<4184, 1000>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"calorie"};
-    constexpr std::string_view symbol{"cal"};
-    constexpr std::wstring_view w_symbol{L"cal"};
-    constexpr std::u8string_view u8_symbol{u8"cal"};
+    const std::string_view name{"calorie"};
+    const std::string_view symbol{"cal"};
+    const std::wstring_view w_symbol{L"cal"};
+    const std::u8string_view u8_symbol{u8"cal"};
 };
 
 // Strong type for kilocalorie
-struct kilocalorie final : public unit_t<double, std::ratio<4184, 1>, energy_dimension>
+struct kilocalorie final : public details::unit_t<double, std::ratio<4184, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<4184, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<4184, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"kilocalorie"};
-    constexpr std::string_view symbol{"kcal"};
-    constexpr std::wstring_view w_symbol{L"kcal"};
-    constexpr std::u8string_view u8_symbol{u8"kcal"};
+    const std::string_view name{"kilocalorie"};
+    const std::string_view symbol{"kcal"};
+    const std::wstring_view w_symbol{L"kcal"};
+    const std::u8string_view u8_symbol{u8"kcal"};
 };
 
 // Strong type for watthour
-struct watthour final : public unit_t<double, std::ratio<3600, 1>, energy_dimension>
+struct watthour final : public details::unit_t<double, std::ratio<3600, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<3600, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<3600, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"watthour"};
-    constexpr std::string_view symbol{"Wh"};
-    constexpr std::wstring_view w_symbol{L"Wh"};
-    constexpr std::u8string_view u8_symbol{u8"Wh"};
+    const std::string_view name{"watthour"};
+    const std::string_view symbol{"Wh"};
+    const std::wstring_view w_symbol{L"Wh"};
+    const std::u8string_view u8_symbol{u8"Wh"};
 };
 
 // Strong type for kilowatthour
-struct kilowatthour final : public unit_t<double, std::ratio<3600000, 1>, energy_dimension>
+struct kilowatthour final : public details::unit_t<double, std::ratio<3600000, 1>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<3600000, 1>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<3600000, 1>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"kilowatthour"};
-    constexpr std::string_view symbol{"kWh"};
-    constexpr std::wstring_view w_symbol{L"kWh"};
-    constexpr std::u8string_view u8_symbol{u8"kWh"};
+    const std::string_view name{"kilowatthour"};
+    const std::string_view symbol{"kWh"};
+    const std::wstring_view w_symbol{L"kWh"};
+    const std::u8string_view u8_symbol{u8"kWh"};
 };
 
 // Strong type for electronvolt
-struct electronvolt final : public unit_t<double, std::ratio<80108, 500000000000000000LL>, energy_dimension>
+struct electronvolt final : public details::unit_t<double, std::ratio<80108, 500000000000000000LL>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<80108, 500000000000000000LL>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<80108, 500000000000000000LL>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"electronvolt"};
-    constexpr std::string_view symbol{"eV"};
-    constexpr std::wstring_view w_symbol{L"eV"};
-    constexpr std::u8string_view u8_symbol{u8"eV"};
+    const std::string_view name{"electronvolt"};
+    const std::string_view symbol{"eV"};
+    const std::wstring_view w_symbol{L"eV"};
+    const std::u8string_view u8_symbol{u8"eV"};
 };
 
 // Strong type for kiloelectronvolt
-struct kiloelectronvolt final : public unit_t<double, std::ratio<80108000, 500000000000000000LL>, energy_dimension>
+struct kiloelectronvolt final : public details::unit_t<double, std::ratio<80108000, 500000000000000000LL>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<80108000, 500000000000000000LL>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<80108000, 500000000000000000LL>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"kiloelectronvolt"};
-    constexpr std::string_view symbol{"keV"};
-    constexpr std::wstring_view w_symbol{L"keV"};
-    constexpr std::u8string_view u8_symbol{u8"keV"};
+    const std::string_view name{"kiloelectronvolt"};
+    const std::string_view symbol{"keV"};
+    const std::wstring_view w_symbol{L"keV"};
+    const std::u8string_view u8_symbol{u8"keV"};
 };
 
 // Strong type for megaelectronvolt
-struct megaelectronvolt final : public unit_t<double, std::ratio<80108000000, 500000000000000000LL>, energy_dimension>
+struct megaelectronvolt final : public details::unit_t<double, std::ratio<80108000000, 500000000000000000LL>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<80108000000, 500000000000000000LL>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<80108000000, 500000000000000000LL>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"megaelectronvolt"};
-    constexpr std::string_view symbol{"MeV"};
-    constexpr std::wstring_view w_symbol{L"MeV"};
-    constexpr std::u8string_view u8_symbol{u8"MeV"};
+    const std::string_view name{"megaelectronvolt"};
+    const std::string_view symbol{"MeV"};
+    const std::wstring_view w_symbol{L"MeV"};
+    const std::u8string_view u8_symbol{u8"MeV"};
 };
 
 // Strong type for gigaelectronvolt
-struct gigaelectronvolt final : public unit_t<double, std::ratio<80108000000000LL, 500000000000000000LL>, energy_dimension>
+struct gigaelectronvolt final : public details::unit_t<double, std::ratio<80108000000000LL, 500000000000000000LL>, energy_dimension>
 {
-    using _base = unit_t<double, std::ratio<80108000000000LL, 500000000000000000LL>, energy_dimension>;
+    using _base = details::unit_t<double, std::ratio<80108000000000LL, 500000000000000000LL>, energy_dimension>;
     using _base::_base;
-    constexpr std::string_view name{"gigaelectronvolt"};
-    constexpr std::string_view symbol{"GeV"};
-    constexpr std::wstring_view w_symbol{L"GeV"};
-    constexpr std::u8string_view u8_symbol{u8"GeV"};
+    const std::string_view name{"gigaelectronvolt"};
+    const std::string_view symbol{"GeV"};
+    const std::wstring_view w_symbol{L"GeV"};
+    const std::u8string_view u8_symbol{u8"GeV"};
 };
 
 } // PKR_UNITS_NAMESPACE

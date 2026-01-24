@@ -1,14 +1,15 @@
 #pragma once
 
 #include <pkr_units/impl/unit_impl.h>
-#include "../namespace_config.h"
+#include "../../impl/namespace_config.h"
+#include "../../units/derived/mechanical.h"
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Imperial force units
-using poundal = unit_t<double, std::ratio<45359237, 1000000000>, force_dimension>;  // 1 pdl = 0.138255 N
-using pound_force = unit_t<double, std::ratio<4448222, 1000000>, force_dimension>;  // 1 lbf ≈ 4.448 N
+using poundal = details::unit_t<double, std::ratio<45359237, 1000000000>, force_dimension>;  // 1 pdl = 0.138255 N
+using pound_force = details::unit_t<double, std::ratio<4448222, 1000000>, force_dimension>;  // 1 lbf ≈ 4.448 N
 
 } // PKR_UNITS_NAMESPACE
 

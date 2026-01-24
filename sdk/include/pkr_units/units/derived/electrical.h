@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../impl/unit.h"
+#include "../../impl/unit_impl.h"
 #include "../../impl/dimension.h"
 #include "../../impl/namespace_config.h"
 
@@ -8,7 +8,7 @@ PKR_UNITS_BEGIN_NAMESPACE
 {
 
 // Electric charge dimension: A·s
-inline constexpr dimension_t electric_charge_dimension{.current = 1, .time = 1};
+inline constexpr dimension_t electric_charge_dimension{0, 0, 1, 1, 0, 0, 0, 0};
 
 // Electric potential dimension
 inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
@@ -61,7 +61,7 @@ struct microcoulomb final : public details::unit_t<double, std::ratio<1, 1000000
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microcoulomb"};
-    static constexpr std::string_view symbol{"µC"};
+    static constexpr std::string_view symbol{"uC"};
     static constexpr std::wstring_view w_symbol{L"µC"};
     static constexpr std::u8string_view u8_symbol{u8"µC"};
 };
@@ -132,7 +132,7 @@ struct microvolt final : public details::unit_t<double, std::ratio<1, 1000000>, 
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microvolt"};
-    static constexpr std::string_view symbol{"µV"};
+    static constexpr std::string_view symbol{"uV"};
     static constexpr std::wstring_view w_symbol{L"µV"};
     static constexpr std::u8string_view u8_symbol{u8"µV"};
 };
@@ -143,7 +143,7 @@ struct ohm final : public details::unit_t<double, std::ratio<1, 1>, electric_res
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"ohm"};
-    static constexpr std::string_view symbol{"Ω"};
+    static constexpr std::string_view symbol{"ohm"};
     static constexpr std::wstring_view w_symbol{L"Ω"};
     static constexpr std::u8string_view u8_symbol{u8"Ω"};
 };
@@ -153,7 +153,7 @@ struct kilohm final : public details::unit_t<double, std::ratio<1000, 1>, electr
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilohm"};
-    static constexpr std::string_view symbol{"kΩ"};
+    static constexpr std::string_view symbol{"kohm"};
     static constexpr std::wstring_view w_symbol{L"kΩ"};
     static constexpr std::u8string_view u8_symbol{u8"kΩ"};
 };
@@ -163,7 +163,7 @@ struct megohm final : public details::unit_t<double, std::ratio<1000000, 1>, ele
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"megohm"};
-    static constexpr std::string_view symbol{"MΩ"};
+    static constexpr std::string_view symbol{"Mohm"};
     static constexpr std::wstring_view w_symbol{L"MΩ"};
     static constexpr std::u8string_view u8_symbol{u8"MΩ"};
 };
@@ -173,7 +173,7 @@ struct gigohm final : public details::unit_t<double, std::ratio<1000000000, 1>, 
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"gigohm"};
-    static constexpr std::string_view symbol{"GΩ"};
+    static constexpr std::string_view symbol{"Gohm"};
     static constexpr std::wstring_view w_symbol{L"GΩ"};
     static constexpr std::u8string_view u8_symbol{u8"GΩ"};
 };
@@ -183,7 +183,7 @@ struct milliohm final : public details::unit_t<double, std::ratio<1, 1000>, elec
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"milliohm"};
-    static constexpr std::string_view symbol{"mΩ"};
+    static constexpr std::string_view symbol{"mohm"};
     static constexpr std::wstring_view w_symbol{L"mΩ"};
     static constexpr std::u8string_view u8_symbol{u8"mΩ"};
 };
@@ -193,7 +193,7 @@ struct microohm final : public details::unit_t<double, std::ratio<1, 1000000>, e
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microohm"};
-    static constexpr std::string_view symbol{"µΩ"};
+    static constexpr std::string_view symbol{"uohm"};
     static constexpr std::wstring_view w_symbol{L"µΩ"};
     static constexpr std::u8string_view u8_symbol{u8"µΩ"};
 };
@@ -224,7 +224,7 @@ struct microfarad final : public details::unit_t<double, std::ratio<1, 1000000>,
     using _base = details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>;
     using _base::_base;
     static constexpr std::string_view name{"microfarad"};
-    static constexpr std::string_view symbol{"µF"};
+    static constexpr std::string_view symbol{"uF"};
     static constexpr std::wstring_view w_symbol{L"µF"};
     static constexpr std::u8string_view u8_symbol{u8"µF"};
 };
@@ -275,7 +275,7 @@ struct microhenry final : public details::unit_t<double, std::ratio<1, 1000000>,
     using _base = details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microhenry"};
-    static constexpr std::string_view symbol{"µH"};
+    static constexpr std::string_view symbol{"uH"};
     static constexpr std::wstring_view w_symbol{L"µH"};
     static constexpr std::u8string_view u8_symbol{u8"µH"};
 };
@@ -316,7 +316,7 @@ struct microsiemens final : public details::unit_t<double, std::ratio<1, 1000000
     using _base = details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microsiemens"};
-    static constexpr std::string_view symbol{"µS"};
+    static constexpr std::string_view symbol{"uS"};
     static constexpr std::wstring_view w_symbol{L"µS"};
     static constexpr std::u8string_view u8_symbol{u8"µS"};
 };
@@ -506,6 +506,7 @@ struct details::named_unit_type_t<double, std::ratio<1, 1000000>, conductance_di
 };
 
 } // PKR_UNITS_NAMESPACE
+
 
 
 

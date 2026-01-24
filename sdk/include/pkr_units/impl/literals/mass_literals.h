@@ -1,14 +1,18 @@
 #pragma once
 
-#include "mass.h"
-#include "../../namespace_config.h"
+#include <pkr_units/units/base/mass.h>
+#include <pkr_units/impl/namespace_config.h>
+#include "../../impl/decls/mass_decl.h"
 
-namespace si::si_literals
+PKR_UNITS_BEGIN_NAMESPACE
+{
+
+namespace si_literals
 {
     // Metric mass prefix literals
-    constexpr si::mass<double, std::ratio<1, 1000000000000000000>> operator"" _ag(long double value) noexcept
+    constexpr mass_details::unit_t<double, std::ratio<1, 1000000000000000000>> operator"" _ag(long double value) noexcept
     {
-        return si::mass<double, std::ratio<1, 1000000000000000000>>(static_cast<double>(value});
+        return mass_details::unit_t<double, std::ratio<1, 1000000000000000000>>{static_cast<double>(value)};
     }
 
     constexpr si::mass<double, std::ratio<1, 1000000000000000>> operator"" _fg(long double value) noexcept
