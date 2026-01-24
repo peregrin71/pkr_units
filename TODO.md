@@ -29,6 +29,7 @@
   - [ ] Run full test suite on all platforms
   - [ ] Generate test reports
   - [ ] Flag failures to PR
+  - [ ] Investigate using libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
 - [ ] Branching Strategy
   - [ ] Use `develop` branch for active work
   - [ ] PR workflow: feature → develop → master
