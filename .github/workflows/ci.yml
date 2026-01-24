@@ -78,7 +78,7 @@ jobs:
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
         sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
         sudo apt-get update
-        sudo apt-get install -y clang-18 lld-18
+        sudo apt-get install -y clang-18 lld-18 libc++-18-dev libc++abi-18-dev
 
     - name: Install Conan
       run: |
@@ -93,7 +93,13 @@ jobs:
         conan profile detect --force
 
     - name: Install dependencies with Conan
+      shell: bash
       run: |
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "gcc" ]; then
+          export CC=gcc-14 CXX=g++-14
+        elif [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "clang" ]; then
+          export CC=clang-18 CXX=clang++-18
+        fi
         profile_flag=""
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
           profile_flag="--profile=build/profiles/windows-${{ matrix.compiler }}.profile"
