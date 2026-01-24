@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pkr_units/impl/unit_impl.h>
-#include "../../impl/namespace_config.h"
-#include "../../impl/decls/velocity_decl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/decls/velocity_decl.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

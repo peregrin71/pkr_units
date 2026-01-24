@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../impl/namespace_config.h"
-#include "../../impl/unit_impl.h"
-#include "../../impl/decls/current_decl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/decls/current_decl.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

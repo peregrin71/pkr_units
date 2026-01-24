@@ -3,7 +3,7 @@
 #include <ratio>
 #include <stdexcept>
 #include "../dimension.h"
-#include "../namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
 
 // Include concepts BEFORE opening namespace to avoid including headers within namespace
 #include "../concepts/unit_concepts.h"
@@ -163,6 +163,16 @@ public:
         return canonical_unit{canonical_value};
     }
 
+    // Return a normalized unit_t with canonical ratio (1/1) for dimensional analysis
+    constexpr auto normalized() const noexcept
+    {
+        // Convert value from current ratio to canonical ratio (1/1)
+        type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
+        
+        // Return raw unit_t with canonical ratio and same dimensions
+        return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
+    }
+
 private:
     type_t m_value;
 };
@@ -250,15 +260,15 @@ constexpr type_t divide_values(type_t val1, type_t val2)
     return val1 / val2;
 }
 
-// Helper to check if a type is an si_unit and extract its components
+// Helper to check if a type is an pkr_unit and extract its components
 template<typename T>
-struct is_si_unit : std::false_type
+struct is_pkr_unit : std::false_type
 {
 };
 
 // Specialization for direct unit_t types
 template<typename type_t, typename ratio_t, dimension_t dim_v>
-struct is_si_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
+struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 {
     static constexpr bool value = true;
     using value_type = type_t;
@@ -271,7 +281,7 @@ struct is_si_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 // (e.g., struct meter : public details::unit_t<...>)
 template<typename T>
 requires std::is_base_of_v<typename T::_base, T>
-struct is_si_unit<T> : std::true_type
+struct is_pkr_unit<T> : std::true_type
 {
     static constexpr bool value = true;
     using value_type = typename T::_base::value_type;
@@ -283,25 +293,25 @@ struct is_si_unit<T> : std::true_type
 
 // Specialization for const references
 template<typename T>
-struct is_si_unit<const T&> : is_si_unit<T>
+struct is_pkr_unit<const T&> : is_pkr_unit<T>
 {
 };
 
 // Specialization for references
 template<typename T>
-struct is_si_unit<T&> : is_si_unit<T>
+struct is_pkr_unit<T&> : is_pkr_unit<T>
 {
 };
 
 // Specialization for const
 template<typename T>
-struct is_si_unit<const T> : is_si_unit<T>
+struct is_pkr_unit<const T> : is_pkr_unit<T>
 {
 };
 
-// Concept for any si_unit type
+// Concept for any pkr_unit type
 template<typename T>
-concept si_unit_concept = is_si_unit<T>::value;
+concept pkr_unit_concept = is_pkr_unit<T>::value;
 
 }  // namespace details
 }  // namespace PKR_UNITS_NAMESPACE

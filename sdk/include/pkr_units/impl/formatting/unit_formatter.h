@@ -4,8 +4,8 @@
 #include <string>
 #include <string_view>
 #include <type_traits>
-#include "../namespace_config.h"
-#include "../decls/unit_t_decl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/decls/unit_t_decl.h>
 #include "../dimension.h"
 
 namespace std {
@@ -37,9 +37,9 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<type_t, ratio_t, dim_v>, C
 
 // Specialization for derived unit types
 template<typename T, typename CharT>
-requires PKR_UNITS_NAMESPACE::details::si_unit_concept<T> && std::is_base_of_v<typename T::_base, T>
+requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<T> && std::is_base_of_v<typename T::_base, T>
 struct formatter<T, CharT> {
-    std::formatter<typename PKR_UNITS_NAMESPACE::details::is_si_unit<T>::value_type, CharT> value_formatter;
+    std::formatter<typename PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value_type, CharT> value_formatter;
     
     template<typename ParseContext>
     constexpr auto parse(ParseContext& ctx) {

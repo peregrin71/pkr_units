@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../units/base/length.h"
-#include "../../units/imperial/length.h"
-#include "../../units/astronomical/length.h"
-#include "../namespace_config.h"
+#include <pkr_units/units/base/length.h>
+#include <pkr_units/units/imperial/length.h>
+#include <pkr_units/units/astronomical/length.h>
+#include <pkr_units/impl/namespace_config.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

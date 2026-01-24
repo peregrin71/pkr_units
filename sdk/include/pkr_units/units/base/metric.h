@@ -22,7 +22,10 @@
 // NOTE: Derived units are temporarily disabled due to incomplete definitions
 #include "derived/velocity.h"
 #include "derived/acceleration.h"
-#include "derived/mechanical.h"
+#include "derived/mechanical/force.h"
+#include "derived/mechanical/pressure.h"
+#include "derived/mechanical/energy.h"
+#include "derived/mechanical/power.h"
 #include "derived/density.h"
 #include "derived/concentration.h"
 #include "derived/electrical.h"

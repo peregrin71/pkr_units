@@ -45,7 +45,10 @@
 
 #include "units/derived/velocity.h"
 #include "units/derived/acceleration.h"
-#include "units/derived/mechanical.h"
+#include "units/derived/mechanical/force.h"
+#include "units/derived/mechanical/pressure.h"
+#include "units/derived/mechanical/energy.h"
+#include "units/derived/mechanical/power.h"
 #include "units/derived/density.h"
 #include "units/derived/concentration.h"
 #include "units/derived/electrical.h"

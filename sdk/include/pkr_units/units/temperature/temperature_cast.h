@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../impl/namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
 #include "celsius.h"
 #include "fahrenheit.h"
 

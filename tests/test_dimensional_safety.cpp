@@ -37,7 +37,7 @@ TEST_F(DimensionalSafetyTest, subtract_meter_from_second_should_not_compile)
     // but 2 arguments of type 'meter_t' and 'second_t' are available
     //
     // The requires clause checks:
-    // is_si_unit<T1>::value_dimension == is_si_unit<T2>::value_dimension
+    // is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension
     // which evaluates to: length_dimension == time_dimension → FALSE
     
     pkr::units::meter_t length{5.0};

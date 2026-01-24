@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../impl/namespace_config.h"
-#include "../../impl/decls/temperature_decl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/decls/temperature_decl.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

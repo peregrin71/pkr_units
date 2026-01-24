@@ -1,17 +1,19 @@
 #pragma once
 
-#include "../../../impl/unit_impl.h"
-#include "../../../impl/dimension.h"
-#include "../../../impl/namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/dimension.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
-// Power dimension
-inline constexpr dimension_t power_dimension{2, 1, -3, 0, 0, 0, 0};
+// Power dimension: kg·m²·s⁻³ (M·L²·T⁻³)
+inline constexpr dimension_t power_dimension{2, 1, -3, 0, 0, 0, 0, 0};
 
-// Strong type for watt (SI base unit)
-struct watt final : public details::unit_t<double, std::ratio<1, 1>, power_dimension>
+// Power units (Watt and derived)
+// Base unit: Watt (W) = kg·m²·s⁻³
+
+struct watt_t final : public details::unit_t<double, std::ratio<1, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, power_dimension>;
     using _base::_base;
@@ -21,8 +23,7 @@ struct watt final : public details::unit_t<double, std::ratio<1, 1>, power_dimen
     static constexpr std::u8string_view u8_symbol{u8"W"};
 };
 
-// Strong type for kilowatt
-struct kilowatt final : public details::unit_t<double, std::ratio<1000, 1>, power_dimension>
+struct kilowatt_t final : public details::unit_t<double, std::ratio<1000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, power_dimension>;
     using _base::_base;
@@ -32,8 +33,7 @@ struct kilowatt final : public details::unit_t<double, std::ratio<1000, 1>, powe
     static constexpr std::u8string_view u8_symbol{u8"kW"};
 };
 
-// Strong type for megawatt
-struct megawatt final : public details::unit_t<double, std::ratio<1000000, 1>, power_dimension>
+struct megawatt_t final : public details::unit_t<double, std::ratio<1000000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, power_dimension>;
     using _base::_base;
@@ -43,8 +43,7 @@ struct megawatt final : public details::unit_t<double, std::ratio<1000000, 1>, p
     static constexpr std::u8string_view u8_symbol{u8"MW"};
 };
 
-// Strong type for gigawatt
-struct gigawatt final : public details::unit_t<double, std::ratio<1000000000, 1>, power_dimension>
+struct gigawatt_t final : public details::unit_t<double, std::ratio<1000000000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, power_dimension>;
     using _base::_base;
@@ -54,19 +53,7 @@ struct gigawatt final : public details::unit_t<double, std::ratio<1000000000, 1>
     static constexpr std::u8string_view u8_symbol{u8"GW"};
 };
 
-// Strong type for milliwatt
-struct milliwatt final : public details::unit_t<double, std::ratio<1, 1000>, power_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<1, 1000>, power_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"milliwatt"};
-    static constexpr std::string_view symbol{"mW"};
-    static constexpr std::wstring_view w_symbol{L"mW"};
-    static constexpr std::u8string_view u8_symbol{u8"mW"};
-};
-
-// Strong type for microwatt
-struct microwatt final : public details::unit_t<double, std::ratio<1, 1000000>, power_dimension>
+struct microwatt_t final : public details::unit_t<double, std::ratio<1, 1000000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, power_dimension>;
     using _base::_base;
@@ -76,8 +63,17 @@ struct microwatt final : public details::unit_t<double, std::ratio<1, 1000000>, 
     static constexpr std::u8string_view u8_symbol{u8"µW"};
 };
 
-// Strong type for nanowatt
-struct nanowatt final : public details::unit_t<double, std::ratio<1, 1000000000>, power_dimension>
+struct milliwatt_t final : public details::unit_t<double, std::ratio<1, 1000>, power_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<1, 1000>, power_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"milliwatt"};
+    static constexpr std::string_view symbol{"mW"};
+    static constexpr std::wstring_view w_symbol{L"mW"};
+    static constexpr std::u8string_view u8_symbol{u8"mW"};
+};
+
+struct nanowatt_t final : public details::unit_t<double, std::ratio<1, 1000000000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, power_dimension>;
     using _base::_base;
@@ -87,8 +83,7 @@ struct nanowatt final : public details::unit_t<double, std::ratio<1, 1000000000>
     static constexpr std::u8string_view u8_symbol{u8"nW"};
 };
 
-// Strong type for horsepower
-struct horsepower final : public details::unit_t<double, std::ratio<745700, 1000>, power_dimension>
+struct horsepower_t final : public details::unit_t<double, std::ratio<745700, 1000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<745700, 1000>, power_dimension>;
     using _base::_base;
@@ -96,6 +91,55 @@ struct horsepower final : public details::unit_t<double, std::ratio<745700, 1000
     static constexpr std::string_view symbol{"hp"};
     static constexpr std::wstring_view w_symbol{L"hp"};
     static constexpr std::u8string_view u8_symbol{u8"hp"};
+};
+
+// Power units
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1>, power_dimension>
+{
+    using type = watt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1000, 1>, power_dimension>
+{
+    using type = kilowatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1000000, 1>, power_dimension>
+{
+    using type = megawatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1000000000, 1>, power_dimension>
+{
+    using type = gigawatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000000>, power_dimension>
+{
+    using type = microwatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000>, power_dimension>
+{
+    using type = milliwatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, power_dimension>
+{
+    using type = nanowatt_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<745700, 1000>, power_dimension>
+{
+    using type = horsepower_t;
 };
 
 } // PKR_UNITS_NAMESPACE

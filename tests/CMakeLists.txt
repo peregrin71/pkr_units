@@ -66,6 +66,9 @@ set(TEST_SOURCES
   # Multi-unit cast tests
   # multi_cast/test_multi_unit_cast.cpp
   
+  # Dimensional analysis tests
+  test_dimensional_analysis.cpp
+  
   # Compile-time safety and dimensional error documentation
   #test_dimensional_safety.cpp
   

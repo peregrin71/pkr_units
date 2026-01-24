@@ -1,7 +1,7 @@
 #pragma once
 
 #include <pkr_units/impl/unit_impl.h>
-#include "../namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

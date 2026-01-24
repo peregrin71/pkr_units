@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../decls/unit_t_decl.h"
+#include <pkr_units/impl/decls/unit_t_decl.h>
 #include "unit_pow.h"
 #include <type_traits>
 #include <tuple>
 #include <ratio>
 #include <utility>
-#include "../namespace_config.h"
-#include "../unit_impl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
 
 // ========================================================================
 // Marker wrapper to indicate units in the denominator and their powers
@@ -90,7 +90,7 @@ PKR_UNITS_BEGIN_NAMESPACE
     // ========================================================================
 
     template<typename T>
-    constexpr bool is_si_unit_v = PKR_UNITS_NAMESPACE::details::is_si_unit<T>::value;
+    constexpr bool is_pkr_unit_v = PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value;
 
     template<typename T>
     struct is_integral_constant : std::false_type {};
@@ -122,9 +122,9 @@ PKR_UNITS_BEGIN_NAMESPACE
         // Case 1: Single unit (denominator with power 1)
         template<typename Unit>
         constexpr void process_items(intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires PKR_UNITS_NAMESPACE::details::si_unit_concept<Unit>
+            requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit>
         {
-            using traits = PKR_UNITS_NAMESPACE::details::is_si_unit<Unit>;
+            using traits = PKR_UNITS_NAMESPACE::details::is_pkr_unit<Unit>;
             num *= traits::ratio_type::den;
             den *= traits::ratio_type::num;
             dim = combine_dimensions_divide(dim, traits::value_dimension);
@@ -134,10 +134,10 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit, typename T, T Power>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires PKR_UNITS_NAMESPACE::details::si_unit_concept<Unit> && std::is_integral_v<T>
+            requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit> && std::is_integral_v<T>
         {
             constexpr int PowerValue = static_cast<int>(Power);
-            using traits = details::is_si_unit<Unit>;
+            using traits = details::is_pkr_unit<Unit>;
 
             // Compute powered ratio
             intmax_t powered_num = constexpr_pow(traits::ratio_type::num, 
@@ -173,7 +173,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit1, typename Unit2, typename... Rest>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires PKR_UNITS_NAMESPACE::details::is_si_unit<Unit1>::value && PKR_UNITS_NAMESPACE::details::is_si_unit<Unit2>::value
+            requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit1> && PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit2>
         {
             process_items<Unit1>(num, den, dim);
             process_items<Unit2, Rest...>(num, den, dim);
@@ -183,7 +183,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         template<typename Unit, typename T, T Power, typename Unit2, typename... Rest>
         constexpr void process_items(
             intmax_t& num, intmax_t& den, dimension_t& dim) noexcept
-            requires PKR_UNITS_NAMESPACE::details::is_si_unit<Unit>::value && std::is_integral_v<T> && PKR_UNITS_NAMESPACE::details::is_si_unit<Unit2>::value
+            requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit> && std::is_integral_v<T> && PKR_UNITS_NAMESPACE::details::pkr_unit_concept<Unit2>
         {
             process_items<Unit, T, Power>(num, den, dim);
             process_items<Unit2, Rest...>(num, den, dim);
@@ -200,7 +200,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         std::tuple<numerator_unit_types...>*,
         std::tuple<denominator_items...>*) noexcept
     {
-        using source_traits = details::is_si_unit<source_unit_t>;
+        using source_traits = details::is_pkr_unit<source_unit_t>;
         using source_value_type = typename source_traits::value_type;
 
         intmax_t result_num = source_traits::ratio_type::num;
@@ -211,7 +211,7 @@ PKR_UNITS_BEGIN_NAMESPACE
         (
             [&]()
             {
-                using num_traits = details::is_si_unit<numerator_unit_types>;
+                using num_traits = details::is_pkr_unit<numerator_unit_types>;
                 result_num *= num_traits::ratio_type::num;
                 result_den *= num_traits::ratio_type::den;
                 result_dim = combine_dimensions_multiply(result_dim, num_traits::value_dimension);
@@ -252,26 +252,26 @@ namespace _multi_unit_cast_detail {
     // Allows any SI unit combination - dimension safety is enforced by ratio calculation
     template<typename NumUnit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_single = 
-        details::is_si_unit<NumUnit>::value &&
+        details::pkr_unit_concept<NumUnit> &&
         is_per_v<DenomPer> &&
-        details::is_si_unit<SourceUnit>::value;
+        details::pkr_unit_concept<SourceUnit>;
 
     // Concept for two numerators (combined as multiply)
     template<typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_dual =
-        details::is_si_unit<Num1Unit>::value &&
-        details::is_si_unit<Num2Unit>::value &&
+        details::pkr_unit_concept<Num1Unit> &&
+        details::pkr_unit_concept<Num2Unit> &&
         is_per_v<DenomPer> &&
-        details::is_si_unit<SourceUnit>::value;
+        details::pkr_unit_concept<SourceUnit>;
 
     // Concept for three numerators (combined as multiply)
     template<typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
     concept valid_multi_unit_cast_triple =
-        details::is_si_unit<Num1Unit>::value &&
-        details::is_si_unit<Num2Unit>::value &&
-        details::is_si_unit<Num3Unit>::value &&
+        details::pkr_unit_concept<Num1Unit> &&
+        details::pkr_unit_concept<Num2Unit> &&
+        details::pkr_unit_concept<Num3Unit> &&
         is_per_v<DenomPer> &&
-        details::is_si_unit<SourceUnit>::value;
+        details::pkr_unit_concept<SourceUnit>;
 
     // Helper struct for single numerator with per denominator
     template<typename num_t, typename per_wrapper>

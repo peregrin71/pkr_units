@@ -1,17 +1,19 @@
 #pragma once
 
-#include "../../../impl/unit_impl.h"
-#include "../../../impl/dimension.h"
-#include "../../../impl/namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/dimension.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
-// Pressure dimension
-inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0};
+// Pressure dimension: kg·m⁻¹·s⁻² (M·L⁻¹·T⁻²)
+inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0, 0};
 
-// Strong type for pascal (SI base unit)
-struct pascal final : public details::unit_t<double, std::ratio<1, 1>, pressure_dimension>
+// Pressure units (Pascal and derived)
+// Base unit: Pascal (Pa) = kg·m⁻¹·s⁻²
+
+struct pascal_t final : public details::unit_t<double, std::ratio<1, 1>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, pressure_dimension>;
     using _base::_base;
@@ -21,19 +23,7 @@ struct pascal final : public details::unit_t<double, std::ratio<1, 1>, pressure_
     static constexpr std::u8string_view u8_symbol{u8"Pa"};
 };
 
-// Strong type for hectopascal
-struct hectopascal final : public details::unit_t<double, std::ratio<100, 1>, pressure_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<100, 1>, pressure_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"hectopascal"};
-    static constexpr std::string_view symbol{"hPa"};
-    static constexpr std::wstring_view w_symbol{L"hPa"};
-    static constexpr std::u8string_view u8_symbol{u8"hPa"};
-};
-
-// Strong type for kilopascal
-struct kilopascal final : public details::unit_t<double, std::ratio<1000, 1>, pressure_dimension>
+struct kilopascal_t final : public details::unit_t<double, std::ratio<1000, 1>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, pressure_dimension>;
     using _base::_base;
@@ -43,8 +33,17 @@ struct kilopascal final : public details::unit_t<double, std::ratio<1000, 1>, pr
     static constexpr std::u8string_view u8_symbol{u8"kPa"};
 };
 
-// Strong type for megapascal
-struct megapascal final : public details::unit_t<double, std::ratio<1000000, 1>, pressure_dimension>
+struct hectopascal_t final : public details::unit_t<double, std::ratio<100, 1>, pressure_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<100, 1>, pressure_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"hectopascal"};
+    static constexpr std::string_view symbol{"hPa"};
+    static constexpr std::wstring_view w_symbol{L"hPa"};
+    static constexpr std::u8string_view u8_symbol{u8"hPa"};
+};
+
+struct megapascal_t final : public details::unit_t<double, std::ratio<1000000, 1>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, pressure_dimension>;
     using _base::_base;
@@ -54,8 +53,7 @@ struct megapascal final : public details::unit_t<double, std::ratio<1000000, 1>,
     static constexpr std::u8string_view u8_symbol{u8"MPa"};
 };
 
-// Strong type for micropascal
-struct micropascal final : public details::unit_t<double, std::ratio<1, 1000000>, pressure_dimension>
+struct micropascal_t final : public details::unit_t<double, std::ratio<1, 1000000>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, pressure_dimension>;
     using _base::_base;
@@ -65,19 +63,27 @@ struct micropascal final : public details::unit_t<double, std::ratio<1, 1000000>
     static constexpr std::u8string_view u8_symbol{u8"µPa"};
 };
 
-// Strong type for millibar
-struct millibar final : public details::unit_t<double, std::ratio<100, 1>, pressure_dimension>
+struct millipascal_t final : public details::unit_t<double, std::ratio<1, 1000>, pressure_dimension>
 {
-    using _base = details::unit_t<double, std::ratio<100, 1>, pressure_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1000>, pressure_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millibar"};
-    static constexpr std::string_view symbol{"mbar"};
-    static constexpr std::wstring_view w_symbol{L"mbar"};
-    static constexpr std::u8string_view u8_symbol{u8"mbar"};
+    static constexpr std::string_view name{"millipascal"};
+    static constexpr std::string_view symbol{"mPa"};
+    static constexpr std::wstring_view w_symbol{L"mPa"};
+    static constexpr std::u8string_view u8_symbol{u8"mPa"};
 };
 
-// Strong type for bar
-struct bar final : public details::unit_t<double, std::ratio<100000, 1>, pressure_dimension>
+struct nanopascal_t final : public details::unit_t<double, std::ratio<1, 1000000000>, pressure_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<1, 1000000000>, pressure_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"nanopascal"};
+    static constexpr std::string_view symbol{"nPa"};
+    static constexpr std::wstring_view w_symbol{L"nPa"};
+    static constexpr std::u8string_view u8_symbol{u8"nPa"};
+};
+
+struct bar_t final : public details::unit_t<double, std::ratio<100000, 1>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<100000, 1>, pressure_dimension>;
     using _base::_base;
@@ -87,8 +93,7 @@ struct bar final : public details::unit_t<double, std::ratio<100000, 1>, pressur
     static constexpr std::u8string_view u8_symbol{u8"bar"};
 };
 
-// Strong type for atmosphere
-struct atmosphere final : public details::unit_t<double, std::ratio<101325, 1>, pressure_dimension>
+struct atmosphere_t final : public details::unit_t<double, std::ratio<101325, 1>, pressure_dimension>
 {
     using _base = details::unit_t<double, std::ratio<101325, 1>, pressure_dimension>;
     using _base::_base;
@@ -98,15 +103,75 @@ struct atmosphere final : public details::unit_t<double, std::ratio<101325, 1>, 
     static constexpr std::u8string_view u8_symbol{u8"atm"};
 };
 
-// Strong type for psi (pounds per square inch)
-struct psi final : public details::unit_t<double, std::ratio<6894757293, 1000000000>, pressure_dimension>
+struct psi_t final : public details::unit_t<double, std::ratio<6894757, 1000>, pressure_dimension>
 {
-    using _base = details::unit_t<double, std::ratio<6894757293, 1000000000>, pressure_dimension>;
+    using _base = details::unit_t<double, std::ratio<6894757, 1000>, pressure_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"psi"};
     static constexpr std::string_view symbol{"psi"};
     static constexpr std::wstring_view w_symbol{L"psi"};
     static constexpr std::u8string_view u8_symbol{u8"psi"};
+};
+
+// Pressure units
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1>, pressure_dimension>
+{
+    using type = pascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1000, 1>, pressure_dimension>
+{
+    using type = kilopascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<100, 1>, pressure_dimension>
+{
+    using type = hectopascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1000000, 1>, pressure_dimension>
+{
+    using type = megapascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000000>, pressure_dimension>
+{
+    using type = micropascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000>, pressure_dimension>
+{
+    using type = millipascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, pressure_dimension>
+{
+    using type = nanopascal_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<100000, 1>, pressure_dimension>
+{
+    using type = bar_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<101325, 1>, pressure_dimension>
+{
+    using type = atmosphere_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<6894757, 1000>, pressure_dimension>
+{
+    using type = psi_t;
 };
 
 } // PKR_UNITS_NAMESPACE

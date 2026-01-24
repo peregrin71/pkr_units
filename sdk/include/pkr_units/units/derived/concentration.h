@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../impl/namespace_config.h"
-#include "../../impl/unit_impl.h"
-#include "../../impl/decls/concentration_decl.h"
-#include "../../impl/dimension.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/decls/concentration_decl.h>
+#include <pkr_units/impl/dimension.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../unit_impl.h"
-#include "../namespace_config.h"
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/namespace_config.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
@@ -32,9 +32,9 @@ PKR_UNITS_BEGIN_NAMESPACE
     template<typename unit_type, int power_v>
     struct Pow
     {
-        static_assert(details::is_si_unit<unit_type>::value, "Pow requires an si_unit type");
+        static_assert(details::is_pkr_unit<unit_type>::value, "Pow requires an si_unit type");
         
-        using unit_traits = details::is_si_unit<unit_type>;
+        using unit_traits = details::is_pkr_unit<unit_type>;
         using value_type = typename unit_traits::value_type;
         using source_ratio = typename unit_traits::ratio_type;
         static constexpr dimension_t source_dim = unit_traits::value_dimension;
@@ -81,7 +81,7 @@ PKR_UNITS_BEGIN_NAMESPACE
     // Special case: make Pow itself act like a unit for use in si_cast
     // This allows: si_cast<meters, per<Pow<seconds, 2>>>(value)
     template<typename unit_type, int power_v>
-    struct details::is_si_unit<Pow<unit_type, power_v>> : std::true_type
+    struct details::is_pkr_unit<Pow<unit_type, power_v>> : std::true_type
     {
         static constexpr bool value = true;
         using value_type = typename Pow<unit_type, power_v>::value_type;

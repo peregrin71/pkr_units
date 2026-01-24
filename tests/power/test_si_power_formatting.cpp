@@ -16,49 +16,49 @@ class SiPowerFormattingTest : public Test
 
 TEST_F(SiPowerFormattingTest, watt_ascii_formatting)
 {
-    pkr::units::watt W{1000.0};
+    pkr::units::watt_t W{1000.0};
     std::string result = std::format("{}", W);
     ASSERT_EQ(result, "1000 W");
 }
 
 TEST_F(SiPowerFormattingTest, watt_ascii_with_precision)
 {
-    pkr::units::watt W{123.456};
+    pkr::units::watt_t W{123.456};
     std::string result = std::format("{:.2f}", W);
     ASSERT_EQ(result, "123.46 W");
 }
 
 TEST_F(SiPowerFormattingTest, kilowatt_ascii_formatting)
 {
-    pkr::units::kilowatt kW{1.5};
+    pkr::units::kilowatt_t kW{1.5};
     std::string result = std::format("{}", kW);
     ASSERT_EQ(result, "1.5 kW");
 }
 
 TEST_F(SiPowerFormattingTest, megawatt_ascii_formatting)
 {
-    pkr::units::megawatt MW{0.5};
+    pkr::units::megawatt_t MW{0.5};
     std::string result = std::format("{}", MW);
     ASSERT_EQ(result, "0.5 MW");
 }
 
 TEST_F(SiPowerFormattingTest, milliwatt_ascii_formatting)
 {
-    pkr::units::milliwatt mW{500.0};
+    pkr::units::milliwatt_t mW{500.0};
     std::string result = std::format("{}", mW);
     ASSERT_EQ(result, "500 mW");
 }
 
 TEST_F(SiPowerFormattingTest, microwatt_ascii_formatting)
 {
-    pkr::units::microwatt uW{0.5};
+    pkr::units::microwatt_t uW{0.5};
     std::string result = std::format("{}", uW);
     ASSERT_EQ(result, "0.5 uW");
 }
 
 TEST_F(SiPowerFormattingTest, horsepower_ascii_formatting)
 {
-    pkr::units::horsepower hp{1.0};
+    pkr::units::horsepower_t hp{1.0};
     std::string result = std::format("{}", hp);
     ASSERT_EQ(result, "1 hp");
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../impl/decls/length_decl.h"
+#include <pkr_units/impl/decls/length_decl.h>
 #include <pkr_units/impl/namespace_config.h>
 
 PKR_UNITS_BEGIN_NAMESPACE

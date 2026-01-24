@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../impl/namespace_config.h"
-#include "../../impl/unit_impl.h"
-#include "../../impl/decls/time_decl.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/decls/time_decl.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
@@ -59,6 +59,16 @@ struct kilosecond_t final : public details::unit_t<double, std::kilo, time_dimen
     static constexpr std::u8string_view u8_symbol{u8"ks"};
 };
 
+struct hour_t final : public details::unit_t<double, std::ratio<3600, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<3600, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"hour"};
+    static constexpr std::string_view symbol{"h"};
+    static constexpr std::wstring_view w_symbol{L"h"};
+    static constexpr std::u8string_view u8_symbol{u8"h"};
+};
+
 // ============================================================================
 // Most derived unit type specializations for time units
 // ============================================================================
@@ -91,6 +101,12 @@ template<>
 struct details::named_unit_type_t<double, std::kilo, time_dimension>
 {
     using type = kilosecond_t;
+};
+
+template<>
+struct details::named_unit_type_t<double, std::ratio<3600, 1>, time_dimension>
+{
+    using type = hour_t;
 };
 
 }  // namespace PKR_UNITS_NAMESPACE

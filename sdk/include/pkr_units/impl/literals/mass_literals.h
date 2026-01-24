@@ -2,7 +2,7 @@
 
 #include <pkr_units/units/base/mass.h>
 #include <pkr_units/impl/namespace_config.h>
-#include "../../impl/decls/mass_decl.h"
+#include <pkr_units/impl/decls/mass_decl.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "electrical.h"
-#include "../../namespace_config.h"
+#include <pkr_units/impl/namespace_config.h>
 
 namespace si::si_literals
 {

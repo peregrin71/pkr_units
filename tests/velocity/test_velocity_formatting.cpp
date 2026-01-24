@@ -23,7 +23,7 @@ TEST_F(VelocityFormattingTest, meter_per_second_formatting)
 TEST_F(VelocityFormattingTest, kilometer_per_hour_formatting)
 {
     // km/h has ratio 5/18 (1 km/h = 5/18 m/s)
-    pkr::units::kilometer_per_hour v{36.0};
+    pkr::units::kilometer_per_hour_t v{36.0};
     std::string result = std::format("{}", v);
     ASSERT_EQ(result, "36 km/h");
 }
@@ -31,7 +31,7 @@ TEST_F(VelocityFormattingTest, kilometer_per_hour_formatting)
 TEST_F(VelocityFormattingTest, centimeter_per_second_formatting)
 {
     // 100 cm/s at ratio 1/100
-    pkr::units::centimeter_per_second v{100.0};
+    pkr::units::centimeter_per_second_t v{100.0};
     std::string result = std::format("{}", v);
     ASSERT_EQ(result, "100 cm/s");
 }
@@ -53,7 +53,7 @@ TEST_F(VelocityFormattingTest, meter_per_second_with_precision_formatting)
 
 TEST_F(VelocityFormattingTest, kilometer_per_hour_with_precision_formatting)
 {
-    pkr::units::kilometer_per_hour v{100.0};
+    pkr::units::kilometer_per_hour_t v{100.0};
     std::string result = std::format("{:.1f}", v);
     ASSERT_EQ(result, "100.0 km/h");
 }

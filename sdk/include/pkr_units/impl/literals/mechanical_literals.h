@@ -1,7 +1,10 @@
 #pragma once
 
-#include "mechanical.h"
-#include "../../namespace_config.h"
+#include "../units/derived/mechanical/force.h"
+#include "../units/derived/mechanical/pressure.h"
+#include "../units/derived/mechanical/energy.h"
+#include "../units/derived/mechanical/power.h"
+#include <pkr_units/impl/namespace_config.h>
 
 namespace si::si_literals
 {

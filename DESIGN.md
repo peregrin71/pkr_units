@@ -309,8 +309,8 @@ meter(500) + kilometer(1)
 **Decision**: Addition and subtraction only work when **dimensions exactly match**:
 
 ```cpp
-template<si_unit_type T1, si_unit_type T2>
-requires (is_si_unit<T1>::value_dimension == is_si_unit<T2>::value_dimension)
+template<pkr_unit_concept T1, pkr_unit_concept T2>
+requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 ```
 
@@ -321,17 +321,17 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 
 ### 3.3 Free-Function Operators
 
-**Decision**: Implement `operator+`, `operator-`, `operator*`, and `operator/` as free functions (not class methods) that work with any `si_unit_type`.
+**Decision**: Implement `operator+`, `operator-`, `operator*`, and `operator/` as free functions (not class methods) that work with any `pkr_unit_concept`.
 
 **Benefits**:
-- Works seamlessly with strong types (derived from `unit_t`) via the `is_si_unit` trait
+- Works seamlessly with strong types (derived from `unit_t`) via the `is_pkr_unit` trait
 - Enables `meter(5) + kilometer(3)` without explicit conversions
 - Consistent API for all unit combinations
 
 **Implementation**:
 ```cpp
-template<si_unit_type T1, si_unit_type T2>
-requires (is_si_unit<T1>::value_dimension == is_si_unit<T2>::value_dimension)
+template<pkr_unit_concept T1, pkr_unit_concept T2>
+requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept { /* ... */ }
 ```
 
@@ -474,13 +474,13 @@ We write code that evolves from complex, multi-parameter templates toward simple
 
 ## 4. Type Introspection
 
-### 4.1 is_si_unit Trait
+### 4.1 is_pkr_unit Trait
 
 **Decision**: Provide a trait that extracts unit components:
 
 ```cpp
 template<typename T>
-struct is_si_unit
+struct is_pkr_unit
 {
     static constexpr bool value = /* ... */;
     using value_type = type_t;
@@ -490,7 +490,7 @@ struct is_si_unit
 ```
 
 **Specializations**:
-1. **Direct unit_t types**: `is_si_unit<unit_t<type_t, ratio_t, dim_v>>`
+1. **Direct unit_t types**: `is_pkr_unit<unit_t<type_t, ratio_t, dim_v>>`
 2. **Derived strong types**: Uses SFINAE to detect types derived from `unit_t` via `_base`
 
 **Example**:
@@ -501,7 +501,7 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
     using _base::_base;
 };
 
-// is_si_unit<meter> extracts components from meter::_base
+// is_pkr_unit<meter> extracts components from meter::_base
 ```
 
 **Rationale**:
@@ -510,13 +510,13 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
 - Works transparently with both `unit_t<...>` and derived strong types
 - `_base` pattern enables compile-time introspection
 
-### 4.2 si_unit_type Concept
+### 4.2 pkr_unit_concept
 
-**Decision**: Use a concept to constrain templates to only accept SI unit types:
+**Decision**: Use a concept to constrain templates to only accept PKR unit types:
 
 ```cpp
 template<typename T>
-concept si_unit_type = is_si_unit<T>::value;
+concept pkr_unit_concept = is_pkr_unit<T>::value;
 ```
 
 **Rationale**:

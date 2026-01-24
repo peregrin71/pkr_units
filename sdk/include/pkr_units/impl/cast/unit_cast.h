@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../decls/unit_t_decl.h"
-#include "../namespace_config.h"
+#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/namespace_config.h>
 #include <type_traits>
 #include <ratio>
 
@@ -42,7 +42,7 @@ namespace details
     // Concept: two types have the same dimension
     template<typename Target, typename Source>
     concept same_dimension_si_units = 
-        details::is_si_unit<Target>::value_dimension == details::is_si_unit<Source>::value_dimension;
+        details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension;
 }
 
 // Overload 1: For casting between direct unit_t types
@@ -60,11 +60,11 @@ constexpr details::unit_t<target_type_t, target_ratio_t, target_dim_v> unit_cast
 template<typename target_unit_t, typename source_unit_t>
     requires std::is_base_of_v<typename target_unit_t::_base, target_unit_t> &&
              std::is_base_of_v<typename source_unit_t::_base, source_unit_t> &&
-             (details::is_si_unit<target_unit_t>::value_dimension == details::is_si_unit<source_unit_t>::value_dimension)
+             (details::is_pkr_unit<target_unit_t>::value_dimension == details::is_pkr_unit<source_unit_t>::value_dimension)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 {
     using target_base = typename target_unit_t::_base;
-    using target_ratio = typename details::is_si_unit<target_unit_t>::ratio_type;
+    using target_ratio = typename details::is_pkr_unit<target_unit_t>::ratio_type;
     
     // Convert to base unit_t first, then construct the derived type
     auto converted = details::unit_cast_impl<target_ratio>(source);

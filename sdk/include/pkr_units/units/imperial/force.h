@@ -1,8 +1,8 @@
 #pragma once
 
 #include <pkr_units/impl/unit_impl.h>
-#include "../../impl/namespace_config.h"
-#include "../../units/derived/mechanical.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/units/derived/mechanical/force.h>
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
