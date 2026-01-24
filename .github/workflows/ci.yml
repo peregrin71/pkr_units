@@ -74,7 +74,11 @@ jobs:
 
     - name: Install Conan
       run: |
-        pip install conan
+        pip install "conan>=2.0"
+
+    - name: Verify Conan version
+      run: |
+        conan --version
 
     - name: Configure Conan
       run: |
@@ -86,7 +90,7 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} ${{ matrix.cmake_extra_flags }}
+        cmake -S . -B build --toolchain build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_PREFIX_PATH="build" ${{ matrix.cmake_extra_flags }}
 
     - name: Build project
       run: |
