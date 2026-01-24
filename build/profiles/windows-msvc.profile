@@ -5,7 +5,11 @@
 os=Windows
 arch=x86_64
 compiler=msvc
-compiler.version=192
+compiler.version=193
+compiler.runtime=dynamic
 compiler.cppstd=20
+
+[conf]
+tools.cmake.cmaketoolchain:generator="Visual Studio 17 2022"
 
 [buildenv]
