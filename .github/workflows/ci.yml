@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  build-and-test:
+    name: Build and Test (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.build_type }})
+    runs-on: ${{ matrix.os }}
+
+    env:
+      OUTPUT_FOLDER: ${{ matrix.os == 'windows-latest' && (matrix.compiler == 'msvc' && '.msvc_build' || '.clang_build') || (matrix.compiler == 'gcc' && '.gcc_build' || '.clang_build') }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Windows builds
+          - os: windows-latest
+            compiler: msvc
+            build_type: Debug
+          - os: windows-latest
+            compiler: msvc
+            build_type: Release
+          - os: windows-latest
+            compiler: clang
+            build_type: Debug
+          - os: windows-latest
+            compiler: clang
+            build_type: Release
+
+          # Linux builds
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Debug
+          - os: ubuntu-latest
+            compiler: gcc
+            build_type: Release
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Debug
+          - os: ubuntu-latest
+            compiler: clang
+            build_type: Release
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ninja-build
+
+    - name: Ensure Ninja in PATH
+      if: runner.os == 'Linux'
+      run: echo "$(which ninja)" >> $GITHUB_PATH
+
+    - name: Install GCC (Linux)
+      if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'gcc'
+      run: |
+        sudo apt-get install -y gcc-13 g++-13
+
+    - name: Install Clang (Windows)
+      if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
+      run: |
+        # LLVM/Clang is pre-installed on GitHub Windows runners
+
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
+      run: choco install ninja --yes
+
+    - name: Install Clang (Linux)
+      if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
+      run: |
+        # LLVM/Clang is assumed to be pre-installed on GitHub Ubuntu runners
+
+    - name: Install Conan
+      run: |
+        pip install "conan>=2.0"
+
+    - name: Verify Conan version
+      run: |
+        conan --version
+
+    - name: Configure Conan
+      run: |
+        conan profile detect --force
+
+    - name: Install dependencies with Conan
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "gcc" ]; then
+          export CC=gcc-13 CXX=g++-13
+        elif [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "clang" ]; then
+          export CC=clang-16 CXX=clang++-16
+        fi
+        profile_flag=""
+        if [ "${{ matrix.os }}" == "windows-latest" ]; then
+          profile_flag="--profile=build/profiles/windows-${{ matrix.compiler }}.profile"
+        elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
+        fi
+        export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          # For multi-config MSBuild, install dependencies for both Debug and Release
+          conan install build/conanfile.py --build=missing -s build_type=Debug --output-folder=$OUTPUT_FOLDER $profile_flag
+          conan install build/conanfile.py --build=missing -s build_type=Release --output-folder=$OUTPUT_FOLDER $profile_flag
+        else
+          conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
+        fi
+
+    - name: Debug output after Conan
+      shell: bash
+      run: |
+        echo "OUTPUT_FOLDER: $OUTPUT_FOLDER"
+        ls -laR $OUTPUT_FOLDER
+
+    - name: Configure CMake
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          cmake -S . -B $OUTPUT_FOLDER -G "Visual Studio 17 2022" -A x64 -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        else
+          cmake -S . -B $OUTPUT_FOLDER -G Ninja -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        fi
+
+    - name: Build project
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          cmake --build $OUTPUT_FOLDER --config ${{ matrix.build_type }}
+        else
+          cmake --build $OUTPUT_FOLDER
+        fi
+
+    - name: Run tests
+      shell: bash
+      run: |
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          ctest --test-dir $OUTPUT_FOLDER -C ${{ matrix.build_type }} --output-on-failure
+        else
+          ctest --test-dir $OUTPUT_FOLDER --output-on-failure
+        fi

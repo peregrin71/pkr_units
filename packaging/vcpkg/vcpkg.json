@@ -1,0 +1,15 @@
+{
+  "name": "si-units",
+  "version": "1.0.0",
+  "port-version": 0,
+  "description": [
+    "Header-only C++20 SI units library with compile-time dimensional analysis",
+    "Provides type-safe physical quantities with zero runtime overhead"
+  ],
+  "homepage": "https://github.com/peregrin71/pkr_si_units",
+  "documentation": "https://github.com/peregrin71/pkr_si_units/blob/main/DESIGN.md",
+  "license": "MIT",
+  "authors": "Thermo Fisher Scientific",
+  "supports": "!uwp",
+  "dependencies": []
+}

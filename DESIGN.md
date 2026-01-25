@@ -1,0 +1,661 @@
+# SI Units Library - Design Document
+
+## Overview
+
+This document outlines the key design decisions made in the SI Units type-safe library, which provides compile-time dimensional analysis with zero runtime overhead.
+
+---
+
+## Design Philosophy
+
+The SI Units library is built on four core principles:
+
+1. **Type Safety**: Prevent mixing incompatible units at compile-time. Dimensional errors are caught by the type system, not at runtime. A `meter` cannot accidentally be added to a `kilogram`.
+
+2. **Clear Semantic Types**: Provide expressive, domain-specific types that help developers express intent directly in code. Types like `meter_t`, `kilogram_t`, `kilometer_per_hour_t` make unit semantics explicit and self-documenting.
+
+3. **(Close to) Zero-Cost Abstraction**: Minimize runtime overhead. All dimensional checking is compile-time. Unit conversions require calculation (hence "close to" rather than absolute zero), but this calculation is optimized to compile away when possible and runs at machine speed otherwise.
+
+4. **Extensibility**: Enable users to define their own unit types in their own code. The library provides the foundation (templates, traits, operators) so applications can add domain-specific units without modifying the library.
+
+These principles guide all architectural decisions and trade-offs in the library.
+
+---
+
+## 1. Core Type System
+
+### 1.1 Template-Based Dimensional Analysis
+
+**Decision**: Use three template parameters to represent SI units:
+- `type_t`: The underlying numeric type (e.g., `double`, `float`)
+- `ratio_t`: The conversion ratio relative to the base SI unit (e.g., `std::milli` for millimeters)
+- `dimension_t`: A compile-time value representing the physical dimension
+
+**Rationale**:
+- Provides **zero runtime overhead**: dimension checking is completely compile-time
+- Allows implicit conversions between units of the same dimension via ratios
+- Enables type-safe arithmetic on quantities with different scales
+
+**Example**:
+```cpp
+// kilometer: 1000 meters
+unit_t<double, std::kilo, length_dimension>
+
+// millimeter: 0.001 meters  
+unit_t<double, std::milli, length_dimension>
+```
+
+### 1.2 Strong Types via Inheritance
+
+**Decision**: Use struct inheritance with `using _base` to create strong types:
+
+```cpp
+struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, length_dimension>;
+    using _base::_base;  // Inherit constructors
+};
+```
+
+**Rationale**:
+- Strong typing prevents mixing incompatible units at compile-time
+- `_base` typedef enables generic type introspection when needed
+- Inheriting constructors (`using _base::_base`) provides clean initialization
+- Allows derived unit specializations while maintaining a common base
+
+### 1.3 Type Naming Convention: The `_t` Postfix
+
+**Decision**: All strong type struct names use the `_t` postfix (e.g., `meter_t`, `kilogram_t`, `ampere_t`).
+
+```cpp
+struct meter_t final : public unit_t<double, std::ratio<1, 1>, length_dimension> { /* ... */ };
+struct kilogram_t final : public unit_t<double, std::ratio<1, 1>, mass_dimension> { /* ... */ };
+struct second_t final : public unit_t<double, std::ratio<1, 1>, time_dimension> { /* ... */ };
+struct ampere_t final : public unit_t<double, std::ratio<1, 1>, current_dimension> { /* ... */ };
+```
+
+**Rationale**:
+- **Consistent naming discipline**: Applies the same naming convention as template aliases (`length_unit_t`, `mass_unit_t`), reinforcing the pattern that `_t` and `_unit_t` denote concrete strong types
+- **C++ naming conventions alignment**: Follows the common C++ convention of using `_t` to denote type aliases and strong types (inherited from POSIX where applicable)
+- **Prevents naming collisions**: Ensures that non-suffixed names (e.g., `meter`, `kilogram`) are available for future use without conflicts with the strong type definitions
+
+**POSIX Compatibility Considerations**:
+
+This library prioritizes **type safety and clarity over strict POSIX compatibility**. While POSIX defines several `_t` types (e.g., `time_t`, `pid_t`, `size_t`), the SI units library consciously chooses to use the `_t` postfix for all strong types.
+
+**Known POSIX Conflicts Avoided**:
+- ✗ `time_t` conflict → Resolved by using `second_t` instead of `time_t` or `second`
+- ✗ `pid_t` conflict → Not applicable (no "process ID" unit)
+- ✗ `size_t` conflict → Not applicable (no "size" unit in SI)
+
+**Deliberate Trade-off**:
+The decision to use `_t` universally, rather than conditionally avoid POSIX conflicts, prioritizes:
+1. **Internal consistency**: All strong types follow the same naming pattern
+2. **Clarity**: The `_t` suffix immediately indicates "this is a strong type"
+3. **Forward compatibility**: Prevents future naming conflicts if new POSIX types are introduced
+4. **Code readability**: Type definitions are unmistakably identified as strong types
+
+**Usage Pattern**:
+```cpp
+// Recommended: Use the _t suffix directly
+pkr::units::meter_t distance{100.0};
+pkr::units::kilogram_t mass{75.0};
+pkr::units::second_t time_elapsed{30.0};
+
+// Type aliases (optional, for backward compatibility where needed)
+using meter = meter_t;  // If desired for specific contexts
+```
+
+### 1.4 The 8-Dimensional SI System: Adding Angle as an Explicit Dimension
+
+**Decision**: Extend the standard 7 SI base units with an 8th dimension for plane angle (radians).
+
+**Standard SI Base Units (7)**:
+1. Length [L] - meter (m)
+2. Mass [M] - kilogram (kg)  
+3. Time [T] - second (s)
+4. Electric Current [I] - ampere (A)
+5. Temperature [Θₖ] - kelvin (K)
+6. Amount of Substance [N] - mole (mol)
+7. Luminous Intensity [J] - candela (cd)
+
+**Extended System (8)**:
+8. Plane Angle [Θ] - radian (rad) ← **Non-standard addition**
+
+**Rationale for Adding Angle**:
+
+While ISO 80000-3 officially treats radians as dimensionless supplementary units, treating angle as an explicit dimension provides significant practical benefits for type-safe dimensional analysis in rotational mechanics:
+
+**1. Type Safety in Rotational Code**
+```cpp
+// With angle dimension: compile-time enforcement
+radian_t angular_velocity = meter_per_second_t(5) / meter_t(2);  ✓ Valid
+// Dimension check: [Θ·T⁻¹] = [L/T] / [L] ✓
+
+// Catches this error at compile-time:
+meter_per_second_t linear_vel = radian_t(1);  ✗ Compile error
+```
+
+**2. Dimensional Consistency in Rotational Dynamics**
+```cpp
+// Torque: Force × Radius (angular dimension cancels out correctly)
+// τ [M·L²·T⁻²] = F [M·L·T⁻²] × r [L]
+newton_meter_t torque = newton_t(100) * meter_t(0.5);  ✓
+
+// Angular velocity and linear velocity remain distinct types
+radian_per_second_t omega = /* ... */;
+meter_per_second_t v = /* ... */;
+// Cannot accidentally mix them
+```
+
+**3. Common Engineering Applications**
+- Robotics: servo angles, joint rotations with dimensional validation
+- Mechanics: moment of inertia [M·L²], angular momentum [M·L²·Θ·T⁻¹]
+- Navigation: heading, pitch, roll tracking
+- Control systems: angle feedback with type-safe PID implementations
+- Physics simulations: Euler angles with proper dimensional analysis
+
+**4. Standards Alignment**
+This extension does not violate SI principles but rather implements SI within the constraints of compile-time type systems. The radians unit is defined as `dimensionless` by SI, but treating it as a separate compile-time dimension enables safer scientific computing without changing the underlying physics.
+
+**Design Trade-off**:
+- ✓ Improved type safety and error detection
+- ✓ Enables rotational mechanics without dimensional ambiguity
+- ✓ Catches common errors (e.g., confusing angular and linear velocity)
+- ✗ Deviates from strict SI definition (but only for compile-time analysis)
+- ✗ Requires explicit `radian_t` where SI would use dimensionless
+
+This is a pragmatic extension for compile-time dimensional checking, not a redefinition of physics.
+
+---
+
+## 2. Unit Type Identification
+
+### 2.1 Template Specialization over Constexpr If
+
+**Decision**: Use template specialization with `named_unit_type_t<type_t, ratio_t, dimension_t>` for mapping unit components to their strong type classes.
+
+**Implementation**:
+
+The `named_unit_type_t` trait maps a triplet of (type, ratio, dimension) to the most specific strong type available:
+
+```cpp
+// Forward declaration
+template<typename type_t, typename ratio_t, dimension_t dim_v>
+struct named_unit_type_t;
+
+// Default: returns base unit_t<> if no specialization exists
+template<typename type_t, typename ratio_t, dimension_t dim_v>
+struct named_unit_type_t
+{
+    using type = unit_t<type_t, ratio_t, dim_v>;
+};
+
+// Specialization for meter (length, ratio<1,1>)
+template<>
+struct named_unit_type_t<double, std::ratio<1, 1>, length_dimension>
+{
+    using type = meter_t;
+};
+
+// Specialization for kilometer (length, ratio<1000,1>)
+template<>
+struct named_unit_type_t<double, std::kilo, length_dimension>
+{
+    using type = kilometer_t;
+};
+// ... more specializations
+```
+
+Each specialization declares a mapping from a specific (type, ratio, dimension) combination to its corresponding strong type class (`meter_t`, `kilometer_t`, etc.). When multiplication/division produces a new unit, we query this trait to get the most derived strong type instead of returning the generic `unit_t<>`.
+
+**Why This Approach**:
+
+1. **Extensibility**: Adding new unit types only requires adding new specializations—no changes to arithmetic operators or existing logic. Want to add `mile_t`? Just add:
+   ```cpp
+   template<>
+   struct named_unit_type_t<double, std::ratio<1609344, 1000>, length_dimension>
+   {
+       using type = mile_t;
+   };
+   ```
+
+2. **Type Safety & Clarity**: Results of operations return the most specific strong type known to the system:
+   ```cpp
+   meter_t(5) / second_t(2)  // → meter_per_second_t (not generic unit_t<...>)
+   ```
+   This preserves semantic meaning—the result is semantically a velocity, not just "length divided by time."
+
+3. **Future String Formatting**: When implementing `std::formatter`, we can use `named_unit_type_t` to get the canonical name:
+   ```cpp
+   template<typename T>
+   struct std::formatter<T> {
+       auto format(const T& unit, auto& ctx) {
+           using derived = named_unit_type_t<typename T::value_type, 
+                                                   typename T::ratio_type,
+                                                   T::dimension::value>::type;
+           return std::format_to(ctx.out(), "{} {}", unit.value(), derived::symbol);
+           // Output: "5 m", "100 km", "2.5 m/s"
+       }
+   };
+   ```
+   The trait gives us direct access to the string symbol and metadata of the result type.
+
+**Rationale**:
+- **Faster compilation**: Direct template matching vs. evaluating multiple conditions
+- **Better extensibility**: Adding derived units only requires new specializations, not modifying conditional logic
+- **Cleaner code**: Each dimension maps to exactly one specialization
+- **LTO friendly**: Compiler can optimize specializations independently
+
+---
+
+## 3. Arithmetic Operations
+
+### 3.1 Addition and Subtraction Return Type (Option 2: LHS Type)
+
+**Decision**: Addition and subtraction operations return results in the **same unit type as the left-hand side (LHS) operand**, converting the right-hand side as needed:
+
+**Example**:
+```cpp
+meter(500) + kilometer(1)    // → meter(1500)      [LHS type: meter]
+kilometer(1) + meter(500)    // → kilometer(1.5)   [LHS type: kilometer]
+millimeter(500) + meter(1)   // → millimeter(1500) [LHS type: millimeter]
+meter(1500) - kilometer(1)   // → meter(500)       [LHS type: meter]
+kilometer(2) - meter(500)    // → kilometer(1.5)   [LHS type: kilometer]
+```
+
+**Rationale**:
+- **Predictable return type**: Return type is always determined by LHS operand type
+- **User intent preservation**: The programmer's choice of LHS unit is honored in the result
+- **Intuitive arithmetic**: Matches mathematical expectations (left-hand side "wins")
+- **Eliminates design inconsistency**: Previously, same-ratio operations returned input type, but different-ratio operations returned canonical type—creating unpredictable behavior
+
+**Design Alternatives Considered**:
+
+1. **Option 1 - Always Canonical**: Return canonical SI unit (`meter`, `kilogram`, etc.)
+   - ✓ Normalizes all results
+   - ✗ Loses user's original unit choice
+   - ✗ Unexpected for users coming from physics libraries
+
+2. **Option 2 - LHS Type (Selected)**: Return LHS operand type
+   - ✓ Predictable and intuitive
+   - ✓ Honors user intent
+   - ✓ Consistent across same-ratio and different-ratio cases
+   - ✗ May return non-standard SI units
+
+3. **Option 3 - Document the Behavior**: Keep mixed behavior, document clearly
+   - ✓ Minimal code changes
+   - ✗ Confusing and error-prone for users
+   - ✗ Violates principle of least surprise
+
+**Optimization**: When both operands have **identical ratios**, the operation is optimized:
+```cpp
+// Optimized path: both are kilometers (ratio<1000,1>)
+kilometer(5) + kilometer(3)  // → kilometer(8)
+// No conversion to canonical needed, just add values directly
+```
+
+When ratios differ:
+```cpp
+// Non-optimized path: meter (ratio<1,1>) + kilometer (ratio<1000,1>)
+meter(500) + kilometer(1)
+// 1. Convert both to canonical: 500m + 1000m = 1500m
+// 2. Convert result back to LHS ratio: 1500m → 1500 meters
+// 3. Return: meter(1500)
+```
+
+### 3.2 Dimension Matching Constraint
+
+**Decision**: Addition and subtraction only work when **dimensions exactly match**:
+
+```cpp
+template<pkr_unit_concept T1, pkr_unit_concept T2>
+requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+```
+
+**Rationale**:
+- **Compile-time verification**: Prevents nonsensical operations like `meters + kilograms`
+- **Dimensions don't add**: Only quantities with identical dimensions can be combined
+- **Early error detection**: Invalid operations fail at compile-time with clear messages
+
+### 3.3 Free-Function Operators
+
+**Decision**: Implement `operator+`, `operator-`, `operator*`, and `operator/` as free functions (not class methods) that work with any `pkr_unit_concept`.
+
+**Benefits**:
+- Works seamlessly with strong types (derived from `unit_t`) via the `is_pkr_unit` trait
+- Enables `meter(5) + kilometer(3)` without explicit conversions
+- Consistent API for all unit combinations
+
+**Implementation**:
+```cpp
+template<pkr_unit_concept T1, pkr_unit_concept T2>
+requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept { /* ... */ }
+```
+
+### 3.4 Multiplication and Division
+
+**Decision**: Allow multiplication and division of any two si_unit types with **dimension combination**:
+- **Multiplication**: Dimensions add (exponents add)
+- **Division**: Dimensions subtract (exponents subtract)
+- **Ratios**: Combined using `std::ratio_multiply` and `std::ratio_divide`
+
+**Example**:
+```cpp
+meter(2) * second(3)  // → unit_t<..., length:1, time:1> with value 6
+meter(5) / second(2)  // → unit_t<..., length:1, time:-1> with value 2.5
+```
+
+**Rationale**:
+- **No dimension matching required**: Unlike addition/subtraction
+- **Precise ratio arithmetic**: Using `std::ratio` for exact calculations
+- **Type-safe dimensional analysis**: Result dimensions computed at compile-time
+
+### 3.5 Arithmetic Helper Functions and Compile-Time Optimizations
+
+**Decision**: Factor arithmetic into standalone functions templated **only on value type and ratios**, not on unit types, with compile-time optimization for special cases:
+
+```cpp
+// Optimized for identical ratios at compile-time
+template<typename type_t, typename ratio_t1, typename ratio_t2>
+constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
+{
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        // Same ratio: no conversion needed
+        return val1 + val2;
+    }
+    else
+    {
+        // Different ratios: convert to canonical, add, convert back
+        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical1 + canonical2;
+    }
+}
+
+template<typename type_t>
+constexpr type_t multiply_values(type_t val1, type_t val2) noexcept;
+```
+
+**Optimization Details**:
+
+1. **Ratio Identity Detection (Multiply/Divide)**:
+   ```cpp
+   // When either operand has ratio<1,1>, avoid std::ratio_multiply/divide
+   std::conditional_t<std::is_same_v<ratio1, std::ratio<1, 1>>, 
+                      ratio2,    // Identity: 1 * X = X
+                      std::conditional_t<std::is_same_v<ratio2, std::ratio<1, 1>>,
+                                         ratio1,  // Identity: X * 1 = X
+                                         std::ratio_multiply<ratio1, ratio2>>>
+   ```
+
+2. **Same-Ratio Fast Path (Add/Subtract)**:
+   ```cpp
+   if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+       return val1 + val2;  // Skip all conversions
+   ```
+
+**Rationale**:
+- **Smaller binary size**: The actual arithmetic is instantiated once per value type (e.g., one for `double`), 
+  not once per unit-type pair (could be thousands of instantiations)
+- **Better compile-time optimization**: Using `if constexpr` allows the compiler to eliminate unused branches entirely
+- **Zero runtime overhead**: Optimized paths compile to identical machine code as if written directly
+- **Cleaner separation of concerns**: Type checking in operators, computation in helpers
+- **Easier to profile/optimize**: Arithmetic logic is isolated and simple
+
+**Design Trade-off**:
+```
+// Without factoring: 
+operator+(meter, kilometer) → specialized implementation
+operator+(meter, millimeter) → another specialized implementation
+// ... one instantiation per unit pair
+
+// With factoring and optimization:
+operator+(meter, kilometer) → delegates to add_canonical<double, ratio<1,1>, ratio<1000,1>>
+operator+(meter, millimeter) → delegates to add_canonical<double, ratio<1,1>, ratio<1,1000>>
+// ... one add_canonical per value type, shared across all unit pairs
+// ... same-ratio branch compiled away for identical ratio cases
+```
+
+**Compile-Time Decision Tree** (Demonstrated in Tests):
+- **Addition/Subtraction**: If both operands have identical ratios → skip conversion; else → convert to canonical, operate, convert back to LHS ratio
+- **Multiplication**: If either operand has ratio<1,1> → use the other ratio directly; else → call std::ratio_multiply
+- **Division**: If both operands have same ratio → result ratio is <1,1>; if denominator is <1,1> → result ratio is numerator ratio; else → call std::ratio_divide
+
+### 3.6 Compiler-Optimizable Code Structure: Simplifying Complex Templates for Compiler Analysis
+
+**Core Insight**: Code structure should move toward forms that compilers can analyze and optimize effectively.
+
+**The Pattern**:
+
+We write code that evolves from complex, multi-parameter templates toward simpler, more focused templates. The compiler then recognizes and optimizes these simpler patterns—reducing code size, improving performance, and achieving zero-cost abstraction.
+
+**What the Compiler Sees**:
+
+1. **Complex template initially**:
+   ```cpp
+   template<typename target_ratio_t, typename type_t, typename source_ratio_t, dimension_t dim_v>
+   auto unit_cast_impl(...) {
+       // Multiple type parameters make compiler analysis difficult
+       type_t conversion_factor = complex_calculation_involving_multiple_types();
+   }
+   ```
+
+2. **Compiler discovers a simpler core**:
+   ```cpp
+   template<typename type_t>
+   constexpr type_t compute_conversion_factor(long long src_num, long long src_den,
+                                              long long tgt_num, long long tgt_den) noexcept
+   {
+       return (static_cast<type_t>(src_num) * tgt_den) / 
+              (static_cast<type_t>(src_den) * tgt_num);
+   }
+   ```
+
+3. **Compiler optimizes the simpler version**:
+   - One instantiation per value type (not per ratio pair)
+   - Constants fold during compilation
+   - Function inlines away in optimized builds
+   - Reused across all unit conversion sites
+
+**Design Principle**: Structure code to expose the simpler patterns that compilers are already looking for. By explicitly extracting `compute_conversion_factor<type_t>`, we:
+
+- **Help the compiler's optimizer recognize the intent**: Simple template + constant parameters = obvious optimization target
+- **Enable code reuse across multiple contexts**: All ratio pairs share the same `compute_conversion_factor<type_t>` instantiation
+- **Reduce the optimizer's search space**: Simpler templates are easier to reason about than complex ones
+- **Achieve better inlining decisions**: Focused, simple functions inline more reliably
+
+**Result**: The compiler can apply its standard optimization passes (constant folding, inlining, dead code elimination) more effectively on simpler templates than on complex ones.
+
+---
+
+## 4. Type Introspection
+
+### 4.1 is_pkr_unit Trait
+
+**Decision**: Provide a trait that extracts unit components:
+
+```cpp
+template<typename T>
+struct is_pkr_unit
+{
+    static constexpr bool value = /* ... */;
+    using value_type = type_t;
+    using ratio_type = ratio_t;
+    static constexpr dimension_t value_dimension = dim_v;
+};
+```
+
+**Specializations**:
+1. **Direct unit_t types**: `is_pkr_unit<unit_t<type_t, ratio_t, dim_v>>`
+2. **Derived strong types**: Uses SFINAE to detect types derived from `unit_t` via `_base`
+
+**Example**:
+```cpp
+struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
+{
+    using _base = unit_t<double, std::ratio<1, 1>, length_dimension>;
+    using _base::_base;
+};
+
+// is_pkr_unit<meter> extracts components from meter::_base
+```
+
+**Rationale**:
+- Enables generic code to work with any unit type (including strong types)
+- Allows extraction of dimension for dispatch (via template specialization)
+- Works transparently with both `unit_t<...>` and derived strong types
+- `_base` pattern enables compile-time introspection
+
+### 4.2 pkr_unit_concept
+
+**Decision**: Use a concept to constrain templates to only accept PKR unit types:
+
+```cpp
+template<typename T>
+concept pkr_unit_concept = is_pkr_unit<T>::value;
+```
+
+**Rationale**:
+- Provides clear semantic intent in function signatures
+- Better error messages when non-unit types are passed
+- Enables overload resolution for unit-specific operations
+
+---
+
+## 5. Multiplication and Division
+
+**Design Note**: The existing implementation in `unit_t` class template maintains dimension combination:
+- **Multiplication**: Dimensions add (e.g., meter × second = meter·second)
+- **Division**: Dimensions subtract (e.g., meter ÷ second = meter/second)
+- **Ratios**: Combined using `std::ratio_multiply` and `std::ratio_divide`
+
+These operations preserve the full precision of rational arithmetic.
+
+---
+
+## 6. Zero-Cost Abstraction Principles
+
+The design ensures:
+
+1. **No runtime overhead**: All unit checking happens at compile-time
+2. **Minimal code bloat**: Arithmetic factoring reduces instantiation count
+3. **Inline-friendly**: Small functions allow aggressive inlining
+4. **Type erasure opportunity**: Non-templated functions can be called through function pointers if needed
+
+---
+
+## 7. Future Extensibility
+
+### Adding Derived Units
+
+Add new specializations to `named_unit_type_t`:
+```cpp
+template<>
+struct named_unit_type_t<double, std::ratio<1, 1>, force_dimension>
+{
+    using type = newton_t;  // Strong type for newton (force unit)
+};
+```
+
+### Adding Derived Dimensions
+
+Define new dimension constants and specializations without modifying existing logic.
+
+### Adding New Value Types
+
+Arithmetic helpers automatically support new types (e.g., `float`, `long double`, custom scalar types).
+
+---
+
+## 8. Imperial and Non-SI Units: Design Philosophy
+
+### 8.1 SI-First Architecture
+
+**Decision**: SI (Système International d'Unités) units are the default and primary focus. Imperial and non-SI units are **deliberately excluded from the default includes** to encourage SI-based business logic.
+
+**Rationale**:
+- **SI as the standard**: The library enforces SI as the canonical system for scientific and engineering calculations
+- **Conscious choice required**: Using imperial units requires explicit inclusion (`#include <pkr_units/imperial.h>`) or (`#include <pkr_units/imperial_literals.h>`), making it a deliberate decision
+- **Prevents accidental mixing**: Developers cannot accidentally mix SI and imperial units without conscious intent
+- **Promotes best practices**: Business logic and scientific calculations should use SI; imperial/custom units belong in UI/presentation layers only
+
+### 8.2 When to Use Imperial Units
+
+**Appropriate use cases** (UI and presentation layer only):
+```cpp
+// ✓ GOOD: Display layer converting SI to imperial for user interface
+double km = distance_in_meters.value() / 1000.0;
+double miles = km * 0.621371;  // Convert to miles for display
+ui::display_distance(miles);  // Show in miles to user
+
+// ✓ GOOD: Input conversion - user enters imperial, convert to SI
+double user_input_pounds = get_user_weight_input();
+si::kilogram weight{user_input_pounds * 0.453592};  // Convert to kg
+calculate_force(weight);  // Use SI internally
+```
+
+**Inappropriate use cases** (business logic should always use SI):
+```cpp
+// ✗ BAD: Using imperial in calculations
+si::imperial::pound weight{150.0};
+calculate_nutritional_requirements(weight);  // Wrong: use kg instead
+
+// ✗ BAD: Mixing SI and imperial in business logic
+auto speed_mph = 60.0;
+auto distance_km = 100.0;
+auto time = distance_km / (speed_mph * 1.60934);  // Confusing and error-prone
+```
+
+### 8.3 Include Organization
+
+**Default (SI-focused)**:
+```cpp
+#include <pkr_units/si.h>                    // All 7 SI base units + casting
+#include <pkr_units/si_literals.h>           // SI unit literal operators
+```
+
+**With Imperial Support**:
+```cpp
+#include <pkr_units/si.h>                    // SI units
+#include <pkr_units/imperial.h>              // Imperial units (conscious choice)
+#include <pkr_units/imperial_literals.h>     // Imperial literal operators
+```
+
+**The barrier to entry** (explicit include requirement) serves as a visual reminder that you're leaving the SI standard and entering a domain that may have compatibility issues or ambiguity.
+
+### 8.4 Design Trade-off
+
+| Aspect | Benefit | Cost |
+|--------|---------|------|
+| Imperial excluded by default | Encourages SI usage, prevents accidents | Requires extra include for imperial |
+| Explicit inclusion required | Clear intent, auditable in code review | Slightly more typing |
+| Separate literal headers | Modular, can choose features à la carte | More headers to manage |
+| SI as primary standard | Standards compliance, scientific rigor | Less convenient for legacy systems |
+
+---
+
+## 9. Summary of Trade-offs
+
+| Decision | Benefits | Trade-offs |
+|----------|----------|-----------|
+| Template specialization for dimension mapping | Faster compilation, extensibility | More boilerplate code |
+| LHS-type returns for addition/subtraction | Intuitive, predictable, honors user intent | May return non-canonical units |
+| Compile-time ratio optimization | Zero runtime overhead, smaller binaries | Slightly more complex implementation |
+| Dimension matching only | Type safety | Cannot combine different physical quantities |
+| Arithmetic factoring | Smaller binaries, better optimization | Additional indirection layer |
+| Strong types via inheritance | Type safety, readability | Requires explicit strong type declarations |
+| SI-first, imperial opt-in | Encourages best practices, prevents mistakes | Requires conscious choice for imperial |
+
+---
+
+## References
+
+- [C++20 Concepts](https://en.cppreference.com/w/cpp/language/constraints)
+- [std::ratio](https://en.cppreference.com/w/cpp/numeric/ratio)
+- [Template Specialization](https://en.cppreference.com/w/cpp/language/template_specialization)
+- [SI System](https://www.bipm.org/en/measurement-units/si-system)
+
