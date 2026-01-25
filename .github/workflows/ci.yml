@@ -104,7 +104,13 @@ jobs:
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          # For multi-config MSBuild, install dependencies for both Debug and Release
+          conan install build/conanfile.py --build=missing -s build_type=Debug --output-folder=$OUTPUT_FOLDER $profile_flag
+          conan install build/conanfile.py --build=missing -s build_type=Release --output-folder=$OUTPUT_FOLDER $profile_flag
+        else
+          conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
+        fi
 
     - name: Debug output after Conan
       shell: bash
@@ -124,7 +130,11 @@ jobs:
     - name: Build project
       shell: bash
       run: |
-        cmake --build $OUTPUT_FOLDER
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          cmake --build $OUTPUT_FOLDER --config ${{ matrix.build_type }}
+        else
+          cmake --build $OUTPUT_FOLDER
+        fi
 
     - name: Run tests
       shell: bash
