@@ -27,11 +27,11 @@ jobs:
           - os: windows-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-G "Visual Studio 17 2022" -T ClangCL -A x64'
+            cmake_extra_flags: ''
           - os: windows-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-G "Visual Studio 17 2022" -T ClangCL -A x64'
+            cmake_extra_flags: ''
 
           # Linux builds
           - os: ubuntu-latest
@@ -69,8 +69,7 @@ jobs:
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
       run: |
-        choco install llvm --version=17.0.1 --yes
-        echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+        # LLVM/Clang is assumed to be pre-installed on GitHub Windows runners
 
     - name: Install Ninja (Windows)
       if: runner.os == 'Windows'
@@ -79,10 +78,7 @@ jobs:
     - name: Install Clang (Linux)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
       run: |
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
-        sudo apt-get update
-        sudo apt-get install -y clang-16 lld-16
+        # LLVM/Clang is assumed to be pre-installed on GitHub Ubuntu runners
 
     - name: Install Conan
       run: |
@@ -114,7 +110,13 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake -S . -B build --toolchain build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_CXX_STANDARD=20 -DCMAKE_CXX_STANDARD_REQUIRED=ON -DCMAKE_PREFIX_PATH="build" ${{ matrix.cmake_extra_flags }}
+        cmake -S . -B build \
+          --toolchain build/generators/conan_toolchain.cmake \
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+          -DCMAKE_CXX_STANDARD=20 \
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON \
+          -DCMAKE_PREFIX_PATH="build" \
+          ${{ matrix.cmake_extra_flags }}
 
     - name: Build project
       run: |
