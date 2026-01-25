@@ -106,7 +106,7 @@ jobs:
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build --toolchain=cmake $profile_flag
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
 
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
