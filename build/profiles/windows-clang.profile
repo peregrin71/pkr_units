@@ -6,6 +6,7 @@ os=Windows
 arch=x86_64
 compiler=clang
 compiler.version=17
+compiler.libcxx=libc++
 compiler.cppstd=20
 
 [conf]
