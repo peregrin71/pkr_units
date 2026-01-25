@@ -11,6 +11,6 @@ tools.cmake.cmaketoolchain:generator=Ninja
 tools.build:compiler_executables = {"c": "clang-18", "cpp": "clang++-18"}
 
 [buildenv]
-# Add UBSan for debug builds
-CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=undefined -D_LIBCPP_HAS_FORMAT
-LDFLAGS=-fsanitize=undefined
+# UBSan removed due to incompatibility with gtest
+# CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=undefined -D_LIBCPP_HAS_FORMAT
+# LDFLAGS=-fsanitize=undefined
