@@ -115,7 +115,7 @@ jobs:
     - name: Configure CMake
       shell: bash
       run: |
-        cmake -S . -B $OUTPUT_FOLDER -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        cmake -S . -B $OUTPUT_FOLDER -G Ninja -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build project
       shell: bash
