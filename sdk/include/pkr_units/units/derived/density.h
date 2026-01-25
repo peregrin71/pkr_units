@@ -8,10 +8,6 @@
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
-// Density quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
-
 // Density units (mass per volume)
 
 // Base unit: kilogram per cubic meter (kg/m³)

@@ -8,10 +8,6 @@
 PKR_UNITS_BEGIN_NAMESPACE
 {
 
-// Molar concentration quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using molar_concentration_unit_t = details::unit_t<type_t, ratio_t, molar_concentration_v>;
-
 // Molar concentration units (amount of substance per volume)
 
 // Base unit: mole per cubic meter (mol/m³)
