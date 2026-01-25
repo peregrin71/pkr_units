@@ -40,7 +40,7 @@ def install(project_root: Path, build_path: Path, configuration: str, compiler: 
             "GCC builds work best on Linux. Use MSVC or Clang on Windows instead."
         )
     
-    conanfile = Path(project_root) / "packaging" / "conan" / "conanfile.py"
+    conanfile = Path(project_root) / "build" / "conanfile.py"
     
     if not conanfile.exists():
         raise BuildException(f"Conanfile not found at: {conanfile}")

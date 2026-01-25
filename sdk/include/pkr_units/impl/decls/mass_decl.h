@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ratio>
-#include "dimension.h"
+#include <pkr_units/impl/dimension.h>
 #include "unit_t_decl.h"
 
 namespace PKR_UNITS_NAMESPACE

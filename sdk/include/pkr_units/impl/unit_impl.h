@@ -136,7 +136,7 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
         .angle = dim1.angle + dim2.angle};
     
     using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
-    return result_type{details::multiply_values(lhs.value(), rhs.value())};
+    return result_type(details::multiply_values(lhs.value(), rhs.value()));
 }
 
 // Division operator
@@ -170,7 +170,7 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
         .angle = dim1.angle - dim2.angle};
     
     using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
-    return result_type{details::divide_values(lhs.value(), rhs.value())};
+    return result_type(details::divide_values(lhs.value(), rhs.value()));
 }
 
 // Free function scalar multiplication (scalar * unit) - returns the most derived type
@@ -183,7 +183,7 @@ constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
     
     using result_type = typename details::named_unit_type_t<value_type, ratio_type, dim>::type;
-    return result_type{details::multiply_values(scalar, unit.value())};
+    return result_type(details::multiply_values(scalar, unit.value()));
 }
 
 // Free function scalar division (scalar / unit) - returns the most derived type of 1/unit
@@ -210,7 +210,7 @@ constexpr auto operator/(const ScalarType& scalar, const T& unit)
     using inverted_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
     
     using result_type = details::unit_t<value_type, inverted_ratio, inverted_dim>;
-    return result_type{details::divide_values(scalar, unit.value())};
+    return result_type(details::divide_values(scalar, unit.value()));
 }
 
 // Comparison operators

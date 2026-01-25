@@ -1,12 +1,18 @@
 """
-Conan v1 Package Recipe for SI Units Library
+Conan Package Recipe for SI Units Library
 
 Header-only C++20 SI units library with compile-time dimensional analysis.
-Supports Conan v1.x (legacy)
+
+For version-specific implementations, see:
+- conanfile_v2.py: Conan v2.0+ (primary/recommended)
+- conanfile_v1.py: Conan v1.x (legacy support)
+
+This uses Conan v2 implementation.
 """
 
 import os
-from conans import ConanFile
+from conan import ConanFile
+from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
 
 
 def _read_version():
@@ -28,7 +34,7 @@ class SiUnitsConan(ConanFile):
     homepage = "https://github.com/peregrin71/pkr_si_units"
     
     settings = "os", "compiler", "build_type", "arch"
-    generators = "cmake"
+    generators = []
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -38,10 +44,35 @@ class SiUnitsConan(ConanFile):
         "fPIC": True,
     }
 
-    def requirements(self):
-        """Test dependencies - optional for consumers"""
-        if self.options.get_safe("build_testing"):
-            self.requires("gtest/1.8.1")
+    def configure(self):
+        if self.settings.compiler == "gcc":
+            self.settings.compiler.libcxx = "libstdc++11"
+
+    def layout(self):
+        # Output generators to the build directory
+        # Use compiler-specific build folder if specified, otherwise default to .msvc_build
+        # The build folder can be set via CONAN_BUILD_FOLDER environment variable
+        import os
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        
+        # Check if build folder is specified via environment or use default
+        build_folder = os.environ.get('CONAN_BUILD_FOLDER', '.msvc_build')
+        generators_path = os.path.join(project_root, build_folder, "generators")
+        self.folders.generators = generators_path
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+
+    def test(self):
+        cmake = CMake(self)
+        cmake.test()
 
     def package(self):
         """Package the header-only library"""
@@ -57,4 +88,8 @@ class SiUnitsConan(ConanFile):
         self.cpp_info.libdirs = []
         
         # C++20 requirement
+        self.cpp_info.cppstdver = "20"
         self.cpp_info.cppstd = "20"
+
+
+

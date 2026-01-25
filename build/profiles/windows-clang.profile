@@ -13,4 +13,4 @@ tools.cmake.cmaketoolchain:generator=Ninja
 
 [buildenv]
 CC=clang
-CXX=clang
+CXX=clang++

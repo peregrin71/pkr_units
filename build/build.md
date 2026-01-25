@@ -136,7 +136,6 @@ Each compiler uses a specific Conan profile:
 ```
 build/profiles/windows-msvc.profile   # Visual Studio / MSVC
 build/profiles/windows-clang.profile  # LLVM Clang
-build/profiles/windows-gcc.profile    # GNU Compiler Collection
 ```
 
 **Note**: Profiles are currently Windows-specific. Future profiles for other platforms:

@@ -14,6 +14,72 @@ PKR_UNITS_DETAILS_BEGIN_NAMESPACE
 template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 struct named_unit_type_t;
 
+// ============================================================================
+// Helper: convert a value from one ratio to another
+template<typename type_t, typename ratio_from, typename ratio_to>
+constexpr type_t convert_ratio_to(type_t value) noexcept
+{
+    using conversion = std::ratio_divide<ratio_from, ratio_to>;
+    return (value / static_cast<type_t>(conversion::den)) * 
+           static_cast<type_t>(conversion::num);
+}
+
+// Helper: add two values with different ratios, result in canonical ratio (1/1)
+template<typename type_t, typename ratio_t1, typename ratio_t2>
+constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
+{
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        return val1 + val2;
+    }
+    else
+    {
+        // Convert both to canonical ratio (1/1) and add
+        type_t canonical_val1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical_val2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical_val1 + canonical_val2;
+    }
+}
+
+// Helper: subtract two values with different ratios, result in canonical ratio (1/1)
+template<typename type_t, typename ratio_t1, typename ratio_t2>
+constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
+{
+    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
+    {
+        return val1 - val2;
+    }
+    else
+    {
+        // Convert both to canonical ratio (1/1) and subtract
+        type_t canonical_val1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
+        type_t canonical_val2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
+        return canonical_val1 - canonical_val2;
+    }
+}
+
+// Helper: multiply two values
+template<typename type_t>
+constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
+{
+    return val1 * val2;
+}
+
+// Helper: divide two values
+template<typename type_t>
+constexpr type_t divide_values(type_t val1, type_t val2)
+{
+    // Division by zero check: at runtime throw, at compile-time assert
+    if (!std::is_constant_evaluated())
+    {
+        if ((val2 < static_cast<type_t>(0) ? -val2 : val2) == static_cast<type_t>(0))
+        {
+            throw std::invalid_argument("Division by zero");
+        }
+    }
+    return val1 / val2;
+}
+
 template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 class unit_t
 {
@@ -196,70 +262,8 @@ struct named_unit_type_t
 
 
 // ============================================================================
-// Arithmetic Helper Functions
+// Type Traits for Unit Detection
 // ============================================================================
-// Helper: convert a value from one ratio to another
-template<typename type_t, typename ratio_from, typename ratio_to>
-constexpr type_t convert_ratio_to(type_t value) noexcept
-{
-    using conversion = std::ratio_divide<ratio_from, ratio_to>;
-    return (value / static_cast<type_t>(conversion::den)) * 
-           static_cast<type_t>(conversion::num);
-}
-
-// Helper: add two values with different ratios, result in canonical ratio (1/1)
-template<typename type_t, typename ratio_t1, typename ratio_t2>
-constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
-{
-    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
-    {
-        return val1 + val2;
-    }
-    else
-    {
-        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-        return canonical1 + canonical2;
-    }
-}
-
-// Helper: subtract two values with different ratios, result in canonical ratio (1/1)
-template<typename type_t, typename ratio_t1, typename ratio_t2>
-constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
-{
-    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
-    {
-        return val1 - val2;
-    }
-    else
-    {
-        type_t canonical1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-        type_t canonical2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-        return canonical1 - canonical2;
-    }
-}
-
-// Helper: multiply two values
-template<typename type_t>
-constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
-{
-    return val1 * val2;
-}
-
-// Helper: divide two values
-template<typename type_t>
-constexpr type_t divide_values(type_t val1, type_t val2)
-{
-    if (!std::is_constant_evaluated())
-    {
-        if ((val2 < static_cast<type_t>(0) ? -val2 : val2) == static_cast<type_t>(0))
-        {
-            throw std::invalid_argument("Division by zero in si_unit::operator/");
-        }
-    }
-    return val1 / val2;
-}
-
 // Helper to check if a type is an pkr_unit and extract its components
 template<typename T>
 struct is_pkr_unit : std::false_type

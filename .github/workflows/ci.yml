@@ -45,11 +45,11 @@ jobs:
           - os: ubuntu-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16'
           - os: ubuntu-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-17 -DCMAKE_CXX_COMPILER=clang++-17'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16'
 
     steps:
     - name: Checkout code
@@ -69,16 +69,20 @@ jobs:
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
       run: |
-        choco install llvm --yes
+        choco install llvm --version=17.0.1 --yes
         echo "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
+      run: choco install ninja --yes
 
     - name: Install Clang (Linux)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
       run: |
         wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-17 main"
+        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
         sudo apt-get update
-        sudo apt-get install -y clang-17 lld-17
+        sudo apt-get install -y clang-16 lld-16
 
     - name: Install Conan
       run: |
@@ -98,7 +102,7 @@ jobs:
         if [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "gcc" ]; then
           export CC=gcc-13 CXX=g++-13
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "clang" ]; then
-          export CC=clang-17 CXX=clang++-17
+          export CC=clang-16 CXX=clang++-16
         fi
         profile_flag=""
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
@@ -106,7 +110,7 @@ jobs:
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
-        conan install packaging/conan/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
 
     - name: Configure CMake
       run: |

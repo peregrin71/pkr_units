@@ -12,7 +12,7 @@ This uses Conan v2 implementation.
 
 import os
 from conan import ConanFile
-from conan.tools.cmake import cmake_layout, CMake
+from conan.tools.cmake import cmake_layout, CMake, CMakeToolchain, CMakeDeps
 
 
 def _read_version():
@@ -34,7 +34,7 @@ class SiUnitsConan(ConanFile):
     homepage = "https://github.com/peregrin71/pkr_si_units"
     
     settings = "os", "compiler", "build_type", "arch"
-    generators = "CMakeDeps", "CMakeToolchain"
+    generators = []
     options = {
         "shared": [True, False],
         "fPIC": [True, False],
@@ -44,8 +44,9 @@ class SiUnitsConan(ConanFile):
         "fPIC": True,
     }
 
-    def requirements(self):
-        self.requires("gtest/1.15.0")
+    def configure(self):
+        if self.settings.compiler == "gcc":
+            self.settings.compiler.libcxx = "libstdc++11"
 
     def layout(self):
         # Output generators to the build directory
@@ -58,6 +59,12 @@ class SiUnitsConan(ConanFile):
         build_folder = os.environ.get('CONAN_BUILD_FOLDER', '.msvc_build')
         generators_path = os.path.join(project_root, build_folder, "generators")
         self.folders.generators = generators_path
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+        deps = CMakeDeps(self)
+        deps.generate()
 
     def build(self):
         cmake = CMake(self)

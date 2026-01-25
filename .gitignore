@@ -56,5 +56,11 @@ Thumbs.db
 *.bak
 *.orig
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
 # Dependencies
 vcpkg_installed/

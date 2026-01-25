@@ -2,8 +2,9 @@
 os=Linux
 arch=x86_64
 compiler=clang
-compiler.version=17
+compiler.version=16
+compiler.libcxx=libstdc++11
 compiler.cppstd=20
 
 [conf]
-tools.cmake.cmaketoolchain:generator=Unix Makefiles
+tools.cmake.cmaketoolchain:generator=Ninja

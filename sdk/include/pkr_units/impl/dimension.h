@@ -79,7 +79,7 @@ std::basic_string<CharT> build_dimension_symbol(const dimension_t& dim)
     // First pass: positive dimensions
     for (int i = 0; i < 8; ++i) {
         if (dims[i] > 0) {
-            if (!result.empty()) result += static_cast<CharT>('·');
+            if (!result.empty()) result += static_cast<CharT>('*');
             result += base_unit_symbols<CharT>[i];
             if (dims[i] != 1) {
                 result += static_cast<CharT>('^');
@@ -96,7 +96,7 @@ std::basic_string<CharT> build_dimension_symbol(const dimension_t& dim)
                 if (!result.empty()) result += static_cast<CharT>('/');
                 has_negative = true;
             } else {
-                result += static_cast<CharT>('·');
+                result += static_cast<CharT>('*');
             }
             result += base_unit_symbols<CharT>[i];
             if (dims[i] != -1) {
