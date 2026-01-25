@@ -15,6 +15,11 @@
 - [x] Remove stale compiler flags from Clang profile
 
 ### In Progress / Known Issues
+- [ ] **CRITICAL**: Make Conan profiles single source of truth for compiler configuration
+  - Remove compiler version duplication between profiles and CI workflow
+  - Centralize CC/CXX environment variables in profile [buildenv] sections
+  - Eliminate cmake_extra_flags overrides of profile generators
+  - Simplify CI matrix to reference profile settings only
 - [ ] Fix Clang build issue (Windows ABI/GTest linking - linker undefined references to testing::Test symbols)
 - [ ] Fix floating-point precision test (SiMassTest.add_very_different_scales)
 
