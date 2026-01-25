@@ -108,15 +108,17 @@ jobs:
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
         conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
 
+    - name: Debug output after Conan
+      shell: bash
+      run: |
+        echo "OUTPUT_FOLDER: $OUTPUT_FOLDER"
+        ls -laR $OUTPUT_FOLDER
+
     - name: Copy CMake presets to root
       shell: bash
       run: |
         if [ -f "$OUTPUT_FOLDER/generators/CMakePresets.json" ]; then
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            copy "$OUTPUT_FOLDER\\generators\\CMakePresets.json" ".\\CMakePresets.json"
-          else
-            cp "$OUTPUT_FOLDER/generators/CMakePresets.json" "./CMakePresets.json"
-          fi
+          cp "$OUTPUT_FOLDER/generators/CMakePresets.json" "./CMakePresets.json"
         else
           echo "CMakePresets.json not found in $OUTPUT_FOLDER/generators/"
         fi
@@ -129,6 +131,12 @@ jobs:
       shell: bash
       run: |
         cmake --preset conan-$BUILD_TYPE_LOWER
+
+    - name: Debug output
+      shell: bash
+      run: |
+        echo "OUTPUT_FOLDER: $OUTPUT_FOLDER"
+        ls -laR $OUTPUT_FOLDER
 
     - name: Build project
       shell: bash
