@@ -8,3 +8,4 @@ compiler.cppstd=20
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
+tools.build:compiler_executables = {"c": "gcc-13", "cpp": "g++-13"}
