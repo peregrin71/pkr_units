@@ -61,10 +61,10 @@ class SiUnitsConan(ConanFile):
         self.folders.generators = generators_path
 
     def generate(self):
-        tc = CMakeToolchain(self)
-        tc.generate()
         deps = CMakeDeps(self)
         deps.generate()
+        tc = CMakeToolchain(self)
+        tc.generate()
 
     def build(self):
         cmake = CMake(self)

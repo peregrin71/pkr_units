@@ -22,37 +22,29 @@ jobs:
           - os: windows-latest
             compiler: msvc
             build_type: Debug
-            cmake_extra_flags: '-G "Visual Studio 17 2022" -A x64'
           - os: windows-latest
             compiler: msvc
             build_type: Release
-            cmake_extra_flags: '-G "Visual Studio 17 2022" -A x64'
           - os: windows-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-G Ninja'
           - os: windows-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-G Ninja'
 
           # Linux builds
           - os: ubuntu-latest
             compiler: gcc
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -G Ninja'
           - os: ubuntu-latest
             compiler: gcc
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -G Ninja'
           - os: ubuntu-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 -G Ninja'
           - os: ubuntu-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 -G Ninja'
 
     steps:
     - name: Checkout code
@@ -64,6 +56,10 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y ninja-build
 
+    - name: Ensure Ninja in PATH
+      if: runner.os == 'Linux'
+      run: echo "$(which ninja)" >> $GITHUB_PATH
+
     - name: Install GCC (Linux)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'gcc'
       run: |
@@ -72,7 +68,7 @@ jobs:
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
       run: |
-        # LLVM/Clang is assumed to be pre-installed on GitHub Windows runners
+        # LLVM/Clang is pre-installed on GitHub Windows runners
 
     - name: Install Ninja (Windows)
       if: runner.os == 'Windows'
@@ -112,37 +108,22 @@ jobs:
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
         conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
 
-    - name: Configure CMake (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
+    - name: Copy CMake presets to root
       run: |
-        $output_folder = $env:OUTPUT_FOLDER
-        cmake -S . -B $output_folder `
-          -DCMAKE_TOOLCHAIN_FILE=$output_folder/generators/conan_toolchain.cmake `
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
-          -DCMAKE_CXX_STANDARD=20 `
-          -DCMAKE_CXX_STANDARD_REQUIRED=ON `
-          -DCMAKE_PREFIX_PATH="$output_folder" `
-          ${{ matrix.cmake_extra_flags }}
+        if [ "${{ runner.os }}" == "Windows" ]; then
+          copy $OUTPUT_FOLDER\\generators\\CMakePresets.json .\\CMakePresets.json
+        else
+          cp $OUTPUT_FOLDER/generators/CMakePresets.json ./CMakePresets.json
+        fi
 
-    - name: Configure CMake (Linux)
-      if: runner.os == 'Linux'
-      shell: bash
+    - name: Configure CMake
       run: |
-        output_folder=$OUTPUT_FOLDER
-        cmake -S . -B $output_folder \
-          -DCMAKE_TOOLCHAIN_FILE=$output_folder/generators/conan_toolchain.cmake \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DCMAKE_CXX_STANDARD=20 \
-          -DCMAKE_CXX_STANDARD_REQUIRED=ON \
-          -DCMAKE_PREFIX_PATH="$output_folder" \
-          ${{ matrix.cmake_extra_flags }}
+        cmake --preset conan-${{ matrix.build_type | lower }}
 
     - name: Build project
       run: |
-        cmake --build $OUTPUT_FOLDER --config ${{ matrix.build_type }}
+        cmake --build --preset conan-${{ matrix.build_type | lower }}
 
     - name: Run tests
       run: |
-        cd $OUTPUT_FOLDER
-        ctest --output-on-failure
+        ctest --preset conan-${{ matrix.build_type | lower }} --output-on-failure
