@@ -34,6 +34,7 @@ class SiUnitsConan(ConanFile):
     homepage = "https://github.com/peregrin71/pkr_si_units"
     
     settings = "os", "compiler", "build_type", "arch"
+    requires = "gtest/1.14.0"
     generators = []
     options = {
         "shared": [True, False],

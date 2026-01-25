@@ -115,7 +115,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       run: |
-        cmake -S . -B $OUTPUT_FOLDER -G Ninja -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then
+          GENERATOR="-G \"Visual Studio 17 2022\" -A x64"
+        else
+          GENERATOR="-G Ninja"
+        fi
+        cmake -S . -B $OUTPUT_FOLDER $GENERATOR -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/generators/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build project
       shell: bash
