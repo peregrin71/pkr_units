@@ -118,12 +118,12 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cmake --preset conan-${{ matrix.build_type | lower }}
+        cmake --preset conan-${{ toLower(matrix.build_type) }}
 
     - name: Build project
       run: |
-        cmake --build --preset conan-${{ matrix.build_type | lower }}
+        cmake --build --preset conan-${{ toLower(matrix.build_type) }}
 
     - name: Run tests
       run: |
-        ctest --preset conan-${{ matrix.build_type | lower }} --output-on-failure
+        ctest --preset conan-${{ toLower(matrix.build_type) }} --output-on-failure
