@@ -30,29 +30,29 @@ jobs:
           - os: windows-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: ''
+            cmake_extra_flags: '-G Ninja'
           - os: windows-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: ''
+            cmake_extra_flags: '-G Ninja'
 
           # Linux builds
           - os: ubuntu-latest
             compiler: gcc
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -G Ninja'
           - os: ubuntu-latest
             compiler: gcc
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=gcc-13 -DCMAKE_CXX_COMPILER=g++-13 -G Ninja'
           - os: ubuntu-latest
             compiler: clang
             build_type: Debug
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 -G Ninja'
           - os: ubuntu-latest
             compiler: clang
             build_type: Release
-            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16'
+            cmake_extra_flags: '-DCMAKE_C_COMPILER=clang-16 -DCMAKE_CXX_COMPILER=clang++-16 -G Ninja'
 
     steps:
     - name: Checkout code
@@ -110,7 +110,7 @@ jobs:
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER --toolchain cmake $profile_flag
 
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
