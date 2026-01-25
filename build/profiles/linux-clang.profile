@@ -12,5 +12,5 @@ tools.build:compiler_executables = {"c": "clang-16", "cpp": "clang++-16"}
 
 [buildenv]
 # Add UBSan for debug builds
-CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=undefined
+CXXFLAGS=-fsanitize=undefined -fno-sanitize-recover=undefined -D_LIBCPP_HAS_FORMAT
 LDFLAGS=-fsanitize=undefined

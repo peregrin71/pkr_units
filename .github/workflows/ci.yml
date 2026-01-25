@@ -66,7 +66,7 @@ jobs:
     - name: Install libc++ (Linux Clang)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
       run: |
-        sudo apt-get install -y libc++-16-dev libc++abi-16-dev libfmt-dev
+        sudo apt-get install -y libc++-16-dev libc++abi-16-dev
 
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
