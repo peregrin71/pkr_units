@@ -8,7 +8,3 @@ compiler.cppstd=20
 
 [conf]
 tools.cmake.cmaketoolchain:generator=Ninja
-
-[env]
-CC=clang-16
-CXX=clang++-16

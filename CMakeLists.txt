@@ -18,7 +18,7 @@ enable_testing()
 # Add SDK include directory to global include paths
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 
-find_package(GTest REQUIRED CONFIG)
+find_package(GTest REQUIRED)
 
 # Add the tests subdirectory
 add_subdirectory(tests)
