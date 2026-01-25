@@ -53,7 +53,7 @@ class SiUnitsConan(ConanFile):
         # Use compiler-specific build folder if specified, otherwise default to .msvc_build
         # The build folder can be set via CONAN_BUILD_FOLDER environment variable
         import os
-        project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         
         # Check if build folder is specified via environment or use default
         build_folder = os.environ.get('CONAN_BUILD_FOLDER', '.msvc_build')

@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [ main, development ]
   pull_request:
     branches: [ main, development ]
 
@@ -114,36 +112,17 @@ jobs:
         echo "OUTPUT_FOLDER: $OUTPUT_FOLDER"
         ls -laR $OUTPUT_FOLDER
 
-    - name: Copy CMake presets to root
-      shell: bash
-      run: |
-        if [ -f "$OUTPUT_FOLDER/generators/CMakePresets.json" ]; then
-          cp "$OUTPUT_FOLDER/generators/CMakePresets.json" "./CMakePresets.json"
-        else
-          echo "CMakePresets.json not found in $OUTPUT_FOLDER/generators/"
-        fi
-
-    - name: Set lower case build type
-      shell: bash
-      run: echo "BUILD_TYPE_LOWER=$(echo ${{ matrix.build_type }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
     - name: Configure CMake
       shell: bash
       run: |
-        cmake --preset conan-$BUILD_TYPE_LOWER
-
-    - name: Debug output
-      shell: bash
-      run: |
-        echo "OUTPUT_FOLDER: $OUTPUT_FOLDER"
-        ls -laR $OUTPUT_FOLDER
+        cmake -S . -B $OUTPUT_FOLDER -DCMAKE_TOOLCHAIN_FILE=$OUTPUT_FOLDER/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
 
     - name: Build project
       shell: bash
       run: |
-        cmake --build --preset conan-$BUILD_TYPE_LOWER
+        cmake --build $OUTPUT_FOLDER
 
     - name: Run tests
       shell: bash
       run: |
-        ctest --preset conan-$BUILD_TYPE_LOWER --output-on-failure
+        ctest --test-dir $OUTPUT_FOLDER --output-on-failure
