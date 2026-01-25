@@ -110,7 +110,7 @@ jobs:
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER --toolchain cmake $profile_flag
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag
 
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
