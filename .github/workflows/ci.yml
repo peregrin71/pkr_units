@@ -106,12 +106,26 @@ jobs:
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build --toolchain=cmake $profile_flag
 
-    - name: Configure CMake
+    - name: Configure CMake (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        cmake -S . -B build `
+          -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake `
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
+          -DCMAKE_CXX_STANDARD=20 `
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON `
+          -DCMAKE_PREFIX_PATH="build" `
+          ${{ matrix.cmake_extra_flags }}
+
+    - name: Configure CMake (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
       run: |
         cmake -S . -B build \
-          --toolchain build/generators/conan_toolchain.cmake \
+          -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_CXX_STANDARD=20 \
           -DCMAKE_CXX_STANDARD_REQUIRED=ON \
