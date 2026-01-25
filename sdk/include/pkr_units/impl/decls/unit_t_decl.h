@@ -99,6 +99,13 @@ public:
     {
     }
 
+    // Allow construction from another unit with same dimension but different ratio
+    template<typename other_ratio_t>
+    constexpr unit_t(const unit_t<type_t, other_ratio_t, dim_v>& other) noexcept
+         : m_value(convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
+    {
+    }
+
     // make sure type is default copyable and movable
     constexpr unit_t(const unit_t&) noexcept = default;
     constexpr unit_t(unit_t&&) noexcept = default;
