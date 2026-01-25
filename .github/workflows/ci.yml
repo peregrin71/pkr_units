@@ -11,6 +11,9 @@ jobs:
     name: Build and Test (${{ matrix.os }}, ${{ matrix.compiler }}, ${{ matrix.build_type }})
     runs-on: ${{ matrix.os }}
 
+    env:
+      OUTPUT_FOLDER: ${{ matrix.os == 'windows-latest' && (matrix.compiler == 'msvc' && '.msvc_build' || '.clang_build') || (matrix.compiler == 'gcc' && '.gcc_build' || '.clang_build') }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -106,37 +109,40 @@ jobs:
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
-        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=build $profile_flag
+        export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
+        conan install build/conanfile.py --build=missing -s build_type=${{ matrix.build_type }} --output-folder=$OUTPUT_FOLDER $profile_flag --generator CMakeToolchain
 
     - name: Configure CMake (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       run: |
-        cmake -S . -B build `
-          -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake `
+        $output_folder = $env:OUTPUT_FOLDER
+        cmake -S . -B $output_folder `
+          -DCMAKE_TOOLCHAIN_FILE=$output_folder/generators/conan_toolchain.cmake `
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} `
           -DCMAKE_CXX_STANDARD=20 `
           -DCMAKE_CXX_STANDARD_REQUIRED=ON `
-          -DCMAKE_PREFIX_PATH="build" `
+          -DCMAKE_PREFIX_PATH="$output_folder" `
           ${{ matrix.cmake_extra_flags }}
 
     - name: Configure CMake (Linux)
       if: runner.os == 'Linux'
       shell: bash
       run: |
-        cmake -S . -B build \
-          -DCMAKE_TOOLCHAIN_FILE=build/generators/conan_toolchain.cmake \
+        output_folder=$OUTPUT_FOLDER
+        cmake -S . -B $output_folder \
+          -DCMAKE_TOOLCHAIN_FILE=$output_folder/generators/conan_toolchain.cmake \
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
           -DCMAKE_CXX_STANDARD=20 \
           -DCMAKE_CXX_STANDARD_REQUIRED=ON \
-          -DCMAKE_PREFIX_PATH="build" \
+          -DCMAKE_PREFIX_PATH="$output_folder" \
           ${{ matrix.cmake_extra_flags }}
 
     - name: Build project
       run: |
-        cmake --build build --config ${{ matrix.build_type }}
+        cmake --build $OUTPUT_FOLDER --config ${{ matrix.build_type }}
 
     - name: Run tests
       run: |
-        cd build
+        cd $OUTPUT_FOLDER
         ctest --output-on-failure
