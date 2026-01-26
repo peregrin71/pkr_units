@@ -3,6 +3,7 @@
 #include <cmath>
 #include "../impl/namespace_config.h"
 #include "../impl/decls/unit_t_decl.h"
+#include "../impl/unit_impl.h"
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
@@ -21,25 +22,25 @@ namespace math {
 
 // Addition with automatic ratio conversion
 template<typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto add(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b) {
+constexpr auto add(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio1, Dim>& a, const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio2, Dim>& b) {
     return a + b;
 }
 
 // Subtraction with automatic ratio conversion
 template<typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto subtract(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b) {
+constexpr auto subtract(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio1, Dim>& a, const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio2, Dim>& b) {
     return a - b;
 }
 
 // Multiplication (combines dimensions)
 template<typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto multiply(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b) {
+constexpr auto multiply(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio1, Dim1>& a, const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio2, Dim2>& b) {
     return a * b;
 }
 
 // Division (combines dimensions)
 template<typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b) {
+constexpr auto divide(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio1, Dim1>& a, const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio2, Dim2>& b) {
     return a / b;
 }
 
@@ -49,13 +50,13 @@ constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::
 
 // Multiply unit_t by scalar
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto multiply_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar) {
+constexpr auto multiply_scalar(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& a, T scalar) {
     return a * scalar;
 }
 
 // Divide unit_t by scalar
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar) {
+constexpr auto divide_scalar(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& a, T scalar) {
     return a / scalar;
 }
 
@@ -66,7 +67,7 @@ constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar) 
 // Square root with dimensional analysis
 // sqrt(unit_t) produces a unit_t with half the dimensional exponents
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto sqrt(const details::unit_t<T, Ratio, Dim>& a) {
+constexpr auto sqrt(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& a) {
     // For dimensional analysis, we need to handle the exponents
     // This is a simplified implementation - full version would need
     // compile-time dimensional exponent manipulation
@@ -88,30 +89,30 @@ constexpr auto sqrt(const details::unit_t<T, Ratio, Dim>& a) {
 
 // Exponential function (result is dimensionless)
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto exp(const details::unit_t<T, Ratio, Dim>& a) {
+constexpr auto exp(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& a) {
     static_assert(Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 &&
                   Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 &&
                   Dim.intensity == 0 && Dim.angle == 0,
                   "exp() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1>, scalar_dimension>{std::exp(a.value())};
+    return PKR_UNITS_NAMESPACE::details::unit_t<T, std::ratio<1>, scalar_dimension>{std::exp(a.value())};
 }
 
 // Natural logarithm (result is dimensionless)
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto log(const details::unit_t<T, Ratio, Dim>& a) {
+constexpr auto log(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& a) {
     static_assert(Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 &&
                   Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 &&
                   Dim.intensity == 0 && Dim.angle == 0,
                   "log() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1>, scalar_dimension>{std::log(a.value())};
+    return PKR_UNITS_NAMESPACE::details::unit_t<T, std::ratio<1>, scalar_dimension>{std::log(a.value())};
 }
 
 // Power function (exponent must be dimensionless)
 template<typename T, typename Ratio, dimension_t Dim, typename ExpT, typename ExpRatio>
-constexpr auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent) {
+constexpr auto pow(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& base, const PKR_UNITS_NAMESPACE::details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent) {
     // This would need full dimensional exponent manipulation
     // Simplified implementation for now
-    return details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
+    return PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
 }
 
 // ============================================================================
@@ -121,7 +122,7 @@ constexpr auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::un
 // Normalize a unit to its canonical SI form
 // Returns the canonical named unit type for the dimensions with ratio 1:1
 template<typename T, typename Ratio, dimension_t Dim>
-constexpr auto normalize(const details::unit_t<T, Ratio, Dim>& unit) {
+constexpr auto normalize(const PKR_UNITS_NAMESPACE::details::unit_t<T, Ratio, Dim>& unit) {
     return unit.to_si();
 }
 

@@ -3,6 +3,7 @@ Conan package manager utilities
 """
 
 import os
+import platform
 from pathlib import Path
 from build_utils import run_command, BuildException, print_info
 
@@ -45,8 +46,12 @@ def install(project_root: Path, build_path: Path, configuration: str, compiler: 
     if not conanfile.exists():
         raise BuildException(f"Conanfile not found at: {conanfile}")
 
-    # Use compiler-specific profile (Windows-specific for now)
-    profile_name = f"windows-{compiler}.profile"
+    # Use compiler-specific profile
+    os_name = platform.system().lower()
+    if compiler.lower() == "clang" and os_name == "linux":
+        profile_name = "linux-clang.profile"
+    else:
+        profile_name = f"{os_name}-{compiler}.profile"
     profile_path = Path(project_root) / "build" / "profiles" / profile_name
     if not profile_path.exists():
         raise BuildException(f"Profile not found for compiler '{compiler}': {profile_path}")

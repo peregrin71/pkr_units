@@ -63,12 +63,15 @@ def run_command(
             )
             return result.stdout.strip()
         else:
-            # Let output stream to console in real-time instead of capturing
-            result = subprocess.run(
-                cmd, cwd=cwd, check=True, env=env
-            )
+            # Run without capturing to show output live
+            result = subprocess.run(cmd, cwd=cwd, check=True, env=env)
             return ""
     except subprocess.CalledProcessError as e:
+        # Print stdout and stderr on failure
+        if e.stdout:
+            print_error(f"Command stdout: {e.stdout}")
+        if e.stderr:
+            print_error(f"Command stderr: {e.stderr}")
         raise BuildException(f"Command failed: {' '.join(cmd)}")
     except FileNotFoundError:
         raise BuildException(f"Command not found: {cmd[0]}")

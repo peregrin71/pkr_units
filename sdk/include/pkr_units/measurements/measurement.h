@@ -8,7 +8,6 @@
 #include "../impl/namespace_config.h"
 #include "../impl/decls/unit_t_decl.h"
 #include "../units/unit_math.h"
-#include "measurement_math.h"
 
 PKR_UNITS_BEGIN_NAMESPACE
 {
