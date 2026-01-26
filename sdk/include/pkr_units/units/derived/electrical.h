@@ -23,10 +23,10 @@ inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0};
 inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
 
 // Conductance dimension: S = A²·s³·kg⁻¹·m⁻²
-inline constexpr dimension_t conductance_dimension{.length = -2, .mass = -1, .time = 3, .current = 2};
+inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
 // Electric charge units (Coulomb and derived)
-struct coulomb final : public details::unit_t<double, std::ratio<1, 1>, electric_charge_dimension>
+struct coulomb_t final : public details::unit_t<double, std::ratio<1, 1>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_charge_dimension>;
     using _base::_base;
@@ -36,7 +36,7 @@ struct coulomb final : public details::unit_t<double, std::ratio<1, 1>, electric
     static constexpr std::u8string_view u8_symbol{u8"C"};
 };
 
-struct kilocoulomb final : public details::unit_t<double, std::ratio<1000, 1>, electric_charge_dimension>
+struct kilocoulomb_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_charge_dimension>;
     using _base::_base;
@@ -46,7 +46,7 @@ struct kilocoulomb final : public details::unit_t<double, std::ratio<1000, 1>, e
     static constexpr std::u8string_view u8_symbol{u8"kC"};
 };
 
-struct millicoulomb final : public details::unit_t<double, std::ratio<1, 1000>, electric_charge_dimension>
+struct millicoulomb_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_charge_dimension>;
     using _base::_base;
@@ -56,7 +56,7 @@ struct millicoulomb final : public details::unit_t<double, std::ratio<1, 1000>, 
     static constexpr std::u8string_view u8_symbol{u8"mC"};
 };
 
-struct microcoulomb final : public details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
+struct microcoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>;
     using _base::_base;
@@ -66,7 +66,7 @@ struct microcoulomb final : public details::unit_t<double, std::ratio<1, 1000000
     static constexpr std::u8string_view u8_symbol{u8"µC"};
 };
 
-struct nanocoulomb final : public details::unit_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
+struct nanocoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>;
     using _base::_base;
@@ -76,7 +76,7 @@ struct nanocoulomb final : public details::unit_t<double, std::ratio<1, 10000000
     static constexpr std::u8string_view u8_symbol{u8"nC"};
 };
 
-struct picocoulomb final : public details::unit_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
+struct picocoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>;
     using _base::_base;
@@ -87,7 +87,7 @@ struct picocoulomb final : public details::unit_t<double, std::ratio<1, 10000000
 };
 
 // Electric potential units (Volt and derived)
-struct volt final : public details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>
+struct volt_t final : public details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>;
     using _base::_base;
@@ -97,7 +97,7 @@ struct volt final : public details::unit_t<double, std::ratio<1, 1>, electric_po
     static constexpr std::u8string_view u8_symbol{u8"V"};
 };
 
-struct kilovolt final : public details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>
+struct kilovolt_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>;
     using _base::_base;
@@ -107,7 +107,7 @@ struct kilovolt final : public details::unit_t<double, std::ratio<1000, 1>, elec
     static constexpr std::u8string_view u8_symbol{u8"kV"};
 };
 
-struct megavolt final : public details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
+struct megavolt_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>;
     using _base::_base;
@@ -117,7 +117,7 @@ struct megavolt final : public details::unit_t<double, std::ratio<1000000, 1>, e
     static constexpr std::u8string_view u8_symbol{u8"MV"};
 };
 
-struct millivolt final : public details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>
+struct millivolt_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>;
     using _base::_base;
@@ -127,7 +127,7 @@ struct millivolt final : public details::unit_t<double, std::ratio<1, 1000>, ele
     static constexpr std::u8string_view u8_symbol{u8"mV"};
 };
 
-struct microvolt final : public details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
+struct microvolt_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
@@ -138,7 +138,7 @@ struct microvolt final : public details::unit_t<double, std::ratio<1, 1000000>, 
 };
 
 // Electric resistance units (Ohm and derived)
-struct ohm final : public details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>
+struct ohm_t final : public details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>;
     using _base::_base;
@@ -148,7 +148,7 @@ struct ohm final : public details::unit_t<double, std::ratio<1, 1>, electric_res
     static constexpr std::u8string_view u8_symbol{u8"Ω"};
 };
 
-struct kilohm final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
+struct kilohm_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
@@ -158,7 +158,7 @@ struct kilohm final : public details::unit_t<double, std::ratio<1000, 1>, electr
     static constexpr std::u8string_view u8_symbol{u8"kΩ"};
 };
 
-struct megohm final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+struct megohm_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
@@ -168,7 +168,7 @@ struct megohm final : public details::unit_t<double, std::ratio<1000000, 1>, ele
     static constexpr std::u8string_view u8_symbol{u8"MΩ"};
 };
 
-struct gigohm final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+struct gigohm_t final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
@@ -178,7 +178,7 @@ struct gigohm final : public details::unit_t<double, std::ratio<1000000000, 1>, 
     static constexpr std::u8string_view u8_symbol{u8"GΩ"};
 };
 
-struct milliohm final : public details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
+struct milliohm_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>;
     using _base::_base;
@@ -188,7 +188,7 @@ struct milliohm final : public details::unit_t<double, std::ratio<1, 1000>, elec
     static constexpr std::u8string_view u8_symbol{u8"mΩ"};
 };
 
-struct microohm final : public details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
+struct microohm_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>;
     using _base::_base;
@@ -199,7 +199,7 @@ struct microohm final : public details::unit_t<double, std::ratio<1, 1000000>, e
 };
 
 // Capacitance units (Farad and derived)
-struct farad final : public details::unit_t<double, std::ratio<1, 1>, capacitance_v>
+struct farad_t final : public details::unit_t<double, std::ratio<1, 1>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, capacitance_v>;
     using _base::_base;
@@ -209,7 +209,7 @@ struct farad final : public details::unit_t<double, std::ratio<1, 1>, capacitanc
     static constexpr std::u8string_view u8_symbol{u8"F"};
 };
 
-struct millifarad final : public details::unit_t<double, std::ratio<1, 1000>, capacitance_v>
+struct millifarad_t final : public details::unit_t<double, std::ratio<1, 1000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, capacitance_v>;
     using _base::_base;
@@ -219,7 +219,7 @@ struct millifarad final : public details::unit_t<double, std::ratio<1, 1000>, ca
     static constexpr std::u8string_view u8_symbol{u8"mF"};
 };
 
-struct microfarad final : public details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>
+struct microfarad_t final : public details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>;
     using _base::_base;
@@ -229,7 +229,7 @@ struct microfarad final : public details::unit_t<double, std::ratio<1, 1000000>,
     static constexpr std::u8string_view u8_symbol{u8"µF"};
 };
 
-struct nanofarad final : public details::unit_t<double, std::ratio<1, 1000000000>, capacitance_v>
+struct nanofarad_t final : public details::unit_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, capacitance_v>;
     using _base::_base;
@@ -239,7 +239,7 @@ struct nanofarad final : public details::unit_t<double, std::ratio<1, 1000000000
     static constexpr std::u8string_view u8_symbol{u8"nF"};
 };
 
-struct picofarad final : public details::unit_t<double, std::ratio<1, 1000000000000>, capacitance_v>
+struct picofarad_t final : public details::unit_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000000>, capacitance_v>;
     using _base::_base;
@@ -250,7 +250,7 @@ struct picofarad final : public details::unit_t<double, std::ratio<1, 1000000000
 };
 
 // Inductance units (Henry and derived)
-struct henry final : public details::unit_t<double, std::ratio<1, 1>, inductance_dimension>
+struct henry_t final : public details::unit_t<double, std::ratio<1, 1>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, inductance_dimension>;
     using _base::_base;
@@ -260,7 +260,7 @@ struct henry final : public details::unit_t<double, std::ratio<1, 1>, inductance
     static constexpr std::u8string_view u8_symbol{u8"H"};
 };
 
-struct millihenry final : public details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>
+struct millihenry_t final : public details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>;
     using _base::_base;
@@ -270,7 +270,7 @@ struct millihenry final : public details::unit_t<double, std::ratio<1, 1000>, in
     static constexpr std::u8string_view u8_symbol{u8"mH"};
 };
 
-struct microhenry final : public details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>
+struct microhenry_t final : public details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>;
     using _base::_base;
@@ -280,7 +280,7 @@ struct microhenry final : public details::unit_t<double, std::ratio<1, 1000000>,
     static constexpr std::u8string_view u8_symbol{u8"µH"};
 };
 
-struct nanohenry final : public details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>
+struct nanohenry_t final : public details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>;
     using _base::_base;
@@ -291,7 +291,7 @@ struct nanohenry final : public details::unit_t<double, std::ratio<1, 1000000000
 };
 
 // Conductance units (Siemens and derived)
-struct siemens final : public details::unit_t<double, std::ratio<1, 1>, conductance_dimension>
+struct siemens_t final : public details::unit_t<double, std::ratio<1, 1>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, conductance_dimension>;
     using _base::_base;
@@ -301,7 +301,7 @@ struct siemens final : public details::unit_t<double, std::ratio<1, 1>, conducta
     static constexpr std::u8string_view u8_symbol{u8"S"};
 };
 
-struct millisiemens final : public details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>
+struct millisiemens_t final : public details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>;
     using _base::_base;
@@ -311,7 +311,7 @@ struct millisiemens final : public details::unit_t<double, std::ratio<1, 1000>, 
     static constexpr std::u8string_view u8_symbol{u8"mS"};
 };
 
-struct microsiemens final : public details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
+struct microsiemens_t final : public details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
@@ -329,180 +329,180 @@ struct microsiemens final : public details::unit_t<double, std::ratio<1, 1000000
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_charge_dimension>
 {
-    using type = coulomb;
+    using type = coulomb_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_charge_dimension>
 {
-    using type = kilocoulomb;
+    using type = kilocoulomb_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_charge_dimension>
 {
-    using type = millicoulomb;
+    using type = millicoulomb_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
 {
-    using type = microcoulomb;
+    using type = microcoulomb_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
-    using type = nanocoulomb;
+    using type = nanocoulomb_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
-    using type = picocoulomb;
+    using type = picocoulomb_t;
 };
 
 // Electric potential units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_potential_dimension>
 {
-    using type = volt;
+    using type = volt_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_potential_dimension>
 {
-    using type = kilovolt;
+    using type = kilovolt_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
 {
-    using type = megavolt;
+    using type = megavolt_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_potential_dimension>
 {
-    using type = millivolt;
+    using type = millivolt_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
 {
-    using type = microvolt;
+    using type = microvolt_t;
 };
 
 // Electric resistance units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_resistance_dimension>
 {
-    using type = ohm;
+    using type = ohm_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
-    using type = kilohm;
+    using type = kilohm_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
-    using type = megohm;
+    using type = megohm_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
-    using type = gigohm;
+    using type = gigohm_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
 {
-    using type = milliohm;
+    using type = milliohm_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
-    using type = microohm;
+    using type = microohm_t;
 };
 
 // Capacitance units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
 {
-    using type = farad;
+    using type = farad_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
 {
-    using type = millifarad;
+    using type = millifarad_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
-    using type = microfarad;
+    using type = microfarad_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
-    using type = nanofarad;
+    using type = nanofarad_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
-    using type = picofarad;
+    using type = picofarad_t;
 };
 
 // Inductance units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, inductance_dimension>
 {
-    using type = henry;
+    using type = henry_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, inductance_dimension>
 {
-    using type = millihenry;
+    using type = millihenry_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, inductance_dimension>
 {
-    using type = microhenry;
+    using type = microhenry_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, inductance_dimension>
 {
-    using type = nanohenry;
+    using type = nanohenry_t;
 };
 
 // Conductance units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
 {
-    using type = siemens;
+    using type = siemens_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
-    using type = millisiemens;
+    using type = millisiemens_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
-    using type = microsiemens;
+    using type = microsiemens_t;
 };
 
 } // PKR_UNITS_NAMESPACE

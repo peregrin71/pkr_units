@@ -158,6 +158,15 @@ TEST_F(SiLengthTest, very_large_values)
     ASSERT_DOUBLE_EQ(km.value(), 1e6);
 }
 
+// ============================================================================
+// Alternative constructors
+
+TEST_F(SiLengthTest, construct_meter_from_centimeter)
+{
+    pkr::units::centimeter_t cm{150.0}; // 150 cm
+    pkr::units::meter_t m{cm}; // Convert to meters
+    ASSERT_DOUBLE_EQ(m.value(), 1.5);
+}
 
 
 
