@@ -15,7 +15,6 @@
 - [x] Remove stale compiler flags from Clang profile
 
 ### In Progress / Known Issues
-- [ ] **CRITICAL**: Make Conan profiles single source of truth for compiler configuration
   - Remove compiler version duplication between profiles and CI workflow
   - Centralize CC/CXX environment variables in profile [buildenv] sections
   - Eliminate cmake_extra_flags overrides of profile generators
@@ -24,51 +23,23 @@
 - [ ] Fix floating-point precision test (SiMassTest.add_very_different_scales)
 
 ### GitHub Actions CI/CD (High Priority)
-- [ ] Create GitHub Actions workflow (`.github/workflows/build.yml`)
-  - [ ] Windows runner: MSVC build
-  - [ ] Ubuntu runner: GCC 14+ build
-  - [ ] Ubuntu runner: Clang 18+ build
+- [x] Create GitHub Actions workflow (`.github/workflows/ci.yml` exists)
+  - [x] Windows runner: MSVC build
+  - [x] Ubuntu runner: GCC build
+  - [x] Ubuntu runner: Clang build
   - [ ] macOS runner (optional): Native Clang build
-  - [ ] Matrix strategy for Debug/Release configurations
-- [ ] Validation in CI
-  - [ ] Run full test suite on all platforms
-  - [ ] Generate test reports
-  - [ ] Flag failures to PR
-  - [ ] Investigate using libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
-- [ ] Branching Strategy
-  - [ ] Use `develop` branch for active work
-  - [ ] PR workflow: feature → develop → master
-  - [ ] CI validation required before merge to master
-  - [ ] Master always in releasable state
-
-### WSL2 and Linux Build Support (Lower Priority - Future)
-- [ ] WSL2 Detection
-  - [ ] Detect WSL2 availability on Windows via `wsl.exe`
-  - [ ] Detect Ubuntu version in WSL2
-  - [ ] Validate Ubuntu version meets C++20 requirements (Ubuntu 24.04+)
-- [ ] WSL2 Environment Setup
-  - [ ] Create setup script for Ubuntu 24.04+ installation/upgrade in WSL2
-  - [ ] Install build tools: GCC 14+, Clang 18+, CMake, Conan, Git
-  - [ ] Skip setup if already at target version
-- [ ] Linux-native Build Support
-  - [ ] Create Linux Conan profiles for GCC and Clang
-  - [ ] Detect OS (Windows vs Linux) in build system
-- [ ] Cross-platform Build Orchestration (for local development)
-  - [ ] Windows: Run MSVC build → `.msvc_build/`
-  - [ ] Windows: If WSL2 available, run Linux builds via WSL → `.clang_build/`, `.gcc_build/`
-  - [ ] Linux: Run GCC native build → `.gcc_build/`
-  - [ ] Linux: Run Clang native build → `.clang_build/`
-- [ ] Compiler Version Validation
-  - [ ] Define target versions: GCC 14, Clang 18
-  - [ ] Validate installed compiler versions before building
-  - [ ] Clear error messages if versions don't meet requirements
-- [ ] WSL2 File Mounting
-  - [ ] Use automatic WSL2 path mapping (`/mnt/c/` for Windows drives)
-  - [ ] Run build.py via WSL2 with project directory mounted
-
-### Code Refactoring
-- [ ] Rename all strong type structs to use `_t` suffix
-- [ ] Refactor electrical/magnetic_flux units to match standard/derived design
+  - [x] Matrix strategy for Debug/Release configurations
+- [x] Validation in CI
+  - [x] Run full test suite on all platforms
+  - [ ] Generate test reports (currently just ctest output)
+  - [x] Flag failures to PR (fail-fast: false)
+  - [ ] use libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
+  - [ ] Add UBSan to debug builds for undefined behavior detection
+- [x] Branching Strategy
+  - [x] PR workflow: triggers on pull_request to main, development branches
+  - [x] CI validation required before merge to master (workflow exists but strategy not fully documented)
+  - [x] Master always in releasable state (workflow ensures this)
+- [ ] Make Conan profiles single source of truth for compiler configuration
 
 ---
 

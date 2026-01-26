@@ -442,4 +442,3 @@ TEST_F(SiTemperatureTest, cast_kilokelvin_to_millikelvin)
     ASSERT_DOUBLE_EQ(mk.value(), 1000000.0);
 }
 
-

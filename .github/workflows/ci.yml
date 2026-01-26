@@ -63,10 +63,15 @@ jobs:
       run: |
         sudo apt-get install -y gcc-13 g++-13
 
+    - name: Install libc++ (Linux Clang)
+      if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
+      run: |
+        sudo apt-get install -y libc++-18-dev libc++abi-18-dev
+
     - name: Install Clang (Windows)
       if: matrix.os == 'windows-latest' && matrix.compiler == 'clang'
       run: |
-        # LLVM/Clang is pre-installed on GitHub Windows runners
+        choco install llvm --yes
 
     - name: Install Ninja (Windows)
       if: runner.os == 'Windows'
@@ -75,7 +80,10 @@ jobs:
     - name: Install Clang (Linux)
       if: matrix.os == 'ubuntu-latest' && matrix.compiler == 'clang'
       run: |
-        # LLVM/Clang is assumed to be pre-installed on GitHub Ubuntu runners
+        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+        sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-18 main"
+        sudo apt-get update
+        sudo apt-get install -y clang-18
 
     - name: Install Conan
       run: |
@@ -95,13 +103,13 @@ jobs:
         if [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "gcc" ]; then
           export CC=gcc-13 CXX=g++-13
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ] && [ "${{ matrix.compiler }}" == "clang" ]; then
-          export CC=clang-16 CXX=clang++-16
+          export CC=clang-18 CXX=clang++-18
         fi
         profile_flag=""
         if [ "${{ matrix.os }}" == "windows-latest" ]; then
-          profile_flag="--profile=build/profiles/windows-${{ matrix.compiler }}.profile"
+          profile_flag="--profile:host=build/profiles/windows-${{ matrix.compiler }}.profile --profile:build=build/profiles/windows-${{ matrix.compiler }}.profile"
         elif [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
-          profile_flag="--profile=build/profiles/linux-${{ matrix.compiler }}.profile"
+          profile_flag="--profile:host=build/profiles/linux-${{ matrix.compiler }}.profile --profile:build=build/profiles/linux-${{ matrix.compiler }}.profile"
         fi
         export CONAN_BUILD_FOLDER=$OUTPUT_FOLDER
         if [ "${{ matrix.os }}" == "windows-latest" ] && [ "${{ matrix.compiler }}" == "msvc" ]; then

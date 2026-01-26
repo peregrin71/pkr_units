@@ -24,7 +24,7 @@ using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_den
 // Magnetic flux units (Weber and derived)
 // Base unit: Weber (Wb) = kg·m²·s⁻²·A⁻¹
 
-struct weber final : public details::unit_t<double, std::ratio<1, 1>, magnetic_flux_dimension>
+struct weber_t final : public details::unit_t<double, std::ratio<1, 1>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, magnetic_flux_dimension>;
     using _base::_base;
@@ -34,7 +34,7 @@ struct weber final : public details::unit_t<double, std::ratio<1, 1>, magnetic_f
     static constexpr std::u8string_view u8_symbol{u8"Wb"};
 };
 
-struct milliweber final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
+struct milliweber_t final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>;
     using _base::_base;
@@ -44,7 +44,7 @@ struct milliweber final : public details::unit_t<double, std::ratio<1, 1000>, ma
     static constexpr std::u8string_view u8_symbol{u8"mWb"};
 };
 
-struct microweber final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
+struct microweber_t final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>;
     using _base::_base;
@@ -54,7 +54,7 @@ struct microweber final : public details::unit_t<double, std::ratio<1, 1000000>,
     static constexpr std::u8string_view u8_symbol{u8"µWb"};
 };
 
-struct nanoweber final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+struct nanoweber_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
     using _base::_base;
@@ -64,7 +64,7 @@ struct nanoweber final : public details::unit_t<double, std::ratio<1, 1000000000
     static constexpr std::u8string_view u8_symbol{u8"nWb"};
 };
 
-struct kiloweber final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
+struct kiloweber_t final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>;
     using _base::_base;
@@ -77,7 +77,7 @@ struct kiloweber final : public details::unit_t<double, std::ratio<1000, 1>, mag
 // Magnetic flux density units (Tesla and derived)
 // Base unit: Tesla (T) = kg·s⁻²·A⁻¹
 
-struct tesla final : public details::unit_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
+struct tesla_t final : public details::unit_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -87,7 +87,7 @@ struct tesla final : public details::unit_t<double, std::ratio<1, 1>, magnetic_f
     static constexpr std::u8string_view u8_symbol{u8"T"};
 };
 
-struct millitesla final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+struct millitesla_t final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -97,7 +97,7 @@ struct millitesla final : public details::unit_t<double, std::ratio<1, 1000>, ma
     static constexpr std::u8string_view u8_symbol{u8"mT"};
 };
 
-struct microtesla final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+struct microtesla_t final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -107,7 +107,7 @@ struct microtesla final : public details::unit_t<double, std::ratio<1, 1000000>,
     static constexpr std::u8string_view u8_symbol{u8"µT"};
 };
 
-struct nanotesla final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+struct nanotesla_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -117,7 +117,7 @@ struct nanotesla final : public details::unit_t<double, std::ratio<1, 1000000000
     static constexpr std::u8string_view u8_symbol{u8"nT"};
 };
 
-struct kilotesla final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+struct kilotesla_t final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -127,7 +127,7 @@ struct kilotesla final : public details::unit_t<double, std::ratio<1000, 1>, mag
     static constexpr std::u8string_view u8_symbol{u8"kT"};
 };
 
-struct megatesla final : public details::unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+struct megatesla_t final : public details::unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
@@ -145,68 +145,68 @@ struct megatesla final : public details::unit_t<double, std::ratio<1000000, 1>, 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_dimension>
 {
-    using type = weber;
+    using type = weber_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
-    using type = milliweber;
+    using type = milliweber_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
-    using type = microweber;
+    using type = microweber_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
-    using type = nanoweber;
+    using type = nanoweber_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
-    using type = kiloweber;
+    using type = kiloweber_t;
 };
 
 // Magnetic flux density units
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
-    using type = tesla;
+    using type = tesla_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
-    using type = millitesla;
+    using type = millitesla_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
-    using type = microtesla;
+    using type = microtesla_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
-    using type = nanotesla;
+    using type = nanotesla_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
-    using type = kilotesla;
+    using type = kilotesla_t;
 };
 
 template<>
 struct details::named_unit_type_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
-    using type = megatesla;
+    using type = megatesla_t;
 };
 
 } // PKR_UNITS_NAMESPACE

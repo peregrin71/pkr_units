@@ -48,6 +48,8 @@ class SiUnitsConan(ConanFile):
     def configure(self):
         if self.settings.compiler == "gcc":
             self.settings.compiler.libcxx = "libstdc++11"
+        elif self.settings.compiler == "clang" and self.settings.os != "Windows":
+            self.settings.compiler.libcxx = "libc++"
 
     def layout(self):
         # Output generators to the build directory

@@ -22,6 +22,7 @@ set(TEST_SOURCES
   time/test_si_time.cpp
   time/test_si_time_operators.cpp
   time/test_si_time_formatting.cpp
+  time/test_chrono_cast.cpp
   current/test_si_current.cpp
   current/test_si_current_operators.cpp
   current/test_si_current_formatting.cpp
@@ -75,6 +76,9 @@ set(TEST_SOURCES
   
   # Dimensional analysis tests
   test_dimensional_analysis.cpp
+  
+  # Constants tests
+  test_constants.cpp
   
   # Compile-time safety and dimensional error documentation
   #test_dimensional_safety.cpp

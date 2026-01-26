@@ -15,6 +15,7 @@ namespace test
 {
 
 using namespace ::testing;
+// using namespace pkr::units;
 
 class ConstantsTest : public Test
 {
@@ -57,13 +58,13 @@ TEST_F(ConstantsTest, TypedConstantsWork) {
 // Test that constants can be used in mathematical operations
 TEST_F(ConstantsTest, ConstantsInCalculations) {
     // Calculate energy using E = mc²
-    pkr::units::joule_t rest_energy_electron{pkr::units::electron_mass * pkr::units::speed_of_light * pkr::units::speed_of_light};
+    pkr::units::joule_t rest_energy_electron{(pkr::units::electron_mass * pkr::units::speed_of_light * pkr::units::speed_of_light).value()};
     EXPECT_GT(rest_energy_electron.value(), 0.0);
 
     // Test with typed constants
     pkr::units::kilogram_t m_e{pkr::units::details::electron_mass<double>()};
     pkr::units::meter_per_second_t c{pkr::units::speed_of_light};
-    pkr::units::joule_t energy{m_e * c * c};
+    pkr::units::joule_t energy{(m_e * c * c).value()};
 
     EXPECT_GT(energy.value(), 0.0);
 }
