@@ -9,6 +9,7 @@
 #include "../concepts/unit_concepts.h"
 
 PKR_UNITS_DETAILS_BEGIN_NAMESPACE
+{
 
 // Forward declaration of named_unit_type_t
 template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
@@ -99,6 +100,13 @@ public:
     {
     }
 
+    // Allow construction from another unit with same dimension but different ratio
+    template<typename other_ratio_t>
+    constexpr unit_t(const unit_t<type_t, other_ratio_t, dim_v>& other) noexcept
+         : m_value(convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
+    {
+    }
+
     // make sure type is default copyable and movable
     constexpr unit_t(const unit_t&) noexcept = default;
     constexpr unit_t(unit_t&&) noexcept = default;
@@ -124,7 +132,7 @@ public:
             .angle = dim_v.angle + dim_u.angle};
 
         type_t result_value = m_value * other.value();
-        return details::unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
+        return typename details::named_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
     }
 
     // Divide by another si_unit quantity (combine dimensions and ratios)
@@ -155,7 +163,7 @@ public:
             .angle = dim_v.angle - dim_u.angle};
 
         type_t result_value = m_value / other.value();
-        return details::unit_t<type_t, combined_ratio, combined_dim_v>{result_value};
+        return typename details::named_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
     }
 
     // Multiply by scalar - returns the most derived unit type
@@ -319,8 +327,3 @@ concept pkr_unit_concept = is_pkr_unit<T>::value;
 
 }  // namespace details
 }  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
