@@ -67,6 +67,13 @@ set(TEST_SOURCES
   # Multi-unit cast tests
   # multi_cast/test_multi_unit_cast.cpp
   
+  # Math tests
+  math/test_arithmetic_optimizations.cpp
+  math/test_math_functions.cpp
+  
+  # Measurement tests
+  measurements/test_measurement.cpp
+  
   # Dimensional analysis tests
   test_dimensional_analysis.cpp
   

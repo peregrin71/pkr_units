@@ -4,7 +4,8 @@
 
 param(
     [switch]$Update,
-    [switch]$ShowVersions
+    [switch]$ShowVersions,
+    [switch]$ForceRecreate
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,12 +18,12 @@ $ENV_NAME = "build_si_units_1.0"
 $CONDA_CHANNEL = "conda-forge"
 
 $TOOL_VERSIONS = @{
-    "clang"   = "21"
+    "clang"   = "18"
     "cmake"   = "4.2"
     "conan2"  = "2.24"
     "gcc"     = "13"
     "gxx"     = "13"
-    "llvm"    = "21"
+    "llvm"    = "18"
     "ninja"   = "1.13"
     "python"  = "3.12"
 }
@@ -314,6 +315,21 @@ function Test-EnvironmentExists {
     }
 }
 
+function Remove-Environment {
+    param([string]$CondaExe)
+
+    Write-Step "Removing existing environment '$ENV_NAME'"
+
+    & $CondaExe env remove --name $ENV_NAME --yes
+    
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error-Custom "Failed to remove environment"
+        exit 1
+    }
+
+    Write-Success "Environment '$ENV_NAME' removed"
+}
+
 function New-Environment {
     param([string]$CondaExe, [string]$EnvFile)
 
@@ -342,6 +358,47 @@ function Update-Environment {
     }
 
     Write-Success "Environment '$ENV_NAME' updated successfully"
+}
+
+function Set-ClangPath {
+    param([string]$CondaExe)
+
+    Write-Step "Setting Clang PATH in environment"
+
+    # Get the environment path
+    $envInfo = & $CondaExe info --envs | Select-String $ENV_NAME
+    if (-not $envInfo) {
+        Write-Error-Custom "Could not find environment path"
+        return
+    }
+    
+    $envPath = ($envInfo.ToString().Trim() -split '\s+')[-1]
+    $activateDir = Join-Path $envPath "etc\conda\activate.d"
+    $deactivateDir = Join-Path $envPath "etc\conda\deactivate.d"
+    
+    # Create directories if they don't exist
+    if (-not (Test-Path $activateDir)) {
+        New-Item -ItemType Directory -Path $activateDir -Force | Out-Null
+    }
+    if (-not (Test-Path $deactivateDir)) {
+        New-Item -ItemType Directory -Path $deactivateDir -Force | Out-Null
+    }
+    
+    # Create activate script
+    $activateScript = @"
+# Set Clang PATH for Windows
+`$env:PATH = "`$env:CONDA_PREFIX/Library/bin;`$env:PATH"
+"@
+    $activateScript | Out-File -FilePath (Join-Path $activateDir "set_clang_path.ps1") -Encoding UTF8
+    
+    # Create deactivate script (optional, to restore PATH)
+    $deactivateScript = @"
+# Restore PATH (basic implementation)
+# Note: This is a simple restoration; complex PATH management may need more logic
+"@
+    $deactivateScript | Out-File -FilePath (Join-Path $deactivateDir "set_clang_path.ps1") -Encoding UTF8
+    
+    Write-Success "Clang PATH set in environment"
 }
 
 function Get-ActivationCommand {
@@ -402,8 +459,14 @@ function Invoke-Setup {
     }
     Write-Info ""
 
-    # Step 3: Create or update environment (only if needed)
-    if (Test-EnvironmentExists -CondaExe $condaExe) {
+    # Step 3: Create or update environment
+    if ($ForceRecreate) {
+        if (Test-EnvironmentExists -CondaExe $condaExe) {
+            Remove-Environment -CondaExe $condaExe
+        }
+        New-Environment -CondaExe $condaExe -EnvFile $envFile
+        Set-ClangPath -CondaExe $condaExe
+    } elseif (Test-EnvironmentExists -CondaExe $condaExe) {
         Write-Info "Environment '$ENV_NAME' already exists"
         
         if ($needsUpdate) {
@@ -412,8 +475,11 @@ function Invoke-Setup {
         } else {
             Write-Success "Environment is up to date, skipping update"
         }
+        # Always set Clang PATH
+        Set-ClangPath -CondaExe $condaExe
     } else {
         New-Environment -CondaExe $condaExe -EnvFile $envFile
+        Set-ClangPath -CondaExe $condaExe
     }
 
     Write-Info ""

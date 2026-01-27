@@ -9,6 +9,7 @@
 #include "../concepts/unit_concepts.h"
 
 PKR_UNITS_DETAILS_BEGIN_NAMESPACE
+{
 
 // Forward declaration of named_unit_type_t
 template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
@@ -326,8 +327,3 @@ concept pkr_unit_concept = is_pkr_unit<T>::value;
 
 }  // namespace details
 }  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-

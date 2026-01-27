@@ -13,10 +13,10 @@ dependencies:
   - conan>=2.24
   
   # LLVM/Clang toolchain
-  - llvm-tools>=21
-  - clang>=21
-  - clang-tools>=21
-  - lld>=21
+  - llvm-tools>=18
+  - clang>=18
+  - clang-tools>=18
+  - lld>=18
   
   # GCC toolchain with build tools
   - gcc>=13

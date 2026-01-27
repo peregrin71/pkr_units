@@ -29,6 +29,137 @@ from setup_environment import ensure_environment_ready
 CONDA_ENV_NAME = "build_si_units_1.0"
 
 
+def is_wsl():
+    """Check if running on WSL."""
+    return "microsoft" in platform.uname().release.lower() or "wsl" in platform.uname().release.lower()
+
+
+def is_wsl_available():
+    """Check if WSL with Ubuntu is available."""
+    try:
+        result = subprocess.run(["wsl", "--list", "--quiet"], capture_output=True)
+        output = result.stdout.decode('utf-16').strip()
+        return "Ubuntu" in output
+    except:
+        return False
+
+
+def setup_wsl_environment():
+    """Setup WSL Ubuntu environment with required tools."""
+    print_step("Setting up WSL Ubuntu environment")
+    
+    # Check if Ubuntu is installed
+    try:
+        result = subprocess.run(["wsl", "--list", "--quiet"], capture_output=True)
+        output = result.stdout.decode('utf-16').strip()
+        if "Ubuntu" not in output:
+            raise Exception("Ubuntu not installed in WSL. Please install Ubuntu from Microsoft Store.")
+    except subprocess.CalledProcessError:
+        raise Exception("WSL not available or Ubuntu not installed.")
+    
+    # Start Ubuntu if not running
+    subprocess.run(["wsl", "-d", "Ubuntu", "--", "echo", "Ubuntu started"], check=True)
+    
+    # Check if clang-18 is installed
+    try:
+        subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "clang-18"], check=True)
+        print_success("Clang 18 already installed in WSL")
+    except subprocess.CalledProcessError:
+        print_info("Clang 18 not found, installing...")
+        # Install required packages
+        install_cmd = """        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\        apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev cmake ninja-build python3 python3-pip && python3 -m pip install conan
+        """
+        
+        try:
+            subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", install_cmd], check=True)
+            print_success("WSL environment setup complete")
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Failed to setup WSL environment: {e}")
+    
+    # Check if conan is installed
+    try:
+        subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "conan"], check=True)
+        print_success("Conan already installed in WSL")
+    except subprocess.CalledProcessError:
+        print_info("Conan not found, installing...")
+        try:
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "--user", "conan"], check=True)
+            print_success("Conan installed")
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Failed to install Conan: {e}")
+    
+    # Check CMake version
+    try:
+        result = subprocess.run(["wsl", "-d", "Ubuntu", "--", "cmake", "--version"], capture_output=True, text=True, check=True)
+        version_line = result.stdout.split('\n')[0]
+        version = version_line.split()[2]
+        major, minor = map(int, version.split('.')[:2])
+        if major < 3 or (major == 3 and minor < 20):
+            print_info(f"CMake version {version} too old, upgrading...")
+            upgrade_cmd = """
+            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
+            apt update && apt install -y cmake
+            """
+            subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", upgrade_cmd], check=True)
+            print_success("CMake upgraded")
+        else:
+            print_success(f"CMake version {version} is sufficient")
+    except subprocess.CalledProcessError:
+        print_info("CMake not found, installing...")
+        upgrade_cmd = """
+        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
+        apt update && apt install -y cmake
+        """
+        subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", upgrade_cmd], check=True)
+        print_success("CMake installed")
+    
+    print_success("WSL environment ready")
+
+
+def run_build_in_wsl(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
+    """Run build in WSL Ubuntu environment."""
+    build_impl = build_dir / "scripts" / "build_impl.py"
+    
+    # Convert Windows path to WSL path
+    def to_wsl_path(win_path):
+        drive = win_path.drive.lower()[:-1]  # e.g., 'c'
+        path_part = str(win_path)[len(win_path.drive):]
+        return f"/mnt/{drive}{path_part}".replace("\\", "/")
+    
+    wsl_project_root = to_wsl_path(project_root)
+    wsl_build_path = to_wsl_path(build_path)
+    wsl_build_impl = to_wsl_path(build_impl)
+    
+    print_info(f"WSL project root: {wsl_project_root}")
+    print_info(f"WSL build path: {wsl_build_path}")
+    print_info(f"WSL build impl: {wsl_build_impl}")
+    
+    # Command to run in WSL
+    cmd = f"""
+    export PATH="$HOME/.local/bin:$PATH" && \\
+    conan profile detect --force && \\
+    cd "{wsl_project_root}" && \\
+    python3 "{wsl_build_impl}" "{wsl_project_root}" "{wsl_build_path}" \\
+        --config {config} \\
+        --compiler {compiler} \\
+        {"--skip-tests " if skip_tests else ""}{"--skip-setup " if skip_setup else ""}
+    """
+    
+    print_info(f"Command: {cmd}")
+    
+    try:
+        print_step("Running build in WSL Ubuntu")
+        result = subprocess.run(["wsl", "-d", "Ubuntu", "--", "bash", "-c", cmd], stdout=None, stderr=subprocess.PIPE, text=True, check=True)
+        # Output is displayed live in the terminal
+    except subprocess.CalledProcessError as e:
+        print_error(f"Build failed in WSL: {e.stderr}")
+        raise Exception(f"Build failed in WSL for {compiler}") from e
+
+
 def setup_conda_environment(project_root: Path):
     """
     Setup Conda environment if needed.
@@ -61,6 +192,9 @@ $ErrorActionPreference = "Stop"
 
 # Activate Conda environment
 conda activate {CONDA_ENV_NAME}
+
+# Ensure clang tools are in PATH
+$env:PATH = "$env:CONDA_PREFIX/Library/bin;$env:PATH"
 
 try {{
     # Run build implementation for specific compiler
@@ -190,14 +324,17 @@ def main():
         print_info(f"Conda Environment: {CONDA_ENV_NAME}")
         print_info("")
 
-        # Setup Conda environment (default behavior, can be skipped)
-        if not args.skip_venv_setup:
-            setup_conda_environment(project_root)
-            print_info("")
-
         # Build for each compiler
         results = {}
         for compiler in compilers:
+            # Setup environment for this compiler
+            if not args.skip_venv_setup:
+                if compiler == "clang":
+                    setup_wsl_environment()
+                else:
+                    setup_conda_environment(project_root)
+                print_info("")
+
             compiler_build_path = project_root / f".{compiler}_build"
             
             try:
@@ -214,16 +351,27 @@ def main():
 
                 # Run build for this compiler
                 if not args.skip_venv_setup:
-                    print_step("Running build within Conda environment")
-                    print_info(f"Activating {CONDA_ENV_NAME}...")
-                    run_build_in_conda_env(
-                        project_root,
-                        compiler_build_path,
-                        args.config,
-                        compiler,
-                        args.no_tests,
-                        args.skip_setup
-                    )
+                    if compiler == "clang":
+                        print_step("Running build in WSL Ubuntu")
+                        run_build_in_wsl(
+                            project_root,
+                            compiler_build_path,
+                            args.config,
+                            compiler,
+                            args.no_tests,
+                            args.skip_setup
+                        )
+                    else:
+                        print_step("Running build within Conda environment")
+                        print_info(f"Activating {CONDA_ENV_NAME}...")
+                        run_build_in_conda_env(
+                            project_root,
+                            compiler_build_path,
+                            args.config,
+                            compiler,
+                            args.no_tests,
+                            args.skip_setup
+                        )
                     results[compiler] = "[PASSED]"
                 else:
                     raise Exception("Conda environment activation is required (use --skip-venv-setup only for testing)")
