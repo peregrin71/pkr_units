@@ -4,7 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Inductance dimension
@@ -54,12 +54,4 @@ struct nanohenry final : public details::unit_t<double, std::ratio<1, 1000000000
     const std::u8string_view u8_symbol{u8"nH"};
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

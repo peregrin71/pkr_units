@@ -4,7 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Electric charge dimension: A·s
@@ -76,12 +76,4 @@ struct picocoulomb final : public details::unit_t<double, std::ratio<1, 10000000
     const std::u8string_view u8_symbol{u8"pC"};
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

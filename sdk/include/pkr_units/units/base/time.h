@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/time_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for second (SI base unit)
@@ -73,46 +73,40 @@ struct hour_t final : public details::unit_t<double, std::ratio<3600, 1>, time_d
 // Most derived unit type specializations for time units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, time_dimension>
 {
     using type = second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, time_dimension>
 {
     using type = millisecond_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, time_dimension>
 {
     using type = microsecond_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, time_dimension>
 {
     using type = nanosecond_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, time_dimension>
 {
     using type = kilosecond_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<3600, 1>, time_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<3600, 1>, time_dimension>
 {
     using type = hour_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

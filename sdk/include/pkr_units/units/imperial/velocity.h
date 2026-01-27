@@ -4,7 +4,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/velocity_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Imperial and nautical velocity units
@@ -12,12 +12,4 @@ PKR_UNITS_BEGIN_NAMESPACE
 // using knots = details::unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;
 // using feet_per_second = details::unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

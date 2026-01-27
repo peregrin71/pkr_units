@@ -199,6 +199,3 @@ TEST_F(SiMassOperatorsTest, scalar_rhs_divide_kilogram)
     auto result = kg / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 2.0);
 }
-
-
-

@@ -39,7 +39,7 @@ TEST_F(SiIntensityFormattingTest, microcandela_ascii_formatting)
 {
     pkr::units::microcandela_t ucd{0.5};
     std::string result = std::format("{}", ucd);
-    ASSERT_EQ(result, "0.5 ucd");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 ucd"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiIntensityFormattingTest, nanocandela_ascii_formatting)

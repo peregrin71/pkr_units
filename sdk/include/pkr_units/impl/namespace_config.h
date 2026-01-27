@@ -31,40 +31,5 @@
  */
 
 #ifndef PKR_UNITS_NAMESPACE
-    #define PKR_UNITS_NAMESPACE pkr::units
+#define PKR_UNITS_NAMESPACE pkr::units
 #endif
-
-/**
- * @def PKR_UNITS_BEGIN_NAMESPACE
- * @brief Begin the Units namespace block
- * 
- * Usage in headers:
- * @code
- * PKR_UNITS_BEGIN_NAMESPACE
- * {
- *     // Unit definitions go here
- * }  // namespace PKR_UNITS_NAMESPACE
- * @endcode
- */
-#define PKR_UNITS_BEGIN_NAMESPACE namespace PKR_UNITS_NAMESPACE
-
-/**
- * @def PKR_UNITS_DETAILS_BEGIN_NAMESPACE
- * @brief Begin the Units details namespace block (for implementation details)
- * 
- * Usage in headers:
- * @code
- * PKR_UNITS_DETAILS_BEGIN_NAMESPACE
- * {
- *     // Implementation details go here
- * }  // namespace details
- * }  // namespace PKR_UNITS_NAMESPACE
- * @endcode
- */
-#define PKR_UNITS_DETAILS_BEGIN_NAMESPACE namespace PKR_UNITS_NAMESPACE { namespace details
-
-
-
-
-
-

@@ -90,8 +90,3 @@ TEST_F(SiLengthImperialTest, nautical_mile_literal)
 }
 
 } // namespace test
-
-
-
-
-

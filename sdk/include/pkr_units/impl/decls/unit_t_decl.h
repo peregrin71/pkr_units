@@ -2,31 +2,30 @@
 
 #include <ratio>
 #include <stdexcept>
-#include "../dimension.h"
+#include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 
-// Include concepts BEFORE opening namespace to avoid including headers within namespace
-#include "../concepts/unit_concepts.h"
-
-PKR_UNITS_DETAILS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
+{
+namespace details
 {
 
-// Forward declaration of named_unit_type_t
-template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
-struct named_unit_type_t;
+// Forward declaration of derived_unit_type_t
+template <PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
+struct derived_unit_type_t;
 
 // ============================================================================
 // Helper: convert a value from one ratio to another
-template<typename type_t, typename ratio_from, typename ratio_to>
+template <typename type_t, typename ratio_from, typename ratio_to>
 constexpr type_t convert_ratio_to(type_t value) noexcept
 {
     using conversion = std::ratio_divide<ratio_from, ratio_to>;
-    return (value / static_cast<type_t>(conversion::den)) * 
-           static_cast<type_t>(conversion::num);
+    return (value / static_cast<type_t>(conversion::den)) * static_cast<type_t>(conversion::num);
 }
 
 // Helper: add two values with different ratios, result in canonical ratio (1/1)
-template<typename type_t, typename ratio_t1, typename ratio_t2>
+template <typename type_t, typename ratio_t1, typename ratio_t2>
 constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
 {
     if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
@@ -43,7 +42,7 @@ constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
 }
 
 // Helper: subtract two values with different ratios, result in canonical ratio (1/1)
-template<typename type_t, typename ratio_t1, typename ratio_t2>
+template <typename type_t, typename ratio_t1, typename ratio_t2>
 constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
 {
     if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
@@ -60,14 +59,14 @@ constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
 }
 
 // Helper: multiply two values
-template<typename type_t>
+template <typename type_t>
 constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
 {
     return val1 * val2;
 }
 
 // Helper: divide two values
-template<typename type_t>
+template <typename type_t>
 constexpr type_t divide_values(type_t val1, type_t val2)
 {
     // Division by zero check: at runtime throw, at compile-time assert
@@ -81,13 +80,14 @@ constexpr type_t divide_values(type_t val1, type_t val2)
     return val1 / val2;
 }
 
-template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
+template <PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 class unit_t
 {
 public:
     using value_type = type_t;
     using ratio_type = ratio_t;
     using dimension_type = std::integral_constant<PKR_UNITS_NAMESPACE::dimension_t, dim_v>; // Add this typedef
+
     // Expose dimension type and value for compile-time access
     struct dimension
     {
@@ -96,14 +96,14 @@ public:
 
     // Allow construction from underlying type
     explicit constexpr unit_t(type_t value) noexcept
-         : m_value(value)
+        : m_value(value)
     {
     }
 
     // Allow construction from another unit with same dimension but different ratio
-    template<typename other_ratio_t>
+    template <typename other_ratio_t>
     constexpr unit_t(const unit_t<type_t, other_ratio_t, dim_v>& other) noexcept
-         : m_value(convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
+        : m_value(convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
     {
     }
 
@@ -114,7 +114,7 @@ public:
     constexpr unit_t& operator=(unit_t&&) noexcept = default;
 
     // Multiply by another si_unit quantity (combine dimensions and ratios)
-    template<typename ratio_u, dimension_t dim_u>
+    template <typename ratio_u, dimension_t dim_u>
     constexpr auto operator*(const details::unit_t<type_t, ratio_u, dim_u>& other) const noexcept
     {
         // Combine ratios: (this_num/this_den) * (other_num/other_den)
@@ -132,11 +132,11 @@ public:
             .angle = dim_v.angle + dim_u.angle};
 
         type_t result_value = m_value * other.value();
-        return typename details::named_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
+        return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
     }
 
     // Divide by another si_unit quantity (combine dimensions and ratios)
-    template<typename ratio_u, dimension_t dim_u>
+    template <typename ratio_u, dimension_t dim_u>
     constexpr auto operator/(const details::unit_t<type_t, ratio_u, dim_u>& other) const
     {
         // Division by zero check: at runtime throw, at compile-time assert
@@ -163,13 +163,13 @@ public:
             .angle = dim_v.angle - dim_u.angle};
 
         type_t result_value = m_value / other.value();
-        return typename details::named_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
+        return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
     }
 
     // Multiply by scalar - returns the most derived unit type
     constexpr auto operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename named_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value * scalar};
     }
 
@@ -180,7 +180,7 @@ public:
         {
             throw std::invalid_argument("Division by zero in si_unit::operator/");
         }
-        using result_type = typename named_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value / scalar};
     }
 
@@ -231,9 +231,9 @@ public:
     {
         // Convert value from current ratio to canonical ratio (1/1)
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-        
+
         // Return most derived unit type with canonical ratio and same dimensions
-        using canonical_unit = typename named_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
+        using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
         return canonical_unit{canonical_value};
     }
 
@@ -242,7 +242,7 @@ public:
     {
         // Convert value from current ratio to canonical ratio (1/1)
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-        
+
         // Return raw unit_t with canonical ratio and same dimensions
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
@@ -254,8 +254,8 @@ private:
 // ============================================================================
 // Most derived unit_type deduction helpers
 
-template<PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
-struct named_unit_type_t
+template <PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
+struct derived_unit_type_t
 {
     using type = details::unit_t<type_t, ratio_t, dim_v>;
 };
@@ -263,23 +263,22 @@ struct named_unit_type_t
 // and now we can specialize for derived types everywhere like this
 // and we must place these specializations close to the derived unit type definitions.
 // template<>
-// struct named_unit_type_t<double, std::ratio<1, 1000>, PKR_UNITS_NAMESPACE::dimension_t{0, 1, 0, 0, 0, 0, 0}>
+// struct derived_unit_type_t<double, std::ratio<1, 1000>, PKR_UNITS_NAMESPACE::dimension_t{0, 1, 0, 0, 0, 0, 0}>
 // {
 //     using type = PKR_UNITS_NAMESPACE::gram_t;
 // };
-
 
 // ============================================================================
 // Type Traits for Unit Detection
 // ============================================================================
 // Helper to check if a type is an pkr_unit and extract its components
-template<typename T>
+template <typename T>
 struct is_pkr_unit : std::false_type
 {
 };
 
 // Specialization for direct unit_t types
-template<typename type_t, typename ratio_t, dimension_t dim_v>
+template <typename type_t, typename ratio_t, dimension_t dim_v>
 struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 {
     static constexpr bool value = true;
@@ -291,8 +290,9 @@ struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 
 // Specialization for derived types that inherit from unit_t
 // (e.g., struct meter : public details::unit_t<...>)
-template<typename T>
+template <typename T>
 requires std::is_base_of_v<typename T::_base, T>
+
 struct is_pkr_unit<T> : std::true_type
 {
     static constexpr bool value = true;
@@ -304,26 +304,26 @@ struct is_pkr_unit<T> : std::true_type
 };
 
 // Specialization for const references
-template<typename T>
+template <typename T>
 struct is_pkr_unit<const T&> : is_pkr_unit<T>
 {
 };
 
 // Specialization for references
-template<typename T>
+template <typename T>
 struct is_pkr_unit<T&> : is_pkr_unit<T>
 {
 };
 
 // Specialization for const
-template<typename T>
+template <typename T>
 struct is_pkr_unit<const T> : is_pkr_unit<T>
 {
 };
 
 // Concept for any pkr_unit type
-template<typename T>
+template <typename T>
 concept pkr_unit_concept = is_pkr_unit<T>::value;
 
-}  // namespace details
-}  // namespace PKR_UNITS_NAMESPACE
+} // namespace details
+} // namespace PKR_UNITS_NAMESPACE

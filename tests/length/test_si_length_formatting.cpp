@@ -46,7 +46,7 @@ TEST_F(SiLengthFormattingTest, micrometer_ascii_formatting)
 {
     pkr::units::micrometer_t um{0.5};
     std::string result = std::format("{}", um);
-    ASSERT_EQ(result, "0.5 um");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 um"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiLengthFormattingTest, nanometer_ascii_formatting)
@@ -184,7 +184,8 @@ TEST_F(SiLengthFormattingTest, meter_ascii_negative_value)
 TEST_F(SiLengthFormattingTest, all_metric_prefixes_ascii)
 {
     // Test all implemented metric prefixes
-    struct TestCase {
+    struct TestCase
+    {
         std::string expected;
         std::string result;
     };
@@ -233,12 +234,9 @@ TEST_F(SiLengthFormattingTest, multiple_values_formatted)
     pkr::units::meter_t width{3.2};
     pkr::units::meter_t depth{2.5};
     pkr::units::meter_t height{1.75};
-    
-    std::string result = std::format(
-        "Dimensions: {}W x {}D x {}H",
-        width, depth, height
-    );
-    
+
+    std::string result = std::format("Dimensions: {}W x {}D x {}H", width, depth, height);
+
     ASSERT_EQ(result, "Dimensions: 3.2 mW x 2.5 mD x 1.75 mH");
 }
 
@@ -264,13 +262,6 @@ TEST_F(SiLengthFormattingTest, default_and_explicit_precision)
 {
     pkr::units::meter_t m{1.0 / 3.0};
     std::string result_explicit = std::format("{:.6f}", m);
-    
+
     ASSERT_EQ(result_explicit, "0.333333 m");
 }
-
-
-
-
-
-
-

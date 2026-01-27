@@ -284,7 +284,7 @@ template<> struct std::formatter<si::meter> {
 - Move derived unit definitions from empty headers to actual implementations
 - Add: Area (m²), Volume (m³), Energy/Joule, Work
 - Ensure consistent naming: `square_meter`, `cubic_meter`, `joule`
-- Add specializations in `named_unit_type_t` for all derived units
+- Add specializations in `derived_unit_type_t` for all derived units
 
 **Example fix**:
 ```cpp

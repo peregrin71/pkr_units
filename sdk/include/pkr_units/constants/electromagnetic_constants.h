@@ -14,10 +14,11 @@
 #include <pkr_units/units/derived/magnetic_flux.h>
 #include <pkr_units/units/derived/electrical/josephson.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
-namespace details {
+namespace details
+{
 
 // ============================================================================
 // Electromagnetic Constants
@@ -28,7 +29,8 @@ namespace details {
  * Symbol: Z_0, Units: ohm
  * 2022 CODATA: 376.730313412
  */
-template<typename T> constexpr T vacuum_impedance()
+template <typename T>
+constexpr T vacuum_impedance()
 {
     return static_cast<T>(376.730313412);
 }
@@ -38,7 +40,8 @@ template<typename T> constexpr T vacuum_impedance()
  * Symbol: K_J, Units: Hz/V
  * 2022 CODATA: 483597.8484e9 (conventional)
  */
-template<typename T> constexpr T josephson_constant()
+template <typename T>
+constexpr T josephson_constant()
 {
     return static_cast<T>(483597.8484e9);
 }
@@ -48,7 +51,8 @@ template<typename T> constexpr T josephson_constant()
  * Symbol: R_K, Units: ohm
  * 2022 CODATA: 25812.80745 (conventional)
  */
-template<typename T> constexpr T von_klitzing_constant()
+template <typename T>
+constexpr T von_klitzing_constant()
 {
     return static_cast<T>(25812.80745);
 }
@@ -58,7 +62,8 @@ template<typename T> constexpr T von_klitzing_constant()
  * Symbol: Φ_0, Units: Wb
  * 2022 CODATA: 2.067833848e-15
  */
-template<typename T> constexpr T magnetic_flux_quantum()
+template <typename T>
+constexpr T magnetic_flux_quantum()
 {
     return static_cast<T>(2.067833848e-15);
 }
@@ -68,7 +73,8 @@ template<typename T> constexpr T magnetic_flux_quantum()
  * Symbol: G_0, Units: S
  * 2022 CODATA: 7.748091729e-5
  */
-template<typename T> constexpr T conductance_quantum()
+template <typename T>
+constexpr T conductance_quantum()
 {
     return static_cast<T>(7.748091729e-5);
 }
@@ -78,12 +84,13 @@ template<typename T> constexpr T conductance_quantum()
  * Symbol: 1/G_0, Units: ohm
  * 2022 CODATA: 12906.40372
  */
-template<typename T> constexpr T inverse_conductance_quantum()
+template <typename T>
+constexpr T inverse_conductance_quantum()
 {
     return static_cast<T>(12906.40372);
 }
 
-}  // namespace details
+} // namespace details
 
 // ============================================================================
 // Electromagnetic Constants
@@ -97,4 +104,4 @@ constexpr weber_t magnetic_flux_quantum{details::magnetic_flux_quantum<double>()
 constexpr siemens_t conductance_quantum{details::conductance_quantum<double>()};
 constexpr ohm_t inverse_conductance_quantum{details::inverse_conductance_quantum<double>()};
 
-}  // namespace PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

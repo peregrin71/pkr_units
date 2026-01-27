@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/length_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for meter (SI base unit)
@@ -183,111 +183,106 @@ struct exameter_t final : public details::unit_t<double, std::exa, length_dimens
 // Most derived unit type specializations for length units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, length_dimension>
 {
     using type = meter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::atto, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::atto, length_dimension>
 {
     using type = attometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::femto, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::femto, length_dimension>
 {
     using type = femtometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::pico, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::pico, length_dimension>
 {
     using type = picometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, length_dimension>
 {
     using type = nanometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, length_dimension>
 {
     using type = micrometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, length_dimension>
 {
     using type = millimeter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::centi, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::centi, length_dimension>
 {
     using type = centimeter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::deci, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::deci, length_dimension>
 {
     using type = decimeter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::deca, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::deca, length_dimension>
 {
     using type = decameter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::hecto, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::hecto, length_dimension>
 {
     using type = hectometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, length_dimension>
 {
     using type = kilometer_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::mega, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::mega, length_dimension>
 {
     using type = megameter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::giga, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::giga, length_dimension>
 {
     using type = gigameter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::tera, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::tera, length_dimension>
 {
     using type = terameter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::peta, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::peta, length_dimension>
 {
     using type = petameter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::exa, length_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::exa, length_dimension>
 {
     using type = exameter_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

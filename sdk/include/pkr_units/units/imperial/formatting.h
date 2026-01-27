@@ -150,11 +150,3 @@ struct formatter<::si::pound>
 } // namespace std
 
 */
-
-
-
-
-
-
-
-

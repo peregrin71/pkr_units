@@ -30,7 +30,7 @@ TEST_F(MathFunctionsTest, add_same_units)
 TEST_F(MathFunctionsTest, add_different_ratios)
 {
     pkr::units::meter_t m{1.0};
-    pkr::units::meter_t m2{2.0};  // Same ratio, just different values
+    pkr::units::meter_t m2{2.0}; // Same ratio, just different values
     auto result = pkr::units::math::add(m, m2);
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
@@ -111,7 +111,7 @@ TEST_F(MathFunctionsTest, sqrt_length_squared)
 {
     // Create area by multiplying length by length
     auto length = pkr::units::meter_t{4.0};
-    auto area = length * length;  // This creates a unit with length² dimension
+    auto area = length * length; // This creates a unit with length² dimension
     auto result = pkr::units::math::sqrt(area);
 
     ASSERT_DOUBLE_EQ(result.value(), 4.0);
@@ -124,7 +124,7 @@ TEST_F(MathFunctionsTest, sqrt_length_squared)
 TEST_F(MathFunctionsTest, exp_dimensionless_input)
 {
     // Create dimensionless value by dividing same units
-    auto dimensionless_value = pkr::units::meter_t{2.0} / pkr::units::meter_t{2.0};  // equals 1.0
+    auto dimensionless_value = pkr::units::meter_t{2.0} / pkr::units::meter_t{2.0}; // equals 1.0
     auto result = pkr::units::math::exp(dimensionless_value);
 
     ASSERT_DOUBLE_EQ(result.value(), std::exp(1.0));
@@ -138,10 +138,10 @@ TEST_F(MathFunctionsTest, exp_dimensionless_input)
 TEST_F(MathFunctionsTest, log_dimensionless_input)
 {
     // Create dimensionless value by dividing same units
-    auto dimensionless_value = pkr::units::meter_t{1.0} / pkr::units::meter_t{1.0};  // equals 1.0
+    auto dimensionless_value = pkr::units::meter_t{1.0} / pkr::units::meter_t{1.0}; // equals 1.0
     auto result = pkr::units::math::log(dimensionless_value);
 
-    ASSERT_DOUBLE_EQ(result.value(), std::log(1.0));  // ln(1) = 0
+    ASSERT_DOUBLE_EQ(result.value(), std::log(1.0)); // ln(1) = 0
     // Result should be dimensionless
     using result_dim = decltype(result)::dimension;
     static_assert(result_dim::value.length == 0, "Should be dimensionless");
@@ -153,10 +153,10 @@ TEST_F(MathFunctionsTest, pow_with_dimensionless_exponent)
 {
     pkr::units::meter_t base{2.0};
     // Create dimensionless exponent by dividing same units
-    auto dimensionless_two = pkr::units::meter_t{4.0} / pkr::units::meter_t{2.0};  // equals 2.0
+    auto dimensionless_two = pkr::units::meter_t{4.0} / pkr::units::meter_t{2.0}; // equals 2.0
     auto result = pkr::units::math::pow(base, dimensionless_two);
 
-    ASSERT_DOUBLE_EQ(result.value(), 4.0);  // 2^2 = 4
+    ASSERT_DOUBLE_EQ(result.value(), 4.0); // 2^2 = 4
     // Result should have length dimension
     using result_dim = decltype(result)::dimension;
     static_assert(result_dim::value.length == 1, "Should have length dimension");
@@ -165,8 +165,8 @@ TEST_F(MathFunctionsTest, pow_with_dimensionless_exponent)
 TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 {
     // Create velocity squared by multiplying velocity by velocity
-    auto velocity = pkr::units::meter_t{3.0} / pkr::units::second_t{1.0};  // 3 m/s
-    auto velocity_squared = velocity * velocity;  // This creates a unit with (length/time)² dimension
+    auto velocity = pkr::units::meter_t{3.0} / pkr::units::second_t{1.0}; // 3 m/s
+    auto velocity_squared = velocity * velocity;                          // This creates a unit with (length/time)² dimension
     auto result = pkr::units::math::sqrt(velocity_squared);
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
@@ -179,16 +179,16 @@ TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 TEST_F(MathFunctionsTest, normalize_complex_operations)
 {
     // Test normalize after complex operations
-    auto force = pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0});  // 5 kg·m/s² = 5 N
-    auto distance = pkr::units::kilometer_t{3.0};  // 3 km
-    auto energy = force * distance;  // Complex operation: 5000 N * 3 km
+    auto force = pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0}); // 5 kg·m/s² = 5 N
+    auto distance = pkr::units::kilometer_t{3.0};                                                                                     // 3 km
+    auto energy = force * distance; // Complex operation: 5000 N * 3 km
 
     // The result should be some compound unit, but normalize() should return Joules
     auto normalized_energy = pkr::units::math::normalize(energy);
-    
+
     // Should be 15,000,000 Joules (5000 N * 3000 m = 15,000,000 J)
     ASSERT_DOUBLE_EQ(normalized_energy.value(), 15000000.0);
-    
+
     // Should be joule_t type
     using result_type = decltype(normalized_energy);
     static_assert(std::is_same_v<result_type, pkr::units::joule_t>, "Should be joule_t");
@@ -197,20 +197,21 @@ TEST_F(MathFunctionsTest, normalize_complex_operations)
 TEST_F(MathFunctionsTest, normalize_complex_operations_constexpr)
 {
     // Test normalize at compile time
-    constexpr auto force = pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0});  // 5 kg·m/s² = 5 N
-    constexpr auto distance = pkr::units::kilometer_t{3.0};  // 3 km
-    constexpr auto energy = force * distance;  // Complex operation: 5000 N * 3 km
+    constexpr auto force =
+        pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0}); // 5 kg·m/s² = 5 N
+    constexpr auto distance = pkr::units::kilometer_t{3.0};                                                                  // 3 km
+    constexpr auto energy = force * distance;                                                                                // Complex operation: 5000 N * 3 km
     constexpr auto normalized_energy = pkr::units::math::normalize(energy);
-    
+
     // Should be 15,000,000 Joules (5000 N * 3000 m = 15,000,000 J)
     static_assert(normalized_energy.value() == 15000000.0, "Should be 15,000,000 Joules");
-    
+
     // Check dimensions are correct for energy (M·L²·T⁻²)
     using result_dim = decltype(normalized_energy)::dimension;
     static_assert(result_dim::value.mass == 1, "Should have mass dimension");
     static_assert(result_dim::value.length == 2, "Should have length² dimension");
     static_assert(result_dim::value.time == -2, "Should have time⁻² dimension");
-    
+
     // Check type is correct - at compile time, template resolution may differ
     // So we check that it's at least convertible to joule_t and has the right properties
     using result_type = decltype(normalized_energy);
@@ -230,7 +231,7 @@ TEST_F(MathFunctionsTest, math_functions_work_with_existing_operations)
     auto sum = pkr::units::math::add(m1, m2);
     auto doubled = pkr::units::math::multiply_scalar(sum, 2.0);
 
-    ASSERT_DOUBLE_EQ(doubled.value(), 14.0);  // (3+4)*2 = 14
+    ASSERT_DOUBLE_EQ(doubled.value(), 14.0); // (3+4)*2 = 14
 }
 
 } // namespace test

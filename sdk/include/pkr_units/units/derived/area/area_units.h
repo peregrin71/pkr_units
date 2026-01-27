@@ -5,7 +5,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/area_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Area units (square meter and derived)
@@ -51,4 +51,4 @@ struct square_millimeter_t final : public details::unit_t<double, std::ratio<1, 
     static constexpr std::u8string_view u8_symbol{u8"mm²"};
 };
 
-} // PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

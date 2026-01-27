@@ -4,7 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
@@ -14,11 +14,11 @@ inline constexpr dimension_t magnetic_flux_dimension{2, 1, -2, -1, 0, 0, 0, 0};
 inline constexpr dimension_t magnetic_flux_density_dimension{0, 1, -2, -1, 0, 0, 0, 0};
 
 // Magnetic flux quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using magnetic_flux = details::unit_t<type_t, ratio_t, magnetic_flux_dimension>;
 
 // Magnetic flux density quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
 
 // Magnetic flux units (Weber and derived)
@@ -142,86 +142,71 @@ struct megatesla_t final : public details::unit_t<double, std::ratio<1000000, 1>
 // ============================================================================
 
 // Magnetic flux units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_dimension>
 {
     using type = weber_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
     using type = milliweber_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
     using type = microweber_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
     using type = nanoweber_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
     using type = kiloweber_t;
 };
 
 // Magnetic flux density units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
     using type = tesla_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
     using type = millitesla_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
     using type = microtesla_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
     using type = nanotesla_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
     using type = kilotesla_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
     using type = megatesla_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

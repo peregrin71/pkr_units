@@ -4,7 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Electric charge dimension: A·s
@@ -326,198 +326,183 @@ struct microsiemens_t final : public details::unit_t<double, std::ratio<1, 10000
 // ============================================================================
 
 // Electric charge units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_charge_dimension>
 {
     using type = coulomb_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_charge_dimension>
 {
     using type = kilocoulomb_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, electric_charge_dimension>
 {
     using type = millicoulomb_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
 {
     using type = microcoulomb_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
     using type = nanocoulomb_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
     using type = picocoulomb_t;
 };
 
 // Electric potential units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_potential_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_potential_dimension>
 {
     using type = volt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_potential_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using type = kilovolt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using type = megavolt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_potential_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using type = millivolt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using type = microvolt_t;
 };
 
 // Electric resistance units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_resistance_dimension>
 {
     using type = ohm_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using type = kilohm_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using type = megohm_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using type = gigohm_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
 {
     using type = milliohm_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
     using type = microohm_t;
 };
 
 // Capacitance units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
 {
     using type = farad_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
 {
     using type = millifarad_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
     using type = microfarad_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
     using type = nanofarad_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using type = picofarad_t;
 };
 
 // Inductance units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, inductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, inductance_dimension>
 {
     using type = henry_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, inductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, inductance_dimension>
 {
     using type = millihenry_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, inductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, inductance_dimension>
 {
     using type = microhenry_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, inductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, inductance_dimension>
 {
     using type = nanohenry_t;
 };
 
 // Conductance units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
 {
     using type = siemens_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using type = millisiemens_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using type = microsiemens_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

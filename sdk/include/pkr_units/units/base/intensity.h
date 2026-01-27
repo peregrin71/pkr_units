@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/intensity_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for candela (SI base unit)
@@ -63,40 +63,34 @@ struct kilocandela_t final : public details::unit_t<double, std::kilo, intensity
 // Most derived unit type specializations for intensity units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, intensity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, intensity_dimension>
 {
     using type = candela_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, intensity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, intensity_dimension>
 {
     using type = millicandela_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, intensity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, intensity_dimension>
 {
     using type = microcandela_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, intensity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, intensity_dimension>
 {
     using type = nanocandela_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, intensity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, intensity_dimension>
 {
     using type = kilocandela_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

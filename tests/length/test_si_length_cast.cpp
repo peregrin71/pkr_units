@@ -99,10 +99,3 @@ TEST_F(SiLengthCastTest, unit_cast_zero_ratio_overhead)
 }
 
 } // namespace test
-
-
-
-
-
-
-

@@ -7,7 +7,7 @@ This guide shows how to extend the SI units library with your own custom unit ty
 The SI units library provides a framework where you can:
 1. Define custom dimensions (if needed)
 2. Create custom unit types with specific ratios
-3. Register them with the `named_unit_type_t` pattern for automatic type deduction
+3. Register them with the `derived_unit_type_t` pattern for automatic type deduction
 4. Use them with all standard operators and dimensional analysis
 
 ## Basic Example: Custom Angular Velocity
@@ -23,7 +23,7 @@ Let's create a custom header file for angular velocity units that aren't in the 
 
 #include <pkr_units/units.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Define the dimension for angular velocity (radians per second)
@@ -68,19 +68,19 @@ struct degrees_per_second_t final : public details::unit_t<double, std::ratio<17
 // ============================================================================
 
 template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, angular_velocity_dimension>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, angular_velocity_dimension>
 {
     using type = radians_per_second_t;
 };
 
 template<>
-struct details::named_unit_type_t<double, std::ratio<628318530, 60000000000>, angular_velocity_dimension>
+struct details::derived_unit_type_t<double, std::ratio<628318530, 60000000000>, angular_velocity_dimension>
 {
     using type = rpm_t;
 };
 
 template<>
-struct details::named_unit_type_t<double, std::ratio<1745329, 100000000>, angular_velocity_dimension>
+struct details::derived_unit_type_t<double, std::ratio<1745329, 100000000>, angular_velocity_dimension>
 {
     using type = degrees_per_second_t;
 };
@@ -151,13 +151,13 @@ struct my_unit_t final : public details::unit_t<double, std::ratio<num, denom>, 
 
 The `std::ratio<num, denom>` represents the conversion factor to SI base units.
 
-### 3. **The named_unit_type_t Specialization (CRITICAL!)**
+### 3. **The derived_unit_type_t Specialization (CRITICAL!)**
 
 This is what enables automatic type deduction in scalar operations:
 
 ```cpp
 template<>
-struct details::named_unit_type_t<double, std::ratio<num, denom>, my_dimension>
+struct details::derived_unit_type_t<double, std::ratio<num, denom>, my_dimension>
 {
     using type = my_unit_t;
 };
@@ -215,7 +215,7 @@ struct rpm_float_t final : public details::unit_t<float, std::ratio<628318530, 6
 
 // You'd still need specialization
 template<>
-struct details::named_unit_type_t<float, std::ratio<628318530, 60000000000>, angular_velocity_dimension>
+struct details::derived_unit_type_t<float, std::ratio<628318530, 60000000000>, angular_velocity_dimension>
 {
     using type = rpm_float_t;
 };
@@ -247,7 +247,7 @@ int main()
 
 ## Common Pitfalls
 
-**❌ Forgetting the named_unit_type_t specialization**
+**❌ Forgetting the derived_unit_type_t specialization**
 - Scalar operations will return base `unit_t` type
 - Type information is lost
 - Can't compose operations effectively
@@ -270,7 +270,7 @@ int main()
 Custom units are just:
 1. A dimension (what it measures)
 2. A unit type inheriting from `unit_t` (the specific variant)
-3. A `named_unit_type_t` specialization (for type deduction)
+3. A `derived_unit_type_t` specialization (for type deduction)
 4. Repeat for each variant of that dimension
 
 That's it! The entire operator system, dimensional analysis, and type safety come for free from the base framework.

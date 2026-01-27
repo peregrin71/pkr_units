@@ -5,8 +5,13 @@
 class SiConcentrationOperatorsTest : public ::testing::Test
 {
 protected:
-    void SetUp() override {}
-    void TearDown() override {}
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
 };
 
 // Molar concentration operators
@@ -20,10 +25,10 @@ TEST_F(SiConcentrationOperatorsTest, add_molar)
 
 TEST_F(SiConcentrationOperatorsTest, add_millimolar_to_molar)
 {
-    pkr::units::molar_concentration_t conc1(1.0);           // 1 M
-    pkr::units::millimolar_concentration_t conc2(500.0);    // 500 mM = 0.5 M
+    pkr::units::molar_concentration_t conc1(1.0);        // 1 M
+    pkr::units::millimolar_concentration_t conc2(500.0); // 500 mM = 0.5 M
     auto result = conc1 + conc2;
-    EXPECT_DOUBLE_EQ(*result, 1.5);  // Result in M
+    EXPECT_DOUBLE_EQ(*result, 1.5); // Result in M
 }
 
 TEST_F(SiConcentrationOperatorsTest, multiply_molar_by_scalar)

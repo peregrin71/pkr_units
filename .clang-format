@@ -1,0 +1,90 @@
+# important stuff
+DisableFormat:   false
+
+Language:        Cpp
+Standard:        Auto
+AccessModifierOffset: -4
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+IndentWidth:     4
+Cpp11BracedListStyle: true
+TabWidth:        4
+UseTab:          Never
+
+# regular expressions for macros that start blocks
+MacroBlockBegin: 'BEGIN_*'
+MacroBlockEnd:   'END_*'
+
+# Macros that start namespaces
+#NamespaceMacros:
+#  - MACRO_1
+#  - MACRO_2
+
+# details
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+AlignEscapedNewlines: Left
+AlignOperands: true
+AlignTrailingComments: true
+AllowAllArgumentsOnNextLine : true
+AllowAllParametersOfDeclarationOnNextLine : false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLambdasOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: true
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: false
+BinPackParameters: false
+BreakBeforeBinaryOperators: None
+BreakBeforeBraces: Allman
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakInheritanceList: BeforeComma
+BreakStringLiterals: false
+ColumnLimit: 160
+CompactNamespaces: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+DerivePointerAlignment: false
+FixNamespaceComments: true
+IncludeBlocks: Preserve
+IndentCaseLabels: true
+IndentFunctionDeclarationAfterType: false
+IndentPPDirectives: None
+IndentWrappedFunctionNames: true
+# InsertBraces : true
+# InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+NamespaceIndentation : None
+PackConstructorInitializers: Never
+PenaltyBreakBeforeFirstCallParameter: 19
+PenaltyBreakComment: 300
+PenaltyBreakFirstLessLess: 120
+PenaltyBreakString: 1000
+PenaltyExcessCharacter: 1000000
+PenaltyReturnTypeOnItsOwnLine: 60
+PointerAlignment: Left
+ReflowComments: false
+SeparateDefinitionBlocks: Always
+SortIncludes: false
+SortUsingDeclarations: true
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: false
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeRangeBasedForLoopColon: true
+SpaceInEmptyParentheses: false
+SpacesBeforeTrailingComments: 1
+SpacesInAngles: false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+UseCRLF : true

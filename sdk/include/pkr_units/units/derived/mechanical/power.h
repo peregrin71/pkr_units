@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Power dimension: kg·m²·s⁻³ (M·L²·T⁻³)
@@ -94,60 +94,52 @@ struct horsepower_t final : public details::unit_t<double, std::ratio<745700, 10
 };
 
 // Power units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, power_dimension>
 {
     using type = watt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, power_dimension>
 {
     using type = kilowatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, power_dimension>
 {
     using type = megawatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000000, 1>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000000, 1>, power_dimension>
 {
     using type = gigawatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, power_dimension>
 {
     using type = microwatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, power_dimension>
 {
     using type = milliwatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, power_dimension>
 {
     using type = nanowatt_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<745700, 1000>, power_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<745700, 1000>, power_dimension>
 {
     using type = horsepower_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

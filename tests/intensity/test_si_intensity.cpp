@@ -286,8 +286,8 @@ TEST_F(SiIntensityTest, very_large_intensity_values)
 
 TEST_F(SiIntensityTest, add_very_different_scales)
 {
-    pkr::units::millicandela_t mcd{1.0};  // 1 millicandela
-    pkr::units::candela_t cd{1.0};        // 1 candela = 1000 mcd
+    pkr::units::millicandela_t mcd{1.0}; // 1 millicandela
+    pkr::units::candela_t cd{1.0};       // 1 candela = 1000 mcd
     auto result = mcd + cd;
     // Result is in LHS type (millicandela)
     // 1 mcd + 1000 mcd = 1001 mcd
@@ -301,8 +301,3 @@ TEST_F(SiIntensityTest, subtract_resulting_in_negative)
     auto result = cd1 - cd2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
-
-
-
-
-

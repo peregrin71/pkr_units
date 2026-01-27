@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Energy dimension: kg·m²·s⁻² (M·L²·T⁻²)
@@ -124,78 +124,70 @@ struct kilowatt_hour final : public details::unit_t<double, std::ratio<3600000, 
 };
 
 // Energy units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, energy_dimension>
 {
     using type = joule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, energy_dimension>
 {
     using type = kilojoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, energy_dimension>
 {
     using type = megajoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000000, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000000, 1>, energy_dimension>
 {
     using type = gigajoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, energy_dimension>
 {
     using type = microjoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, energy_dimension>
 {
     using type = millijoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, energy_dimension>
 {
     using type = nanojoule_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<4184, 1000>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<4184, 1000>, energy_dimension>
 {
     using type = calorie;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<4184, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<4184, 1>, energy_dimension>
 {
     using type = kilocalorie;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<3600, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<3600, 1>, energy_dimension>
 {
     using type = watt_hour;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<3600000, 1>, energy_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<3600000, 1>, energy_dimension>
 {
     using type = kilowatt_hour;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

@@ -5,7 +5,7 @@
 #include <pkr_units/impl/decls/angle_decl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for radian (SI base unit for plane angle)
@@ -49,29 +49,22 @@ struct gradian_t final : public details::unit_t<double, std::ratio<1570796, 1000
 // Most derived unit type specializations
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, angle_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, angle_dimension>
 {
     using type = radian_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1745329, 100000000>, angle_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1745329, 100000000>, angle_dimension>
 {
     using type = degree_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1570796, 100000000>, angle_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1570796, 100000000>, angle_dimension>
 {
     using type = gradian_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

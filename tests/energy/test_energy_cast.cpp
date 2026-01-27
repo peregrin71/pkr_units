@@ -197,4 +197,3 @@ TEST_F(EnergyCastTest, round_trip_conversion)
     auto back = pkr::units::unit_cast<pkr::units::joule>(kj);
     ASSERT_DOUBLE_EQ(back.value(), original.value());
 }
-

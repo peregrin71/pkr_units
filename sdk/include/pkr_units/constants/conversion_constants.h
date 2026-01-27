@@ -11,10 +11,11 @@
 
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
-namespace details {
+namespace details
+{
 
 // ============================================================================
 // Energy Unit Conversions
@@ -25,7 +26,8 @@ namespace details {
  * Symbol: eV, Units: J
  * 2022 CODATA: 1.602176634e-19 (exact)
  */
-template<typename T> constexpr T electron_volt()
+template <typename T>
+constexpr T electron_volt()
 {
     return static_cast<T>(1.602176634e-19);
 }
@@ -35,7 +37,8 @@ template<typename T> constexpr T electron_volt()
  * Symbol: E_h, Units: eV
  * 2022 CODATA: 27.211386245981
  */
-template<typename T> constexpr T hartree_in_ev()
+template <typename T>
+constexpr T hartree_in_ev()
 {
     return static_cast<T>(27.211386245981);
 }
@@ -45,7 +48,8 @@ template<typename T> constexpr T hartree_in_ev()
  * Symbol: u, Units: eV
  * 2022 CODATA: 931494103.72
  */
-template<typename T> constexpr T atomic_mass_unit_in_ev()
+template <typename T>
+constexpr T atomic_mass_unit_in_ev()
 {
     return static_cast<T>(931494103.72);
 }
@@ -55,7 +59,8 @@ template<typename T> constexpr T atomic_mass_unit_in_ev()
  * Symbol: u, Units: Hz
  * 2022 CODATA: 2.25234272185e23
  */
-template<typename T> constexpr T atomic_mass_unit_in_hz()
+template <typename T>
+constexpr T atomic_mass_unit_in_hz()
 {
     return static_cast<T>(2.25234272185e23);
 }
@@ -69,7 +74,8 @@ template<typename T> constexpr T atomic_mass_unit_in_hz()
  * Symbol: eV, Units: Hz
  * 2022 CODATA: 2.417989242e14 (exact)
  */
-template<typename T> constexpr T ev_in_hz()
+template <typename T>
+constexpr T ev_in_hz()
 {
     return static_cast<T>(2.417989242e14);
 }
@@ -79,7 +85,8 @@ template<typename T> constexpr T ev_in_hz()
  * Symbol: eV, Units: m⁻¹
  * 2022 CODATA: 8.065543937e5 (exact)
  */
-template<typename T> constexpr T ev_in_inverse_meter()
+template <typename T>
+constexpr T ev_in_inverse_meter()
 {
     return static_cast<T>(8.065543937e5);
 }
@@ -89,12 +96,13 @@ template<typename T> constexpr T ev_in_inverse_meter()
  * Symbol: Hz, Units: m⁻¹
  * 2022 CODATA: 3.335640951e-9 (exact)
  */
-template<typename T> constexpr T hz_in_inverse_meter()
+template <typename T>
+constexpr T hz_in_inverse_meter()
 {
     return static_cast<T>(3.335640951e-9);
 }
 
-}  // namespace details
+} // namespace details
 
 // ============================================================================
 // Conversion Constants
@@ -111,4 +119,4 @@ constexpr auto ev_in_hz = details::ev_in_hz<double>();
 constexpr auto ev_in_inverse_meter = details::ev_in_inverse_meter<double>();
 constexpr auto hz_in_inverse_meter = details::hz_in_inverse_meter<double>();
 
-}  // namespace PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

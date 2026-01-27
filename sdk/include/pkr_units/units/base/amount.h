@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/amount_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for mole (SI base unit)
@@ -63,40 +63,34 @@ struct kilomole_t final : public details::unit_t<double, std::kilo, amount_dimen
 // Most derived unit type specializations for amount units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, amount_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, amount_dimension>
 {
     using type = mole_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, amount_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, amount_dimension>
 {
     using type = millimole_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, amount_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, amount_dimension>
 {
     using type = micromole_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, amount_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, amount_dimension>
 {
     using type = nanomole_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, amount_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, amount_dimension>
 {
     using type = kilomole_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

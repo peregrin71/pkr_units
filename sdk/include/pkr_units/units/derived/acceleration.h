@@ -5,7 +5,7 @@
 #include <pkr_units/impl/decls/acceleration_decl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for meter per second squared (SI base unit)
@@ -69,49 +69,34 @@ struct standard_gravity_t final : public details::unit_t<double, std::ratio<9806
 // Most derived unit type specializations for acceleration units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, acceleration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, acceleration_v>
 {
     using type = meter_per_second_squared_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 100>, acceleration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 100>, acceleration_v>
 {
     using type = centimeter_per_second_squared_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, acceleration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, acceleration_v>
 {
     using type = millimeter_per_second_squared_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, acceleration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, acceleration_v>
 {
     using type = kilometer_per_second_squared_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<980665, 100000>, acceleration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<980665, 100000>, acceleration_v>
 {
     using type = standard_gravity_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

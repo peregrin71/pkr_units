@@ -5,8 +5,13 @@
 class SiConcentrationCastTest : public ::testing::Test
 {
 protected:
-    void SetUp() override {}
-    void TearDown() override {}
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
 };
 
 // Molar concentration casting tests
@@ -150,5 +155,3 @@ TEST_F(SiConcentrationCastTest, cast_osmole_per_liter_to_molar)
     pkr::units::molar_concentration_t result = pkr::units::unit_cast<pkr::units::molar_concentration_t>(conc);
     EXPECT_DOUBLE_EQ(*result, 1.0);
 }
-
-

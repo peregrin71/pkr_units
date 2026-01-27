@@ -286,8 +286,8 @@ TEST_F(SiAmountTest, very_large_amount_values)
 
 TEST_F(SiAmountTest, add_very_different_scales)
 {
-    pkr::units::millimole_t mmol{1.0};   // 1 millimole
-    pkr::units::mole_t mol{1.0};         // 1 mole = 1000 mmol
+    pkr::units::millimole_t mmol{1.0}; // 1 millimole
+    pkr::units::mole_t mol{1.0};       // 1 mole = 1000 mmol
     auto result = mmol + mol;
     // Result is in LHS type (millimole)
     // 1 mmol + 1000 mmol = 1001 mmol
@@ -301,8 +301,3 @@ TEST_F(SiAmountTest, subtract_resulting_in_negative)
     auto result = mol1 - mol2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
-
-
-
-
-

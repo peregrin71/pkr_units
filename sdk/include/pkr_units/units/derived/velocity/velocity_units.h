@@ -4,14 +4,14 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Velocity dimension
 inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0, 0};
 
 // Velocity quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using velocity = details::unit_t<type_t, ratio_t, velocity_dimension>;
 
 // Strong type for meter per second (SI base unit)
@@ -47,13 +47,4 @@ struct centimeter_per_second final : public details::unit_t<double, std::ratio<1
     static constexpr std::u8string_view u8_symbol{u8"cm/s"};
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

@@ -3,7 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // CGS (Gaussian) magnetic units
@@ -11,12 +11,4 @@ PKR_UNITS_BEGIN_NAMESPACE
 // 1 Gauss = 10⁻⁴ Tesla
 using gauss = details::unit_t<double, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

@@ -39,7 +39,7 @@ TEST_F(SiCurrentFormattingTest, microampere_ascii_formatting)
 {
     pkr::units::microampere_t uA{0.5};
     std::string result = std::format("{}", uA);
-    ASSERT_EQ(result, "0.5 uA");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 uA"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiCurrentFormattingTest, nanoampere_ascii_formatting)

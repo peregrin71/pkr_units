@@ -45,7 +45,7 @@ TEST(FormattingTest, ComplexDerivedUnit)
     pkr::units::kilogram_t mass{5.0};
     pkr::units::meter_t distance{2.0};
     pkr::units::second_t time{1.0};
-    
+
     auto force = mass * distance / (time * time);
     auto formatted = std::format("{}", force);
     EXPECT_EQ(formatted, "10 kg·m·s-2");
@@ -106,5 +106,3 @@ TEST(FormattingTest, ValuePreservation)
     auto formatted = std::format("{}", length);
     EXPECT_EQ(formatted, "123.456 m");
 }
-
-

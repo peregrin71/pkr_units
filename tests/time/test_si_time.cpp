@@ -286,8 +286,8 @@ TEST_F(SiTimeTest, very_large_time_values)
 
 TEST_F(SiTimeTest, add_very_different_scales)
 {
-    pkr::units::millisecond_t ms{1.0};    // 1 millisecond
-    pkr::units::second_t s{1.0};          // 1 second = 1000 ms
+    pkr::units::millisecond_t ms{1.0}; // 1 millisecond
+    pkr::units::second_t s{1.0};       // 1 second = 1000 ms
     auto result = ms + s;
     // Result is in LHS type (millisecond)
     // 1 ms + 1000 ms = 1001 ms
@@ -301,8 +301,3 @@ TEST_F(SiTimeTest, subtract_resulting_in_negative)
     auto result = s1 - s2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
-
-
-
-
-
