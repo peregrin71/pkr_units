@@ -197,7 +197,7 @@ TEST_F(MeasurementTest, format_with_units)
 
     // Test wide char formatting with ±
     std::wstring wide_result = std::format(L"{}", length);
-    ASSERT_EQ(wide_result, L"5 ± 0.1 m");
+    ASSERT_EQ(wide_result, L"5 \u00B1 0.1 m");
 }
 
 TEST_F(MeasurementTest, format_with_precision_specifier)
