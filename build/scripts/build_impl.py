@@ -7,6 +7,7 @@ Contains all build logic without environment management
 
 import sys
 import os
+import platform
 from pathlib import Path
 
 # Add scripts directory to path for imports
@@ -25,10 +26,34 @@ from build_directory import initialize_build_directory
 from conan_utils import verify_installation, install as conan_install
 from cmake_configure import CMakeConfig
 from cmake_build import CMakeBuild
+from coverage import generate_coverage_report
 from test_runner import run_tests
 
 
-def run_build(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
+def _should_enable_coverage(config: str, compiler: str, enable_coverage: bool) -> bool:
+    if not enable_coverage:
+        return False
+    if platform.system() != "Linux":
+        print_info("Coverage requested but not on Linux; skipping coverage.")
+        return False
+    if compiler.lower() != "clang":
+        print_info("Coverage requested but compiler is not clang; skipping coverage.")
+        return False
+    if config != "Debug":
+        print_info("Coverage requested but configuration is not Debug; skipping coverage.")
+        return False
+    return True
+
+
+def run_build(
+    project_root: Path,
+    build_path: Path,
+    config: str,
+    compiler: str,
+    skip_tests: bool,
+    skip_setup: bool,
+    enable_coverage: bool,
+):
     """
     Execute the complete build process for a specific compiler
     Assumes Conda environment is already activated
@@ -40,6 +65,7 @@ def run_build(project_root: Path, build_path: Path, config: str, compiler: str, 
         compiler: Compiler to use (msvc, clang, gcc)
         skip_tests: Skip running tests
         skip_setup: Skip environment setup
+        enable_coverage: Enable coverage reporting
     """
     try:
         print_header(f"SI Units Build Implementation - {compiler.upper()} (running in Conda environment)")
@@ -75,10 +101,12 @@ def run_build(project_root: Path, build_path: Path, config: str, compiler: str, 
         conan_install(project_root, build_path, config, compiler)
         print()
 
+        coverage_enabled = _should_enable_coverage(config, compiler, enable_coverage)
+
         # Configure with CMake
         print_step("Configuring CMake")
         cmake_config = CMakeConfig(project_root, build_path, compiler)
-        cmake_config.configure(config)
+        cmake_config.configure(config, enable_coverage=coverage_enabled)
         print()
 
         # Build
@@ -89,9 +117,20 @@ def run_build(project_root: Path, build_path: Path, config: str, compiler: str, 
 
         # Run tests
         if not skip_tests:
+            coverage_env = None
+            coverage_dir = None
+            if coverage_enabled:
+                coverage_dir = build_path / "coverage"
+                coverage_dir.mkdir(parents=True, exist_ok=True)
+                coverage_env = os.environ.copy()
+                coverage_env["LLVM_PROFILE_FILE"] = "coverage/test.profraw"
             print_step("Running tests")
-            run_tests(config)
+            run_tests(config, env=coverage_env)
             print()
+            if coverage_enabled and coverage_dir is not None:
+                print_step("Generating coverage report")
+                generate_coverage_report(build_path, coverage_dir)
+                print()
 
         print_success("Build completed successfully!")
         return 0
@@ -111,6 +150,7 @@ if __name__ == "__main__":
     parser.add_argument("--compiler", default="msvc", choices=["msvc", "clang", "gcc"], help="Compiler to use")
     parser.add_argument("--no-tests", action="store_true", help="Skip tests")
     parser.add_argument("--skip-setup", action="store_true", help="Skip environment setup")
+    parser.add_argument("--coverage", action="store_true", help="Enable coverage reporting")
     
     args = parser.parse_args()
     
@@ -123,7 +163,6 @@ if __name__ == "__main__":
         args.config,
         args.compiler,
         args.no_tests,
-        args.skip_setup
+        args.skip_setup,
+        args.coverage,
     ))
-    
-    sys.exit(run_build(project_root, build_path, args.config, args.no_tests, args.skip_setup))

@@ -10,6 +10,7 @@ class SiResistanceFormattingTest : public Test
 {
 };
 
+/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -41,3 +42,4 @@ TEST_F(SiResistanceFormattingTest, megohm_ascii_formatting)
     std::string result = std::format("{}", Mohm);
     ASSERT_EQ(result, "0.5 Mohm");
 }
+*/

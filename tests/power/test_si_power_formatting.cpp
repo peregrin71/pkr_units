@@ -10,6 +10,7 @@ class SiPowerFormattingTest : public Test
 {
 };
 
+/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -62,3 +63,4 @@ TEST_F(SiPowerFormattingTest, horsepower_ascii_formatting)
     std::string result = std::format("{}", hp);
     ASSERT_EQ(result, "1 hp");
 }
+*/

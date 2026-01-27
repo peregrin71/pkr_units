@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include <pkr_units/si_units.h>
 
+using namespace pkr::units;
+
 class SiAngleTest : public ::testing::Test
 {
 protected:
@@ -117,7 +119,8 @@ TEST_F(SiAngleTest, move_assignment)
 TEST_F(SiAngleTest, radian_has_angle_dimension)
 {
     radian_t angle(1.0);
-    static_assert(std::is_same_v<decltype(angle)::dimension_type, decltype(angle_dimension)>, "radian_t should have angle_dimension");
+    static_assert(decltype(angle)::dimension_type::value == angle_dimension);
+    ASSERT_TRUE(true); // Compile-time check
 }
 
 // ============================================================================
@@ -141,7 +144,7 @@ TEST_F(SiAngleTest, divide_radian_by_scalar)
 TEST_F(SiAngleTest, divide_by_zero_scalar_throws)
 {
     radian_t angle(1.0);
-    EXPECT_THROW(angle / 0.0, std::runtime_error);
+    EXPECT_THROW(angle / 0.0, std::invalid_argument);
 }
 
 TEST_F(SiAngleTest, multiply_degree_by_scalar)

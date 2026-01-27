@@ -153,14 +153,14 @@ public:
 
         // Combine dimensions: subtract all exponents
         constexpr dimension_t combined_dim_v{
-            .length = dim_v.length - dim_u.length,
-            .mass = dim_v.mass - dim_u.mass,
-            .time = dim_v.time - dim_u.time,
-            .current = dim_v.current - dim_u.current,
-            .temperature = dim_v.temperature - dim_u.temperature,
-            .amount = dim_v.amount - dim_u.amount,
-            .intensity = dim_v.intensity - dim_u.intensity,
-            .angle = dim_v.angle - dim_u.angle};
+            dim_v.length - dim_u.length,
+            dim_v.mass - dim_u.mass,
+            dim_v.time - dim_u.time,
+            dim_v.current - dim_u.current,
+            dim_v.temperature - dim_u.temperature,
+            dim_v.amount - dim_u.amount,
+            dim_v.intensity - dim_u.intensity,
+            dim_v.angle - dim_u.angle};
 
         type_t result_value = m_value / other.value();
         return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};

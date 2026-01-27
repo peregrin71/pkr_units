@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Intensity dimension
-inline constexpr dimension_t intensity_dimension{.intensity = 1};
+inline constexpr dimension_t intensity_dimension{0, 0, 0, 0, 0, 0, 1, 0};
 
 // Intensity quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

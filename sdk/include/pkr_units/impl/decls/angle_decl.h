@@ -55,7 +55,7 @@ namespace PKR_UNITS_NAMESPACE
 // - Aerospace: Euler angles, angular rates
 
 // Angle dimension: rad (radians, plane angle)
-inline constexpr dimension_t angle_dimension{.angle = 1};
+inline constexpr dimension_t angle_dimension{0, 0, 0, 0, 0, 0, 0, 1};
 
 // Angle quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

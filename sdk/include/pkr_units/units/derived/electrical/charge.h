@@ -8,7 +8,7 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Electric charge dimension: A·s
-inline constexpr dimension_t electric_charge_dimension{.current = 1, .time = 1};
+inline constexpr dimension_t electric_charge_dimension{0, 0, 1, 1, 0, 0, 0, 0};
 
 // Strong type for coulomb (SI base unit)
 struct coulomb final : public details::unit_t<double, std::ratio<1, 1>, electric_charge_dimension>

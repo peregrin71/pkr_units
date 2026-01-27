@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Mass dimension
-inline constexpr dimension_t mass_dimension{.mass = 1};
+inline constexpr dimension_t mass_dimension{0, 1, 0, 0, 0, 0, 0, 0};
 
 // Mass quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Volume dimension
-inline constexpr dimension_t volume_dimension{.length = 3};
+inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0};
 
 // Volume quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

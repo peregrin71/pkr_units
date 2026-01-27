@@ -8,7 +8,7 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Conductance dimension: S = A²·s³·kg⁻¹·m⁻²
-inline constexpr dimension_t conductance_dimension{.length = -2, .mass = -1, .time = 3, .current = 2};
+inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
 // Strong type for siemens (SI base unit)
 struct siemens final : public details::unit_t<double, std::ratio<1, 1>, conductance_dimension>

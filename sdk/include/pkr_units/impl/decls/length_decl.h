@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Length dimension
-inline constexpr dimension_t length_dimension{.length = 1};
+inline constexpr dimension_t length_dimension{1, 0, 0, 0, 0, 0, 0, 0};
 
 // Length quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Current dimension
-inline constexpr dimension_t current_dimension{.current = 1};
+inline constexpr dimension_t current_dimension{0, 0, 0, 1, 0, 0, 0, 0};
 
 // Current quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

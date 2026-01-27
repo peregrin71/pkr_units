@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <format>
-#include <pkr_units/si.h>
+#include <pkr_units/si_units.h>
 #include <pkr_units/si_formatting.h>
 
 // Test basic length unit formatting
@@ -18,7 +18,7 @@ TEST(FormattingTest, VelocityDerivedUnit)
     pkr::units::second_t time{2.0};
     auto velocity = distance / time;
     auto formatted = std::format("{}", velocity);
-    EXPECT_EQ(formatted, "5 m·s-1");
+    EXPECT_EQ(formatted, "5 m·s⁻¹");
 }
 
 // Test precision control with format
@@ -26,7 +26,7 @@ TEST(FormattingTest, PrecisionControl)
 {
     pkr::units::meter_t length{5.123456};
     auto formatted = std::format("{:.2}", length);
-    EXPECT_EQ(formatted, "5.12 m");
+    EXPECT_EQ(formatted, "5.1 m");
 }
 
 // Test dimensionless quantity formatting
@@ -36,7 +36,7 @@ TEST(FormattingTest, DimensionlessQuantity)
     pkr::units::kilogram_t mass2{2.0};
     auto dimensionless = mass1 / mass2;
     auto formatted = std::format("{}", dimensionless);
-    EXPECT_EQ(formatted, "5 1");
+    EXPECT_EQ(formatted, "5 ");
 }
 
 // Test complex derived unit (Force: kg·m·s⁻²)
@@ -48,7 +48,11 @@ TEST(FormattingTest, ComplexDerivedUnit)
 
     auto force = mass * distance / (time * time);
     auto formatted = std::format("{}", force);
-    EXPECT_EQ(formatted, "10 kg·m·s-2");
+    EXPECT_EQ(formatted, "10 N");
+
+    auto normalized_force = force.normalized();
+    auto formatted_normalized = std::format("{}", normalized_force);
+    EXPECT_EQ(formatted_normalized, "10 kg·m·s⁻²");
 }
 
 // Test different scales of same unit
@@ -96,7 +100,7 @@ TEST(FormattingTest, DefaultPrecision)
 {
     pkr::units::meter_t length{3.141592653589793};
     auto formatted = std::format("{}", length);
-    EXPECT_EQ(formatted, "3.14159 m");
+    EXPECT_EQ(formatted, "3.141592653589793 m");
 }
 
 // Test that formatting doesn't lose precision in the value
