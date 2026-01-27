@@ -7,15 +7,15 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 set(TEST_SOURCES
   main.cpp
   
-  #Base unit tests
+  # Base unit tests
   length/test_si_length.cpp
   length/test_si_length_operators.cpp
-  # length/test_si_length_cast.cpp
+  length/test_si_length_cast.cpp
   length/test_si_length_formatting.cpp
-  # length/test_si_length_literals.cpp
-  # length/test_si_length_astronomical.cpp
-  # length/test_si_length_imperial.cpp
-  # length/test_si_length_non_si_units.cpp
+  length/test_si_length_literals.cpp
+  length/test_si_length_astronomical.cpp
+  length/test_si_length_imperial.cpp
+  length/test_si_length_non_si_units.cpp
   mass/test_si_mass.cpp
   mass/test_si_mass_operators.cpp
   mass/test_si_mass_formatting.cpp
@@ -36,36 +36,37 @@ set(TEST_SOURCES
   intensity/test_si_intensity_operators.cpp
   intensity/test_si_intensity_formatting.cpp
   angle/test_si_angle_formatting.cpp
+  angle/test_si_angle.cpp
 
   velocity/test_si_velocity.cpp
 
   # Derived unit tests
   acceleration/test_acceleration.cpp
   acceleration/test_acceleration_operators.cpp
-  # acceleration/test_acceleration_formatting.cpp
+  acceleration/test_acceleration_formatting.cpp
   acceleration/test_acceleration_cast.cpp
 
-  # force/test_force.cpp
-  # force/test_force_operators.cpp
-  # force/test_force_formatting.cpp
-  # force/test_force_cast.cpp
+  force/test_force.cpp
+  force/test_force_operators.cpp
+  force/test_force_formatting.cpp
+  force/test_force_cast.cpp
 
-  # energy/test_energy.cpp
-  # energy/test_energy_operators.cpp
-  # energy/test_energy_formatting.cpp
-  # energy/test_energy_cast.cpp
+  energy/test_energy.cpp
+  energy/test_energy_operators.cpp
+  energy/test_energy_formatting.cpp
+  energy/test_energy_cast.cpp
 
   concentration/test_concentration.cpp
   concentration/test_concentration_operators.cpp
   concentration/test_concentration_cast.cpp
-  # concentration/test_concentration_formatting.cpp
+  concentration/test_concentration_formatting.cpp
 
   pressure/test_si_pressure_formatting.cpp
   power/test_si_power_formatting.cpp
   electrical/test_si_resistance_formatting.cpp
 
   # Multi-unit cast tests
-  # multi_cast/test_multi_unit_cast.cpp
+# multi_cast/test_multi_unit_cast.cpp
   
   # Math tests
   math/test_arithmetic_optimizations.cpp
@@ -80,8 +81,11 @@ set(TEST_SOURCES
   # Constants tests
   test_constants.cpp
   
+  # Formatting tests
+  test_formatting.cpp
+  
   # Compile-time safety and dimensional error documentation
-  #test_dimensional_safety.cpp
+  test_dimensional_safety.cpp
   
 )
 

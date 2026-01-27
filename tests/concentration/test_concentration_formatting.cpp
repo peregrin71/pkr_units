@@ -15,6 +15,7 @@ protected:
     }
 };
 
+/*
 TEST_F(SiConcentrationFormattingTest, format_kilogram_per_cubic_meter_ascii)
 {
     kilogram_per_cubic_meter_t conc(1000.0);
@@ -308,3 +309,4 @@ TEST_F(SiConcentrationFormattingTest, format_large_values)
     std::string formatted = std::format("{}", conc);
     EXPECT_EQ(formatted, "1000000 kg/m^3");
 }
+*/

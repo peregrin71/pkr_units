@@ -26,6 +26,7 @@ class DimensionalSafetyTest : public ::testing::Test
 // Uncomment below to see compile-time error messages:
 // The library prevents adding incompatible dimensions at compile-time.
 
+/*
 TEST_F(DimensionalSafetyTest, subtract_meter_from_second_should_not_compile)
 {
     // This operation should fail at compile-time because meter [L] and second [T]
@@ -45,6 +46,7 @@ TEST_F(DimensionalSafetyTest, subtract_meter_from_second_should_not_compile)
 
     [[maybe_unused]] auto result = length - time_val; // ✗ COMPILE ERROR: dimension mismatch
 }
+*/
 
 /*
 TEST_F(DimensionalSafetyTest, add_meter_to_second_should_not_compile)

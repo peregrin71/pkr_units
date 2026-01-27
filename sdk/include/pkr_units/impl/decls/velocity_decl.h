@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Velocity dimension
-inline constexpr dimension_t velocity_dimension{.length = 1, .time = -1};
+inline constexpr dimension_t velocity_dimension{.length = 1, .mass = 0, .time = -1, .current = 0, .temperature = 0, .amount = 0, .intensity = 0, .angle = 0};
 
 // Velocity quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

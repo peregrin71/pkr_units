@@ -5,6 +5,17 @@ project(si_units CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Coverage (clang + Linux + Debug only)
+option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
+if(ENABLE_COVERAGE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
+        add_link_options(-fprofile-instr-generate -fcoverage-mapping)
+    else()
+        message(WARNING "ENABLE_COVERAGE is only supported for Clang Debug builds")
+    endif()
+endif()
+
 # Treat warnings as errors
 if(MSVC)
     add_compile_options(/WX /permissive-)

@@ -69,7 +69,7 @@ def setup_wsl_environment():
         # Install required packages
         install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev cmake ninja-build python3 python3-pip && python3 -m pip install --break-system-packages conan
+apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-pip && python3 -m pip install --break-system-packages conan
 """
         
         try:
@@ -118,7 +118,15 @@ apt update && apt install -y cmake
     print_success("WSL environment ready")
 
 
-def run_build_in_wsl(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
+def run_build_in_wsl(
+    project_root: Path,
+    build_path: Path,
+    config: str,
+    compiler: str,
+    skip_tests: bool,
+    skip_setup: bool,
+    enable_coverage: bool,
+):
     """Run build in WSL Ubuntu environment."""
     build_impl = (build_dir / "scripts" / "build_impl.py").resolve()
     
@@ -144,7 +152,7 @@ def run_build_in_wsl(project_root: Path, build_path: Path, config: str, compiler
     python3 "{wsl_build_impl}" "{wsl_project_root}" "{wsl_build_path}" \\
         --config {config} \\
         --compiler {compiler} \\
-        {"--skip-tests " if skip_tests else ""}{"--skip-setup " if skip_setup else ""}
+        {"--no-tests " if skip_tests else ""}{"--skip-setup " if skip_setup else ""}{"--coverage " if enable_coverage else ""}
     """
     
     print_info(f"Command: {cmd}")
@@ -173,7 +181,7 @@ def run_in_conda_env_old(cmd, description=None):
     pass
 
 
-def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
+def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool, enable_coverage: bool):
     """
     Activate Conda environment, run build_impl.py for a specific compiler, ensure deactivation
     Activation and deactivation happen once for the entire build
@@ -199,7 +207,7 @@ try {{
     python "{build_impl}" "{project_root}" "{build_path}" `
         --config {config} `
         --compiler {compiler} `
-        {"-no-tests " if skip_tests else ""}{"-skip-setup " if skip_setup else ""}
+        {"--no-tests " if skip_tests else ""}{"--skip-setup " if skip_setup else ""}{"--coverage " if enable_coverage else ""}
     
     if ($LASTEXITCODE -ne 0) {{
         throw "Build implementation failed with exit code $LASTEXITCODE"
@@ -240,7 +248,7 @@ trap "conda deactivate" EXIT
 python "{build_impl}" "{project_root}" "{build_path}" \\
     --config {config} \\
     --compiler {compiler} \\
-    {"-no-tests " if skip_tests else ""}{"-skip-setup " if skip_setup else ""}
+    {"--no-tests " if skip_tests else ""}{"--skip-setup " if skip_setup else ""}{"--coverage " if enable_coverage else ""}
 """
         script_path.write_text(script_content)
         script_path.chmod(0o755)
@@ -300,6 +308,11 @@ def main():
         action="store_true",
         help="Skip Conda environment setup",
     )
+    parser.add_argument(
+        "--coverage",
+        action="store_true",
+        help="Enable coverage reporting (clang Debug on Linux only)",
+    )
 
     args = parser.parse_args()
     
@@ -357,7 +370,8 @@ def main():
                             args.config,
                             compiler,
                             args.no_tests,
-                            args.skip_setup
+                            args.skip_setup,
+                            args.coverage,
                         )
                     else:
                         print_step("Running build within Conda environment")
@@ -368,7 +382,8 @@ def main():
                             args.config,
                             compiler,
                             args.no_tests,
-                            args.skip_setup
+                            args.skip_setup,
+                            args.coverage,
                         )
                     results[compiler] = "[PASSED]"
                 else:

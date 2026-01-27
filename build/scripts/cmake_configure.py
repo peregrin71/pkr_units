@@ -26,7 +26,7 @@ class CMakeConfig:
         else:
             raise BuildException(f"Unknown compiler: {self.compiler}")
 
-    def configure(self, configuration: str) -> None:
+    def configure(self, configuration: str, enable_coverage: bool = False) -> None:
         """
         Configure the project with CMake
         
@@ -48,6 +48,8 @@ class CMakeConfig:
             "-DCMAKE_CXX_STANDARD=20",
             f"-DCMAKE_TOOLCHAIN_FILE={self.toolchain_file}",
         ]
+        if enable_coverage:
+            cmd.append("-DENABLE_COVERAGE=ON")
 
         # For Ninja, we need to specify CMAKE_BUILD_TYPE
         if generator == "Ninja":

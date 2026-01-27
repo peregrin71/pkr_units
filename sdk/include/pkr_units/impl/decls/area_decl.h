@@ -7,7 +7,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 // Area dimension
-inline constexpr dimension_t area_dimension{.length = 2};
+inline constexpr dimension_t area_dimension{2, 0, 0, 0, 0, 0, 0, 0};
 
 // Area quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>

@@ -20,9 +20,9 @@ struct meter_per_second final : public details::unit_t<double, std::ratio<1, 1>,
     using _base = details::unit_t<double, std::ratio<1, 1>, velocity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"meter per second"};
-    static constexpr std::string_view symbol{"m/s"};
-    static constexpr std::wstring_view w_symbol{L"m/s"};
-    static constexpr std::u8string_view u8_symbol{u8"m/s"};
+    static constexpr std::string_view symbol{"m·s⁻¹"};
+    static constexpr std::wstring_view w_symbol{L"m·s⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"m·s⁻¹"};
 };
 
 // Strong type for kilometer per hour
@@ -31,9 +31,9 @@ struct kilometer_per_hour final : public details::unit_t<double, std::ratio<5, 1
     using _base = details::unit_t<double, std::ratio<5, 18>, velocity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"kilometer per hour"};
-    static constexpr std::string_view symbol{"km/h"};
-    static constexpr std::wstring_view w_symbol{L"km/h"};
-    static constexpr std::u8string_view u8_symbol{u8"km/h"};
+    static constexpr std::string_view symbol{"km·h⁻¹"};
+    static constexpr std::wstring_view w_symbol{L"km·h⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"km·h⁻¹"};
 };
 
 // Strong type for centimeter per second
@@ -42,9 +42,9 @@ struct centimeter_per_second final : public details::unit_t<double, std::ratio<1
     using _base = details::unit_t<double, std::ratio<1, 100>, velocity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"centimeter per second"};
-    static constexpr std::string_view symbol{"cm/s"};
-    static constexpr std::wstring_view w_symbol{L"cm/s"};
-    static constexpr std::u8string_view u8_symbol{u8"cm/s"};
+    static constexpr std::string_view symbol{"cm·s⁻¹"};
+    static constexpr std::wstring_view w_symbol{L"cm·s⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"cm·s⁻¹"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE
