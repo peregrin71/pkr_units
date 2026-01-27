@@ -5,7 +5,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/volume_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Volume units (cubic meter and derived)
@@ -71,4 +71,4 @@ struct milliliter_t final : public details::unit_t<double, std::ratio<1, 1000000
     static constexpr std::u8string_view u8_symbol{u8"mL"};
 };
 
-} // PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

@@ -13,10 +13,11 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/units/derived/area/area_units.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
-namespace details {
+namespace details
+{
 
 // ============================================================================
 // Nuclear Physics Constants
@@ -27,7 +28,8 @@ namespace details {
  * Symbol: G_F, Units: GeV⁻²
  * 2022 CODATA: 1.1663787e-5
  */
-template<typename T> constexpr T fermi_coupling_constant()
+template <typename T>
+constexpr T fermi_coupling_constant()
 {
     return static_cast<T>(1.1663787e-5);
 }
@@ -37,7 +39,8 @@ template<typename T> constexpr T fermi_coupling_constant()
  * Symbol: sin²θ_W, Units: dimensionless
  * 2022 CODATA: 0.22305
  */
-template<typename T> constexpr T weak_mixing_angle()
+template <typename T>
+constexpr T weak_mixing_angle()
 {
     return static_cast<T>(0.22305);
 }
@@ -47,7 +50,8 @@ template<typename T> constexpr T weak_mixing_angle()
  * Symbol: r_e, Units: m
  * 2022 CODATA: 2.8179403205e-15
  */
-template<typename T> constexpr T classical_electron_radius()
+template <typename T>
+constexpr T classical_electron_radius()
 {
     return static_cast<T>(2.8179403205e-15);
 }
@@ -57,7 +61,8 @@ template<typename T> constexpr T classical_electron_radius()
  * Symbol: σ_T, Units: m²
  * 2022 CODATA: 6.6524587051e-29
  */
-template<typename T> constexpr T thomson_cross_section()
+template <typename T>
+constexpr T thomson_cross_section()
 {
     return static_cast<T>(6.6524587051e-29);
 }
@@ -67,7 +72,8 @@ template<typename T> constexpr T thomson_cross_section()
  * Symbol: λ_C,n, Units: m
  * 2022 CODATA: 1.31959090382e-15
  */
-template<typename T> constexpr T neutron_compton_wavelength()
+template <typename T>
+constexpr T neutron_compton_wavelength()
 {
     return static_cast<T>(1.31959090382e-15);
 }
@@ -77,12 +83,13 @@ template<typename T> constexpr T neutron_compton_wavelength()
  * Symbol: λ_C,p, Units: m
  * 2022 CODATA: 1.32140985360e-15
  */
-template<typename T> constexpr T proton_compton_wavelength()
+template <typename T>
+constexpr T proton_compton_wavelength()
 {
     return static_cast<T>(1.32140985360e-15);
 }
 
-}  // namespace details
+} // namespace details
 
 // ============================================================================
 // Nuclear Physics Constants
@@ -96,4 +103,4 @@ constexpr square_meter_t thomson_cross_section{details::thomson_cross_section<do
 constexpr meter_t neutron_compton_wavelength{details::neutron_compton_wavelength<double>()};
 constexpr meter_t proton_compton_wavelength{details::proton_compton_wavelength<double>()};
 
-}  // namespace PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

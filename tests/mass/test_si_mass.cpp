@@ -292,8 +292,8 @@ TEST_F(SiMassTest, very_large_mass_values)
 
 TEST_F(SiMassTest, add_very_different_scales)
 {
-    pkr::units::kilogram_t kg1{1.0};       // 1 kilogram
-    pkr::units::kilogram_t kg2{0.001};     // 1 gram = 0.001 kg
+    pkr::units::kilogram_t kg1{1.0};   // 1 kilogram
+    pkr::units::kilogram_t kg2{0.001}; // 1 gram = 0.001 kg
     auto result = kg1 + kg2;
     // Result in kilogram
     // 1 kg + 0.001 kg = 1.001 kg
@@ -307,14 +307,3 @@ TEST_F(SiMassTest, subtract_resulting_in_negative)
     auto result = kg1 - kg2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
-
-
-
-
-
-
-
-
-
-
-

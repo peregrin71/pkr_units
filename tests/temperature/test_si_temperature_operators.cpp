@@ -181,6 +181,3 @@ TEST_F(SiTemperatureOperatorsTest, constexpr_kelvin_multiplication_and_division)
     static_assert(divided.value() == 4.0);
     ASSERT_DOUBLE_EQ(divided.value(), 4.0);
 }
-
-
-

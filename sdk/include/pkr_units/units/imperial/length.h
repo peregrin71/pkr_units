@@ -3,7 +3,7 @@
 #include <pkr_units/impl/decls/length_decl.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Imperial length units
@@ -107,12 +107,4 @@ struct nautical_mile_t final : public details::unit_t<double, std::ratio<1852, 1
     static constexpr std::u8string_view u8_symbol{u8"nmi"};
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

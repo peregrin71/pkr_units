@@ -6,8 +6,13 @@
 class SiConcentrationTest : public ::testing::Test
 {
 protected:
-    void SetUp() override {}
-    void TearDown() override {}
+    void SetUp() override
+    {
+    }
+
+    void TearDown() override
+    {
+    }
 };
 
 // Molar concentration tests
@@ -101,4 +106,3 @@ TEST_F(SiConcentrationTest, molar_has_correct_dimension)
     using dimension = typename std::decay_t<decltype(conc)>::dimension_type;
     ASSERT_EQ(dimension::value, pkr::units::molar_concentration_v);
 }
-

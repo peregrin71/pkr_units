@@ -46,7 +46,7 @@ TEST_F(SiMassFormattingTest, microgram_ascii_formatting)
 {
     pkr::units::microgram_t ug{0.5};
     std::string result = std::format("{}", ug);
-    ASSERT_EQ(result, "0.5 ug");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 ug"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiMassFormattingTest, nanogram_ascii_formatting)

@@ -199,6 +199,3 @@ TEST_F(SiTimeOperatorsTest, scalar_rhs_divide_second)
     auto result = s / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 2.0);
 }
-
-
-

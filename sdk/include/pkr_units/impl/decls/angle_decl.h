@@ -1,18 +1,18 @@
 #pragma once
 
 #include <ratio>
-#include "../dimension.h"
-#include "unit_t_decl.h"
+#include <pkr_units/impl/dimension.h>
+#include <pkr_units/impl/decls/unit_t_decl.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
 // ============================================================================
 // Angle Dimension (8th SI Base Unit - Non-Standard Extension)
 // ============================================================================
-// 
+//
 // RATIONALE FOR ADDING ANGLE:
 // ============================
-// 
+//
 // While the official SI system treats plane angle (radians) as dimensionless,
 // this library adds angle as an 8th dimension for improved type safety in
 // rotational mechanics and angular calculations.
@@ -58,12 +58,6 @@ namespace PKR_UNITS_NAMESPACE
 inline constexpr dimension_t angle_dimension{.angle = 1};
 
 // Angle quantity template
-template<typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using angle_unit_t = details::unit_t<type_t, ratio_t, angle_dimension>;
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

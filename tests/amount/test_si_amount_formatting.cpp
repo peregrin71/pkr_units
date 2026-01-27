@@ -39,7 +39,7 @@ TEST_F(SiAmountFormattingTest, micromole_ascii_formatting)
 {
     pkr::units::micromole_t umol{0.5};
     std::string result = std::format("{}", umol);
-    ASSERT_EQ(result, "0.5 umol");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 umol"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiAmountFormattingTest, nanomole_ascii_formatting)

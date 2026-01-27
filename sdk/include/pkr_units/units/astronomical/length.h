@@ -3,7 +3,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/length_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Astronomical units
@@ -57,12 +57,4 @@ struct parsec_t final : public details::unit_t<double, std::ratio<30856775814913
     static constexpr std::u8string_view u8_symbol{u8"pc"};
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

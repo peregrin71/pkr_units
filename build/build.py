@@ -67,9 +67,10 @@ def setup_wsl_environment():
     except subprocess.CalledProcessError:
         print_info("Clang 18 not found, installing...")
         # Install required packages
-        install_cmd = """        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
-        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\        apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev cmake ninja-build python3 python3-pip && python3 -m pip install conan
-        """
+        install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
+apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev cmake ninja-build python3 python3-pip && python3 -m pip install --break-system-packages conan
+"""
         
         try:
             subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", install_cmd], check=True)
@@ -84,7 +85,7 @@ def setup_wsl_environment():
     except subprocess.CalledProcessError:
         print_info("Conan not found, installing...")
         try:
-            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "--user", "conan"], check=True)
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "--break-system-packages", "conan"], check=True)
             print_success("Conan installed")
         except subprocess.CalledProcessError as e:
             raise Exception(f"Failed to install Conan: {e}")
@@ -97,23 +98,20 @@ def setup_wsl_environment():
         major, minor = map(int, version.split('.')[:2])
         if major < 3 or (major == 3 and minor < 20):
             print_info(f"CMake version {version} too old, upgrading...")
-            upgrade_cmd = """
-            wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
-            echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-            apt update && apt install -y cmake
-            """
+            upgrade_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
+apt update && apt install -y cmake
+"""
             subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", upgrade_cmd], check=True)
             print_success("CMake upgraded")
         else:
             print_success(f"CMake version {version} is sufficient")
     except subprocess.CalledProcessError:
         print_info("CMake not found, installing...")
-        upgrade_cmd = """
-        wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
-        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
-        echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ focal main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-        apt update && apt install -y cmake
-        """
+        upgrade_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
+echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
+apt update && apt install -y cmake
+"""
         subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", upgrade_cmd], check=True)
         print_success("CMake installed")
     
@@ -122,7 +120,7 @@ def setup_wsl_environment():
 
 def run_build_in_wsl(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool):
     """Run build in WSL Ubuntu environment."""
-    build_impl = build_dir / "scripts" / "build_impl.py"
+    build_impl = (build_dir / "scripts" / "build_impl.py").resolve()
     
     # Convert Windows path to WSL path
     def to_wsl_path(win_path):
@@ -182,7 +180,7 @@ def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, co
     Single activation: activate -> run build_impl -> deactivate (in finally block)
     """
     system = platform.system()
-    build_impl = build_dir / "scripts" / "build_impl.py"
+    build_impl = (build_dir / "scripts" / "build_impl.py").resolve()
     
     if system == "Windows":
         # PowerShell script: activate, run build_impl, deactivate in finally
@@ -314,7 +312,7 @@ def main():
             sys.exit(1)
 
     # Setup paths
-    project_root = build_dir.parent
+    project_root = build_dir.parent.resolve()
 
     try:
         print_header("SI Units CMake Build Script (Python)")

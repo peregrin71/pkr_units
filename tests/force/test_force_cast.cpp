@@ -147,4 +147,3 @@ TEST_F(ForceCastTest, round_trip_conversion)
     auto back = pkr::units::unit_cast<pkr::units::newton>(kn);
     ASSERT_DOUBLE_EQ(back.value(), original.value());
 }
-

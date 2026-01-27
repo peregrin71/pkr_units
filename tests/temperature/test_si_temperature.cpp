@@ -290,8 +290,8 @@ TEST_F(SiTemperatureTest, very_large_temperature_values)
 
 TEST_F(SiTemperatureTest, add_very_different_scales)
 {
-    pkr::units::millikelvin_t mk{1.0};   // 1 millikelvin
-    pkr::units::kelvin_t k{1.0};         // 1 kelvin = 1000 mK
+    pkr::units::millikelvin_t mk{1.0}; // 1 millikelvin
+    pkr::units::kelvin_t k{1.0};       // 1 kelvin = 1000 mK
     auto result = mk + k;
     // Result is in LHS type (millikelvin)
     // 1 mK + 1000 mK = 1001 mK
@@ -441,4 +441,3 @@ TEST_F(SiTemperatureTest, cast_kilokelvin_to_millikelvin)
     constexpr auto mk = pkr::units::unit_cast<pkr::units::millikelvin_t>(kk);
     ASSERT_DOUBLE_EQ(mk.value(), 1000000.0);
 }
-

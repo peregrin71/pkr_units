@@ -15,6 +15,7 @@ namespace test
 {
 
 using namespace ::testing;
+
 // using namespace pkr::units;
 
 class ConstantsTest : public Test
@@ -22,7 +23,8 @@ class ConstantsTest : public Test
 };
 
 // Test that fundamental constants are accessible and have correct values
-TEST_F(ConstantsTest, FundamentalConstantsAccessible) {
+TEST_F(ConstantsTest, FundamentalConstantsAccessible)
+{
     // Test speed of light
     EXPECT_DOUBLE_EQ(*pkr::units::speed_of_light, 299792458.0);
 
@@ -40,7 +42,8 @@ TEST_F(ConstantsTest, FundamentalConstantsAccessible) {
 }
 
 // Test that typed constants work correctly
-TEST_F(ConstantsTest, TypedConstantsWork) {
+TEST_F(ConstantsTest, TypedConstantsWork)
+{
     // Test kilogram_t constants
     pkr::units::kilogram_t electron_mass_const{pkr::units::details::electron_mass<double>()};
     pkr::units::kilogram_t proton_mass_const{pkr::units::details::proton_mass<double>()};
@@ -56,7 +59,8 @@ TEST_F(ConstantsTest, TypedConstantsWork) {
 }
 
 // Test that constants can be used in mathematical operations
-TEST_F(ConstantsTest, ConstantsInCalculations) {
+TEST_F(ConstantsTest, ConstantsInCalculations)
+{
     // Calculate energy using E = mc²
     pkr::units::joule_t rest_energy_electron{(pkr::units::electron_mass * pkr::units::speed_of_light * pkr::units::speed_of_light).value()};
     EXPECT_GT(rest_energy_electron.value(), 0.0);
@@ -70,7 +74,8 @@ TEST_F(ConstantsTest, ConstantsInCalculations) {
 }
 
 // Test atomic physics constants
-TEST_F(ConstantsTest, AtomicConstantsWork) {
+TEST_F(ConstantsTest, AtomicConstantsWork)
+{
     // Test Hartree energy
     pkr::units::joule_t hartree_energy_const{pkr::units::details::hartree_energy<double>()};
     EXPECT_GT(hartree_energy_const.value(), 0.0);
@@ -80,7 +85,8 @@ TEST_F(ConstantsTest, AtomicConstantsWork) {
 }
 
 // Test particle physics constants
-TEST_F(ConstantsTest, ParticleConstantsWork) {
+TEST_F(ConstantsTest, ParticleConstantsWork)
+{
     // Test muon mass
     pkr::units::kilogram_t muon_mass_const{pkr::units::details::muon_mass<double>()};
     EXPECT_GT(muon_mass_const.value(), 0.0);
@@ -91,7 +97,8 @@ TEST_F(ConstantsTest, ParticleConstantsWork) {
 }
 
 // Test electromagnetic constants
-TEST_F(ConstantsTest, ElectromagneticConstantsWork) {
+TEST_F(ConstantsTest, ElectromagneticConstantsWork)
+{
     // Test vacuum impedance
     EXPECT_GT(pkr::units::vacuum_impedance.value(), 0.0);
 
@@ -103,7 +110,8 @@ TEST_F(ConstantsTest, ElectromagneticConstantsWork) {
 }
 
 // Test nuclear constants
-TEST_F(ConstantsTest, NuclearConstantsWork) {
+TEST_F(ConstantsTest, NuclearConstantsWork)
+{
     // Test classical electron radius
     pkr::units::meter_t electron_radius{pkr::units::details::classical_electron_radius<double>()};
     EXPECT_GT(electron_radius.value(), 0.0);
@@ -114,7 +122,8 @@ TEST_F(ConstantsTest, NuclearConstantsWork) {
 }
 
 // Test conversion constants
-TEST_F(ConstantsTest, ConversionConstantsWork) {
+TEST_F(ConstantsTest, ConversionConstantsWork)
+{
     // Test electron volt
     EXPECT_DOUBLE_EQ(pkr::units::electron_volt, 1.602176634e-19);
 
@@ -124,7 +133,8 @@ TEST_F(ConstantsTest, ConversionConstantsWork) {
 }
 
 // Test that constants maintain precision
-TEST_F(ConstantsTest, ConstantsPrecision) {
+TEST_F(ConstantsTest, ConstantsPrecision)
+{
     // Test that constants have sufficient precision for calculations
     double fine_structure = pkr::units::fine_structure_constant;
     EXPECT_NEAR(fine_structure, 7.2973525643e-3, 1e-12);
@@ -135,7 +145,8 @@ TEST_F(ConstantsTest, ConstantsPrecision) {
 }
 
 // Test compile-time usage
-TEST_F(ConstantsTest, CompileTimeUsage) {
+TEST_F(ConstantsTest, CompileTimeUsage)
+{
     // Test that constants can be used in constexpr contexts
     constexpr double c = *pkr::units::speed_of_light;
     constexpr double h = pkr::units::planck_constant;
@@ -149,4 +160,4 @@ TEST_F(ConstantsTest, CompileTimeUsage) {
     EXPECT_GT(alpha, 0.0);
 }
 
-}  // namespace test
+} // namespace test

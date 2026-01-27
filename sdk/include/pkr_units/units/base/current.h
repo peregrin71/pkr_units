@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/current_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for ampere (SI base unit)
@@ -63,40 +63,34 @@ struct kiloampere_t final : public details::unit_t<double, std::kilo, current_di
 // Most derived unit type specializations for current units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, current_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, current_dimension>
 {
     using type = ampere_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, current_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, current_dimension>
 {
     using type = milliampere_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, current_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, current_dimension>
 {
     using type = microampere_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, current_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, current_dimension>
 {
     using type = nanoampere_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, current_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, current_dimension>
 {
     using type = kiloampere_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

@@ -5,7 +5,7 @@
 #include <pkr_units/impl/decls/velocity_decl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for meter per second (SI base unit)
@@ -122,73 +122,58 @@ using knots = knots_t;
 // Most derived unit type specializations for velocity units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, velocity_dimension>
 {
     using type = meter_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<5, 18>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<5, 18>, velocity_dimension>
 {
     using type = kilometer_per_hour_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 100>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 100>, velocity_dimension>
 {
     using type = centimeter_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, velocity_dimension>
 {
     using type = millimeter_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, velocity_dimension>
 {
     using type = kilometer_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
 {
     using type = miles_per_hour_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<3048, 10000>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<3048, 10000>, velocity_dimension>
 {
     using type = feet_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<254, 10000>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<254, 10000>, velocity_dimension>
 {
     using type = inches_per_second_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1852, 3600>, velocity_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1852, 3600>, velocity_dimension>
 {
     using type = knots_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

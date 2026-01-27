@@ -4,8 +4,10 @@
 #include <pkr_units/si_units.h>
 
 // Define test types
-namespace pkr {
-namespace units {
+namespace pkr
+{
+namespace units
+{
 
 // Area unit (m²) for testing
 using square_meter_t = details::unit_t<double, std::ratio<1>, dimension_t{2, 0, 0, 0, 0, 0, 0, 0}>;
@@ -68,7 +70,7 @@ TEST_F(MeasurementTest, addition_same_units)
 TEST_F(MeasurementTest, addition_different_units)
 {
     pkr::units::measurement_t<pkr::units::meter_t> len1{5.0, 0.1};
-    pkr::units::measurement_t<pkr::units::centimeter_t> len2{300.0, 5.0};  // 3.0 m ± 0.05 m
+    pkr::units::measurement_t<pkr::units::centimeter_t> len2{300.0, 5.0}; // 3.0 m ± 0.05 m
 
     auto result = len1 + len2;
 
@@ -96,8 +98,8 @@ TEST_F(MeasurementTest, subtraction)
 
 TEST_F(MeasurementTest, multiplication)
 {
-    pkr::units::measurement_t<pkr::units::meter_t> length{5.0, 0.1};  // 2% relative uncertainty
-    pkr::units::measurement_t<pkr::units::meter_t> width{3.0, 0.15};  // 5% relative uncertainty
+    pkr::units::measurement_t<pkr::units::meter_t> length{5.0, 0.1}; // 2% relative uncertainty
+    pkr::units::measurement_t<pkr::units::meter_t> width{3.0, 0.15}; // 5% relative uncertainty
 
     auto result = length * width;
 
@@ -111,8 +113,8 @@ TEST_F(MeasurementTest, multiplication)
 
 TEST_F(MeasurementTest, division)
 {
-    pkr::units::measurement_t<pkr::units::meter_t> distance{10.0, 0.2};  // 2% relative uncertainty
-    pkr::units::measurement_t<pkr::units::second_t> time{2.0, 0.1};  // 5% relative uncertainty
+    pkr::units::measurement_t<pkr::units::meter_t> distance{10.0, 0.2}; // 2% relative uncertainty
+    pkr::units::measurement_t<pkr::units::second_t> time{2.0, 0.1};     // 5% relative uncertainty
 
     auto result = distance / time;
 
@@ -182,20 +184,20 @@ TEST_F(MeasurementTest, output_stream)
     std::stringstream ss;
     ss << length;
 
-    ASSERT_EQ(ss.str(), "5 ± 0.1 m");
+    ASSERT_EQ(ss.str(), "5 +/- 0.1 m");
 }
 
 TEST_F(MeasurementTest, format_with_units)
 {
     pkr::units::measurement_t<pkr::units::meter_t> length{5.0, 0.1};
 
-    // Test ASCII formatting with +/- 
+    // Test ASCII formatting with +/-
     std::string ascii_result = std::format("{}", length);
     ASSERT_EQ(ascii_result, "5 +/- 0.1 m");
 
     // Test wide char formatting with ±
     std::wstring wide_result = std::format(L"{}", length);
-    ASSERT_EQ(wide_result, L"5 ± 0.1 m");
+    ASSERT_EQ(wide_result, L"5 \u00B1 0.1 m");
 }
 
 TEST_F(MeasurementTest, format_with_precision_specifier)
@@ -231,7 +233,7 @@ TEST_F(MeasurementTest, format_with_width_and_precision)
 
 TEST_F(MeasurementTest, math_sqrt)
 {
-    pkr::units::measurement_t<pkr::units::square_meter_t> area{16.0, 1.0};  // 16 ± 1 m²
+    pkr::units::measurement_t<pkr::units::square_meter_t> area{16.0, 1.0}; // 16 ± 1 m²
 
     auto length = pkr::units::math::sqrt(area);
 
@@ -246,7 +248,7 @@ TEST_F(MeasurementTest, math_sqrt)
 TEST_F(MeasurementTest, math_exp)
 {
     // Dimensionless measurement
-    pkr::units::measurement_t<pkr::units::scalar_t> exponent{1.0, 0.1};  // 1.0 ± 0.1
+    pkr::units::measurement_t<pkr::units::scalar_t> exponent{1.0, 0.1}; // 1.0 ± 0.1
 
     auto result = pkr::units::math::exp(exponent);
 
@@ -260,7 +262,7 @@ TEST_F(MeasurementTest, math_exp)
 TEST_F(MeasurementTest, math_log)
 {
     // Dimensionless measurement
-    pkr::units::measurement_t<pkr::units::scalar_t> value{10.0, 1.0};  // 10.0 ± 1.0
+    pkr::units::measurement_t<pkr::units::scalar_t> value{10.0, 1.0}; // 10.0 ± 1.0
 
     auto result = pkr::units::math::log(value);
 
@@ -273,7 +275,7 @@ TEST_F(MeasurementTest, math_log)
 
 TEST_F(MeasurementTest, math_pow_scalar_exponent)
 {
-    pkr::units::measurement_t<pkr::units::meter_t> length{2.0, 0.1};  // 2.0 ± 0.1 m
+    pkr::units::measurement_t<pkr::units::meter_t> length{2.0, 0.1}; // 2.0 ± 0.1 m
 
     auto result = pkr::units::math::pow(length, 3.0);
 
@@ -288,7 +290,7 @@ TEST_F(MeasurementTest, math_pow_scalar_exponent)
 TEST_F(MeasurementTest, math_sin)
 {
     // Angle measurement in radians
-    pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1};  // 0 ± 0.1 radians
+    pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
     auto result = pkr::units::math::sin(angle);
 
@@ -302,7 +304,7 @@ TEST_F(MeasurementTest, math_sin)
 TEST_F(MeasurementTest, math_cos)
 {
     // Angle measurement in radians
-    pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1};  // 0 ± 0.1 radians
+    pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
     auto result = pkr::units::math::cos(angle);
 
@@ -386,7 +388,6 @@ TEST_F(MeasurementTest, drag_force_calculation)
     // Total relative uncertainty: 4.08% + 3.33% + 6.67% + 4.00% = 18.08%
     // Absolute uncertainty: 413.44 N × 0.1808 ≈ 59.6 N
     ASSERT_NEAR(drag_force.uncertainty(), 59.6, 0.1);
-    
 
     // Verify the result has the correct unit type (force)
     // Note: The actual type checking would depend on how the unit system handles
@@ -394,6 +395,28 @@ TEST_F(MeasurementTest, drag_force_calculation)
     // using expected_force_type = pkr::units::newton_t;
     // static_assert(std::is_same_v<decltype(drag_force.value()), expected_force_type>,
     //               "Drag force should have newton units");
+}
+
+TEST_F(MeasurementTest, relative_uncertainty_zero_value_is_zero)
+{
+    pkr::units::measurement_t<pkr::units::meter_t> length{0.0, 0.5};
+
+    auto rel_uncertainty = length.relative_uncertainty();
+
+    // Special case: zero value => relative uncertainty treated as 0 (not NaN/inf).
+    ASSERT_DOUBLE_EQ(rel_uncertainty.value(), 0.0);
+}
+
+TEST_F(MeasurementTest, multiplication_with_zero_value_has_zero_uncertainty)
+{
+    pkr::units::measurement_t<pkr::units::meter_t> length{0.0, 0.5};
+    pkr::units::measurement_t<pkr::units::meter_t> width{3.0, 0.15};
+
+    auto result = length * width;
+
+    ASSERT_DOUBLE_EQ(result.value(), 0.0);
+    // Special case: zero value => relative uncertainty treated as 0, so absolute uncertainty is 0.
+    ASSERT_DOUBLE_EQ(result.uncertainty(), 0.0);
 }
 
 } // namespace test

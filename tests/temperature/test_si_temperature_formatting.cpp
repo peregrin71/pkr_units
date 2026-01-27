@@ -39,7 +39,7 @@ TEST_F(SiTemperatureFormattingTest, microkelvin_ascii_formatting)
 {
     pkr::units::microkelvin_t uK{0.5};
     std::string result = std::format("{}", uK);
-    ASSERT_EQ(result, "0.5 uK");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 uK"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiTemperatureFormattingTest, nanokelvin_ascii_formatting)

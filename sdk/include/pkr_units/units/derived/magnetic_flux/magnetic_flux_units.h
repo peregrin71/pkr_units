@@ -4,7 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
@@ -13,12 +13,4 @@ inline constexpr dimension_t magnetic_flux_dimension{.mass = 1, .length = 2, .ti
 // Magnetic flux density dimension: kg·s⁻²·A⁻¹
 inline constexpr dimension_t magnetic_flux_density_dimension{.mass = 1, .time = -2, .current = -1};
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

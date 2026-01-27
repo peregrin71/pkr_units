@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Pressure dimension: kg·m⁻¹·s⁻² (M·L⁻¹·T⁻²)
@@ -114,72 +114,64 @@ struct psi_t final : public details::unit_t<double, std::ratio<6894757, 1000>, p
 };
 
 // Pressure units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, pressure_dimension>
 {
     using type = pascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, pressure_dimension>
 {
     using type = kilopascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<100, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<100, 1>, pressure_dimension>
 {
     using type = hectopascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, pressure_dimension>
 {
     using type = megapascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, pressure_dimension>
 {
     using type = micropascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, pressure_dimension>
 {
     using type = millipascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000000>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, pressure_dimension>
 {
     using type = nanopascal_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<100000, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<100000, 1>, pressure_dimension>
 {
     using type = bar_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<101325, 1>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<101325, 1>, pressure_dimension>
 {
     using type = atmosphere_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<6894757, 1000>, pressure_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<6894757, 1000>, pressure_dimension>
 {
     using type = psi_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

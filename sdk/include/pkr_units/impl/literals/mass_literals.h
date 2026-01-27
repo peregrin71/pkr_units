@@ -4,16 +4,16 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/mass_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 namespace si_literals
 {
-    // Metric mass prefix literals
-    constexpr mass_details::unit_t<double, std::ratio<1, 1000000000000000000>> operator"" _ag(long double value) noexcept
-    {
-        return mass_details::unit_t<double, std::ratio<1, 1000000000000000000>>{static_cast<double>(value)};
-    }
+// Metric mass prefix literals
+constexpr mass_details::unit_t<double, std::ratio<1, 1000000000000000000>> operator"" _ag(long double value) noexcept
+{
+    return mass_details::unit_t<double, std::ratio<1, 1000000000000000000>>{static_cast<double>(value)};
+}
 
     constexpr si::mass<double, std::ratio<1, 1000000000000000>> operator"" _fg(long double value) noexcept
     {
@@ -131,21 +131,4 @@ namespace si_literals
     {
         return si::long_ton{static_cast<double>(value});
     }
-
-}  // namespace PKR_UNITS_NAMESPACE::si_literals
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    }

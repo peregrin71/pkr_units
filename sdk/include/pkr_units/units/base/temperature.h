@@ -4,7 +4,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/temperature_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Strong type for kelvin (SI base unit)
@@ -63,40 +63,34 @@ struct kilokelvin_t final : public details::unit_t<double, std::kilo, temperatur
 // Most derived unit type specializations for temperature units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, temperature_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, temperature_dimension>
 {
     using type = kelvin_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::milli, temperature_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::milli, temperature_dimension>
 {
     using type = millikelvin_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::micro, temperature_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::micro, temperature_dimension>
 {
     using type = microkelvin_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::nano, temperature_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::nano, temperature_dimension>
 {
     using type = nanokelvin_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::kilo, temperature_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::kilo, temperature_dimension>
 {
     using type = kilokelvin_t;
 };
 
-}  // namespace PKR_UNITS_NAMESPACE
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

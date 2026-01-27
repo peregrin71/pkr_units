@@ -131,4 +131,3 @@ TEST_F(AccelerationCastTest, round_trip_conversion)
     auto back = pkr::units::unit_cast<pkr::units::meter_per_second_squared_t>(cmps2);
     ASSERT_DOUBLE_EQ(back.value(), original.value());
 }
-

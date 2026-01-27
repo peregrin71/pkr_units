@@ -125,8 +125,3 @@ TEST_F(SiLengthNonSiUnitsTest, astronomical_unit_literal)
 }
 
 } // namespace test
-
-
-
-
-

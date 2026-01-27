@@ -5,7 +5,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/josephson_decl.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Josephson constant unit
@@ -21,4 +21,4 @@ struct josephson_t final : public details::unit_t<double, std::ratio<1, 1>, jose
     static constexpr std::u8string_view u8_symbol{u8"K_J"};
 };
 
-} // PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

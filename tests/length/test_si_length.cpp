@@ -154,7 +154,7 @@ TEST_F(SiLengthTest, very_small_values)
 
 TEST_F(SiLengthTest, very_large_values)
 {
-    pkr::units::kilometer_t km{1e6};  // 1 million kilometers
+    pkr::units::kilometer_t km{1e6}; // 1 million kilometers
     ASSERT_DOUBLE_EQ(km.value(), 1e6);
 }
 
@@ -164,21 +164,6 @@ TEST_F(SiLengthTest, very_large_values)
 TEST_F(SiLengthTest, construct_meter_from_centimeter)
 {
     pkr::units::centimeter_t cm{150.0}; // 150 cm
-    pkr::units::meter_t m{cm}; // Convert to meters
+    pkr::units::meter_t m{cm};          // Convert to meters
     ASSERT_DOUBLE_EQ(m.value(), 1.5);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

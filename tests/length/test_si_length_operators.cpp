@@ -47,7 +47,7 @@ TEST_F(SiLengthOperatorsTest, subtract_meters)
     pkr::units::meter_t m1{5.0};
     pkr::units::meter_t m2{2.0};
     auto result = m1 - m2;
-    
+
     static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
@@ -169,7 +169,7 @@ TEST_F(SiLengthOperatorsTest, multiply_meter_by_kilometer_produces_area)
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_millimeter_produces_area)
 {
     pkr::units::meter_t m{5.0};
-    pkr::units::millimeter_t mm{2000.0};  // 2000mm = 2m
+    pkr::units::millimeter_t mm{2000.0}; // 2000mm = 2m
     auto area = m * mm;
     // Ratio product: 1/1 * 1/1000 = 1/1000
     // Stored value: 5 * 2000 = 10000
@@ -201,7 +201,7 @@ TEST_F(SiLengthOperatorsTest, divide_length_by_time_produces_velocity)
 TEST_F(SiLengthOperatorsTest, add_very_different_scales)
 {
     pkr::units::meter_t m{1.0};
-    pkr::units::nanometer_t nm{1e9};  // 1e9 nm = 1 m
+    pkr::units::nanometer_t nm{1e9}; // 1e9 nm = 1 m
     auto result = m + nm;
     // Result should be 1 + 1 = 2 meters
     ASSERT_NEAR(result.value(), 2.0, 1e-10);
@@ -248,8 +248,8 @@ TEST_F(SiLengthOperatorsTest, constexpr_meter_multiplication_and_division)
 
 TEST_F(SiLengthOperatorsTest, add_to)
 {
-    pkr::units::decimeter_t m1{3.0};       // 3 decimeters = 0.3 meters
-    pkr::units::kilometer_t m2{2.0};       // 2 kilometers = 2000 meters
+    pkr::units::decimeter_t m1{3.0}; // 3 decimeters = 0.3 meters
+    pkr::units::kilometer_t m2{2.0}; // 2 kilometers = 2000 meters
     auto result = pkr::units::add<pkr::units::millimeter_t>(m1, m2);
     // 0.3 + 2000 = 2000.3 meters = 2000300 millimeters
     ASSERT_DOUBLE_EQ(result.value(), 2000300.0);
@@ -257,8 +257,8 @@ TEST_F(SiLengthOperatorsTest, add_to)
 
 TEST_F(SiLengthOperatorsTest, constexpr_add_to)
 {
-    constexpr pkr::units::meter_t m1{1.0};           // 1 meter
-    constexpr pkr::units::decimeter_t m2{30.0};      // 30 decimeters = 3 meters
+    constexpr pkr::units::meter_t m1{1.0};      // 1 meter
+    constexpr pkr::units::decimeter_t m2{30.0}; // 30 decimeters = 3 meters
     constexpr auto result = pkr::units::add<pkr::units::millimeter_t>(m1, m2);
     // 1 + 3 = 4 meters = 4000 millimeters (power of 2 in meters domain)
     static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
@@ -281,6 +281,3 @@ TEST_F(SiLengthOperatorsTest, scalar_rhs_divide_meter)
     auto result = m / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 2.0);
 }
-
-
-

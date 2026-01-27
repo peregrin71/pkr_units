@@ -12,10 +12,11 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/units/base/mass.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
-namespace details {
+namespace details
+{
 
 // ============================================================================
 // Elementary Particle Masses
@@ -26,7 +27,8 @@ namespace details {
  * Symbol: m_μ, Units: kg
  * 2022 CODATA: 1.883531627e-28
  */
-template<typename T> constexpr T muon_mass()
+template <typename T>
+constexpr T muon_mass()
 {
     return static_cast<T>(1.883531627e-28);
 }
@@ -36,7 +38,8 @@ template<typename T> constexpr T muon_mass()
  * Symbol: m_τ, Units: kg
  * 2022 CODATA: 3.16754e-27
  */
-template<typename T> constexpr T tau_mass()
+template <typename T>
+constexpr T tau_mass()
 {
     return static_cast<T>(3.16754e-27);
 }
@@ -50,7 +53,8 @@ template<typename T> constexpr T tau_mass()
  * Symbol: m_d, Units: kg
  * 2022 CODATA: 3.3435837768e-27
  */
-template<typename T> constexpr T deuteron_mass()
+template <typename T>
+constexpr T deuteron_mass()
 {
     return static_cast<T>(3.3435837768e-27);
 }
@@ -60,7 +64,8 @@ template<typename T> constexpr T deuteron_mass()
  * Symbol: m_t, Units: kg
  * 2022 CODATA: 5.0073567512e-27
  */
-template<typename T> constexpr T triton_mass()
+template <typename T>
+constexpr T triton_mass()
 {
     return static_cast<T>(5.0073567512e-27);
 }
@@ -70,7 +75,8 @@ template<typename T> constexpr T triton_mass()
  * Symbol: m_h, Units: kg
  * 2022 CODATA: 5.0064127862e-27
  */
-template<typename T> constexpr T helion_mass()
+template <typename T>
+constexpr T helion_mass()
 {
     return static_cast<T>(5.0064127862e-27);
 }
@@ -80,12 +86,13 @@ template<typename T> constexpr T helion_mass()
  * Symbol: m_α, Units: kg
  * 2022 CODATA: 6.6446573450e-27
  */
-template<typename T> constexpr T alpha_particle_mass()
+template <typename T>
+constexpr T alpha_particle_mass()
 {
     return static_cast<T>(6.6446573450e-27);
 }
 
-}  // namespace details
+} // namespace details
 
 // ============================================================================
 // Particle Physics Constants
@@ -99,4 +106,4 @@ constexpr kilogram_t triton_mass{details::triton_mass<double>()};
 constexpr kilogram_t helion_mass{details::helion_mass<double>()};
 constexpr kilogram_t alpha_particle_mass{details::alpha_particle_mass<double>()};
 
-}  // namespace PKR_UNITS_NAMESPACE
+} // namespace PKR_UNITS_NAMESPACE

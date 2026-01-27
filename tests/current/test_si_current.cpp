@@ -286,8 +286,8 @@ TEST_F(SiCurrentTest, very_large_current_values)
 
 TEST_F(SiCurrentTest, add_very_different_scales)
 {
-    pkr::units::milliampere_t ma{1.0};   // 1 milliampere
-    pkr::units::ampere_t a{1.0};         // 1 ampere = 1000 mA
+    pkr::units::milliampere_t ma{1.0}; // 1 milliampere
+    pkr::units::ampere_t a{1.0};       // 1 ampere = 1000 mA
     auto result = ma + a;
     // Result is in LHS type (milliampere)
     // 1 mA + 1000 mA = 1001 mA
@@ -301,8 +301,3 @@ TEST_F(SiCurrentTest, subtract_resulting_in_negative)
     auto result = a1 - a2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }
-
-
-
-
-

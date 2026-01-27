@@ -239,7 +239,7 @@ TEST_F(SiVelocityTest, subtract_different_ratio_units_opposite_order)
 TEST_F(SiVelocityTest, add_centimeter_and_meter_per_second)
 {
     // 100 cm/s + 5 m/s = 1 m/s + 5 m/s = 6 m/s (result in m/s, LHS type)
-    pkr::units::centimeter_per_second_t v1{600.0};  // 6 m/s in cm/s
+    pkr::units::centimeter_per_second_t v1{600.0}; // 6 m/s in cm/s
     pkr::units::meter_per_second_t v2{5.0};
     // This should compile but note: centimeter is LHS, so result is in cm/s
     auto result = v1 + v2;
@@ -319,7 +319,7 @@ TEST_F(SiVelocityTest, less_than_or_equal_same_units)
     pkr::units::meter_per_second_t v1{5.0};
     pkr::units::meter_per_second_t v2{10.0};
     ASSERT_TRUE(v1 <= v2);
-    
+
     pkr::units::meter_per_second_t v3{10.0};
     ASSERT_TRUE(v2 <= v3);
 }
@@ -329,7 +329,7 @@ TEST_F(SiVelocityTest, greater_than_or_equal_same_units)
     pkr::units::meter_per_second_t v1{15.0};
     pkr::units::meter_per_second_t v2{10.0};
     ASSERT_TRUE(v1 >= v2);
-    
+
     pkr::units::meter_per_second_t v3{10.0};
     ASSERT_TRUE(v2 >= v3);
 }
@@ -357,5 +357,3 @@ TEST_F(SiVelocityTest, greater_than_different_units)
     pkr::units::kilometer_per_hour_t v2{36.0};
     ASSERT_TRUE(v1 > v2);
 }
-
-

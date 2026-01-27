@@ -5,7 +5,7 @@
 #include <pkr_units/impl/decls/concentration_decl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Molar concentration units (amount of substance per volume)
@@ -127,49 +127,34 @@ struct milliosmole_per_liter_concentration_t final : public details::unit_t<doub
 // ============================================================================
 
 // Molar concentration units
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
 {
     using type = mole_per_liter_concentration_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
 {
     using type = millimolar_concentration_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
 {
     using type = micromolar_concentration_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
 {
     using type = nanomolar_concentration_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
 {
     using type = mole_per_cubic_centimeter_concentration_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE

@@ -39,7 +39,7 @@ TEST_F(SiTimeFormattingTest, microsecond_ascii_formatting)
 {
     pkr::units::microsecond_t us{0.5};
     std::string result = std::format("{}", us);
-    ASSERT_EQ(result, "0.5 us");  // ASCII fallback: "u" instead of "μ"
+    ASSERT_EQ(result, "0.5 us"); // ASCII fallback: "u" instead of "μ"
 }
 
 TEST_F(SiTimeFormattingTest, nanosecond_ascii_formatting)

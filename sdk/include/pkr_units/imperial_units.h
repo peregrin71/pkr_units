@@ -20,31 +20,31 @@
 // Core Framework (needed for imperial units)
 // ============================================================================
 
-#include "impl/namespace_config.h"
-#include "impl/unit_impl.h"
-#include "impl/dimension.h"
+#include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/dimension.h>
 
 // ============================================================================
 // Imperial Units
 // ============================================================================
 
-#include "units/imperial/length.h"        // foot, inch, yard, mile, etc.
-#include "units/imperial/mass.h"          // pound, ounce, stone, etc.
-#include "units/imperial/velocity.h"      // mile per hour, foot per second, etc.
-#include "units/imperial/acceleration.h"  // foot per second squared, etc.
-#include "units/imperial/force.h"         // pound-force, etc.
-#include "units/imperial/formatting.h"    // imperial unit formatting
+#include <pkr_units/units/imperial/length.h>       // foot, inch, yard, mile, etc.
+#include <pkr_units/units/imperial/mass.h>         // pound, ounce, stone, etc.
+#include <pkr_units/units/imperial/velocity.h>     // mile per hour, foot per second, etc.
+#include <pkr_units/units/imperial/acceleration.h> // foot per second squared, etc.
+#include <pkr_units/units/imperial/force.h>        // pound-force, etc.
+#include <pkr_units/units/imperial/formatting.h>   // imperial unit formatting
 
 // ============================================================================
 // Unit Operators and Casting
 // ============================================================================
 
 // Note: Operators are already included via unit.h
-#include "impl/cast/unit_cast.h"
-// #include "impl/cast/multi_unit_cast.h"
+#include <pkr_units/impl/cast/unit_cast.h>
+// #include <pkr_units/impl/cast/multi_unit_cast.h>
 
 // ============================================================================
 // Unit Literals
 // ============================================================================
 
-#include "impl/literals/literals.h"
+#include <pkr_units/impl/literals/literals.h>

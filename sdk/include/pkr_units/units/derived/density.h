@@ -5,7 +5,7 @@
 #include <pkr_units/impl/decls/density_decl.h>
 #include <pkr_units/impl/dimension.h>
 
-PKR_UNITS_BEGIN_NAMESPACE
+namespace PKR_UNITS_NAMESPACE
 {
 
 // Density units (mass per volume)
@@ -167,79 +167,64 @@ struct atomic_mass_unit_per_cubic_angstrom_t final : public details::unit_t<doub
 // Most derived unit type specializations for density units
 // ============================================================================
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, density_dimension>
 {
     using type = kilogram_per_cubic_meter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1, 1000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, density_dimension>
 {
     using type = gram_per_cubic_meter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000000, 1>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, density_dimension>
 {
     using type = gram_per_cubic_centimeter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1000, 1>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, density_dimension>
 {
     using type = kilogram_per_liter_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<27679904, 1000000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<27679904, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_inch_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<16018, 1000000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<16018, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_foot_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<119826, 1000000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<119826, 1000000>, density_dimension>
 {
     using type = pound_per_gallon_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<1729994, 1000000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1729994, 1000000>, density_dimension>
 {
     using type = ounce_per_cubic_inch_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<33814, 1000>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<33814, 1000>, density_dimension>
 {
     using type = ounce_per_fluid_ounce_t;
 };
 
-template<>
-struct details::named_unit_type_t<double, std::ratio<166054, 1>, density_dimension>
+template <>
+struct details::derived_unit_type_t<double, std::ratio<166054, 1>, density_dimension>
 {
     using type = atomic_mass_unit_per_cubic_angstrom_t;
 };
 
-} // PKR_UNITS_NAMESPACE
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace PKR_UNITS_NAMESPACE
