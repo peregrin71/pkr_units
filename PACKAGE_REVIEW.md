@@ -181,7 +181,6 @@ candela_t luminous_intensity = lumens / steradian_t;
 #### 6. **Incomplete Basic SI Units**
 Some metric prefixes missing:
 - Length: Missing `decameter`, `hectometer` in some places
-- Mass: Missing `megagram`, `decigram`
 - Missing: `yotta`, `zetta`, `exa`, `peta` (high-end) and `atto`, `zepto` (low-end) prefixes
 
 **Fix Priority**: LOW - Rare in practice

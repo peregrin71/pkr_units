@@ -62,7 +62,7 @@
 - [x] microgram
 - [x] nanogram
 - [x] picogram
-- [x] megagram (tonne)
+- [x] metric_ton (tonne)
 
 ### Time Units
 - [x] second
@@ -393,7 +393,7 @@
 
 1. **Complete Basic SI Units** (Week 1-2)
    - Add centimeter, decimeter, hectometer for length
-   - Add milligram through megagram for mass
+   - Add milligram through metric_ton for mass
    - Add ampere and derived units for current
 
 2. **Implement Essential Derived Units** (Week 2-3)

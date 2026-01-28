@@ -64,10 +64,10 @@ TEST_F(SiMassFormattingTest, picogram_ascii_formatting)
     ASSERT_EQ(result, "500 pg");
 }
 
-TEST_F(SiMassFormattingTest, megagram_ascii_formatting)
+TEST_F(SiMassFormattingTest, metric_ton_ascii_formatting)
 {
-    pkr::units::megagram_t Mg{2.5};
-    std::string result = std::format("{}", Mg);
-    ASSERT_EQ(result, "2.5 Mg");
+    pkr::units::metric_ton_t t{2.5};
+    std::string result = std::format("{}", t);
+    ASSERT_EQ(result, "2.5 t");
 }
 */

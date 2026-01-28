@@ -116,16 +116,6 @@ struct hectogram_t final : public details::unit_t<double, std::hecto, mass_dimen
 };
 
 // Larger mass units
-struct megagram_t final : public details::unit_t<double, std::kilo, mass_dimension>
-{
-    using _base = details::unit_t<double, std::kilo, mass_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"megagram"};
-    static constexpr std::string_view symbol{"Mg"};
-    static constexpr std::wstring_view w_symbol{L"Mg"};
-    static constexpr std::u8string_view u8_symbol{u8"Mg"};
-};
-
 struct gigagram_t final : public details::unit_t<double, std::mega, mass_dimension>
 {
     using _base = details::unit_t<double, std::mega, mass_dimension>;
@@ -238,7 +228,7 @@ struct details::derived_unit_type_t<double, std::hecto, mass_dimension>
 template <>
 struct details::derived_unit_type_t<double, std::kilo, mass_dimension>
 {
-    using type = megagram_t;
+    using type = metric_ton_t;
 };
 
 template <>

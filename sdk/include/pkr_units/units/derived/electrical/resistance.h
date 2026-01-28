@@ -21,31 +21,31 @@ struct ohm_t final : public details::unit_t<double, std::ratio<1, 1>, electric_r
     static constexpr std::u8string_view u8_symbol{u8"\u03a9"};
 };
 
-struct kilohm_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
+struct kiloohm_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilohm"};
+    static constexpr std::string_view name{"kiloohm"};
     static constexpr std::string_view symbol{"kohm"};
     static constexpr std::wstring_view w_symbol{L"k\u03a9"};
     static constexpr std::u8string_view u8_symbol{u8"k\u03a9"};
 };
 
-struct megohm_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+struct megaohm_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megohm"};
+    static constexpr std::string_view name{"megaohm"};
     static constexpr std::string_view symbol{"Mohm"};
     static constexpr std::wstring_view w_symbol{L"M\u03a9"};
     static constexpr std::u8string_view u8_symbol{u8"M\u03a9"};
 };
 
-struct gigohm_t final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+struct gigaohm_t final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigohm"};
+    static constexpr std::string_view name{"gigaohm"};
     static constexpr std::string_view symbol{"Gohm"};
     static constexpr std::wstring_view w_symbol{L"G\u03a9"};
     static constexpr std::u8string_view u8_symbol{u8"G\u03a9"};
@@ -84,19 +84,19 @@ struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_resistanc
 template <>
 struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
-    using type = kilohm_t;
+    using type = kiloohm_t;
 };
 
 template <>
 struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
-    using type = megohm_t;
+    using type = megaohm_t;
 };
 
 template <>
 struct details::derived_unit_type_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
-    using type = gigohm_t;
+    using type = gigaohm_t;
 };
 
 template <>

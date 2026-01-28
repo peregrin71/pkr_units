@@ -76,19 +76,19 @@ constexpr ohm_t operator"" _ohm(long double value) noexcept
     return ohm_t{static_cast<double>(value)};
 }
 
-constexpr kilohm_t operator"" _kohm(long double value) noexcept
+constexpr kiloohm_t operator"" _kohm(long double value) noexcept
 {
-    return kilohm_t{static_cast<double>(value)};
+    return kiloohm_t{static_cast<double>(value)};
 }
 
-constexpr megohm_t operator"" _Mohm(long double value) noexcept
+constexpr megaohm_t operator"" _Mohm(long double value) noexcept
 {
-    return megohm_t{static_cast<double>(value)};
+    return megaohm_t{static_cast<double>(value)};
 }
 
-constexpr gigohm_t operator"" _Gohm(long double value) noexcept
+constexpr gigaohm_t operator"" _Gohm(long double value) noexcept
 {
-    return gigohm_t{static_cast<double>(value)};
+    return gigaohm_t{static_cast<double>(value)};
 }
 
 constexpr milliohm_t operator"" _mohm(long double value) noexcept

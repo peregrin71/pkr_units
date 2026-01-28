@@ -31,14 +31,14 @@ TEST_F(SiResistanceFormattingTest, ohm_ascii_with_precision)
 
 TEST_F(SiResistanceFormattingTest, kilohm_ascii_formatting)
 {
-    pkr::units::kilohm_t kohm{1.5};
+    pkr::units::kiloohm_t kohm{1.5};
     std::string result = std::format("{}", kohm);
     ASSERT_EQ(result, "1.5 kohm");
 }
 
 TEST_F(SiResistanceFormattingTest, megohm_ascii_formatting)
 {
-    pkr::units::megohm_t Mohm{0.5};
+    pkr::units::megaohm_t Mohm{0.5};
     std::string result = std::format("{}", Mohm);
     ASSERT_EQ(result, "0.5 Mohm");
 }

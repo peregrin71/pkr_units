@@ -60,11 +60,6 @@ constexpr kilogram_t operator"" _kg(long double value) noexcept
     return kilogram_t{static_cast<double>(value)};
 }
 
-constexpr megagram_t operator"" _Mg(long double value) noexcept
-{
-    return megagram_t{static_cast<double>(value)};
-}
-
 constexpr gigagram_t operator"" _Gg(long double value) noexcept
 {
     return gigagram_t{static_cast<double>(value)};
