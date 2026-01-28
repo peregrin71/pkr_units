@@ -6,6 +6,7 @@
 #include <pkr_units/units/temperature/celsius.h>
 #include <pkr_units/units/temperature/fahrenheit.h>
 #include <type_traits>
+#include <compare>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -102,6 +103,44 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
         auto converted = details::unit_cast_impl<ratio_type>(base_kelvin);
         return target_unit_t{converted.value()};
     }
+}
+
+// Special comparison operators for temperature units with affine transformations
+
+// Helper function to convert any temperature unit to Kelvin for comparison
+template <typename T>
+requires is_temperature_like_v<T>
+constexpr double to_kelvin_for_comparison(const T& temp) noexcept
+{
+    if constexpr (temperature_affine_traits<T>::is_affine)
+    {
+        return temperature_affine_traits<T>::to_kelvin(temp.value());
+    }
+    else
+    {
+        // For Kelvin-based units, just return the value
+        return static_cast<double>(temp.value());
+    }
+}
+
+// Three-way comparison for temperature units
+template <typename T1, typename T2>
+requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
+{
+    double lhs_kelvin = to_kelvin_for_comparison(lhs);
+    double rhs_kelvin = to_kelvin_for_comparison(rhs);
+    return lhs_kelvin <=> rhs_kelvin;
+}
+
+// Equality comparison for temperature units (needed for <=> to work properly)
+template <typename T1, typename T2>
+requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
+{
+    double lhs_kelvin = to_kelvin_for_comparison(lhs);
+    double rhs_kelvin = to_kelvin_for_comparison(rhs);
+    return lhs_kelvin == rhs_kelvin;
 }
 
 } // namespace PKR_UNITS_NAMESPACE

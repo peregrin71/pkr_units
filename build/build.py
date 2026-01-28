@@ -69,7 +69,7 @@ def setup_wsl_environment():
         # Install required packages
         install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-pip && python3 -m pip install --break-system-packages conan
+apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-pip && python3 -m pip install conan
 """
         
         try:
@@ -85,7 +85,7 @@ apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-too
     except subprocess.CalledProcessError:
         print_info("Conan not found, installing...")
         try:
-            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "--break-system-packages", "conan"], check=True)
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "conan"], check=True)
             print_success("Conan installed")
         except subprocess.CalledProcessError as e:
             raise Exception(f"Failed to install Conan: {e}")

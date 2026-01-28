@@ -14,14 +14,6 @@
 - [x] Separate build profiles for MSVC and Clang
 - [x] Remove stale compiler flags from Clang profile
 
-### In Progress / Known Issues
-  - Remove compiler version duplication between profiles and CI workflow
-  - Centralize CC/CXX environment variables in profile [buildenv] sections
-  - Eliminate cmake_extra_flags overrides of profile generators
-  - Simplify CI matrix to reference profile settings only
-- [ ] Fix Clang build issue (Windows ABI/GTest linking - linker undefined references to testing::Test symbols)
-- [ ] Fix floating-point precision test (SiMassTest.add_very_different_scales)
-
 ### GitHub Actions CI/CD (High Priority)
 - [x] Create GitHub Actions workflow (`.github/workflows/ci.yml` exists)
   - [x] Windows runner: MSVC build
@@ -31,9 +23,9 @@
   - [x] Matrix strategy for Debug/Release configurations
 - [x] Validation in CI
   - [x] Run full test suite on all platforms
-  - [ ] Generate test reports (currently just ctest output)
+  - [x] Generate test reports (currently just ctest output) -> code coverage
   - [x] Flag failures to PR (fail-fast: false)
-  - [ ] use libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
+  - [x] use libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
   - [ ] Add UBSan to debug builds for undefined behavior detection
 - [x] Branching Strategy
   - [x] PR workflow: triggers on pull_request to main, development branches

@@ -19,6 +19,7 @@
 #include <cmath>
 #include <type_traits>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/unit_math.h>
@@ -35,21 +36,37 @@ namespace math
 
 // Addition with uncertainty propagation
 template <typename UnitT1, typename UnitT2>
-constexpr auto add(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
+constexpr auto add_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
 {
     return a + b;
 }
 
 // Subtraction with uncertainty propagation
 template <typename UnitT1, typename UnitT2>
-constexpr auto subtract(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
+constexpr auto subtract_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
 {
     return a - b;
 }
 
+// Square function with uncertainty propagation
+// For f(x) = x^2, the relative uncertainty df/f = 2 *
+template <typename UnitT>
+constexpr auto square_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+{
+    auto result_value = math::square(measurement.unit_value());
+
+    auto relative_uncertainty = 2.0 * measurement.relative_uncertainty().value();
+    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
+
+    using result_type = decltype(result_value);
+    return PKR_UNITS_NAMESPACE::measurement_t<result_type>{result_value, result_type{result_uncertainty_value}};
+}
+
 // Multiplication with uncertainty propagation (RSS for relative uncertainties)
+// These values MUST not be correlated. Do not use multiply_rss(a, a) for squaring;
+// use square_rss(a) instead, as squaring requires correlated uncertainty propagation.
 template <typename UnitT1, typename UnitT2>
-constexpr auto multiply(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
+auto multiply_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
 {
     auto result_value = (a.unit_value() * b.unit_value()).in_base_si_units();
     using result_type = decltype(result_value);
@@ -62,9 +79,27 @@ constexpr auto multiply(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, con
     return PKR_UNITS_NAMESPACE::measurement_t<result_type>{result_value, result_type{result_uncertainty_value}};
 }
 
+// Overload for multiplying measurement by scalar (zero uncertainty)
+template <typename UnitT>
+auto multiply_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, const PKR_UNITS_NAMESPACE::is_unit_value_type_c auto& b)
+{
+    using scalar_unit_t = PKR_UNITS_NAMESPACE::details::unit_t<std::decay_t<decltype(b)>, std::ratio<1>, PKR_UNITS_NAMESPACE::scalar_dimension>;
+    auto scalar_b = PKR_UNITS_NAMESPACE::measurement_t<scalar_unit_t>{b, 0.0};
+    return multiply_rss(a, scalar_b);
+}
+
+// Overload for multiplying scalar by measurement (zero uncertainty)
+template <typename UnitT>
+auto multiply_rss(const PKR_UNITS_NAMESPACE::is_unit_value_type_c auto& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
+{
+    using scalar_unit_t = PKR_UNITS_NAMESPACE::details::unit_t<std::decay_t<decltype(a)>, std::ratio<1>, PKR_UNITS_NAMESPACE::scalar_dimension>;
+    auto scalar_a = PKR_UNITS_NAMESPACE::measurement_t<scalar_unit_t>{a, 0.0};
+    return multiply_rss(scalar_a, b);
+}
+
 // Division with uncertainty propagation (RSS for relative uncertainties)
 template <typename UnitT1, typename UnitT2>
-constexpr auto divide(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
+constexpr auto divide_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT2>& b)
 {
     auto result_value = (a.unit_value() / b.unit_value()).in_base_si_units();
     using result_type = decltype(result_value);
@@ -84,7 +119,7 @@ constexpr auto divide(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const
 // Square root with uncertainty propagation
 // For f(x) = sqrt(x), the relative uncertainty df/f = (1/2) * dx/x
 template <typename UnitT>
-constexpr auto sqrt(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto sqrt_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto result_value = math::sqrt(measurement.unit_value());
 
@@ -98,7 +133,7 @@ constexpr auto sqrt(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement
 // Exponential function with uncertainty propagation
 // For f(x) = e^x, the relative uncertainty df/f = dx (since x must be dimensionless)
 template <typename UnitT>
-constexpr auto exp(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto exp_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto result_value = math::exp(measurement.unit_value());
     auto result_uncertainty_value = result_value.value() * measurement.uncertainty();
@@ -110,7 +145,7 @@ constexpr auto exp(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // Natural logarithm with uncertainty propagation
 // For f(x) = ln(x), the relative uncertainty df/f = dx/x
 template <typename UnitT>
-constexpr auto log(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto log_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto result_value = math::log(measurement.unit_value());
     auto result_uncertainty_value = measurement.relative_uncertainty().value();
@@ -122,7 +157,7 @@ constexpr auto log(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // Power function with uncertainty propagation
 // For f(x) = x^n, the relative uncertainty df/f = |n| * dx/x and dn * ln(x)
 template <typename UnitT, typename ExpUnitT>
-constexpr auto pow(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& base, const PKR_UNITS_NAMESPACE::measurement_t<ExpUnitT>& exponent)
+constexpr auto pow_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& base, const PKR_UNITS_NAMESPACE::measurement_t<ExpUnitT>& exponent)
 {
     auto result_value = math::pow(base.unit_value(), exponent.unit_value());
 
@@ -159,9 +194,9 @@ constexpr auto pow(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& base, double
 // Sine function with uncertainty propagation
 // For f(x) = sin(x), the uncertainty df = |cos(x)| * dx
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 
-constexpr auto sin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto sin_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto result_value = PKR_UNITS_NAMESPACE::details::unit_t<double, std::ratio<1>, PKR_UNITS_NAMESPACE::scalar_dimension>{std::sin(measurement.value())};
 
@@ -175,7 +210,7 @@ constexpr auto sin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // Cosine function with uncertainty propagation
 // For f(x) = cos(x), the uncertainty df = |sin(x)| * dx
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 
 constexpr auto cos(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
@@ -191,9 +226,9 @@ constexpr auto cos(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // Tangent function with uncertainty propagation
 // For f(x) = tan(x), the relative uncertainty df/f = (1/cos^2(x)) * dx/x
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 
-constexpr auto tan(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto tan_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto result_value = PKR_UNITS_NAMESPACE::details::unit_t<double, std::ratio<1>, PKR_UNITS_NAMESPACE::scalar_dimension>{std::tan(measurement.value())};
 
@@ -210,19 +245,19 @@ constexpr auto tan(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // ============================================================================
 
 template <typename UnitT>
-constexpr auto combined_uncertainty(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto combined_uncertainty_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     return measurement.uncertainty();
 }
 
 template <typename UnitT>
-constexpr double relative_uncertainty_percent(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr double relative_uncertainty_percent_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     return measurement.relative_uncertainty().value() * 100.0;
 }
 
 template <typename UnitT>
-constexpr auto normalize(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
+constexpr auto normalize_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     auto normalized_value = math::normalize(measurement.value());
     auto normalized_uncertainty = math::normalize(measurement.uncertainty());

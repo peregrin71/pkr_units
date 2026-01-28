@@ -262,6 +262,20 @@ constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
     return !(lhs < rhs);
 }
 
+template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+requires same_dimensions_c<T1, T2>
+
+constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
+{
+    auto to_canonical = [](const auto& unit)
+    {
+        using unit_type = std::remove_cvref_t<decltype(unit)>;
+        using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
+        return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+    };
+    return to_canonical(lhs) <=> to_canonical(rhs);
+}
+
 } // namespace PKR_UNITS_NAMESPACE
 
 // Include dimension definitions at global scope after all namespaces close

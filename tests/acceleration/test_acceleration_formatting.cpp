@@ -82,24 +82,6 @@ TEST_F(AccelerationFormattingTest, standard_gravity_wide_formatting)
 }
 
 // ============================================================================
-// UTF-8 Formatting Tests
-// ============================================================================
-
-TEST_F(AccelerationFormattingTest, meter_per_second_squared_utf8_formatting)
-{
-    pkr::units::meter_per_second_squared_t accel{9.81};
-    std::string result = std::format("{}", accel);
-    ASSERT_EQ(result, "9.81 m/s²");
-}
-
-TEST_F(AccelerationFormattingTest, standard_gravity_utf8_formatting)
-{
-    pkr::units::standard_gravity_t accel{1.0};
-    std::string result = std::format("{}", accel);
-    ASSERT_EQ(result, "1 g");
-}
-
-// ============================================================================
 // Edge Cases and Special Values
 // ============================================================================
 

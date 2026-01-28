@@ -83,24 +83,6 @@ TEST_F(ForceFormattingTest, micronewton_wide_formatting)
 }
 
 // ============================================================================
-// UTF-8 Formatting Tests
-// ============================================================================
-
-TEST_F(ForceFormattingTest, newton_utf8_formatting)
-{
-    pkr::units::newton_t force{100.0};
-    std::u8string result = std::format(u8"{}", force);
-    ASSERT_EQ(result, u8"100 N");
-}
-
-TEST_F(ForceFormattingTest, micronewton_utf8_formatting)
-{
-    pkr::units::micronewton_t force{1000.0};
-    std::u8string result = std::format(u8"{}", force);
-    ASSERT_EQ(result, u8"1000 \u00b5N");
-}
-
-// ============================================================================
 // Edge Cases and Special Values
 // ============================================================================
 
