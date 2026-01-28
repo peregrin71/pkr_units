@@ -78,7 +78,7 @@ public:
     constexpr auto operator+(const measurement_t<OtherUnitT>& other) const
     {
         // Values add using existing unit_t arithmetic
-        auto result_value = (m_value + other.unit_value()).normalized();
+        auto result_value = (m_value + other.unit_value()).in_base_si_units();
 
         // Uncertainties combine in quadrature: σ_total = √(σ₁² + σ₂²)
         using result_type = decltype(result_value);
@@ -100,7 +100,7 @@ public:
     constexpr auto operator-(const measurement_t<OtherUnitT>& other) const
     {
         // Values subtract using existing unit_t arithmetic
-        auto result_value = (m_value - other.unit_value()).normalized();
+        auto result_value = (m_value - other.unit_value()).in_base_si_units();
 
         // Uncertainties combine in quadrature: σ_total = √(σ₁² + σ₂²)
         using result_type = decltype(result_value);
@@ -122,7 +122,7 @@ public:
     constexpr auto operator*(const measurement_t<OtherUnitT>& other) const
     {
         // Values multiply using existing unit_t arithmetic
-        auto result_value = (m_value * other.unit_value()).normalized();
+        auto result_value = (m_value * other.unit_value()).in_base_si_units();
 
         // Relative uncertainties add: δ(a×b)/(a×b) = δa/a + δb/b
         using result_type = decltype(result_value);
@@ -140,7 +140,7 @@ public:
     constexpr auto operator/(const measurement_t<OtherUnitT>& other) const
     {
         // Values divide using existing unit_t arithmetic
-        auto result_value = (m_value / other.unit_value()).normalized();
+        auto result_value = (m_value / other.unit_value()).in_base_si_units();
 
         // Relative uncertainties add: δ(a/b)/(a/b) = δa/a + δb/b
         using result_type = decltype(result_value);

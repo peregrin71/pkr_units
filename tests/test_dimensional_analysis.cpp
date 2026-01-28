@@ -186,7 +186,7 @@ TEST_F(DimensionalAnalysisTest, pressure_times_time_squared)
 
     static_assert(
         std::is_same_v<
-            decltype(energy_density.normalized()),
+            decltype(energy_density.in_base_si_units()),
             pkr::units::details::unit_t<
                 double,
                 std::ratio<1, 1>,
