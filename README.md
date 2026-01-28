@@ -417,6 +417,34 @@ auto exp_result = exp(measurement_t<scalar_t>{1.0, 0.1});           // 2.718 ± 
 auto sin_result = sin(measurement_t<radian_t>{0.0, 0.1});            // 0.0 ± 0.1
 ```
 
+### Uncertainty Propagation Strategies
+
+pkr_units supports two uncertainty propagation strategies, selected by including the appropriate header:
+
+#### RSS (Root Sum Square) Strategy (Default)
+```cpp
+#include <pkr_units/measurements/measurement_math_rss.h>
+```
+- **Multiplication/Division**: Relative uncertainties add in quadrature: \(\delta_{total} = \sqrt{(\delta_1)^2 + (\delta_2)^2}\)
+- **Addition/Subtraction**: Absolute uncertainties add in quadrature: \(\sigma_{total} = \sqrt{\sigma_1^2 + \sigma_2^2}\)
+- **Functions**: Uses appropriate derivatives for uncertainty propagation
+- **Best for**: Most scientific applications where uncertainties are independent
+
+**Important**: For correlated measurements (e.g., squaring), use `square_rss()` instead of `multiply_rss(a, a)`.
+
+#### Linear Strategy
+```cpp
+#include <pkr_units/measurements/measurement_math_linear.h>
+```
+- **All Operations**: Uses linear approximation: \(\delta f \approx |\frac{\partial f}{\partial x}| \delta x\)
+- **Worst-case Bounds**: Provides conservative (upper bound) uncertainty estimates
+- **Simpler**: Direct application of derivatives
+- **Best for**: Simple cases, error bounds, or when computational efficiency is critical
+
+Both strategies maintain dimensional correctness but use different function names to avoid conflicts:
+- RSS functions have `_rss` suffix (e.g., `multiply_rss`, `divide_rss`)
+- Linear functions use standard names (e.g., `multiply`, `divide`)
+
 ### Formatting and Output
 
 ```cpp
