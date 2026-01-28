@@ -8,7 +8,12 @@
 
 // #include "length_literals.h"
 // #include "mass_literals.h"
+// #include "amount_literals.h"
 // #include "acceleration_literals.h"
+// #include "current_literals.h"
+// #include "intensity_literals.h"
+// #include "time_literals.h"
+// #include "temperature_literals.h"
 // #include "velocity_literals.h"
 // #include "mechanical_literals.h"
 // #include "electrical_literals.h"

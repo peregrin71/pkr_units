@@ -49,8 +49,8 @@ struct micronewton_t final : public details::unit_t<double, std::ratio<1, 100000
     using _base::_base;
     static constexpr std::string_view name{"micronewton"};
     static constexpr std::string_view symbol{"uN"};
-    static constexpr std::wstring_view w_symbol{L"µN"};
-    static constexpr std::u8string_view u8_symbol{u8"µN"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5N"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5N"};
 };
 
 struct millinewton_t final : public details::unit_t<double, std::ratio<1, 1000>, force_dimension>

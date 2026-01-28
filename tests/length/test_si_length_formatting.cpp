@@ -10,7 +10,6 @@ class SiLengthFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -124,8 +123,22 @@ TEST_F(SiLengthFormattingTest, meter_ascii_negative_value)
     ASSERT_EQ(result, "-5.5 m");
 }
 
+TEST_F(SiLengthFormattingTest, meter_ascii_width_and_precision)
+{
+    pkr::units::meter_t m{3.14159};
+    std::string result = std::format("{:8.2f}", m);
+    ASSERT_EQ(result, "    3.14 m");
+}
+
+TEST_F(SiLengthFormattingTest, meter_ascii_explicit_sign)
+{
+    pkr::units::meter_t m{5.0};
+    std::string result = std::format("{:+.1f}", m);
+    ASSERT_EQ(result, "+5.0 m");
+}
+
 // ============================================================================
-// UTF-8 Formatting Tests - char8_t
+// UTF-8 Formatting Tests - char8_t (disabled for C++20)
 // ============================================================================
 
 // TEST_F(SiLengthFormattingTest, meter_utf8_formatting)
@@ -139,9 +152,8 @@ TEST_F(SiLengthFormattingTest, meter_ascii_negative_value)
 // {
 //     pkr::units::micrometer_t um{0.5};
 //     std::u8string result = std::format(u8"{}", um);
-//     // UTF-8 uses Unicode micro symbol
-//     ASSERT_TRUE(result.ends_with(u8"m"));
-//     ASSERT_TRUE(result.starts_with(u8"0.5 "));
+//     std::u8string expected = std::u8string(u8"0.5 ") + std::u8string(pkr::units::micrometer_t::u8_symbol);
+//     ASSERT_EQ(result, expected);
 // }
 
 // TEST_F(SiLengthFormattingTest, kilometer_utf8_formatting)
@@ -155,28 +167,27 @@ TEST_F(SiLengthFormattingTest, meter_ascii_negative_value)
 // Wide Character Formatting Tests - wchar_t
 // ============================================================================
 
-// TEST_F(SiLengthFormattingTest, meter_wide_formatting)
-// {
-//     pkr::units::meter_t m{5.0};
-//     std::wstring result = std::format(L"{}", m);
-//     ASSERT_EQ(result, L"5 m");
-// }
+TEST_F(SiLengthFormattingTest, meter_wide_formatting)
+{
+    pkr::units::meter_t m{5.0};
+    std::wstring result = std::format(L"{}", m);
+    ASSERT_EQ(result, L"5 m");
+}
 
-// TEST_F(SiLengthFormattingTest, micrometer_wide_formatting)
-// {
-//     pkr::units::micrometer_t um{0.5};
-//     std::wstring result = std::format(L"{}", um);
-//     // Wide uses Unicode micro symbol
-//     ASSERT_TRUE(result.ends_with(L"m"));
-//     ASSERT_TRUE(result.starts_with(L"0.5 "));
-// }
+TEST_F(SiLengthFormattingTest, micrometer_wide_formatting)
+{
+    pkr::units::micrometer_t um{0.5};
+    std::wstring result = std::format(L"{}", um);
+    std::wstring expected = std::wstring(L"0.5 ") + std::wstring(pkr::units::micrometer_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}
 
-// TEST_F(SiLengthFormattingTest, kilometer_wide_formatting)
-// {
-//     pkr::units::kilometer_t km{2.75};
-//     std::wstring result = std::format(L"{}", km);
-//     ASSERT_EQ(result, L"2.75 km");
-// }
+TEST_F(SiLengthFormattingTest, kilometer_wide_formatting)
+{
+    pkr::units::kilometer_t km{2.75};
+    std::wstring result = std::format(L"{}", km);
+    ASSERT_EQ(result, L"2.75 km");
+}
 
 // ============================================================================
 // Comprehensive Unit Coverage
@@ -266,4 +277,3 @@ TEST_F(SiLengthFormattingTest, default_and_explicit_precision)
 
     ASSERT_EQ(result_explicit, "0.333333 m");
 }
-*/

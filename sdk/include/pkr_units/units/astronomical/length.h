@@ -13,8 +13,8 @@ struct micron_t final : public details::unit_t<double, std::micro, length_dimens
     using _base::_base;
     static constexpr std::string_view name{"micron"};
     static constexpr std::string_view symbol{"um"};
-    static constexpr std::wstring_view w_symbol{L"µm"};
-    static constexpr std::u8string_view u8_symbol{u8"µm"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5m"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5m"};
 };
 
 struct angstrom_t final : public details::unit_t<double, std::ratio<1, 10000000000>, length_dimension>

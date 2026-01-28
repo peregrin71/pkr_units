@@ -1,44 +1,107 @@
 #pragma once
 
+#include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/units/base/temperature.h>
 #include <pkr_units/units/temperature/celsius.h>
 #include <pkr_units/units/temperature/fahrenheit.h>
+#include <type_traits>
 
 namespace PKR_UNITS_NAMESPACE
 {
 
-// temperature_cast: Converts between offset-based temperature scales
+// unit_cast specializations: Converts between offset-based temperature scales.
 //
-// This function handles temperature conversions that require offset adjustments
-// (Celsius ↔ Fahrenheit). Unlike unit_cast(), temperature_cast() is needed because
-// these temperature scales have different zero points.
-//
-// Conversion formulas:
-// - Celsius to Fahrenheit: °F = (°C × 9/5) + 32
-// - Fahrenheit to Celsius: °C = (°F - 32) × 5/9
-// - Kelvin conversions use unit_cast() (pure ratio, no offset needed)
-//
-// Example:
-//   celsius_t c{25.0};
-//   fahrenheit_t f = temperature_cast<fahrenheit_t>(c);  // 77°F
+// These specializations handle conversions that require offset adjustments
+// (Celsius <-> Fahrenheit <-> Kelvin). They intentionally bypass the ratio-based
+// unit_cast template because these scales have different zero points. Kelvin
+// conversions to other Kelvin-based units remain handled by the generic unit_cast.
 
-template <typename target_temp_t, typename source_temp_t>
-constexpr target_temp_t temperature_cast(const source_temp_t& source) noexcept;
+inline constexpr double KELVIN_OFFSET = 273.15;
 
-// Celsius to Fahrenheit specialization
-template <>
-constexpr fahrenheit_t temperature_cast<fahrenheit_t, celsius_t>(const celsius_t& source) noexcept
+template <typename T>
+struct temperature_affine_traits
 {
-    // °F = (°C × 9/5) + 32
-    return fahrenheit_t((source.value() * 9.0 / 5.0) + 32.0);
-}
+    static constexpr bool is_affine = false;
+};
 
-// Fahrenheit to Celsius specialization
 template <>
-constexpr celsius_t temperature_cast<celsius_t, fahrenheit_t>(const fahrenheit_t& source) noexcept
+struct temperature_affine_traits<celsius_t>
 {
-    // °C = (°F - 32) × 5/9
-    return celsius_t((source.value() - 32.0) * 5.0 / 9.0);
+    static constexpr bool is_affine = true;
+    using value_type = double;
+
+    static constexpr value_type to_kelvin(value_type value) noexcept
+    {
+        return value + KELVIN_OFFSET;
+    }
+
+    static constexpr value_type from_kelvin(value_type value) noexcept
+    {
+        return value - KELVIN_OFFSET;
+    }
+};
+
+template <>
+struct temperature_affine_traits<fahrenheit_t>
+{
+    static constexpr bool is_affine = true;
+    using value_type = double;
+
+    static constexpr value_type to_kelvin(value_type value) noexcept
+    {
+        return ((value - 32.0) * 5.0 / 9.0) + KELVIN_OFFSET;
+    }
+
+    static constexpr value_type from_kelvin(value_type value) noexcept
+    {
+        return ((value - KELVIN_OFFSET) * 9.0 / 5.0) + 32.0;
+    }
+};
+
+template <typename T, typename = void>
+struct is_temperature_pkr_unit : std::false_type
+{
+};
+
+template <typename T>
+struct is_temperature_pkr_unit<T, std::enable_if_t<details::pkr_unit_concept<T>>>
+    : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
+{
+};
+
+template <typename T>
+inline constexpr bool is_temperature_like_v = temperature_affine_traits<T>::is_affine || is_temperature_pkr_unit<T>::value;
+
+template <typename target_unit_t, typename source_unit_t>
+requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
+    (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
+constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
+{
+    double kelvin_value = 0.0;
+
+    if constexpr (temperature_affine_traits<source_unit_t>::is_affine)
+    {
+        kelvin_value = temperature_affine_traits<source_unit_t>::to_kelvin(source.value());
+    }
+    else
+    {
+        auto kelvin_unit = details::unit_cast_impl<std::ratio<1>>(source);
+        kelvin_value = static_cast<double>(kelvin_unit.value());
+    }
+
+    if constexpr (temperature_affine_traits<target_unit_t>::is_affine)
+    {
+        return target_unit_t{temperature_affine_traits<target_unit_t>::from_kelvin(kelvin_value)};
+    }
+    else
+    {
+        using ratio_type = typename details::is_pkr_unit<target_unit_t>::ratio_type;
+        using value_type = typename details::is_pkr_unit<target_unit_t>::value_type;
+        details::unit_t<value_type, std::ratio<1>, temperature_dimension> base_kelvin{static_cast<value_type>(kelvin_value)};
+        auto converted = details::unit_cast_impl<ratio_type>(base_kelvin);
+        return target_unit_t{converted.value()};
+    }
 }
 
 } // namespace PKR_UNITS_NAMESPACE

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/measurements/measurement.h>
-#include <pkr_units/measurements/measurement_math.h>
+#include <pkr_units/measurements/measurement_math_linear.h>
 #include <pkr_units/si_units.h>
 
 // Define test types
@@ -383,11 +383,11 @@ TEST_F(MeasurementTest, drag_force_calculation)
 
     ASSERT_NEAR(drag_force.value(), 413.4, 1e-1);
 
-    // Dimensional uncertainty analysis:
-    // Relative uncertainties: ρ: 4.08%, v: 1.67% (×2 for v² = 3.33%), Cd: 6.67%, A: 4.00%
+    // Dimensional uncertainty analysis (linear sum, library behavior):
+    // Relative uncertainties: rho: 0.408%, v: 1.67% (x2 for v^2 = 3.33%), Cd: 6.67%, A: 4.00%
     // For step-by-step multiplication: relative uncertainties add
-    // Total relative uncertainty: 4.08% + 3.33% + 6.67% + 4.00% = 18.08%
-    // Absolute uncertainty: 413.44 N × 0.1808 ≈ 59.6 N
+    // Total relative uncertainty: 0.408% + 3.33% + 6.67% + 4.00% = 14.41%
+    // Absolute uncertainty: 413.44 N x 0.1441 ~= 59.6 N
     ASSERT_NEAR(drag_force.uncertainty(), 59.6, 0.1);
 
     // Verify the result has the correct unit type (force)

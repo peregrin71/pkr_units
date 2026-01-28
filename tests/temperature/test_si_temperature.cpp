@@ -341,66 +341,154 @@ TEST_F(SiTemperatureTest, fahrenheit_negative_value)
 }
 
 // ============================================================================
-// Temperature Cast: Celsius ↔ Fahrenheit Conversions
+// Temperature Cast: Celsius <-> Fahrenheit Conversions (unit_cast overloads)
 // ============================================================================
 
 TEST_F(SiTemperatureTest, temperature_cast_celsius_to_fahrenheit_freezing)
 {
     constexpr pkr::units::celsius_t c_freezing{0.0};
-    constexpr auto f_freezing = pkr::units::temperature_cast<pkr::units::fahrenheit_t>(c_freezing);
-    ASSERT_DOUBLE_EQ(f_freezing.value(), 32.0);
+    constexpr auto f_freezing = pkr::units::unit_cast<pkr::units::fahrenheit_t>(c_freezing);
+    ASSERT_NEAR(f_freezing.value(), 32.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_celsius_to_fahrenheit_boiling)
 {
     constexpr pkr::units::celsius_t c_boiling{100.0};
-    constexpr auto f_boiling = pkr::units::temperature_cast<pkr::units::fahrenheit_t>(c_boiling);
-    ASSERT_DOUBLE_EQ(f_boiling.value(), 212.0);
+    constexpr auto f_boiling = pkr::units::unit_cast<pkr::units::fahrenheit_t>(c_boiling);
+    ASSERT_NEAR(f_boiling.value(), 212.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_celsius_to_fahrenheit_room_temperature)
 {
     constexpr pkr::units::celsius_t c_room{20.0};
-    constexpr auto f_room = pkr::units::temperature_cast<pkr::units::fahrenheit_t>(c_room);
-    ASSERT_DOUBLE_EQ(f_room.value(), 68.0);
+    constexpr auto f_room = pkr::units::unit_cast<pkr::units::fahrenheit_t>(c_room);
+    ASSERT_NEAR(f_room.value(), 68.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_celsius_to_fahrenheit_negative_forty)
 {
     // -40°C = -40°F (the point where they meet)
     constexpr pkr::units::celsius_t c_neg_forty{-40.0};
-    constexpr auto f_neg_forty = pkr::units::temperature_cast<pkr::units::fahrenheit_t>(c_neg_forty);
-    ASSERT_DOUBLE_EQ(f_neg_forty.value(), -40.0);
+    constexpr auto f_neg_forty = pkr::units::unit_cast<pkr::units::fahrenheit_t>(c_neg_forty);
+    ASSERT_NEAR(f_neg_forty.value(), -40.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_fahrenheit_to_celsius_freezing)
 {
     constexpr pkr::units::fahrenheit_t f_freezing{32.0};
-    constexpr auto c_freezing = pkr::units::temperature_cast<pkr::units::celsius_t>(f_freezing);
-    ASSERT_DOUBLE_EQ(c_freezing.value(), 0.0);
+    constexpr auto c_freezing = pkr::units::unit_cast<pkr::units::celsius_t>(f_freezing);
+    ASSERT_NEAR(c_freezing.value(), 0.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_fahrenheit_to_celsius_boiling)
 {
     constexpr pkr::units::fahrenheit_t f_boiling{212.0};
-    constexpr auto c_boiling = pkr::units::temperature_cast<pkr::units::celsius_t>(f_boiling);
-    ASSERT_DOUBLE_EQ(c_boiling.value(), 100.0);
+    constexpr auto c_boiling = pkr::units::unit_cast<pkr::units::celsius_t>(f_boiling);
+    ASSERT_NEAR(c_boiling.value(), 100.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_fahrenheit_to_celsius_body_temperature)
 {
     // Body temperature: approximately 98.6°F = 37°C
     constexpr pkr::units::fahrenheit_t f_body{98.6};
-    constexpr auto c_body = pkr::units::temperature_cast<pkr::units::celsius_t>(f_body);
-    ASSERT_DOUBLE_EQ(c_body.value(), 37.0);
+    constexpr auto c_body = pkr::units::unit_cast<pkr::units::celsius_t>(f_body);
+    ASSERT_NEAR(c_body.value(), 37.0, 1e-12);
 }
 
 TEST_F(SiTemperatureTest, temperature_cast_fahrenheit_to_celsius_absolute_zero)
 {
     // Absolute zero: -459.67°F = -273.15°C
     constexpr pkr::units::fahrenheit_t f_abs_zero{-459.67};
-    constexpr auto c_abs_zero = pkr::units::temperature_cast<pkr::units::celsius_t>(f_abs_zero);
-    ASSERT_DOUBLE_EQ(c_abs_zero.value(), -273.15);
+    constexpr auto c_abs_zero = pkr::units::unit_cast<pkr::units::celsius_t>(f_abs_zero);
+    ASSERT_NEAR(c_abs_zero.value(), -273.15, 1e-12);
+}
+
+// ============================================================================
+// Kelvin Offset Conversions (unit_cast)
+// ============================================================================
+
+TEST_F(SiTemperatureTest, unit_cast_kelvin_to_celsius_freezing)
+{
+    constexpr pkr::units::kelvin_t k_freezing{273.15};
+    constexpr auto c_freezing = pkr::units::unit_cast<pkr::units::celsius_t>(k_freezing);
+    ASSERT_NEAR(c_freezing.value(), 0.0, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_kelvin_to_fahrenheit_freezing)
+{
+    constexpr pkr::units::kelvin_t k_freezing{273.15};
+    constexpr auto f_freezing = pkr::units::unit_cast<pkr::units::fahrenheit_t>(k_freezing);
+    ASSERT_NEAR(f_freezing.value(), 32.0, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_celsius_to_kelvin_room_temperature)
+{
+    constexpr pkr::units::celsius_t c_room{20.0};
+    constexpr auto k_room = pkr::units::unit_cast<pkr::units::kelvin_t>(c_room);
+    ASSERT_NEAR(k_room.value(), 293.15, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_fahrenheit_to_kelvin_freezing)
+{
+    constexpr pkr::units::fahrenheit_t f_freezing{32.0};
+    constexpr auto k_freezing = pkr::units::unit_cast<pkr::units::kelvin_t>(f_freezing);
+    ASSERT_NEAR(k_freezing.value(), 273.15, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_celsius_to_kelvin_negative_forty)
+{
+    constexpr pkr::units::celsius_t c_neg_forty{-40.0};
+    constexpr auto k_neg_forty = pkr::units::unit_cast<pkr::units::kelvin_t>(c_neg_forty);
+    ASSERT_NEAR(k_neg_forty.value(), 233.15, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_fahrenheit_to_kelvin_negative_forty)
+{
+    constexpr pkr::units::fahrenheit_t f_neg_forty{-40.0};
+    constexpr auto k_neg_forty = pkr::units::unit_cast<pkr::units::kelvin_t>(f_neg_forty);
+    ASSERT_NEAR(k_neg_forty.value(), 233.15, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_kelvin_to_fahrenheit_negative_forty)
+{
+    constexpr pkr::units::kelvin_t k_neg_forty{233.15};
+    constexpr auto f_neg_forty = pkr::units::unit_cast<pkr::units::fahrenheit_t>(k_neg_forty);
+    ASSERT_NEAR(f_neg_forty.value(), -40.0, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_millikelvin_to_celsius)
+{
+    constexpr pkr::units::millikelvin_t mk{300150.0}; // 300.15 K
+    constexpr auto c = pkr::units::unit_cast<pkr::units::celsius_t>(mk);
+    ASSERT_NEAR(c.value(), 27.0, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_celsius_to_millikelvin)
+{
+    constexpr pkr::units::celsius_t c{25.0};
+    constexpr auto mk = pkr::units::unit_cast<pkr::units::millikelvin_t>(c);
+    ASSERT_NEAR(mk.value(), 298150.0, 1e-6);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_millikelvin_to_fahrenheit)
+{
+    constexpr pkr::units::millikelvin_t mk{300150.0}; // 300.15 K
+    constexpr auto f = pkr::units::unit_cast<pkr::units::fahrenheit_t>(mk);
+    ASSERT_NEAR(f.value(), 80.6, 1e-12);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_fahrenheit_to_millikelvin)
+{
+    constexpr pkr::units::fahrenheit_t f{68.0};
+    constexpr auto mk = pkr::units::unit_cast<pkr::units::millikelvin_t>(f);
+    ASSERT_NEAR(mk.value(), 293150.0, 1e-6);
+}
+
+TEST_F(SiTemperatureTest, unit_cast_kilokelvin_to_celsius)
+{
+    constexpr pkr::units::kilokelvin_t kk{1.2};
+    constexpr auto c = pkr::units::unit_cast<pkr::units::celsius_t>(kk);
+    ASSERT_NEAR(c.value(), 926.85, 1e-12);
 }
 
 // ============================================================================

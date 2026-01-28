@@ -59,8 +59,8 @@ struct micropascal_t final : public details::unit_t<double, std::ratio<1, 100000
     using _base::_base;
     static constexpr std::string_view name{"micropascal"};
     static constexpr std::string_view symbol{"uPa"};
-    static constexpr std::wstring_view w_symbol{L"µPa"};
-    static constexpr std::u8string_view u8_symbol{u8"µPa"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5Pa"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5Pa"};
 };
 
 struct millipascal_t final : public details::unit_t<double, std::ratio<1, 1000>, pressure_dimension>

@@ -11,7 +11,8 @@ namespace PKR_UNITS_NAMESPACE
 // NOTE: celsius_t intentionally does NOT define _base typedef.
 // This serves as a marker that prevents it from being used with unit_cast().
 // Temperature conversions between Celsius and Fahrenheit require offset handling
-// that generic unit_cast() doesn't support. Use temperature_cast() instead.
+// that the ratio-based unit_cast template doesn't support. Use the unit_cast
+// overloads defined in temperature_cast.h instead.
 //
 // The absence of _base causes SFINAE rejection in unit_cast's requires clause,
 // which accesses target_unit_t::_base. This is an intentional design pattern.

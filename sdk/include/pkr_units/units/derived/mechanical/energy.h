@@ -59,8 +59,8 @@ struct microjoule_t final : public details::unit_t<double, std::ratio<1, 1000000
     using _base::_base;
     static constexpr std::string_view name{"microjoule"};
     static constexpr std::string_view symbol{"uJ"};
-    static constexpr std::wstring_view w_symbol{L"µJ"};
-    static constexpr std::u8string_view u8_symbol{u8"µJ"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5J"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5J"};
 };
 
 struct millijoule_t final : public details::unit_t<double, std::ratio<1, 1000>, energy_dimension>

@@ -61,12 +61,15 @@ set(TEST_SOURCES
   concentration/test_concentration_operators.cpp
   concentration/test_concentration_cast.cpp
   concentration/test_concentration_formatting.cpp
+  area/test_si_area_formatting.cpp
+  volume/test_si_volume_formatting.cpp
 
   pressure/test_si_pressure_formatting.cpp
   pressure/test_imperial_pressure_formatting.cpp
   power/test_si_power_formatting.cpp
   power/test_imperial_power_formatting.cpp
   electrical/test_si_resistance_formatting.cpp
+  electrical/test_si_electrical_formatting.cpp
 
   # Multi-unit cast tests
 # multi_cast/test_multi_unit_cast.cpp
@@ -76,7 +79,8 @@ set(TEST_SOURCES
   math/test_math_functions.cpp
   
   # Measurement tests
-  measurements/test_measurement.cpp
+  measurements/test_measurement_linear.cpp
+  measurements/test_measurement_rss.cpp
   
   # Dimensional analysis tests
   test_dimensional_analysis.cpp

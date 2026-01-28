@@ -59,8 +59,8 @@ struct microwatt_t final : public details::unit_t<double, std::ratio<1, 1000000>
     using _base::_base;
     static constexpr std::string_view name{"microwatt"};
     static constexpr std::string_view symbol{"uW"};
-    static constexpr std::wstring_view w_symbol{L"µW"};
-    static constexpr std::u8string_view u8_symbol{u8"µW"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5W"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5W"};
 };
 
 struct milliwatt_t final : public details::unit_t<double, std::ratio<1, 1000>, power_dimension>

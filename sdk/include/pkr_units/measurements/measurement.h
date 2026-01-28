@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <type_traits>
 #include <sstream>
@@ -301,9 +302,27 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_t<UnitT>, CharT>
         }
 
         // Add unit symbol
-        out = std::format_to(out, " {}", UnitT::symbol);
-
-        return out;
+        *out++ = static_cast<CharT>(' ');
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::copy(UnitT::symbol.begin(), UnitT::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
+            return std::copy(UnitT::u8_symbol.begin(), UnitT::u8_symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(UnitT::w_symbol.begin(), UnitT::w_symbol.end(), out);
+        }
+        else
+        {
+            for (char ch : UnitT::symbol)
+            {
+                *out++ = static_cast<CharT>(ch);
+            }
+            return out;
+        }
     }
 };
 
