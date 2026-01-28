@@ -95,14 +95,14 @@ TEST_F(EnergyCastTest, cast_microjoule_to_joule)
 TEST_F(EnergyCastTest, cast_joule_to_calorie)
 {
     pkr::units::joule_t j{4184.0};
-    auto cal = pkr::units::unit_cast<pkr::units::calorie>(j);
-    static_assert(std::is_same_v<decltype(cal), pkr::units::calorie>);
+    auto cal = pkr::units::unit_cast<pkr::units::calorie_t>(j);
+    static_assert(std::is_same_v<decltype(cal), pkr::units::calorie_t>);
     ASSERT_DOUBLE_EQ(cal.value(), 1000.0);
 }
 
 TEST_F(EnergyCastTest, cast_calorie_to_joule)
 {
-    pkr::units::calorie cal{1000.0};
+    pkr::units::calorie_t cal{1000.0};
     auto j = pkr::units::unit_cast<pkr::units::joule_t>(cal);
     static_assert(std::is_same_v<decltype(j), pkr::units::joule_t>);
     ASSERT_DOUBLE_EQ(j.value(), 4184.0);
@@ -111,14 +111,14 @@ TEST_F(EnergyCastTest, cast_calorie_to_joule)
 TEST_F(EnergyCastTest, cast_joule_to_kilocalorie)
 {
     pkr::units::joule_t j{4184.0};
-    auto kcal = pkr::units::unit_cast<pkr::units::kilocalorie>(j);
-    static_assert(std::is_same_v<decltype(kcal), pkr::units::kilocalorie>);
+    auto kcal = pkr::units::unit_cast<pkr::units::kilocalorie_t>(j);
+    static_assert(std::is_same_v<decltype(kcal), pkr::units::kilocalorie_t>);
     ASSERT_DOUBLE_EQ(kcal.value(), 1.0);
 }
 
 TEST_F(EnergyCastTest, cast_kilocalorie_to_joule)
 {
-    pkr::units::kilocalorie kcal{1.0};
+    pkr::units::kilocalorie_t kcal{1.0};
     auto j = pkr::units::unit_cast<pkr::units::joule_t>(kcal);
     static_assert(std::is_same_v<decltype(j), pkr::units::joule_t>);
     ASSERT_DOUBLE_EQ(j.value(), 4184.0);
@@ -127,14 +127,14 @@ TEST_F(EnergyCastTest, cast_kilocalorie_to_joule)
 TEST_F(EnergyCastTest, cast_joule_to_watthour)
 {
     pkr::units::joule_t j{3600.0};
-    auto wh = pkr::units::unit_cast<pkr::units::watt_hour>(j);
-    static_assert(std::is_same_v<decltype(wh), pkr::units::watt_hour>);
+    auto wh = pkr::units::unit_cast<pkr::units::watt_hour_t>(j);
+    static_assert(std::is_same_v<decltype(wh), pkr::units::watt_hour_t>);
     ASSERT_DOUBLE_EQ(wh.value(), 1.0);
 }
 
 TEST_F(EnergyCastTest, cast_watthour_to_joule)
 {
-    pkr::units::watt_hour wh{1.0};
+    pkr::units::watt_hour_t wh{1.0};
     auto j = pkr::units::unit_cast<pkr::units::joule_t>(wh);
     static_assert(std::is_same_v<decltype(j), pkr::units::joule_t>);
     ASSERT_DOUBLE_EQ(j.value(), 3600.0);
@@ -143,14 +143,14 @@ TEST_F(EnergyCastTest, cast_watthour_to_joule)
 TEST_F(EnergyCastTest, cast_joule_to_kilowatthour)
 {
     pkr::units::joule_t j{3600000.0};
-    auto kwh = pkr::units::unit_cast<pkr::units::kilowatt_hour>(j);
-    static_assert(std::is_same_v<decltype(kwh), pkr::units::kilowatt_hour>);
+    auto kwh = pkr::units::unit_cast<pkr::units::kilowatt_hour_t>(j);
+    static_assert(std::is_same_v<decltype(kwh), pkr::units::kilowatt_hour_t>);
     ASSERT_DOUBLE_EQ(kwh.value(), 1.0);
 }
 
 TEST_F(EnergyCastTest, cast_kilowatthour_to_joule)
 {
-    pkr::units::kilowatt_hour kwh{1.0};
+    pkr::units::kilowatt_hour_t kwh{1.0};
     auto j = pkr::units::unit_cast<pkr::units::joule_t>(kwh);
     static_assert(std::is_same_v<decltype(j), pkr::units::joule_t>);
     ASSERT_DOUBLE_EQ(j.value(), 3600000.0);
@@ -174,16 +174,14 @@ TEST_F(EnergyCastTest, cast_negative_energy)
     ASSERT_DOUBLE_EQ(kj.value(), -1.0);
 }
 
-/*
 TEST_F(EnergyCastTest, cast_very_small_energy)
 {
-    pkr::units::electronvolt ev{1e-20};
+    pkr::units::electronvolt_t ev{1e-20};
     auto j = pkr::units::unit_cast<pkr::units::joule_t>(ev);
     // Very small value, just check it's not zero
     ASSERT_LT(j.value(), 1e-30);
     ASSERT_GT(j.value(), 0.0);
 }
-*/
 
 TEST_F(EnergyCastTest, cast_very_large_energy)
 {

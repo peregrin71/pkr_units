@@ -91,57 +91,6 @@ struct milligram_per_milliliter_t final : public details::unit_t<double, std::ra
     static constexpr std::u8string_view u8_symbol{u8"mg·mL⁻¹"};
 };
 
-// Imperial density units
-struct pound_per_cubic_inch_t final : public details::unit_t<double, std::ratio<27679904, 1000000>, density_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<27679904, 1000000>, density_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"pound_per_cubic_inch"};
-    static constexpr std::string_view symbol{"lb/in^3"};
-    static constexpr std::wstring_view w_symbol{L"lb·in⁻³"};
-    static constexpr std::u8string_view u8_symbol{u8"lb·in⁻³"};
-};
-
-struct pound_per_cubic_foot_t final : public details::unit_t<double, std::ratio<16018, 1000000>, density_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<16018, 1000000>, density_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"pound_per_cubic_foot"};
-    static constexpr std::string_view symbol{"lb/ft^3"};
-    static constexpr std::wstring_view w_symbol{L"lb·ft⁻³"};
-    static constexpr std::u8string_view u8_symbol{u8"lb·ft⁻³"};
-};
-
-struct pound_per_gallon_t final : public details::unit_t<double, std::ratio<119826, 1000000>, density_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<119826, 1000000>, density_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"pound_per_gallon"};
-    static constexpr std::string_view symbol{"lb/gal"};
-    static constexpr std::wstring_view w_symbol{L"lb·gal⁻¹"};
-    static constexpr std::u8string_view u8_symbol{u8"lb·gal⁻¹"};
-};
-
-struct ounce_per_cubic_inch_t final : public details::unit_t<double, std::ratio<1729994, 1000000>, density_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<1729994, 1000000>, density_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"ounce_per_cubic_inch"};
-    static constexpr std::string_view symbol{"oz/in^3"};
-    static constexpr std::wstring_view w_symbol{L"oz·in⁻³"};
-    static constexpr std::u8string_view u8_symbol{u8"oz·in⁻³"};
-};
-
-struct ounce_per_fluid_ounce_t final : public details::unit_t<double, std::ratio<33814, 1000>, density_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<33814, 1000>, density_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"ounce_per_fluid_ounce"};
-    static constexpr std::string_view symbol{"oz/fl oz"};
-    static constexpr std::wstring_view w_symbol{L"oz·fl oz⁻¹"};
-    static constexpr std::u8string_view u8_symbol{u8"oz·fl oz⁻¹"};
-};
-
 // Other common density units
 struct ton_per_cubic_meter_t final : public details::unit_t<double, std::ratio<1000000, 1>, density_dimension>
 {
@@ -191,35 +140,10 @@ struct details::derived_unit_type_t<double, std::ratio<1000, 1>, density_dimensi
     using type = kilogram_per_liter_t;
 };
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<27679904, 1000000>, density_dimension>
-{
-    using type = pound_per_cubic_inch_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<16018, 1000000>, density_dimension>
-{
-    using type = pound_per_cubic_foot_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<119826, 1000000>, density_dimension>
-{
-    using type = pound_per_gallon_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<1729994, 1000000>, density_dimension>
-{
-    using type = ounce_per_cubic_inch_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<33814, 1000>, density_dimension>
-{
-    using type = ounce_per_fluid_ounce_t;
-};
 
 template <>
 struct details::derived_unit_type_t<double, std::ratio<166054, 1>, density_dimension>

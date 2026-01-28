@@ -64,10 +64,4 @@ TEST_F(SiPressureFormattingTest, atmosphere_ascii_formatting)
     ASSERT_EQ(result, "1 atm");
 }
 
-TEST_F(SiPressureFormattingTest, psi_ascii_formatting)
-{
-    pkr::units::psi_t psi{14.7};
-    std::string result = std::format("{}", psi);
-    ASSERT_EQ(result, "14.7 psi");
-}
 */

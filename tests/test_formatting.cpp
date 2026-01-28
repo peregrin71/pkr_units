@@ -50,7 +50,7 @@ TEST(FormattingTest, ComplexDerivedUnit)
     auto formatted = std::format("{}", force);
     EXPECT_EQ(formatted, "10 N");
 
-    auto normalized_force = force.normalized();
+    auto normalized_force = force.in_base_si_units();
     auto formatted_normalized = std::format("{}", normalized_force);
     EXPECT_EQ(formatted_normalized, "10 kg·m·s⁻²");
 }

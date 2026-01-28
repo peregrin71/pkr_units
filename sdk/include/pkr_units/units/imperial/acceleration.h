@@ -8,6 +8,14 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Imperial acceleration units
-using feet_per_second_squared = details::unit_t<double, std::ratio<3048, 10000>, acceleration_v>;
+struct feet_per_second_squared_t final : public details::unit_t<double, std::ratio<3048, 10000>, acceleration_v>
+{
+    using _base = details::unit_t<double, std::ratio<3048, 10000>, acceleration_v>;
+    using _base::_base;
+    static constexpr std::string_view name{"feet per second squared"};
+    static constexpr std::string_view symbol{"ft/s^2"};
+    static constexpr std::wstring_view w_symbol{L"ft/s^2"};
+    static constexpr std::u8string_view u8_symbol{u8"ft/s^2"};
+};
 
 } // namespace PKR_UNITS_NAMESPACE

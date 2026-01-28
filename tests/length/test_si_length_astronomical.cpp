@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/astronomical_units.h>
+#include <pkr_units/impl/literals/length_literals.h>
 
 namespace test
 {
@@ -37,9 +38,8 @@ TEST_F(SiLengthAstronomicalTest, parsec_construction)
 // Astronomical Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::si_literals;
+using namespace pkr::units::literals;
 
-/*
 TEST_F(SiLengthAstronomicalTest, angstrom_literal)
 {
     auto angstrom = 1.0_angstrom;
@@ -51,6 +51,5 @@ TEST_F(SiLengthAstronomicalTest, astronomical_unit_literal)
     auto au = 1.5_au;
     ASSERT_NEAR(au.value(), 1.5, 1e-10);
 }
-*/
 
 } // namespace test

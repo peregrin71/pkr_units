@@ -58,10 +58,10 @@ target_link_libraries(myapp PRIVATE si-units::si-units)
 
 ```cpp
 #include <pkr_units/si.h>
-#include <pkr_units/si_literals.h>
+#include <pkr_units/literals.h>
 #include <iostream>
 
-using namespace si::si_literals;
+using namespace si::literals;
 
 int main() {
     auto distance = 100.0_m;

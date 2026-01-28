@@ -8,72 +8,107 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Electric resistance dimension
-inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0, 0};
+inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0};
 
-// Strong type for ohm (SI base unit)
-struct ohm final : public details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>
+// Electric resistance units (Ohm and derived)
+struct ohm_t final : public details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"ohm"};
     static constexpr std::string_view symbol{"ohm"};
-    static constexpr std::wstring_view w_symbol{L"Ω"};
-    static constexpr std::u8string_view u8_symbol{u8"Ω"};
+    static constexpr std::wstring_view w_symbol{L"\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"\u03a9"};
 };
 
-// Strong type for kilohm
-struct kilohm final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
+struct kiloohm_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilohm"};
+    static constexpr std::string_view name{"kiloohm"};
     static constexpr std::string_view symbol{"kohm"};
-    static constexpr std::wstring_view w_symbol{L"kΩ"};
-    static constexpr std::u8string_view u8_symbol{u8"kΩ"};
+    static constexpr std::wstring_view w_symbol{L"k\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"k\u03a9"};
 };
 
-// Strong type for megohm
-struct megohm final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+struct megaohm_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megohm"};
+    static constexpr std::string_view name{"megaohm"};
     static constexpr std::string_view symbol{"Mohm"};
-    static constexpr std::wstring_view w_symbol{L"MΩ"};
-    static constexpr std::u8string_view u8_symbol{u8"MΩ"};
+    static constexpr std::wstring_view w_symbol{L"M\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"M\u03a9"};
 };
 
-// Strong type for gigohm
-struct gigohm final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+struct gigaohm_t final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigohm"};
+    static constexpr std::string_view name{"gigaohm"};
     static constexpr std::string_view symbol{"Gohm"};
-    static constexpr std::wstring_view w_symbol{L"GΩ"};
-    static constexpr std::u8string_view u8_symbol{u8"GΩ"};
+    static constexpr std::wstring_view w_symbol{L"G\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"G\u03a9"};
 };
 
-// Strong type for milliohm
-struct milliohm final : public details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
+struct milliohm_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"milliohm"};
     static constexpr std::string_view symbol{"mohm"};
-    static constexpr std::wstring_view w_symbol{L"mΩ"};
-    static constexpr std::u8string_view u8_symbol{u8"mΩ"};
+    static constexpr std::wstring_view w_symbol{L"m\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"m\u03a9"};
 };
 
-// Strong type for microohm
-struct microohm final : public details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
+struct microohm_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"microohm"};
     static constexpr std::string_view symbol{"uohm"};
-    static constexpr std::wstring_view w_symbol{L"µΩ"};
-    static constexpr std::u8string_view u8_symbol{u8"µΩ"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5\u03a9"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5\u03a9"};
+};
+
+// ============================================================================
+// Most derived unit type specializations for electric resistance units
+// ============================================================================
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_resistance_dimension>
+{
+    using type = ohm_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
+{
+    using type = kiloohm_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
+{
+    using type = megaohm_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
+{
+    using type = gigaohm_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
+{
+    using type = milliohm_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
+{
+    using type = microohm_t;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

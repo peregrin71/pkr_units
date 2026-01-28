@@ -39,6 +39,7 @@ set(TEST_SOURCES
   angle/test_si_angle.cpp
 
   velocity/test_si_velocity.cpp
+  velocity/test_imperial_velocity.cpp
 
   # Derived unit tests
   acceleration/test_acceleration.cpp
@@ -62,7 +63,9 @@ set(TEST_SOURCES
   concentration/test_concentration_formatting.cpp
 
   pressure/test_si_pressure_formatting.cpp
+  pressure/test_imperial_pressure_formatting.cpp
   power/test_si_power_formatting.cpp
+  power/test_imperial_power_formatting.cpp
   electrical/test_si_resistance_formatting.cpp
 
   # Multi-unit cast tests

@@ -103,15 +103,6 @@ struct atmosphere_t final : public details::unit_t<double, std::ratio<101325, 1>
     static constexpr std::u8string_view u8_symbol{u8"atm"};
 };
 
-struct psi_t final : public details::unit_t<double, std::ratio<6894757, 1000>, pressure_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<6894757, 1000>, pressure_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"psi"};
-    static constexpr std::string_view symbol{"psi"};
-    static constexpr std::wstring_view w_symbol{L"psi"};
-    static constexpr std::u8string_view u8_symbol{u8"psi"};
-};
 
 // Pressure units
 template <>
@@ -168,10 +159,5 @@ struct details::derived_unit_type_t<double, std::ratio<101325, 1>, pressure_dime
     using type = atmosphere_t;
 };
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<6894757, 1000>, pressure_dimension>
-{
-    using type = psi_t;
-};
 
 } // namespace PKR_UNITS_NAMESPACE

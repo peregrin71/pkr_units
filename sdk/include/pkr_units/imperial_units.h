@@ -13,7 +13,7 @@
  *   // Use imperial units
  *   auto distance = pkr::units::foot_t(100.0);
  *   auto weight = pkr::units::pound_t(150.0);
- *   auto speed = pkr::units::mile_per_hour_t(60.0);
+ *   auto speed = pkr::units::miles_per_hour_t(60.0);
  */
 
 // ============================================================================
@@ -28,12 +28,15 @@
 // Imperial Units
 // ============================================================================
 
-#include <pkr_units/units/imperial/length.h>       // foot, inch, yard, mile, etc.
-#include <pkr_units/units/imperial/mass.h>         // pound, ounce, stone, etc.
-#include <pkr_units/units/imperial/velocity.h>     // mile per hour, foot per second, etc.
-#include <pkr_units/units/imperial/acceleration.h> // foot per second squared, etc.
-#include <pkr_units/units/imperial/force.h>        // pound-force, etc.
-#include <pkr_units/units/imperial/formatting.h>   // imperial unit formatting
+#include <pkr_units/units/imperial/length.h>              // foot, inch, yard, mile, etc.
+#include <pkr_units/units/imperial/mass.h>                // pound_t, ounce_t, stone_t, etc.
+#include <pkr_units/units/imperial/velocity.h>            // miles_per_hour_t, feet_per_second_t, etc.
+#include <pkr_units/units/imperial/acceleration.h>        // feet_per_second_squared_t, etc.
+#include <pkr_units/units/imperial/mechanical/force.h>    // pound_force_t, etc.
+#include <pkr_units/units/imperial/mechanical/pressure.h> // psi_t, etc.
+#include <pkr_units/units/imperial/mechanical/power.h>    // horsepower_t, etc.
+#include <pkr_units/units/imperial/density.h>             // pound_per_cubic_inch_t, etc.
+#include <pkr_units/units/imperial/formatting.h>          // imperial unit formatting
 
 // ============================================================================
 // Unit Operators and Casting

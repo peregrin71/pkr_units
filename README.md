@@ -685,7 +685,7 @@ pkr_units is released under the MIT License. See LICENSE file for details.
 
 ## Appendix: Unit Types Reference
 
-The library provides over 150 unit types derived from `details::unit_t`, all following the `_t` postfix naming convention (e.g., `meter_t`, `joule_t`), except for a few in specific sub-files that use names without `_t` (e.g., `ohm`, `volt`).
+The library provides over 150 unit types derived from `details::unit_t`, all following the `_t` postfix naming convention (e.g., `meter_t`, `joule_t`).
 
 ### Base SI Units
 - **Length**: `meter_t`, `attometer_t`, `femtometer_t`, `picometer_t`, `nanometer_t`, `micrometer_t`, `millimeter_t`, `centimeter_t`, `decimeter_t`, `decameter_t`, `hectometer_t`, `kilometer_t`, `megameter_t`, `gigameter_t`, `terameter_t`, `petameter_t`, `exameter_t`

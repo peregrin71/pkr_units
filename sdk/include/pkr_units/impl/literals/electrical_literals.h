@@ -1,159 +1,169 @@
 #pragma once
 
-#include <pkr_units/impl/literals/electrical.h>
+#include <pkr_units/units/derived/electrical/charge.h>
+#include <pkr_units/units/derived/electrical/potential.h>
+#include <pkr_units/units/derived/electrical/resistance.h>
+#include <pkr_units/units/derived/electrical/capacitance.h>
+#include <pkr_units/units/derived/electrical/inductance.h>
+#include <pkr_units/units/derived/electrical/conductance.h>
 #include <pkr_units/impl/namespace_config.h>
 
-namespace si::si_literals
+namespace PKR_UNITS_NAMESPACE
+{
+
+namespace literals
 {
 // Electric charge unit literals
-constexpr si::coulomb operator"" _C(long double value) noexcept
+constexpr coulomb_t operator""_C(long double value) noexcept
 {
-        return si::coulomb{static_cast<double>(value});
+    return coulomb_t{static_cast<double>(value)};
 }
 
-constexpr si::kilocoulomb operator"" _kC(long double value) noexcept
+constexpr kilocoulomb_t operator""_kC(long double value) noexcept
 {
-        return si::kilocoulomb{static_cast<double>(value});
+    return kilocoulomb_t{static_cast<double>(value)};
 }
 
-constexpr si::millicoulomb operator"" _mC(long double value) noexcept
+constexpr millicoulomb_t operator""_mC(long double value) noexcept
 {
-        return si::millicoulomb{static_cast<double>(value});
+    return millicoulomb_t{static_cast<double>(value)};
 }
 
-constexpr si::microcoulomb operator"" _uC(long double value) noexcept
+constexpr microcoulomb_t operator""_uC(long double value) noexcept
 {
-        return si::microcoulomb{static_cast<double>(value});
+    return microcoulomb_t{static_cast<double>(value)};
 }
 
-constexpr si::nanocoulomb operator"" _nC(long double value) noexcept
+constexpr nanocoulomb_t operator""_nC(long double value) noexcept
 {
-        return si::nanocoulomb{static_cast<double>(value});
+    return nanocoulomb_t{static_cast<double>(value)};
 }
 
-constexpr si::picocoulomb operator"" _pC(long double value) noexcept
+constexpr picocoulomb_t operator""_pC(long double value) noexcept
 {
-        return si::picocoulomb{static_cast<double>(value});
+    return picocoulomb_t{static_cast<double>(value)};
 }
 
 // Electric potential unit literals
-constexpr si::volt operator"" _V(long double value) noexcept
+constexpr volt_t operator""_V(long double value) noexcept
 {
-        return si::volt{static_cast<double>(value});
+    return volt_t{static_cast<double>(value)};
 }
 
-constexpr si::kilovolt operator"" _kV(long double value) noexcept
+constexpr kilovolt_t operator""_kV(long double value) noexcept
 {
-        return si::kilovolt{static_cast<double>(value});
+    return kilovolt_t{static_cast<double>(value)};
 }
 
-constexpr si::megavolt operator"" _MV(long double value) noexcept
+constexpr megavolt_t operator""_MV(long double value) noexcept
 {
-        return si::megavolt{static_cast<double>(value});
+    return megavolt_t{static_cast<double>(value)};
 }
 
-constexpr si::millivolt operator"" _mV(long double value) noexcept
+constexpr millivolt_t operator""_mV(long double value) noexcept
 {
-        return si::millivolt{static_cast<double>(value});
+    return millivolt_t{static_cast<double>(value)};
 }
 
-constexpr si::microvolt operator"" _uV(long double value) noexcept
+constexpr microvolt_t operator""_uV(long double value) noexcept
 {
-        return si::microvolt{static_cast<double>(value});
+    return microvolt_t{static_cast<double>(value)};
 }
 
 // Electric resistance unit literals
-constexpr si::ohm operator"" _ohm(long double value) noexcept
+constexpr ohm_t operator""_ohm(long double value) noexcept
 {
-        return si::ohm{static_cast<double>(value});
+    return ohm_t{static_cast<double>(value)};
 }
 
-constexpr si::kilohm operator"" _kohm(long double value) noexcept
+constexpr kiloohm_t operator""_kohm(long double value) noexcept
 {
-        return si::kilohm{static_cast<double>(value});
+    return kiloohm_t{static_cast<double>(value)};
 }
 
-constexpr si::megohm operator"" _Mohm(long double value) noexcept
+constexpr megaohm_t operator""_Mohm(long double value) noexcept
 {
-        return si::megohm{static_cast<double>(value});
+    return megaohm_t{static_cast<double>(value)};
 }
 
-constexpr si::gigohm operator"" _Gohm(long double value) noexcept
+constexpr gigaohm_t operator""_Gohm(long double value) noexcept
 {
-        return si::gigohm{static_cast<double>(value});
+    return gigaohm_t{static_cast<double>(value)};
 }
 
-constexpr si::milliohm operator"" _mohm(long double value) noexcept
+constexpr milliohm_t operator""_mohm(long double value) noexcept
 {
-        return si::milliohm{static_cast<double>(value});
+    return milliohm_t{static_cast<double>(value)};
 }
 
-constexpr si::microohm operator"" _uohm(long double value) noexcept
+constexpr microohm_t operator""_uohm(long double value) noexcept
 {
-        return si::microohm{static_cast<double>(value});
+    return microohm_t{static_cast<double>(value)};
 }
 
 // Capacitance unit literals
-constexpr si::farad operator"" _F(long double value) noexcept
+constexpr farad_t operator""_F(long double value) noexcept
 {
-        return si::farad{static_cast<double>(value});
+    return farad_t{static_cast<double>(value)};
 }
 
-constexpr si::millifarad operator"" _mF(long double value) noexcept
+constexpr millifarad_t operator""_mF(long double value) noexcept
 {
-        return si::millifarad{static_cast<double>(value});
+    return millifarad_t{static_cast<double>(value)};
 }
 
-constexpr si::microfarad operator"" _uF(long double value) noexcept
+constexpr microfarad_t operator""_uF(long double value) noexcept
 {
-        return si::microfarad{static_cast<double>(value});
+    return microfarad_t{static_cast<double>(value)};
 }
 
-constexpr si::nanofarad operator"" _nF(long double value) noexcept
+constexpr nanofarad_t operator""_nF(long double value) noexcept
 {
-        return si::nanofarad{static_cast<double>(value});
+    return nanofarad_t{static_cast<double>(value)};
 }
 
-constexpr si::picofarad operator"" _pF(long double value) noexcept
+constexpr picofarad_t operator""_pF(long double value) noexcept
 {
-        return si::picofarad{static_cast<double>(value});
+    return picofarad_t{static_cast<double>(value)};
 }
 
 // Inductance unit literals
-constexpr si::henry operator"" _H(long double value) noexcept
+constexpr henry_t operator""_H(long double value) noexcept
 {
-        return si::henry{static_cast<double>(value});
+    return henry_t{static_cast<double>(value)};
 }
 
-constexpr si::millihenry operator"" _mH(long double value) noexcept
+constexpr millihenry_t operator""_mH(long double value) noexcept
 {
-        return si::millihenry{static_cast<double>(value});
+    return millihenry_t{static_cast<double>(value)};
 }
 
-constexpr si::microhenry operator"" _uH(long double value) noexcept
+constexpr microhenry_t operator""_uH(long double value) noexcept
 {
-        return si::microhenry{static_cast<double>(value});
+    return microhenry_t{static_cast<double>(value)};
 }
 
-constexpr si::nanohenry operator"" _nH(long double value) noexcept
+constexpr nanohenry_t operator""_nH(long double value) noexcept
 {
-        return si::nanohenry{static_cast<double>(value});
+    return nanohenry_t{static_cast<double>(value)};
 }
 
 // Conductance unit literals
-constexpr si::siemens operator"" _S(long double value) noexcept
+constexpr siemens_t operator""_S(long double value) noexcept
 {
-        return si::siemens{static_cast<double>(value});
+    return siemens_t{static_cast<double>(value)};
 }
 
-constexpr si::millisiemens operator"" _mS(long double value) noexcept
+constexpr millisiemens_t operator""_mS(long double value) noexcept
 {
-        return si::millisiemens{static_cast<double>(value});
+    return millisiemens_t{static_cast<double>(value)};
 }
 
-constexpr si::microsiemens operator"" _uS(long double value) noexcept
+constexpr microsiemens_t operator""_uS(long double value) noexcept
 {
-        return si::microsiemens{static_cast<double>(value});
+    return microsiemens_t{static_cast<double>(value)};
 }
 
-} // namespace si::si_literals
+} // namespace literals
+
+} // namespace PKR_UNITS_NAMESPACE

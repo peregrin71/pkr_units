@@ -238,7 +238,7 @@ public:
     }
 
     // Return a normalized unit_t with canonical ratio (1/1) for dimensional analysis
-    constexpr auto normalized() const noexcept
+    constexpr auto in_base_si_units() const noexcept
     {
         // Convert value from current ratio to canonical ratio (1/1)
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);

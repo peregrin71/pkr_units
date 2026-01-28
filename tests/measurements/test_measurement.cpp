@@ -366,6 +366,7 @@ TEST_F(MeasurementTest, drag_force_calculation)
     ASSERT_NEAR(temp2.uncertainty(), 34.4, 1e-1);
 
     auto temp3 = pkr::units::math::multiply(temp2, area);
+
     // temp2 * A = 330.75 * 2.5 = 826.875 kg/(m·s²), uncertainty ≈ 119.1 kg/(m·s²)
     ASSERT_NEAR(temp3.value(), 826.875, 1e-3);
     ASSERT_NEAR(temp3.uncertainty(), 119.1, 1e-1);

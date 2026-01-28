@@ -59,10 +59,10 @@ TEST_F(SiMassTest, nanogram_construction)
     ASSERT_DOUBLE_EQ(ng.value(), 100.0);
 }
 
-TEST_F(SiMassTest, megagram_construction)
+TEST_F(SiMassTest, metric_ton_construction)
 {
-    pkr::units::megagram_t mg{2.5};
-    ASSERT_DOUBLE_EQ(mg.value(), 2.5);
+    pkr::units::metric_ton_t mt{2.5};
+    ASSERT_DOUBLE_EQ(mt.value(), 2.5);
 }
 
 // ============================================================================
@@ -286,8 +286,8 @@ TEST_F(SiMassTest, very_small_mass_values)
 
 TEST_F(SiMassTest, very_large_mass_values)
 {
-    pkr::units::megagram_t mg{1000000.0};
-    ASSERT_DOUBLE_EQ(mg.value(), 1000000.0);
+    pkr::units::metric_ton_t mt{1000000.0};
+    ASSERT_DOUBLE_EQ(mt.value(), 1000000.0);
 }
 
 TEST_F(SiMassTest, add_very_different_scales)

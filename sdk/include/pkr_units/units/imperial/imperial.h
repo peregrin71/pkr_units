@@ -10,5 +10,8 @@
 #include <pkr_units/units/imperial/mass.h>
 #include <pkr_units/units/imperial/velocity.h>
 #include <pkr_units/units/imperial/acceleration.h>
-#include <pkr_units/units/imperial/force.h>
+#include <pkr_units/units/imperial/mechanical/force.h>
+#include <pkr_units/units/imperial/mechanical/pressure.h>
+#include <pkr_units/units/imperial/mechanical/power.h>
+#include <pkr_units/units/imperial/density.h>
 #include <pkr_units/units/imperial/formatting.h>

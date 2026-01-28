@@ -12,3 +12,12 @@
 // #include "velocity_literals.h"
 // #include "mechanical_literals.h"
 // #include "electrical_literals.h"
+
+// ========================================================================
+// Imperial Unit Literal Operators
+// ========================================================================
+// #include "imperial_length_literals.h"
+// #include "imperial_mass_literals.h"
+// #include "imperial_acceleration_literals.h"
+// #include "imperial_velocity_literals.h"
+// #include "imperial_mechanical_literals.h"

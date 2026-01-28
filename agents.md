@@ -23,7 +23,7 @@ This file documents the coding style rules for the SI Units library. All code ge
 - **Types/Classes**: `snake_case` (e.g., `meters_per_second_squared`)
 - **Variables**: `snake_case` (e.g., `value`, `result`)
 - **Functions**: `snake_case` (e.g., `get_value()`)
-- **Namespaces**: `snake_case` (e.g., `si`, `si_literals`)
+- **Namespaces**: `snake_case` (e.g., `si`, `literals`)
 - **Constants**: `UPPER_CASE` (if applicable)
 
 ### Function/Method Formatting
@@ -34,7 +34,7 @@ This file documents the coding style rules for the SI Units library. All code ge
 
 ### Namespace Organization
 - Primary namespace: `si`
-- Literals namespace: `si::si_literals`
+- Literals namespace: `si::literals`
 - Implementation details namespace: `si::impl` (if used)
 
 ### Comments and Documentation
