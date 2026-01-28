@@ -166,8 +166,16 @@ struct exagram_t final : public details::unit_t<double, std::peta, mass_dimensio
     static constexpr std::u8string_view u8_symbol{u8"Eg"};
 };
 
-// Common aliases
-using metric_ton = megagram_t; // 1 metric ton = 1,000 kg (same as megagram)
+// Common mass units
+struct metric_ton_t final : public details::unit_t<double, std::kilo, mass_dimension>
+{
+    using _base = details::unit_t<double, std::kilo, mass_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"metric ton"};
+    static constexpr std::string_view symbol{"t"};
+    static constexpr std::wstring_view w_symbol{L"t"};
+    static constexpr std::u8string_view u8_symbol{u8"t"};
+};
 
 // ============================================================================
 // Most derived unit type specializations for mass units

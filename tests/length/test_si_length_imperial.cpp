@@ -57,7 +57,7 @@ TEST_F(SiLengthImperialTest, add_inches_to_feet)
 // Imperial Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::si_literals;
+// using namespace pkr::units::literals;
 
 /*
 TEST_F(SiLengthImperialTest, inch_literal)

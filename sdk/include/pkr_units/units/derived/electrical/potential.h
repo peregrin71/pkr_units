@@ -8,61 +8,91 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Electric potential dimension
-inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0, 0};
+inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
 
-// Strong type for volt (SI base unit)
-struct volt final : public details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>
+// Electric potential units (Volt and derived)
+struct volt_t final : public details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>;
     using _base::_base;
-    const std::string_view name{"volt"};
-    const std::string_view symbol{"V"};
-    const std::wstring_view w_symbol{L"V"};
-    const std::u8string_view u8_symbol{u8"V"};
+    static constexpr std::string_view name{"volt"};
+    static constexpr std::string_view symbol{"V"};
+    static constexpr std::wstring_view w_symbol{L"V"};
+    static constexpr std::u8string_view u8_symbol{u8"V"};
 };
 
-// Strong type for kilovolt
-struct kilovolt final : public details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>
+struct kilovolt_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>;
     using _base::_base;
-    const std::string_view name{"kilovolt"};
-    const std::string_view symbol{"kV"};
-    const std::wstring_view w_symbol{L"kV"};
-    const std::u8string_view u8_symbol{u8"kV"};
+    static constexpr std::string_view name{"kilovolt"};
+    static constexpr std::string_view symbol{"kV"};
+    static constexpr std::wstring_view w_symbol{L"kV"};
+    static constexpr std::u8string_view u8_symbol{u8"kV"};
 };
 
-// Strong type for megavolt
-struct megavolt final : public details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
+struct megavolt_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>;
     using _base::_base;
-    const std::string_view name{"megavolt"};
-    const std::string_view symbol{"MV"};
-    const std::wstring_view w_symbol{L"MV"};
-    const std::u8string_view u8_symbol{u8"MV"};
+    static constexpr std::string_view name{"megavolt"};
+    static constexpr std::string_view symbol{"MV"};
+    static constexpr std::wstring_view w_symbol{L"MV"};
+    static constexpr std::u8string_view u8_symbol{u8"MV"};
 };
 
-// Strong type for millivolt
-struct millivolt final : public details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>
+struct millivolt_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>;
     using _base::_base;
-    const std::string_view name{"millivolt"};
-    const std::string_view symbol{"mV"};
-    const std::wstring_view w_symbol{L"mV"};
-    const std::u8string_view u8_symbol{u8"mV"};
+    static constexpr std::string_view name{"millivolt"};
+    static constexpr std::string_view symbol{"mV"};
+    static constexpr std::wstring_view w_symbol{L"mV"};
+    static constexpr std::u8string_view u8_symbol{u8"mV"};
 };
 
-// Strong type for microvolt
-struct microvolt final : public details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
+struct microvolt_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
-    const std::string_view name{"microvolt"};
-    const std::string_view symbol{"µV"};
-    const std::wstring_view w_symbol{L"µV"};
-    const std::u8string_view u8_symbol{u8"µV"};
+    static constexpr std::string_view name{"microvolt"};
+    static constexpr std::string_view symbol{"uV"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5V"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5V"};
+};
+
+// ============================================================================
+// Most derived unit type specializations for electric potential units
+// ============================================================================
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, electric_potential_dimension>
+{
+    using type = volt_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000, 1>, electric_potential_dimension>
+{
+    using type = kilovolt_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
+{
+    using type = megavolt_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, electric_potential_dimension>
+{
+    using type = millivolt_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
+{
+    using type = microvolt_t;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

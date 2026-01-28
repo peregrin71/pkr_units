@@ -80,7 +80,7 @@ TEST_F(SiLengthNonSiUnitsTest, parsec_construction)
 // Non-SI Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::si_literals;
+// using namespace pkr::units::literals;
 
 /*
 TEST_F(SiLengthNonSiUnitsTest, inch_literal)

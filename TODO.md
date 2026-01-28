@@ -111,12 +111,13 @@
 ## 2. Derived Units
 
 ### Mechanical
-- [ ] Area (length²) with dedicated square_meter, square_kilometer, etc.
-- [ ] Volume (length³) with dedicated cubic_meter, cubic_kilometer, etc.
-- [ ] Velocity (length/time) with dedicated meter_per_second, kilometer_per_hour, etc.
+- [ ] Area (length²) with dedicated square_meter_t, square_kilometer_t, etc.
+- [ ] Volume (length³) with dedicated cubic_meter_t, cubic_kilometer_t, etc.
+- [ ] Velocity (length/time) with dedicated meter_per_second_t, kilometer_per_hour_t, etc.
 - [ ] Acceleration (length/time²)
 - [ ] Force (mass × length/time²) - Newton
 - [ ] Energy (force × length) - Joule
+- [ ] Electronvolt units: exact conversion path or improved ratio handling (std::ratio limits)
 - [ ] Power (energy/time) - Watt
 - [ ] Pressure (force/area) - Pascal
 
@@ -176,8 +177,8 @@
 ## 5. Extended Unit Systems
 
 ### Imperial Units
-- [ ] inch, foot, yard, mile
-- [ ] pound (mass), ounce
+- [ ] inch_t, foot_t, yard_t, mile_t
+- [ ] pound_t (mass), ounce_t
 - [ ] Fahrenheit
 - [ ] Conversion factors to SI
 - [ ] Integration with SI arithmetic
@@ -396,10 +397,10 @@
    - Add ampere and derived units for current
 
 2. **Implement Essential Derived Units** (Week 2-3)
-   - Area (square_meter, etc.)
-   - Volume (cubic_meter, etc.)
-   - Velocity (meter_per_second, etc.)
-   - Force (newton)
+   - Area (square_meter_t, etc.)
+   - Volume (cubic_meter_t, etc.)
+   - Velocity (meter_per_second_t, etc.)
+   - Force (newton_t)
 
 3. **Complete String Formatting** (Week 3-4)
    - Implement full std::format support

@@ -20,7 +20,7 @@ protected:
 // Metric Length Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::si_literals;
+// using namespace pkr::units::literals;
 
 /*
 TEST_F(SiLengthLiteralsTest, meter_literal)

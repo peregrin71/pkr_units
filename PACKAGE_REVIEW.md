@@ -40,22 +40,22 @@ The SI Units library is a **well-architected, production-quality C++20 header-on
 ```
 
 #### 3. **Partially Implemented Derived Units**
-- **Velocity**: `meters_per_second`, `kilometers_per_hour`, imperial variants
-- **Acceleration**: `meters_per_second_squared`, standard gravity
-- **Force**: `newton`, `kilonewton`, imperial variants (`pound_force`, `poundal`)
+- **Velocity**: `meter_per_second_t`, `kilometer_per_hour_t`, imperial variants
+- **Acceleration**: `meter_per_second_squared_t`, standard gravity
+- **Force**: `newton_t`, `kilonewton_t`, imperial variants (`pound_force_t`, `poundal_t`)
 - **Pressure**: `pascal`, `kilopascal`, `megapascal` (basic)
 - **Energy**: `joule` (basic definition)
 - **Power**: `watt` (basic definition)
 - **Concentration**: `molar_concentration`, `mass_concentration` (dimension defined)
-- **Electrical**: `siemens` (conductance), partial resistance/voltage support
+- **Electrical**: `siemens_t` (conductance), partial resistance/voltage support
 - **Density**: Framework exists, unit definitions incomplete
 
 #### 4. **Imperial & Non-SI Units** (Partial)
-- Length: `foot`, `inch`, `yard`, `mile`
-- Mass: `pound`, `ounce`
-- Velocity: `miles_per_hour`, `knots`, `feet_per_second`
-- Force: `pound_force`, `poundal`
-- Acceleration: `feet_per_second_squared`
+- Length: `foot_t`, `inch_t`, `yard_t`, `mile_t`
+- Mass: `pound_t`, `ounce_t`
+- Velocity: `miles_per_hour_t`, `knots_t`, `feet_per_second_t`
+- Force: `pound_force_t`, `poundal_t`
+- Acceleration: `feet_per_second_squared_t`
 - **Missing**: Fahrenheit temperature, BTU, slug units
 
 #### 5. **Advanced Features** (Partial)
@@ -409,7 +409,7 @@ struct width : meter {};
 
 #### 13. **CGS Unit System**
 - For scientific/legacy code
-- Includes dyne, erg, gauss, etc.
+- Includes dyne, erg, gauss_t, etc.
 
 #### 14. **CI/CD Pipeline**
 - GitHub Actions for multi-compiler testing

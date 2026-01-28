@@ -8,50 +8,75 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Inductance dimension
-inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0, 0};
+inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
 
-// Strong type for henry (SI base unit)
-struct henry final : public details::unit_t<double, std::ratio<1, 1>, inductance_dimension>
+// Inductance units (Henry and derived)
+struct henry_t final : public details::unit_t<double, std::ratio<1, 1>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, inductance_dimension>;
     using _base::_base;
-    const std::string_view name{"henry"};
-    const std::string_view symbol{"H"};
-    const std::wstring_view w_symbol{L"H"};
-    const std::u8string_view u8_symbol{u8"H"};
+    static constexpr std::string_view name{"henry"};
+    static constexpr std::string_view symbol{"H"};
+    static constexpr std::wstring_view w_symbol{L"H"};
+    static constexpr std::u8string_view u8_symbol{u8"H"};
 };
 
-// Strong type for millihenry
-struct millihenry final : public details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>
+struct millihenry_t final : public details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>;
     using _base::_base;
-    const std::string_view name{"millihenry"};
-    const std::string_view symbol{"mH"};
-    const std::wstring_view w_symbol{L"mH"};
-    const std::u8string_view u8_symbol{u8"mH"};
+    static constexpr std::string_view name{"millihenry"};
+    static constexpr std::string_view symbol{"mH"};
+    static constexpr std::wstring_view w_symbol{L"mH"};
+    static constexpr std::u8string_view u8_symbol{u8"mH"};
 };
 
-// Strong type for microhenry
-struct microhenry final : public details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>
+struct microhenry_t final : public details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>;
     using _base::_base;
-    const std::string_view name{"microhenry"};
-    const std::string_view symbol{"µH"};
-    const std::wstring_view w_symbol{L"µH"};
-    const std::u8string_view u8_symbol{u8"µH"};
+    static constexpr std::string_view name{"microhenry"};
+    static constexpr std::string_view symbol{"uH"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5H"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5H"};
 };
 
-// Strong type for nanohenry
-struct nanohenry final : public details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>
+struct nanohenry_t final : public details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>;
     using _base::_base;
-    const std::string_view name{"nanohenry"};
-    const std::string_view symbol{"nH"};
-    const std::wstring_view w_symbol{L"nH"};
-    const std::u8string_view u8_symbol{u8"nH"};
+    static constexpr std::string_view name{"nanohenry"};
+    static constexpr std::string_view symbol{"nH"};
+    static constexpr std::wstring_view w_symbol{L"nH"};
+    static constexpr std::u8string_view u8_symbol{u8"nH"};
+};
+
+// ============================================================================
+// Most derived unit type specializations for inductance units
+// ============================================================================
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, inductance_dimension>
+{
+    using type = henry_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, inductance_dimension>
+{
+    using type = millihenry_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, inductance_dimension>
+{
+    using type = microhenry_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, inductance_dimension>
+{
+    using type = nanohenry_t;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

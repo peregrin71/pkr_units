@@ -37,7 +37,7 @@ TEST_F(SiLengthAstronomicalTest, parsec_construction)
 // Astronomical Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::si_literals;
+// using namespace pkr::units::literals;
 
 /*
 TEST_F(SiLengthAstronomicalTest, angstrom_literal)

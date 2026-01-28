@@ -601,7 +601,7 @@ calculate_force(weight);  // Use SI internally
 **Inappropriate use cases** (business logic should always use SI):
 ```cpp
 // ✗ BAD: Using imperial in calculations
-si::imperial::pound weight{150.0};
+si::imperial::pound_t weight{150.0};
 calculate_nutritional_requirements(weight);  // Wrong: use kg instead
 
 // ✗ BAD: Mixing SI and imperial in business logic
@@ -615,7 +615,7 @@ auto time = distance_km / (speed_mph * 1.60934);  // Confusing and error-prone
 **Default (SI-focused)**:
 ```cpp
 #include <pkr_units/si.h>                    // All 7 SI base units + casting
-#include <pkr_units/si_literals.h>           // SI unit literal operators
+#include <pkr_units/literals.h>           // SI unit literal operators
 ```
 
 **With Imperial Support**:

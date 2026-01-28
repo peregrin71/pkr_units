@@ -1,134 +1,127 @@
 #pragma once
 
 #include <pkr_units/units/base/mass.h>
+#include <pkr_units/units/imperial/mass.h>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/mass_decl.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
 
-namespace si_literals
+namespace literals
 {
 // Metric mass prefix literals
-constexpr mass_details::unit_t<double, std::ratio<1, 1000000000000000000>> operator"" _ag(long double value) noexcept
+constexpr picogram_t operator"" _pg(long double value) noexcept
 {
-    return mass_details::unit_t<double, std::ratio<1, 1000000000000000000>>{static_cast<double>(value)};
+    return picogram_t{static_cast<double>(value)};
 }
 
-    constexpr si::mass<double, std::ratio<1, 1000000000000000>> operator"" _fg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000000000000000>>(static_cast<double>(value});
-    }
+constexpr nanogram_t operator"" _ng(long double value) noexcept
+{
+    return nanogram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 1000000000000>> operator"" _pg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000000000000>>(static_cast<double>(value});
-    }
+constexpr microgram_t operator"" _ug(long double value) noexcept
+{
+    return microgram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 1000000000>> operator"" _ng(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000000000>>(static_cast<double>(value});
-    }
+constexpr milligram_t operator"" _mg(long double value) noexcept
+{
+    return milligram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 1000000>> operator"" _ug(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000000>>(static_cast<double>(value});
-    }
+constexpr centigram_t operator"" _cg(long double value) noexcept
+{
+    return centigram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 1000000>> operator"" _mg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000000>>(static_cast<double>(value});
-    }
+constexpr decigram_t operator"" _dg(long double value) noexcept
+{
+    return decigram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 100000>> operator"" _cg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 100000>>(static_cast<double>(value});
-    }
+constexpr gram_t operator"" _g(long double value) noexcept
+{
+    return gram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 10000>> operator"" _dg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 10000>>(static_cast<double>(value});
-    }
+constexpr decagram_t operator"" _dag(long double value) noexcept
+{
+    return decagram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 1000>> operator"" _g(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 1000>>(static_cast<double>(value});
-    }
+constexpr hectogram_t operator"" _hg(long double value) noexcept
+{
+    return hectogram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 100>> operator"" _dag(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 100>>(static_cast<double>(value});
-    }
+constexpr kilogram_t operator"" _kg(long double value) noexcept
+{
+    return kilogram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1, 10>> operator"" _hg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1, 10>>(static_cast<double>(value});
-    }
+constexpr megagram_t operator"" _Mg(long double value) noexcept
+{
+    return megagram_t{static_cast<double>(value)};
+}
 
-    constexpr si::kilogram operator"" _kg(long double value) noexcept
-    {
-        return si::kilogram{static_cast<double>(value});
-    }
+constexpr gigagram_t operator"" _Gg(long double value) noexcept
+{
+    return gigagram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1000, 1>> operator"" _Mg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1000, 1>>(static_cast<double>(value});
-    }
+constexpr teragram_t operator"" _Tg(long double value) noexcept
+{
+    return teragram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1000000, 1>> operator"" _Gg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1000000, 1>>(static_cast<double>(value});
-    }
+constexpr petagram_t operator"" _Pg(long double value) noexcept
+{
+    return petagram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1000000000, 1>> operator"" _Tg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1000000000, 1>>(static_cast<double>(value});
-    }
+constexpr exagram_t operator"" _Eg(long double value) noexcept
+{
+    return exagram_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1000000000000, 1>> operator"" _Pg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1000000000000, 1>>(static_cast<double>(value});
-    }
+// Common metric mass units
+constexpr metric_ton_t operator"" _t(long double value) noexcept
+{
+    return metric_ton_t{static_cast<double>(value)};
+}
 
-    constexpr si::mass<double, std::ratio<1000000000000000, 1>> operator"" _Eg(long double value) noexcept
-    {
-        return si::mass<double, std::ratio<1000000000000000, 1>>(static_cast<double>(value});
-    }
+// Imperial mass literals
+constexpr grain_t operator"" _gr(long double value) noexcept
+{
+    return grain_t{static_cast<double>(value)};
+}
 
-    // Common metric mass units
-    constexpr si::metric_ton operator"" _t(long double value) noexcept
-    {
-        return si::metric_ton{static_cast<double>(value});
-    }
+constexpr ounce_t operator"" _oz(long double value) noexcept
+{
+    return ounce_t{static_cast<double>(value)};
+}
 
-    // Imperial mass literals
-    constexpr si::grain operator"" _gr(long double value) noexcept
-    {
-        return si::grain{static_cast<double>(value});
-    }
+constexpr pound_t operator"" _lb(long double value) noexcept
+{
+    return pound_t{static_cast<double>(value)};
+}
 
-    constexpr si::ounce operator"" _oz(long double value) noexcept
-    {
-        return si::ounce{static_cast<double>(value});
-    }
+constexpr stone_t operator"" _st(long double value) noexcept
+{
+    return stone_t{static_cast<double>(value)};
+}
 
-    constexpr si::pound operator"" _lb(long double value) noexcept
-    {
-        return si::pound{static_cast<double>(value});
-    }
+constexpr us_ton_t operator"" _short_ton(long double value) noexcept
+{
+    return us_ton_t{static_cast<double>(value)};
+}
 
-    constexpr si::stone operator"" _st(long double value) noexcept
-    {
-        return si::stone{static_cast<double>(value});
-    }
+constexpr long_ton_t operator"" _long_ton(long double value) noexcept
+{
+    return long_ton_t{static_cast<double>(value)};
+}
 
-    constexpr si::us_ton operator"" _short_ton(long double value) noexcept
-    {
-        return si::us_ton{static_cast<double>(value});
-    }
+} // namespace literals
 
-    constexpr si::long_ton operator"" _long_ton(long double value) noexcept
-    {
-        return si::long_ton{static_cast<double>(value});
-    }
-    }
+} // namespace PKR_UNITS_NAMESPACE

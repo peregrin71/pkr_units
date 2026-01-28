@@ -7,40 +7,60 @@
 namespace PKR_UNITS_NAMESPACE
 {
 
-// Conductance dimension: S = A²·s³·kg⁻¹·m⁻²
+// Conductance dimension: S = A^2·s^3·kg^-1·m^-2
 inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
-// Strong type for siemens (SI base unit)
-struct siemens final : public details::unit_t<double, std::ratio<1, 1>, conductance_dimension>
+// Conductance units (Siemens and derived)
+struct siemens_t final : public details::unit_t<double, std::ratio<1, 1>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, conductance_dimension>;
     using _base::_base;
-    const std::string_view name{"siemens"};
-    const std::string_view symbol{"S"};
-    const std::wstring_view w_symbol{L"S"};
-    const std::u8string_view u8_symbol{u8"S"};
+    static constexpr std::string_view name{"siemens"};
+    static constexpr std::string_view symbol{"S"};
+    static constexpr std::wstring_view w_symbol{L"S"};
+    static constexpr std::u8string_view u8_symbol{u8"S"};
 };
 
-// Strong type for millisiemens
-struct millisiemens final : public details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>
+struct millisiemens_t final : public details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>;
     using _base::_base;
-    const std::string_view name{"millisiemens"};
-    const std::string_view symbol{"mS"};
-    const std::wstring_view w_symbol{L"mS"};
-    const std::u8string_view u8_symbol{u8"mS"};
+    static constexpr std::string_view name{"millisiemens"};
+    static constexpr std::string_view symbol{"mS"};
+    static constexpr std::wstring_view w_symbol{L"mS"};
+    static constexpr std::u8string_view u8_symbol{u8"mS"};
 };
 
-// Strong type for microsiemens
-struct microsiemens final : public details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
+struct microsiemens_t final : public details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
-    const std::string_view name{"microsiemens"};
-    const std::string_view symbol{"µS"};
-    const std::wstring_view w_symbol{L"µS"};
-    const std::u8string_view u8_symbol{u8"µS"};
+    static constexpr std::string_view name{"microsiemens"};
+    static constexpr std::string_view symbol{"uS"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5S"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5S"};
+};
+
+// ============================================================================
+// Most derived unit type specializations for conductance units
+// ============================================================================
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
+{
+    using type = siemens_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
+{
+    using type = millisiemens_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
+{
+    using type = microsiemens_t;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

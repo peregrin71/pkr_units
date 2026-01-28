@@ -79,14 +79,14 @@ TEST_F(EnergyFormattingTest, kilocalorie_ascii_formatting)
 
 TEST_F(EnergyFormattingTest, watthour_ascii_formatting)
 {
-    pkr::units::watthour_t energy{100.0};
+    pkr::units::watt_hour_t energy{100.0};
     std::string result = std::format("{}", energy);
     ASSERT_EQ(result, "100 Wh");
 }
 
 TEST_F(EnergyFormattingTest, kilowatthour_ascii_formatting)
 {
-    pkr::units::kilowatthour_t energy{10.0};
+    pkr::units::kilowatt_hour_t energy{10.0};
     std::string result = std::format("{}", energy);
     ASSERT_EQ(result, "10 kWh");
 }

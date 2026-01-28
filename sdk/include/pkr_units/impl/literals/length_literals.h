@@ -8,7 +8,7 @@
 namespace PKR_UNITS_NAMESPACE
 {
 
-namespace si_literals
+namespace literals
 {
 // Metric length prefix literals
 constexpr attometer_t operator"" _am(long double value) noexcept
@@ -133,6 +133,6 @@ constexpr parsec_t operator"" _pc(long double value) noexcept
     return parsec_t{static_cast<double>(value)};
 }
 
-} // namespace si_literals
+} // namespace literals
 
 } // namespace PKR_UNITS_NAMESPACE

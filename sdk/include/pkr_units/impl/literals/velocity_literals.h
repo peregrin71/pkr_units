@@ -1,39 +1,44 @@
 #pragma once
 
-#include <pkr_units/impl/literals/velocity.h>
+#include <pkr_units/units/derived/velocity.h>
 #include <pkr_units/impl/namespace_config.h>
 
-namespace si::si_literals
+namespace PKR_UNITS_NAMESPACE
+{
+
+namespace literals
 {
 // Velocity unit literals
-constexpr si::meters_per_second operator"" _mps(long double value) noexcept
+constexpr meter_per_second_t operator"" _mps(long double value) noexcept
 {
-        return si::meters_per_second{static_cast<double>(value});
+    return meter_per_second_t{static_cast<double>(value)};
 }
 
-constexpr si::kilometers_per_hour operator"" _kmph(long double value) noexcept
+constexpr kilometer_per_hour_t operator"" _kmph(long double value) noexcept
 {
-        return si::kilometers_per_hour{static_cast<double>(value});
+    return kilometer_per_hour_t{static_cast<double>(value)};
 }
 
-constexpr si::miles_per_hour operator"" _mph(long double value) noexcept
+constexpr miles_per_hour_t operator"" _mph(long double value) noexcept
 {
-        return si::miles_per_hour{static_cast<double>(value});
+    return miles_per_hour_t{static_cast<double>(value)};
 }
 
-constexpr si::knots operator"" _kt(long double value) noexcept
+constexpr knots_t operator"" _kt(long double value) noexcept
 {
-        return si::knots{static_cast<double>(value});
+    return knots_t{static_cast<double>(value)};
 }
 
-constexpr si::centimeters_per_second operator"" _cmps(long double value) noexcept
+constexpr centimeter_per_second_t operator"" _cmps(long double value) noexcept
 {
-        return si::centimeters_per_second{static_cast<double>(value});
+    return centimeter_per_second_t{static_cast<double>(value)};
 }
 
-constexpr si::feet_per_second operator"" _fps(long double value) noexcept
+constexpr feet_per_second_t operator"" _fps(long double value) noexcept
 {
-        return si::feet_per_second{static_cast<double>(value});
+    return feet_per_second_t{static_cast<double>(value)};
 }
 
-} // namespace si::si_literals
+} // namespace literals
+
+} // namespace PKR_UNITS_NAMESPACE

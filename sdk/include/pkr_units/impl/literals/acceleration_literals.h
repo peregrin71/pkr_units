@@ -1,34 +1,40 @@
 #pragma once
 
-#include <pkr_units/impl/literals/acceleration.h>
+#include <pkr_units/units/derived/acceleration.h>
+#include <pkr_units/units/imperial/acceleration.h>
 #include <pkr_units/impl/namespace_config.h>
 
-namespace si::si_literals
+namespace PKR_UNITS_NAMESPACE
+{
+
+namespace literals
 {
 // Acceleration unit literals
-constexpr si::meters_per_second_squared operator"" _mps2(long double value) noexcept
+constexpr meter_per_second_squared_t operator"" _mps2(long double value) noexcept
 {
-        return si::meters_per_second_squared{static_cast<double>(value});
+    return meter_per_second_squared_t{static_cast<double>(value)};
 }
 
-constexpr si::centimeters_per_second_squared operator"" _cms2(long double value) noexcept
+constexpr centimeter_per_second_squared_t operator"" _cms2(long double value) noexcept
 {
-        return si::centimeters_per_second_squared{static_cast<double>(value});
+    return centimeter_per_second_squared_t{static_cast<double>(value)};
 }
 
-constexpr si::millimeters_per_second_squared operator"" _mms2(long double value) noexcept
+constexpr millimeter_per_second_squared_t operator"" _mms2(long double value) noexcept
 {
-        return si::millimeters_per_second_squared{static_cast<double>(value});
+    return millimeter_per_second_squared_t{static_cast<double>(value)};
 }
 
-constexpr si::feet_per_second_squared operator"" _fts2(long double value) noexcept
+constexpr feet_per_second_squared_t operator"" _fts2(long double value) noexcept
 {
-        return si::feet_per_second_squared{static_cast<double>(value});
+    return feet_per_second_squared_t{static_cast<double>(value)};
 }
 
-constexpr si::standard_gravity operator"" _g(long double value) noexcept
+constexpr standard_gravity_t operator"" _g(long double value) noexcept
 {
-        return si::standard_gravity{static_cast<double>(value});
+    return standard_gravity_t{static_cast<double>(value)};
 }
 
-} // namespace si::si_literals
+} // namespace literals
+
+} // namespace PKR_UNITS_NAMESPACE

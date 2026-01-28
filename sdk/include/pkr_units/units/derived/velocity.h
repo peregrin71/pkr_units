@@ -107,17 +107,6 @@ struct knots_t final : public details::unit_t<double, std::ratio<1852, 3600>, ve
     static constexpr std::u8string_view u8_symbol{u8"kn"};
 };
 
-// Aliases without _t suffix for convenience
-using meter_per_second = meter_per_second_t;
-using kilometer_per_hour = kilometer_per_hour_t;
-using centimeter_per_second = centimeter_per_second_t;
-using millimeter_per_second = millimeter_per_second_t;
-using kilometer_per_second = kilometer_per_second_t;
-using miles_per_hour = miles_per_hour_t;
-using feet_per_second = feet_per_second_t;
-using inches_per_second = inches_per_second_t;
-using knots = knots_t;
-
 // ============================================================================
 // Most derived unit type specializations for velocity units
 // ============================================================================

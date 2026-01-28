@@ -1,15 +1,11 @@
 #pragma once
 
-#include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/velocity_decl.h>
+#include <pkr_units/units/derived/velocity.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
 
-// Imperial and nautical velocity units
-// using miles_per_hour = details::unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>;
-// using knots = details::unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;
-// using feet_per_second = details::unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;
+// Imperial and nautical velocity units are defined in the derived velocity header.
 
 } // namespace PKR_UNITS_NAMESPACE
