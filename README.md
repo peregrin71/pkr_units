@@ -58,21 +58,19 @@ pkr_units is a header-only C++ library that provides type-safe units, strictly e
 ```cpp
 #include <pkr_units/si_units.h>
 
-using namespace pkr;
-
 int main() {
     // Create units
-    auto distance = meter_t{100.0};
-    auto time = second_t{10.0};
+    auto distance = pkr::units::meter_t{100.0};
+    auto time = pkr::units::second_t{10.0};
 
     // Arithmetic operations
-    auto speed = distance / time;  // Results in meter_per_second_t
+    auto speed = distance / time;  // Results in pkr::units::meter_per_second_t
 
     // Unit conversion
-    auto speed_kmh = unit_cast<kilometer_per_hour_t>(speed);
+    auto speed_kmh = pkr::units::unit_cast<pkr::units::kilometer_per_hour_t>(speed);
 
-    // Mixed unit operations
-    auto total_distance = meter_t{500} + kilometer_t{2};
+    // Mixed unit operations ()
+    auto total_distance = pkr::units::meter_t{500} + pkr::units::kilometer_t{2};
 
     return 0;
 }
@@ -84,16 +82,13 @@ int main() {
 #include <pkr_units/si_units.h>
 #include <chrono>
 
-using namespace pkr;
-using namespace std::chrono;
-
 int main() {
     // Convert between chrono and pkr_units
-    auto chrono_time = seconds{30};
-    auto pkr_time = unit_cast<second_t>(chrono_time);
+    auto chrono_time = std::chrono::seconds{30};
+    auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_time);
 
     // Convert back
-    auto back_to_chrono = unit_cast<milliseconds>(pkr_time);
+    auto back_to_chrono = pkr::units::unit_cast<std::chrono::milliseconds>(pkr_time);
 
     return 0;
 }
@@ -105,17 +100,14 @@ int main() {
 #include <pkr_units/si_units.h>
 #include <pkr_units/numerical.h>
 
-using namespace pkr;
-using namespace pkr::numerical;
-
 int main() {
     // Numerically stable operations
-    auto result = stable_add(meter_t{1}, millimeter_t{500});
+    auto result = pkr::numerical::stable_add(pkr::units::meter_t{1}, pkr::units::millimeter_t{500});
 
     // Unit-aware Newton-Raphson
-    auto f = [](meter_t x) { return x * x - meter_t{4}; };
-    auto df = [](meter_t x) { return meter_t{2} * x; };
-    auto root = newton_raphson(meter_t{1.5}, f, df);
+    auto f = [](pkr::units::meter_t x) { return x * x - pkr::units::meter_t{4}; };
+    auto df = [](pkr::units::meter_t x) { return pkr::units::meter_t{2} * x; };
+    auto root = pkr::numerical::newton_raphson(pkr::units::meter_t{1.5}, f, df);
 
     return 0;
 }
@@ -137,8 +129,8 @@ pkr_units uses advanced C++ template metaprogramming techniques:
 
 ```cpp
 // Unit types are thin wrappers around arithmetic types
-static_assert(sizeof(meter_t) == sizeof(double));  // No overhead
-static_assert(alignof(meter_t) == alignof(double)); // Same alignment
+static_assert(sizeof(pkr::units::meter_t) == sizeof(double));  // No overhead
+static_assert(alignof(pkr::units::meter_t) == alignof(double)); // Same alignment
 ```
 
 ### Error Messages
@@ -147,19 +139,33 @@ The library provides clear, actionable compile-time error messages:
 
 ```cpp
 // Error: cannot add length and time
-auto invalid = meter_t{1} + second_t{1};
-// error: no match for 'operator+' (operand types are 'meter_t' and 'second_t')
+auto invalid = pkr::units::meter_t{1} + pkr::units::second_t{1};
+// error: no match for 'operator+' (operand types are 'pkr::units::meter_t' and 'pkr::units::second_t')
 ```
 
 ### Extensibility
 
-Custom units can be defined using the provided macros:
+Custom units can be defined using the provided macros and template specializations. For simple cases:
 
 ```cpp
 // Define a custom unit
 PKR_DEFINE_UNIT(furlong_t, length_dimension, ratio<201168, 1000>, "furlong");
 PKR_DEFINE_UNIT(fortnight_t, time_dimension, ratio<1209600, 1>, "fortnight");
 ```
+
+For complex custom units requiring special conversion logic (like temperature scales with offsets), see the [Custom Units Guide](docs/custom_units_guide.md) which covers:
+
+- Defining custom physical dimensions
+- Creating unit types with proper ratios and symbols
+- Registering units with `derived_unit_type_t` for automatic type deduction
+- Handling affine transformations (offsets) for temperature-like units
+- Best practices for extensible unit systems
+
+**Key concepts:**
+- **Dimensions**: Physical properties (length, mass, time, etc.) encoded at compile-time
+- **Ratios**: Conversion factors to SI base units using `std::ratio`
+- **Type deduction**: `derived_unit_type_t` specializations enable automatic type preservation in operations
+- **Affine traits**: Handle units requiring offset conversions (like Celsius ↔ Kelvin)
 
 ## Dimensional Correctness Enforcement
 
@@ -194,17 +200,37 @@ kilometer_t km = unit_cast<kilometer_t>(m);  // Compile-time ratio<1,1000>
 static_assert(km.value() == 1.0);
 ```
 
+#### Temperature Conversions with Offsets
+
+Temperature scales require special handling because they have different zero points (Celsius, Fahrenheit) versus absolute zero (Kelvin). The library provides `temperature_affine_traits` to handle offset-based conversions:
+
+```cpp
+// Temperature conversions require offsets, not just ratios
+pkr::units::celsius_t room_temp{20.0};
+pkr::units::fahrenheit_t fahrenheit = pkr::units::unit_cast<pkr::units::fahrenheit_t>(room_temp);  // 68.0 °F
+
+// The system automatically:
+// 1. Converts Celsius to Kelvin: 20°C + 273.15 = 293.15 K
+// 2. Converts Kelvin to Fahrenheit: (293.15 - 273.15) × 9/5 + 32 = 68.0 °F
+```
+
+**How it works:**
+- Most units convert with simple ratios (1 km = 1000 m)
+- Temperature scales have different reference points, so they need offset adjustments
+- `temperature_affine_traits<T>` identifies which temperature types need special offset handling
+- `unit_cast` automatically handles the conversion by going through Kelvin as an intermediate step
+
 ### Type Safety
 
 Operations are strictly checked for dimensional correctness at compile-time:
 
 ```cpp
-meter_t length{10};
-second_t time{5};
-auto velocity = length / time;  // ✅ L/T dimension - correct
+pkr::units::meter_t length{10};
+pkr::units::second_t time{5};
+auto velocity = length / time;  // OK: L/T dimension - correct
 
 // Compile error: dimensional mismatch prevents incorrect operations
-auto invalid = length + time;   // ❌ L + T - incorrect, caught at compile-time
+auto invalid = length + time;   // Error: cannot add length and time, caught at compile-time
 ```
 
 ## Unit Operations
@@ -213,41 +239,41 @@ auto invalid = length + time;   // ❌ L + T - incorrect, caught at compile-time
 
 ```cpp
 // Addition/Subtraction (same dimensions only)
-auto total_length = meter_t{10} + millimeter_t{500};  // Automatic conversion
-auto difference = kilogram_t{5} - gram_t{200};
+auto total_length = pkr::units::meter_t{10} + pkr::units::millimeter_t{500};  // Automatic conversion
+auto difference = pkr::units::kilogram_t{5} - pkr::units::gram_t{200};
 
 // Multiplication/Division (combines dimensions)
-auto area = meter_t{5} * meter_t{3};           // meter²
-auto speed = meter_t{100} / second_t{10};      // meter/second
-auto acceleration = speed / second_t{5};       // meter/second²
+auto area = pkr::units::meter_t{5} * pkr::units::meter_t{3};           // meter²
+auto speed = pkr::units::meter_t{100} / pkr::units::second_t{10};      // meter/second
+auto acceleration = speed / pkr::units::second_t{5};       // meter/second²
 
 // Scalar operations
-auto doubled = meter_t{5} * 2.0;               // meter_t
-auto halved = kilogram_t{10} / 2.0;            // kilogram_t
+auto doubled = pkr::units::meter_t{5} * 2.0;               // meter_t
+auto halved = pkr::units::kilogram_t{10} / 2.0;            // kilogram_t
 ```
 
 ### Unit Casting
 
 ```cpp
 // Convert between compatible units
-auto length_m = meter_t{1000};
-auto length_km = unit_cast<kilometer_t>(length_m);     // 1.0 km
-auto length_mm = unit_cast<millimeter_t>(length_m);    // 1000000.0 mm
+auto length_m = pkr::units::meter_t{1000};
+auto length_km = pkr::units::unit_cast<pkr::units::kilometer_t>(length_m);     // 1.0 km
+auto length_mm = pkr::units::unit_cast<pkr::units::millimeter_t>(length_m);    // 1000000.0 mm
 
 // Convert between chrono and pkr_units
 auto chrono_time = std::chrono::seconds{30};
-auto pkr_time = unit_cast<second_t>(chrono_time);
+auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_time);
 ```
 
 ### Comparisons
 
 ```cpp
 // Compare same dimensions (automatic conversion)
-bool equal = meter_t{1000} == kilometer_t{1};          // true
-bool less = gram_t{500} < kilogram_t{1};               // true
+bool equal = pkr::units::meter_t{1000} == pkr::units::kilometer_t{1};          // true
+bool less = pkr::units::gram_t{500} < pkr::units::kilogram_t{1};               // true
 
 // Compare with tolerance for floating-point
-bool approx_equal = almost_equal(meter_t{1.0000001}, meter_t{1.0}, 1e-6);
+bool approx_equal = pkr::units::almost_equal(pkr::units::meter_t{1.0000001}, pkr::units::meter_t{1.0}, 1e-6);
 ```
 
 ## Chrono Integration
@@ -269,19 +295,16 @@ pkr_units provides bidirectional conversion with `std::chrono`, allowing use of 
 #include <pkr_units/si_units.h>
 #include <chrono>
 
-using namespace pkr;
-using namespace std::chrono;
-
 // Convert chrono to pkr_units
-auto chrono_duration = milliseconds{1500};
-auto pkr_time = unit_cast<second_t>(chrono_duration);  // 1.5 seconds
+auto chrono_duration = std::chrono::milliseconds{1500};
+auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_duration);  // 1.5 seconds
 
 // Convert pkr_units to chrono
-auto pkr_duration = minute_t{2.5};
-auto chrono_result = unit_cast<seconds>(pkr_duration); // 150 seconds
+auto pkr_duration = pkr::units::minute_t{2.5};
+auto chrono_result = pkr::units::unit_cast<std::chrono::seconds>(pkr_duration); // 150 seconds
 
 // Use in calculations
-auto speed = meter_t{100} / unit_cast<second_t>(milliseconds{5000});
+auto speed = pkr::units::meter_t{100} / pkr::units::unit_cast<pkr::units::second_t>(std::chrono::milliseconds{5000});
 ```
 
 ### Performance Characteristics
@@ -302,24 +325,22 @@ The `pkr::numerical` namespace provides numerically stable operations and unit-a
 ```cpp
 #include <pkr_units/numerical.h>
 
-using namespace pkr::numerical;
-
 // Numerically stable arithmetic (returns unit_t with canonical ratios)
-auto result = stable_add(meter_t{1}, millimeter_t{500});    // unit_t<..., ratio<1,1>, ...>
-auto product = stable_multiply(force_t{10}, meter_t{5});    // unit_t<..., combined_ratio, ...>
-auto quotient = stable_divide(energy_t{100}, second_t{2});  // unit_t<..., combined_ratio, ...>
+auto result = pkr::numerical::stable_add(pkr::units::meter_t{1}, pkr::units::millimeter_t{500});    // unit_t<..., ratio<1,1>, ...>
+auto product = pkr::numerical::stable_multiply(pkr::units::force_t{10}, pkr::units::meter_t{5});    // unit_t<..., combined_ratio, ...>
+auto quotient = pkr::numerical::stable_divide(pkr::units::energy_t{100}, pkr::units::second_t{2});  // unit_t<..., combined_ratio, ...>
 ```
 
 ### Transcendental Functions
 
 ```cpp
 // Dimensionally constrained functions
-auto exponential = exp(dimensionless_t{2.0});        // dimensionless_t
-auto logarithm = log(dimensionless_t{10.0});         // dimensionless_t
-auto square_root = sqrt(meter_t{4.0});               // unit_t<..., ratio<1,2>, length_dim>
+auto exponential = pkr::numerical::exp(pkr::units::dimensionless_t{2.0});        // dimensionless_t
+auto logarithm = pkr::numerical::log(pkr::units::dimensionless_t{10.0});         // dimensionless_t
+auto square_root = pkr::numerical::sqrt(pkr::units::meter_t{4.0});               // unit_t<..., ratio<1,2>, length_dim>
 
 // Compile-time dimensional checking
-auto invalid = exp(meter_t{1.0});  // ❌ Compile error: exp requires dimensionless
+auto invalid = pkr::numerical::exp(pkr::units::meter_t{1.0});  // Error: exp requires dimensionless argument
 ```
 
 ### Newton-Raphson Method
@@ -331,9 +352,9 @@ UnitT newton_raphson(UnitT initial_guess, Function f, Derivative df,
                     double tolerance = 1e-10, int max_iterations = 100);
 
 // Example: Find square root of 2
-auto f = [](dimensionless_t x) { return x*x - dimensionless_t{2}; };
-auto df = [](dimensionless_t x) { return dimensionless_t{2}*x; };
-auto root = newton_raphson(dimensionless_t{1.5}, f, df);  // ≈ 1.414...
+auto f = [](pkr::units::dimensionless_t x) { return x*x - pkr::units::dimensionless_t{2}; };
+auto df = [](pkr::units::dimensionless_t x) { return pkr::units::dimensionless_t{2}*x; };
+auto root = pkr::numerical::newton_raphson(pkr::units::dimensionless_t{1.5}, f, df);  // ≈ 1.414...
 ```
 
 ### Runge-Kutta Integration
@@ -344,10 +365,10 @@ template<typename TimeUnit, typename StateUnit, typename RHS>
 StateUnit runge_kutta_step(RHS f, TimeUnit x, StateUnit y, TimeUnit h);
 
 // Example: Exponential decay dy/dx = -k*y
-auto decay_rate = [](second_t t, dimensionless_t y) {
-    return -dimensionless_t{0.5} * y;  // 1/time units
+auto decay_rate = [](pkr::units::second_t t, pkr::units::dimensionless_t y) {
+    return -pkr::units::dimensionless_t{0.5} * y;  // 1/time units
 };
-auto result = runge_kutta_step(decay_rate, second_t{0}, dimensionless_t{1}, second_t{0.1});
+auto result = pkr::numerical::runge_kutta_step(decay_rate, pkr::units::second_t{0}, pkr::units::dimensionless_t{1}, pkr::units::second_t{0.1});
 ```
 
 ### Benefits for Scientific Computing
@@ -376,17 +397,15 @@ pkr_units provides `measurement_t<UnitT>` for tracking measurements with uncerta
 ```cpp
 #include <pkr_units/measurements/measurement.h>
 
-using namespace pkr;
-
 // Create measurements with values and uncertainties
-measurement_t<meter_t> length{5.0, 0.1};        // 5.0 ± 0.1 m
-measurement_t<second_t> time{2.0, 0.05};        // 2.0 ± 0.05 s
+pkr::units::measurement_t<pkr::units::meter_t> length{5.0, 0.1};        // 5.0 ± 0.1 m
+pkr::units::measurement_t<pkr::units::second_t> time{2.0, 0.05};        // 2.0 ± 0.05 s
 
 // Calculate velocity with propagated uncertainty
 auto velocity = length / time;  // 2.5 ± 0.13 m/s
 
 // Automatic unit conversion during operations
-measurement_t<centimeter_t> width{300.0, 5.0};  // 3.0 ± 0.05 m
+pkr::units::measurement_t<pkr::units::centimeter_t> width{300.0, 5.0};  // 3.0 ± 0.05 m
 auto area = length * width;  // 15.0 ± 0.58 m²
 ```
 
@@ -395,12 +414,12 @@ auto area = length * width;  // 15.0 ± 0.58 m²
 ```cpp
 // Addition/Subtraction: uncertainties combine in quadrature (RSS)
 // σ_total = √(σ₁² + σ₂²)
-auto total_length = measurement_t<meter_t>{5.0, 0.1} + measurement_t<meter_t>{3.0, 0.2};
+auto total_length = pkr::units::measurement_t<pkr::units::meter_t>{5.0, 0.1} + pkr::units::measurement_t<pkr::units::meter_t>{3.0, 0.2};
 // Result: 8.0 ± 0.2236 m
 
 // Multiplication/Division: relative uncertainties add
 // δ(a×b)/(a×b) = δa/a + δb/b
-auto power = measurement_t<watt_t>{100.0, 5.0} * measurement_t<second_t>{10.0, 0.5};
+auto power = pkr::units::measurement_t<pkr::units::watt_t>{100.0, 5.0} * pkr::units::measurement_t<pkr::units::second_t>{10.0, 0.5};
 // Result: 1000.0 ± 55.9 J (relative uncertainties: 5% + 5% = 10%)
 ```
 
@@ -409,12 +428,10 @@ auto power = measurement_t<watt_t>{100.0, 5.0} * measurement_t<second_t>{10.0, 0
 ```cpp
 #include <pkr_units/measurements/measurement_math.h>
 
-using namespace pkr::math;
-
 // Transcendental functions with uncertainty propagation
-auto sqrt_result = sqrt(measurement_t<square_meter_t>{16.0, 1.0});  // 4.0 ± 0.125 m
-auto exp_result = exp(measurement_t<scalar_t>{1.0, 0.1});           // 2.718 ± 0.272
-auto sin_result = sin(measurement_t<radian_t>{0.0, 0.1});            // 0.0 ± 0.1
+auto sqrt_result = pkr::math::sqrt(pkr::units::measurement_t<pkr::units::square_meter_t>{16.0, 1.0});  // 4.0 ± 0.125 m
+auto exp_result = pkr::math::exp(pkr::units::measurement_t<pkr::units::scalar_t>{1.0, 0.1});           // 2.718 ± 0.272
+auto sin_result = pkr::math::sin(pkr::units::measurement_t<pkr::units::radian_t>{0.0, 0.1});            // 0.0 ± 0.1
 ```
 
 ### Uncertainty Propagation Strategies
@@ -521,13 +538,13 @@ auto mass = solar_mass_t{1.0};      // One solar mass
 ```cpp
 // Division by zero throws at runtime
 try {
-    auto result = meter_t{10} / second_t{0};
+    auto result = pkr::units::meter_t{10} / pkr::units::second_t{0};
 } catch (const std::invalid_argument& e) {
     // Handle error
 }
 
 // Most errors caught at compile-time
-auto invalid = meter_t{5} + second_t{3};  // Compile error
+auto invalid = pkr::units::meter_t{5} + pkr::units::second_t{3};  // Compile error
 ```
 
 ## API Reference
@@ -560,18 +577,15 @@ auto invalid = meter_t{5} + second_t{3};  // Compile error
 #include <pkr_units/si_units.h>
 #include <pkr_units/numerical.h>
 
-using namespace pkr;
-using namespace pkr::numerical;
-
 int main() {
     // Kinematic equation: distance = (1/2) * acceleration * time²
-    auto acceleration = meter_per_second_squared_t{9.81};  // Gravity
-    auto time = second_t{2.0};
+    auto acceleration = pkr::units::meter_per_second_squared_t{9.81};  // Gravity
+    auto time = pkr::units::second_t{2.0};
 
     auto distance = 0.5 * acceleration * time * time;
 
     // Unit-aware result checking
-    static_assert(std::is_same_v<decltype(distance), meter_t>,
+    static_assert(std::is_same_v<decltype(distance), pkr::units::meter_t>,
                   "Result must be in meters");
 
     return 0;
@@ -583,19 +597,17 @@ int main() {
 ```cpp
 #include <pkr_units/si_units.h>
 
-using namespace pkr;
-
 int main() {
     // Ohm's law: V = I * R
-    auto current = ampere_t{2.0};
-    auto resistance = ohm_t{10.0};
+    auto current = pkr::units::ampere_t{2.0};
+    auto resistance = pkr::units::ohm_t{10.0};
     auto voltage = current * resistance;  // volt_t
 
     // Power: P = V * I
     auto power = voltage * current;  // watt_t
 
     // Energy over time: E = P * t
-    auto time = hour_t{1.0};
+    auto time = pkr::units::hour_t{1.0};
     auto energy = power * time;  // joule_t
 
     return 0;
@@ -608,22 +620,19 @@ int main() {
 #include <pkr_units/si_units.h>
 #include <pkr_units/numerical.h>
 
-using namespace pkr;
-using namespace pkr::numerical;
-
 int main() {
     // Solve f(x) = x³ - 2x - 5 = 0 using Newton-Raphson
-    auto f = [](dimensionless_t x) {
-        return x*x*x - dimensionless_t{2}*x - dimensionless_t{5};
+    auto f = [](pkr::units::dimensionless_t x) {
+        return x*x*x - pkr::units::dimensionless_t{2}*x - pkr::units::dimensionless_t{5};
     };
-    auto df = [](dimensionless_t x) {
-        return dimensionless_t{3}*x*x - dimensionless_t{2};
+    auto df = [](pkr::units::dimensionless_t x) {
+        return pkr::units::dimensionless_t{3}*x*x - pkr::units::dimensionless_t{2};
     };
 
-    auto root = newton_raphson(dimensionless_t{2.0}, f, df);
+    auto root = pkr::numerical::newton_raphson(pkr::units::dimensionless_t{2.0}, f, df);
 
     // Result has correct dimensionless type
-    static_assert(std::is_same_v<decltype(root), dimensionless_t>);
+    static_assert(std::is_same_v<decltype(root), pkr::units::dimensionless_t>);
 
     return 0;
 }

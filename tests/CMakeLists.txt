@@ -29,6 +29,7 @@ set(TEST_SOURCES
   temperature/test_si_temperature.cpp
   temperature/test_si_temperature_operators.cpp
   temperature/test_si_temperature_formatting.cpp
+  temperature/test_temperature_cast.cpp
   amount/test_si_amount.cpp
   amount/test_si_amount_operators.cpp
   amount/test_si_amount_formatting.cpp
@@ -81,12 +82,15 @@ set(TEST_SOURCES
   # Measurement tests
   measurements/test_measurement_linear.cpp
   measurements/test_measurement_rss.cpp
+  measurements/test_measurement_edge_cases.cpp
   
   # Dimensional analysis tests
   test_dimensional_analysis.cpp
   
   # Constants tests
   test_constants.cpp
+  test_constants_comprehensive.cpp
+  test_spaceship_operator.cpp
   
   # Formatting tests
   test_formatting.cpp

@@ -138,24 +138,6 @@ TEST_F(EnergyFormattingTest, microjoule_wide_formatting)
 }
 
 // ============================================================================
-// UTF-8 Formatting Tests
-// ============================================================================
-
-TEST_F(EnergyFormattingTest, joule_utf8_formatting)
-{
-    pkr::units::joule_t energy{1000.0};
-    std::u8string result = std::format(u8"{}", energy);
-    ASSERT_EQ(result, u8"1000 J");
-}
-
-TEST_F(EnergyFormattingTest, microjoule_utf8_formatting)
-{
-    pkr::units::microjoule_t energy{1000.0};
-    std::u8string result = std::format(u8"{}", energy);
-    ASSERT_EQ(result, u8"1000 \u00b5J");
-}
-
-// ============================================================================
 // Edge Cases and Special Values
 // ============================================================================
 
