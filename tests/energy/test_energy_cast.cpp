@@ -174,7 +174,6 @@ TEST_F(EnergyCastTest, cast_negative_energy)
     ASSERT_DOUBLE_EQ(kj.value(), -1.0);
 }
 
-/*
 TEST_F(EnergyCastTest, cast_very_small_energy)
 {
     pkr::units::electronvolt_t ev{1e-20};
@@ -183,7 +182,6 @@ TEST_F(EnergyCastTest, cast_very_small_energy)
     ASSERT_LT(j.value(), 1e-30);
     ASSERT_GT(j.value(), 0.0);
 }
-*/
 
 TEST_F(EnergyCastTest, cast_very_large_energy)
 {

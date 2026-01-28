@@ -2,6 +2,8 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/imperial_units.h>
 #include <pkr_units/astronomical_units.h>
+#include <pkr_units/impl/literals/length_literals.h>
+#include <pkr_units/impl/literals/imperial_length_literals.h>
 
 namespace test
 {
@@ -80,9 +82,8 @@ TEST_F(SiLengthNonSiUnitsTest, parsec_construction)
 // Non-SI Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::literals;
+using namespace pkr::units::literals;
 
-/*
 TEST_F(SiLengthNonSiUnitsTest, inch_literal)
 {
     auto in = 12.0_in;
@@ -124,6 +125,5 @@ TEST_F(SiLengthNonSiUnitsTest, astronomical_unit_literal)
     auto au = 1.5_au;
     ASSERT_NEAR(au.value(), 1.5, 1e-10);
 }
-*/
 
 } // namespace test

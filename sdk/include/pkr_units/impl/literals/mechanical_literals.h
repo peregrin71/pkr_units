@@ -73,10 +73,6 @@ constexpr atmosphere_t operator"" _atm(long double value) noexcept
     return atmosphere_t{static_cast<double>(value)};
 }
 
-constexpr psi_t operator"" _psi(long double value) noexcept
-{
-    return psi_t{static_cast<double>(value)};
-}
 
 // Energy unit literals
 constexpr joule_t operator"" _J(long double value) noexcept
@@ -185,10 +181,6 @@ constexpr nanowatt_t operator"" _nW(long double value) noexcept
     return nanowatt_t{static_cast<double>(value)};
 }
 
-constexpr horsepower_t operator"" _hp(long double value) noexcept
-{
-    return horsepower_t{static_cast<double>(value)};
-}
 
 } // namespace literals
 

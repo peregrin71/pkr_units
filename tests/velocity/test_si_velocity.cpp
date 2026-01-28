@@ -63,24 +63,6 @@ TEST_F(SiVelocityTest, kilometers_per_second_construction)
     ASSERT_DOUBLE_EQ(v.value(), 2.5);
 }
 
-TEST_F(SiVelocityTest, miles_per_hour_construction)
-{
-    pkr::units::miles_per_hour_t v{60.0};
-    ASSERT_DOUBLE_EQ(v.value(), 60.0);
-}
-
-TEST_F(SiVelocityTest, feet_per_second_construction)
-{
-    pkr::units::feet_per_second_t v{100.0};
-    ASSERT_DOUBLE_EQ(v.value(), 100.0);
-}
-
-TEST_F(SiVelocityTest, knots_construction)
-{
-    pkr::units::knots_t v{20.0};
-    ASSERT_DOUBLE_EQ(v.value(), 20.0);
-}
-
 // ============================================================================
 // Copy and Move Tests
 // ============================================================================

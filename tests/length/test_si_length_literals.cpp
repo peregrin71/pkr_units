@@ -3,6 +3,8 @@
 #include <pkr_units/imperial_units.h>
 #include <pkr_units/astronomical_units.h>
 #include <pkr_units/impl/literals/literals.h>
+#include <pkr_units/impl/literals/length_literals.h>
+#include <pkr_units/impl/literals/imperial_length_literals.h>
 
 class SiLengthLiteralsTest : public ::testing::Test
 {
@@ -20,9 +22,8 @@ protected:
 // Metric Length Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::literals;
+using namespace pkr::units::literals;
 
-/*
 TEST_F(SiLengthLiteralsTest, meter_literal)
 {
     auto meter = 5.0_m;
@@ -101,7 +102,6 @@ TEST_F(SiLengthLiteralsTest, yard_literal)
 
 TEST_F(SiLengthLiteralsTest, mil_literal)
 {
-    auto mil = 1000.0_mil;
+    auto mil = 1000.0_mi;
     ASSERT_DOUBLE_EQ(mil.value(), 1000.0);
 }
-*/

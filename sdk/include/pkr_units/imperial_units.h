@@ -28,12 +28,15 @@
 // Imperial Units
 // ============================================================================
 
-#include <pkr_units/units/imperial/length.h>       // foot, inch, yard, mile, etc.
-#include <pkr_units/units/imperial/mass.h>         // pound_t, ounce_t, stone_t, etc.
-#include <pkr_units/units/imperial/velocity.h>     // miles_per_hour_t, feet_per_second_t, etc.
-#include <pkr_units/units/imperial/acceleration.h> // feet_per_second_squared_t, etc.
-#include <pkr_units/units/imperial/force.h>        // pound_force_t, etc.
-#include <pkr_units/units/imperial/formatting.h>   // imperial unit formatting
+#include <pkr_units/units/imperial/length.h>              // foot, inch, yard, mile, etc.
+#include <pkr_units/units/imperial/mass.h>                // pound_t, ounce_t, stone_t, etc.
+#include <pkr_units/units/imperial/velocity.h>            // miles_per_hour_t, feet_per_second_t, etc.
+#include <pkr_units/units/imperial/acceleration.h>        // feet_per_second_squared_t, etc.
+#include <pkr_units/units/imperial/mechanical/force.h>    // pound_force_t, etc.
+#include <pkr_units/units/imperial/mechanical/pressure.h> // psi_t, etc.
+#include <pkr_units/units/imperial/mechanical/power.h>    // horsepower_t, etc.
+#include <pkr_units/units/imperial/density.h>             // pound_per_cubic_inch_t, etc.
+#include <pkr_units/units/imperial/formatting.h>          // imperial unit formatting
 
 // ============================================================================
 // Unit Operators and Casting

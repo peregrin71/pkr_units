@@ -57,10 +57,4 @@ TEST_F(SiPowerFormattingTest, microwatt_ascii_formatting)
     ASSERT_EQ(result, "0.5 uW");
 }
 
-TEST_F(SiPowerFormattingTest, horsepower_ascii_formatting)
-{
-    pkr::units::horsepower_t hp{1.0};
-    std::string result = std::format("{}", hp);
-    ASSERT_EQ(result, "1 hp");
-}
 */

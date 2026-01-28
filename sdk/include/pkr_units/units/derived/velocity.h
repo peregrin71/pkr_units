@@ -63,50 +63,6 @@ struct kilometer_per_second_t final : public details::unit_t<double, std::ratio<
     static constexpr std::u8string_view u8_symbol{u8"km·s⁻¹"};
 };
 
-// Strong type for miles per hour
-struct miles_per_hour_t final : public details::unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<1609344, 3600000>, velocity_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"miles per hour"};
-    static constexpr std::string_view symbol{"mph"};
-    static constexpr std::wstring_view w_symbol{L"mph"};
-    static constexpr std::u8string_view u8_symbol{u8"mph"};
-};
-
-// Strong type for feet per second
-struct feet_per_second_t final : public details::unit_t<double, std::ratio<3048, 10000>, velocity_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<3048, 10000>, velocity_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"feet per second"};
-    static constexpr std::string_view symbol{"ft/s"};
-    static constexpr std::wstring_view w_symbol{L"ft·s⁻¹"};
-    static constexpr std::u8string_view u8_symbol{u8"ft·s⁻¹"};
-};
-
-// Strong type for inches per second
-struct inches_per_second_t final : public details::unit_t<double, std::ratio<254, 10000>, velocity_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<254, 10000>, velocity_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"inches per second"};
-    static constexpr std::string_view symbol{"in/s"};
-    static constexpr std::wstring_view w_symbol{L"in·s⁻¹"};
-    static constexpr std::u8string_view u8_symbol{u8"in·s⁻¹"};
-};
-
-// Strong type for knots
-struct knots_t final : public details::unit_t<double, std::ratio<1852, 3600>, velocity_dimension>
-{
-    using _base = details::unit_t<double, std::ratio<1852, 3600>, velocity_dimension>;
-    using _base::_base;
-    static constexpr std::string_view name{"knots"};
-    static constexpr std::string_view symbol{"kn"};
-    static constexpr std::wstring_view w_symbol{L"kn"};
-    static constexpr std::u8string_view u8_symbol{u8"kn"};
-};
-
 // ============================================================================
 // Most derived unit type specializations for velocity units
 // ============================================================================
@@ -141,28 +97,8 @@ struct details::derived_unit_type_t<double, std::ratio<1000, 1>, velocity_dimens
     using type = kilometer_per_second_t;
 };
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<1609344, 3600000>, velocity_dimension>
-{
-    using type = miles_per_hour_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<3048, 10000>, velocity_dimension>
-{
-    using type = feet_per_second_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<254, 10000>, velocity_dimension>
-{
-    using type = inches_per_second_t;
-};
 
-template <>
-struct details::derived_unit_type_t<double, std::ratio<1852, 3600>, velocity_dimension>
-{
-    using type = knots_t;
-};
 
 } // namespace PKR_UNITS_NAMESPACE

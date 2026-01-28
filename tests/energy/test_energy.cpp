@@ -89,7 +89,6 @@ TEST_F(EnergyTest, kilowatthour_construction)
     ASSERT_DOUBLE_EQ(energy.value(), 10.0);
 }
 
-/*
 TEST_F(EnergyTest, electronvolt_construction)
 {
     pkr::units::electronvolt_t energy{1e20};
@@ -113,7 +112,6 @@ TEST_F(EnergyTest, gigaelectronvolt_construction)
     pkr::units::gigaelectronvolt_t energy{1e11};
     ASSERT_DOUBLE_EQ(energy.value(), 1e11);
 }
-*/
 
 TEST_F(EnergyTest, copy_constructor)
 {
@@ -154,13 +152,11 @@ TEST_F(EnergyTest, energy_has_correct_dimension)
     ASSERT_TRUE(true); // Compile-time check
 }
 
-/*
 TEST_F(EnergyTest, very_small_values)
 {
     pkr::units::electronvolt_t energy{1e-20};
     ASSERT_DOUBLE_EQ(energy.value(), 1e-20);
 }
-*/
 
 TEST_F(EnergyTest, very_large_values)
 {

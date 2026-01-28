@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/imperial_units.h>
+#include <pkr_units/impl/literals/imperial_length_literals.h>
 
 namespace test
 {
@@ -57,9 +58,8 @@ TEST_F(SiLengthImperialTest, add_inches_to_feet)
 // Imperial Unit Literals Tests
 // ============================================================================
 
-// using namespace pkr::units::literals;
+using namespace pkr::units::literals;
 
-/*
 TEST_F(SiLengthImperialTest, inch_literal)
 {
     auto in = 12.0_in;
@@ -89,6 +89,5 @@ TEST_F(SiLengthImperialTest, nautical_mile_literal)
     auto nmi = 5.0_nmi;
     ASSERT_NEAR(nmi.value(), 5.0, 1e-10);
 }
-*/
 
 } // namespace test
