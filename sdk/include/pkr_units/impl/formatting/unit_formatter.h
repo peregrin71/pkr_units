@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <format>
 #include <string>
 #include <string_view>
@@ -34,8 +35,8 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<type_t, ratio_t, dim_v>, C
         std::basic_string_view<CharT> sym = built;
 
         // Space before symbol
-        out = std::format_to(out, " {}", sym);
-        return out;
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(sym.begin(), sym.end(), out);
     }
 };
 
@@ -79,8 +80,8 @@ struct formatter<T, CharT>
         }
 
         // Space before symbol
-        out = std::format_to(out, " {}", sym);
-        return out;
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(sym.begin(), sym.end(), out);
     }
 };
 

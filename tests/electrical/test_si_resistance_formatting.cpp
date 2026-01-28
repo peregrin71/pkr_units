@@ -10,7 +10,6 @@ class SiResistanceFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -42,4 +41,31 @@ TEST_F(SiResistanceFormattingTest, megohm_ascii_formatting)
     std::string result = std::format("{}", Mohm);
     ASSERT_EQ(result, "0.5 Mohm");
 }
-*/
+
+// ============================================================================
+// Wide Character Formatting Tests - wchar_t
+// ============================================================================
+
+TEST_F(SiResistanceFormattingTest, ohm_wide_formatting)
+{
+    pkr::units::ohm_t ohm{1000.0};
+    std::wstring result = std::format(L"{}", ohm);
+    std::wstring expected = std::wstring(L"1000 ") + std::wstring(pkr::units::ohm_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(SiResistanceFormattingTest, kiloohm_wide_formatting)
+{
+    pkr::units::kiloohm_t kohm{1.5};
+    std::wstring result = std::format(L"{}", kohm);
+    std::wstring expected = std::wstring(L"1.5 ") + std::wstring(pkr::units::kiloohm_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(SiResistanceFormattingTest, megaohm_wide_formatting)
+{
+    pkr::units::megaohm_t Mohm{0.5};
+    std::wstring result = std::format(L"{}", Mohm);
+    std::wstring expected = std::wstring(L"0.5 ") + std::wstring(pkr::units::megaohm_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}

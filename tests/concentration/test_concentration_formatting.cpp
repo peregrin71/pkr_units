@@ -83,21 +83,21 @@ TEST_F(SiConcentrationFormattingTest, format_microgram_per_liter_ascii)
 {
     microgram_per_liter_t conc(10.0);
     std::string formatted = std::format("{}", conc);
-    EXPECT_EQ(formatted, "10 µg/L");
+    EXPECT_EQ(formatted, "10 \u00b5g/L");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_microgram_per_liter_wide)
 {
     microgram_per_liter_t conc(10.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"10 µg/L");
+    EXPECT_EQ(formatted, L"10 \u00b5g/L");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_microgram_per_liter_utf8)
 {
     microgram_per_liter_t conc(10.0);
     std::string formatted = std::format("{}", conc);
-    EXPECT_EQ(formatted, "10 µg/L");
+    EXPECT_EQ(formatted, "10 \u00b5g/L");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_parts_per_million_ascii)
@@ -188,21 +188,21 @@ TEST_F(SiConcentrationFormattingTest, format_micromolar_ascii)
 {
     micromolar conc(50.0);
     std::string formatted = std::format("{}", conc);
-    EXPECT_EQ(formatted, "50 µM");
+    EXPECT_EQ(formatted, "50 \u00b5M");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_micromolar_wide)
 {
     micromolar conc(50.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"50 µM");
+    EXPECT_EQ(formatted, L"50 \u00b5M");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_micromolar_utf8)
 {
     micromolar conc(50.0);
     std::string formatted = std::format("{}", conc);
-    EXPECT_EQ(formatted, "50 µM");
+    EXPECT_EQ(formatted, "50 \u00b5M");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_nanomolar_ascii)
@@ -300,7 +300,7 @@ TEST_F(SiConcentrationFormattingTest, format_small_values)
 {
     microgram_per_liter_t conc(1e-6);
     std::string formatted = std::format("{}", conc);
-    EXPECT_EQ(formatted, "0.000001 µg/L");
+    EXPECT_EQ(formatted, "0.000001 \u00b5g/L");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_large_values)

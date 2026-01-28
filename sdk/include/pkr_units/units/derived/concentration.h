@@ -57,8 +57,8 @@ struct micromolar_concentration_t final : public details::unit_t<double, std::ra
     using _base::_base;
     static constexpr std::string_view name{"micromolar_concentration"};
     static constexpr std::string_view symbol{"uM"};
-    static constexpr std::wstring_view w_symbol{L"µM"};
-    static constexpr std::u8string_view u8_symbol{u8"µM"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5M"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5M"};
 };
 
 struct nanomolar_concentration_t final : public details::unit_t<double, std::ratio<1, 1000000>, molar_concentration_v>

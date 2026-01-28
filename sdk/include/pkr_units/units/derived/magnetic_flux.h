@@ -50,8 +50,8 @@ struct microweber_t final : public details::unit_t<double, std::ratio<1, 1000000
     using _base::_base;
     static constexpr std::string_view name{"microweber"};
     static constexpr std::string_view symbol{"uWb"};
-    static constexpr std::wstring_view w_symbol{L"µWb"};
-    static constexpr std::u8string_view u8_symbol{u8"µWb"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5Wb"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5Wb"};
 };
 
 struct nanoweber_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
@@ -103,8 +103,8 @@ struct microtesla_t final : public details::unit_t<double, std::ratio<1, 1000000
     using _base::_base;
     static constexpr std::string_view name{"microtesla"};
     static constexpr std::string_view symbol{"uT"};
-    static constexpr std::wstring_view w_symbol{L"µT"};
-    static constexpr std::u8string_view u8_symbol{u8"µT"};
+    static constexpr std::wstring_view w_symbol{L"\u00b5T"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00b5T"};
 };
 
 struct nanotesla_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>

@@ -134,7 +134,7 @@ TEST_F(EnergyFormattingTest, microjoule_wide_formatting)
 {
     pkr::units::microjoule_t energy{1000.0};
     std::wstring result = std::format(L"{}", energy);
-    ASSERT_EQ(result, L"1000 µJ");
+    ASSERT_EQ(result, L"1000 \u00b5J");
 }
 
 // ============================================================================
@@ -152,7 +152,7 @@ TEST_F(EnergyFormattingTest, microjoule_utf8_formatting)
 {
     pkr::units::microjoule_t energy{1000.0};
     std::u8string result = std::format(u8"{}", energy);
-    ASSERT_EQ(result, u8"1000 µJ");
+    ASSERT_EQ(result, u8"1000 \u00b5J");
 }
 
 // ============================================================================

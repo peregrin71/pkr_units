@@ -10,7 +10,6 @@ class SiTemperatureFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -56,4 +55,23 @@ TEST_F(SiTemperatureFormattingTest, kilokelvin_ascii_formatting)
     std::string result = std::format("{}", kK);
     ASSERT_EQ(result, "2.5 kK");
 }
-*/
+
+// ============================================================================
+// Wide Character Formatting Tests - wchar_t
+// ============================================================================
+
+TEST_F(SiTemperatureFormattingTest, kelvin_wide_formatting)
+{
+    pkr::units::kelvin_t K{300.0};
+    std::wstring result = std::format(L"{}", K);
+    std::wstring expected = std::wstring(L"300 ") + std::wstring(pkr::units::kelvin_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}
+
+TEST_F(SiTemperatureFormattingTest, microkelvin_wide_formatting)
+{
+    pkr::units::microkelvin_t uK{0.5};
+    std::wstring result = std::format(L"{}", uK);
+    std::wstring expected = std::wstring(L"0.5 ") + std::wstring(pkr::units::microkelvin_t::w_symbol);
+    ASSERT_EQ(result, expected);
+}

@@ -128,6 +128,14 @@ This approach requires:
 
 ## Library Extension: measurement_t Class
 
+**Uncertainty model used by the library**
+
+- Addition/subtraction: uncertainties combine in quadrature (RSS).
+- Multiplication/division: relative uncertainties add linearly (conservative worst-case),
+  following the UW physics lab manual approach for products and quotients.
+  If you want quadrature (independent random errors), the formulas in `measurement_t`
+  would need to be adjusted.
+
 **Design updated to use `unit_t` types for uncertainties**, leveraging existing arithmetic for precise uncertainty propagation.
 
 ### Updated Design

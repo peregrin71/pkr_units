@@ -79,7 +79,7 @@ TEST_F(ForceFormattingTest, micronewton_wide_formatting)
 {
     pkr::units::micronewton_t force{1000.0};
     std::wstring result = std::format(L"{}", force);
-    ASSERT_EQ(result, L"1000 µN");
+    ASSERT_EQ(result, L"1000 \u00b5N");
 }
 
 // ============================================================================
@@ -97,7 +97,7 @@ TEST_F(ForceFormattingTest, micronewton_utf8_formatting)
 {
     pkr::units::micronewton_t force{1000.0};
     std::u8string result = std::format(u8"{}", force);
-    ASSERT_EQ(result, u8"1000 µN");
+    ASSERT_EQ(result, u8"1000 \u00b5N");
 }
 
 // ============================================================================
