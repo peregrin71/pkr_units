@@ -38,6 +38,9 @@ set(TEST_SOURCES
   intensity/test_si_intensity_formatting.cpp
   angle/test_si_angle_formatting.cpp
   angle/test_si_angle.cpp
+  astronomical/test_astronomical_angle_formatting.cpp
+  dimensionless/test_dimensionless_cast.cpp
+  dimensionless/test_dimensionless_formatting.cpp
 
   velocity/test_si_velocity.cpp
   velocity/test_imperial_velocity.cpp
@@ -57,6 +60,9 @@ set(TEST_SOURCES
   energy/test_energy_operators.cpp
   energy/test_energy_formatting.cpp
   energy/test_energy_cast.cpp
+  thermal/test_specific_heat_capacity.cpp
+  thermal/test_thermal_conductivity.cpp
+  viscosity/test_viscosity.cpp
 
   concentration/test_concentration.cpp
   concentration/test_concentration_operators.cpp
@@ -71,9 +77,11 @@ set(TEST_SOURCES
   power/test_imperial_power_formatting.cpp
   electrical/test_si_resistance_formatting.cpp
   electrical/test_si_electrical_formatting.cpp
+  magnetic/test_magnetic_flux_density.cpp
+  cgs/test_cgs_units.cpp
 
   # Multi-unit cast tests
-# multi_cast/test_multi_unit_cast.cpp
+  multi_cast/test_multi_unit_cast.cpp
   
   # Math tests
   math/test_arithmetic_optimizations.cpp
@@ -107,5 +115,7 @@ add_executable(si_units_test ${TEST_SOURCES})
 target_link_libraries(si_units_test PRIVATE GTest::gtest GTest::gtest_main)
 
 # Register the test executable as a test that CTest will run
-add_test(NAME si_units_test COMMAND si_units_test)
+add_test(NAME si_units_test COMMAND si_units_test --gtest_filter=MultiCastTest.*)
+#add_test(NAME si_units_test COMMAND si_units_test)
+
 

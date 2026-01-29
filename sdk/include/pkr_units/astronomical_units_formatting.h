@@ -1,8 +1,8 @@
 #pragma once
 
 // ============================================================================
-// SI Units Formatting (deprecated entry point)
+// Astronomical Units Formatting
 // ============================================================================
-// Use <pkr_units/si_units_formatting.h> instead.
+// Convenience header to include all astronomical unit formatting specializations
 
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/units/astronomical/formatting.h>

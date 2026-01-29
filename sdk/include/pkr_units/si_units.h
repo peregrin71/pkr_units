@@ -53,6 +53,8 @@
 #include <pkr_units/units/derived/concentration.h>
 #include <pkr_units/units/derived/electrical.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
+#include <pkr_units/units/derived/thermal.h>
+#include <pkr_units/units/derived/viscosity.h>
 
 // ============================================================================
 // Unit Operators and Casting
@@ -70,5 +72,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-
-#include <pkr_units/impl/literals/literals.h>
+// Use <pkr_units/si_units_literals.h> for user-defined literals.

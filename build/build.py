@@ -69,7 +69,9 @@ def setup_wsl_environment():
         # Install required packages
         install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-pip && python3 -m pip install conan
+apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-venv pipx && \\
+pipx ensurepath && \\
+pipx install conan || pipx upgrade conan
 """
         
         try:
@@ -85,8 +87,13 @@ apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-too
     except subprocess.CalledProcessError:
         print_info("Conan not found, installing...")
         try:
-            subprocess.run(["wsl", "-d", "Ubuntu", "--", "python3", "-m", "pip", "install", "conan"], check=True)
-            print_success("Conan installed")
+            subprocess.run(
+                ["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", "apt update && apt install -y python3-venv pipx"],
+                check=True,
+            )
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "bash", "-c", "pipx ensurepath"], check=True)
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "bash", "-c", "pipx install conan || pipx upgrade conan"], check=True)
+            print_success("Conan installed via pipx")
         except subprocess.CalledProcessError as e:
             raise Exception(f"Failed to install Conan: {e}")
     
@@ -326,6 +333,11 @@ def main():
 
     # Setup paths
     project_root = build_dir.parent.resolve()
+    if not (project_root / "build" / "conanfile.py").exists():
+        candidate_root = project_root.parent
+        if (candidate_root / "build" / "conanfile.py").exists():
+            project_root = candidate_root
+            print_info(f"Adjusted project root to: {project_root}")
 
     try:
         print_header("SI Units CMake Build Script (Python)")

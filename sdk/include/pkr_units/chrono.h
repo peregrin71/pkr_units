@@ -2,20 +2,14 @@
 
 /**
  * @file chrono.h
- * @brief Chrono integration for pkr_units
- *
- * This header provides bidirectional conversion between std::chrono durations
- * and pkr_units time types through unit_cast overloads.
+ * @brief std::chrono conversion overloads for pkr_units time types
  *
  * Usage:
  *   #include <pkr_units/chrono.h>
  *
- *   // Convert chrono to pkr_units
- *   auto chrono_time = std::chrono::seconds{30};
- *   auto pkr_time = unit_cast<second_t>(chrono_time);
- *
- *   // Convert pkr_units to chrono
- *   auto back_to_chrono = unit_cast<std::chrono::milliseconds>(pkr_time);
+ *   auto secs = pkr::units::unit_cast<pkr::units::second_t>(std::chrono::seconds(5));
+ *   auto chrono_hours = pkr::units::unit_cast<std::chrono::hours>(pkr::units::hour_t{2.0});
  */
 
 #include <pkr_units/impl/cast/chrono_cast.h>
+#include <pkr_units/units/base/time.h>

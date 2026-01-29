@@ -179,6 +179,16 @@ struct exasecond_t final : public details::unit_t<double, std::exa, time_dimensi
     static constexpr std::u8string_view u8_symbol{u8"Es"};
 };
 
+struct minute_t final : public details::unit_t<double, std::ratio<60, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<60, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"minute"};
+    static constexpr std::string_view symbol{"min"};
+    static constexpr std::wstring_view w_symbol{L"min"};
+    static constexpr std::u8string_view u8_symbol{u8"min"};
+};
+
 struct hour_t final : public details::unit_t<double, std::ratio<3600, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<3600, 1>, time_dimension>;
@@ -187,6 +197,47 @@ struct hour_t final : public details::unit_t<double, std::ratio<3600, 1>, time_d
     static constexpr std::string_view symbol{"h"};
     static constexpr std::wstring_view w_symbol{L"h"};
     static constexpr std::u8string_view u8_symbol{u8"h"};
+};
+
+struct day_t final : public details::unit_t<double, std::ratio<86400, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<86400, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"day"};
+    static constexpr std::string_view symbol{"d"};
+    static constexpr std::wstring_view w_symbol{L"d"};
+    static constexpr std::u8string_view u8_symbol{u8"d"};
+};
+
+struct week_t final : public details::unit_t<double, std::ratio<604800, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<604800, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"week"};
+    static constexpr std::string_view symbol{"wk"};
+    static constexpr std::wstring_view w_symbol{L"wk"};
+    static constexpr std::u8string_view u8_symbol{u8"wk"};
+};
+
+// Month and year use the Julian year: 365.25 days.
+struct month_t final : public details::unit_t<double, std::ratio<2629800, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<2629800, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"month"};
+    static constexpr std::string_view symbol{"mo"};
+    static constexpr std::wstring_view w_symbol{L"mo"};
+    static constexpr std::u8string_view u8_symbol{u8"mo"};
+};
+
+struct year_t final : public details::unit_t<double, std::ratio<31557600, 1>, time_dimension>
+{
+    using _base = details::unit_t<double, std::ratio<31557600, 1>, time_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"year"};
+    static constexpr std::string_view symbol{"yr"};
+    static constexpr std::wstring_view w_symbol{L"yr"};
+    static constexpr std::u8string_view u8_symbol{u8"yr"};
 };
 
 // ============================================================================
@@ -296,9 +347,39 @@ struct details::derived_unit_type_t<double, std::exa, time_dimension>
 };
 
 template <>
+struct details::derived_unit_type_t<double, std::ratio<60, 1>, time_dimension>
+{
+    using type = minute_t;
+};
+
+template <>
 struct details::derived_unit_type_t<double, std::ratio<3600, 1>, time_dimension>
 {
     using type = hour_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<86400, 1>, time_dimension>
+{
+    using type = day_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<604800, 1>, time_dimension>
+{
+    using type = week_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<2629800, 1>, time_dimension>
+{
+    using type = month_t;
+};
+
+template <>
+struct details::derived_unit_type_t<double, std::ratio<31557600, 1>, time_dimension>
+{
+    using type = year_t;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

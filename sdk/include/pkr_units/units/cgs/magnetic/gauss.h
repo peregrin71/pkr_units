@@ -1,7 +1,8 @@
 #pragma once
 
-#include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/units/derived/magnetic_flux.h>
 
 namespace PKR_UNITS_NAMESPACE
 {

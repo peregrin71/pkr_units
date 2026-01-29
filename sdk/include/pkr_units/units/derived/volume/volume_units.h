@@ -17,8 +17,8 @@ struct cubic_meter_t final : public details::unit_t<double, std::ratio<1, 1>, vo
     using _base::_base;
     static constexpr std::string_view name{"cubic meter"};
     static constexpr std::string_view symbol{"m^3"};
-    static constexpr std::wstring_view w_symbol{L"m^3"};
-    static constexpr std::u8string_view u8_symbol{u8"m^3"};
+    static constexpr std::wstring_view w_symbol{L"m\u00b3"};
+    static constexpr std::u8string_view u8_symbol{u8"m\u00b3"};
 };
 
 struct cubic_kilometer_t final : public details::unit_t<double, std::ratio<1000000000, 1>, volume_dimension>
@@ -27,8 +27,8 @@ struct cubic_kilometer_t final : public details::unit_t<double, std::ratio<10000
     using _base::_base;
     static constexpr std::string_view name{"cubic kilometer"};
     static constexpr std::string_view symbol{"km^3"};
-    static constexpr std::wstring_view w_symbol{L"km^3"};
-    static constexpr std::u8string_view u8_symbol{u8"km^3"};
+    static constexpr std::wstring_view w_symbol{L"km\u00b3"};
+    static constexpr std::u8string_view u8_symbol{u8"km\u00b3"};
 };
 
 struct cubic_centimeter_t final : public details::unit_t<double, std::ratio<1, 1000000>, volume_dimension>
@@ -37,8 +37,8 @@ struct cubic_centimeter_t final : public details::unit_t<double, std::ratio<1, 1
     using _base::_base;
     static constexpr std::string_view name{"cubic centimeter"};
     static constexpr std::string_view symbol{"cm^3"};
-    static constexpr std::wstring_view w_symbol{L"cm^3"};
-    static constexpr std::u8string_view u8_symbol{u8"cm^3"};
+    static constexpr std::wstring_view w_symbol{L"cm\u00b3"};
+    static constexpr std::u8string_view u8_symbol{u8"cm\u00b3"};
 };
 
 struct cubic_millimeter_t final : public details::unit_t<double, std::ratio<1, 1000000000>, volume_dimension>
@@ -47,8 +47,8 @@ struct cubic_millimeter_t final : public details::unit_t<double, std::ratio<1, 1
     using _base::_base;
     static constexpr std::string_view name{"cubic millimeter"};
     static constexpr std::string_view symbol{"mm^3"};
-    static constexpr std::wstring_view w_symbol{L"mm^3"};
-    static constexpr std::u8string_view u8_symbol{u8"mm^3"};
+    static constexpr std::wstring_view w_symbol{L"mm\u00b3"};
+    static constexpr std::u8string_view u8_symbol{u8"mm\u00b3"};
 };
 
 struct liter_t final : public details::unit_t<double, std::ratio<1, 1000>, volume_dimension>

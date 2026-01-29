@@ -1,7 +1,6 @@
 # SI Units Library - Development Roadmap
 
 [ ] Each header file should include what it needs, this file misses an include for <string_view> for example... and others may include too much
-[ ] 
 
 
 
@@ -23,7 +22,7 @@
   - [x] Matrix strategy for Debug/Release configurations
 - [x] Validation in CI
   - [x] Run full test suite on all platforms
-  - [x] Generate test reports (currently just ctest output) -> code coverage
+  - [ ] Generate test reports (currently just ctest output) -> code coverage
   - [x] Flag failures to PR (fail-fast: false)
   - [x] use libc++ for Clang on Linux if pipeline succeeds (for better Clang integration)
   - [ ] Add UBSan to debug builds for undefined behavior detection
@@ -35,9 +34,10 @@
 
 ---
 
-## 1. Complete Basic SI Units
+## 1. Complete Basic Units
 
 ### Length Units
+
 - [x] meter
 - [x] kilometer
 - [x] millimeter
@@ -61,12 +61,28 @@
 - [x] millisecond
 - [x] microsecond
 - [x] nanosecond
-- [ ] minute
-- [ ] hour
-- [ ] day
-- [ ] week
-- [ ] month (estimated)
-- [ ] year (estimated)
+- [x] minute
+- [x] hour
+- [x] day
+- [x] week
+- [x] month 
+- [x] year 
+
+### Angle Units
+- [x] radian
+- [x] degree
+- [x] gradian
+- [x] hms_archour
+- [x] hms_arcminute
+- [x] hms_arcsecond
+- [x] dms_degree
+- [x] dms_arcminute
+- [x] dms_arcsecond
+- [x] HMS/DMS type for formatting
+
+### Solid Angle Units (star radians)
+- [ ] consider adding
+- [ ] if needed adds another dimension
 
 ### Electric Current Units
 - [x] ampere
@@ -81,8 +97,8 @@
 - [x] microkelvin
 - [x] nanokelvin
 - [x] kilokelvin
-- [ ] celsius (conversion handling)
-- [ ] fahrenheit (conversion handling)
+- [x] celsius (conversion handling)
+- [x] fahrenheit (conversion handling)
 
 ### Amount of Substance Units
 - [x] mole
@@ -103,45 +119,49 @@
 ## 2. Derived Units
 
 ### Mechanical
-- [ ] Area (length²) with dedicated square_meter_t, square_kilometer_t, etc.
-- [ ] Volume (length³) with dedicated cubic_meter_t, cubic_kilometer_t, etc.
-- [ ] Velocity (length/time) with dedicated meter_per_second_t, kilometer_per_hour_t, etc.
-- [ ] Acceleration (length/time²)
-- [ ] Force (mass × length/time²) - Newton
-- [ ] Energy (force × length) - Joule
-- [ ] Electronvolt units: exact conversion path or improved ratio handling (std::ratio limits)
-- [ ] Power (energy/time) - Watt
-- [ ] Pressure (force/area) - Pascal
+- [x] Area (length²) with dedicated square_meter_t, square_kilometer_t, etc.
+- [x] Volume (length³) with dedicated cubic_meter_t, cubic_kilometer_t, etc.
+- [x] Velocity (length/time) with dedicated meter_per_second_t, kilometer_per_hour_t, etc.
+- [x] Acceleration (length/time²)
+- [x] Force (mass × length/time²) - Newton
+- [x] Energy (force × length) - Joule
+- [x] Electronvolt units: exact conversion path or improved ratio handling (std::ratio limits)
+- [x] Power (energy/time) - Watt
+- [x] Pressure (force/area) - Pascal
 
 ### Electrical
-- [ ] Electric Charge (ampere × time) - Coulomb
-- [ ] Electric Potential (energy/charge) - Volt
-- [ ] Electric Resistance (potential/current) - Ohm
-- [ ] Capacitance (charge/potential) - Farad
-- [ ] Inductance (potential × time/current) - Henry
-- [ ] Magnetic Flux (potential × time) - Weber
-- [ ] Magnetic Flux Density (force/(current × length)) - Tesla
+- [x] Electric Charge (ampere × time) - Coulomb
+- [x] Electric Potential (energy/charge) - Volt
+- [x] Electric Resistance (potential/current) - Ohm
+- [x] Capacitance (charge/potential) - Farad
+- [x] Inductance (potential × time/current) - Henry
+- [x] Magnetic Flux (potential × time) - Weber
+- [x] Magnetic Flux Density (force/(current × length)) - Tesla
 
 ### Thermal
 - [ ] Specific Heat Capacity (energy/(mass × temperature))
 - [ ] Thermal Conductivity
 
+### Viscosity
+- [x] Dynamic viscosity (Pa*s)
+- [x] Kinematic viscosity (m^2/s)
+
 ### Chemical
-- [ ] Concentration (molar) - mol/m³
-- [ ] Concentration (mass) - kg/m³
-- [ ] Molarity - mol/L
+- [x] Concentration (molar) - mol/m³
+- [x] Concentration (mass) - kg/m³
+- [x] Molarity - mol/L
 
 ---
 
 ## 3. String Formatting and Parsing
 
 ### Formatting
-- [ ] Basic output formatting (partial implementation exists)
-- [ ] Format units with proper SI symbols (m, kg, s, etc.)
-- [ ] Format with exponents (m², m³, m/s)
-- [ ] Format with metric prefixes (km, mm, μm)
-- [ ] Support for std::format with custom format specs
-- [ ] Pretty printing with Unicode symbols (μ, Ω, Å, etc.)
+- [x] Basic output formatting (partial implementation exists)
+- [x] Format units with proper SI symbols (m, kg, s, etc.)
+- [x] Format with exponents (m², m³, m/s)
+- [x] Format with metric prefixes (km, mm, μm)
+- [x] Support for std::format with custom format specs
+- [x] Pretty printing with Unicode symbols (μ, Ω, Å, etc.)
 
 ---
 
@@ -149,65 +169,62 @@
 
 ### Unit Conversion
 - [x] Implicit conversion for compatible ratios (same dimension, different scales)
-- [ ] Explicit conversion function: `si_cast<target_unit>(value)`
-- [ ] Conversion validation (prevent invalid unit combinations)
-- [ ] Runtime conversion with value checking
 
 ### Type Conversions
-- [ ] `double` to unit_t (explicit)
-- [ ] unit_t to `double` (via `.value()` - already done)
-- [ ] Between different value types (double ↔ float)
-- [ ] Conversion tracking for dimensional analysis
+- [x] `double` to unit_t (explicit)
+- [x] unit_t to `double` (via `.value()` - already done)
 
 ### Temperature Conversions
-- [ ] Celsius to Kelvin with offset handling
-- [ ] Fahrenheit to Kelvin with offset handling
-- [ ] Properly handle offset-based conversions in arithmetic
+- [x] Celsius to Kelvin with offset handling
+- [x] Fahrenheit to Kelvin with offset handling
 
 ---
 
 ## 5. Extended Unit Systems
 
+### CGS Units
+- [x] Gauss (magnetic flux density)
+- [x] Dyne (force)
+- [x] Erg (energy)
+- [x] Barye (pressure)
+- [x] Gal (acceleration)
+- [x] Maxwell (magnetic flux)
+- [x] Poise (dynamic viscosity)
+- [x] Stokes (kinematic viscosity)
+- [x] Statcoulomb (charge)
+- [x] Oersted (magnetic field strength)
+- [ ] Add more CGS units (abvolt, abampere, abohm, etc.)
+
 ### Imperial Units
-- [ ] inch_t, foot_t, yard_t, mile_t
-- [ ] pound_t (mass), ounce_t
-- [ ] Fahrenheit
-- [ ] Conversion factors to SI
-- [ ] Integration with SI arithmetic
+- [x] inch_t, foot_t, yard_t, mile_t
+- [x] pound_t (mass), ounce_t
+- [x] Fahrenheit
+- [x] Conversion factors to SI
+- [x] Integration with SI arithmetic
 
 ### Astronomical Units
-- [ ] Astronomical Unit (AU)
-- [ ] Light-year
-- [ ] Parsec
+- [x] Astronomical Unit (AU)
+- [x] Light-year
+- [x] Parsec
 - [ ] Solar masses
 - [ ] Planck units (advanced)
-
-### CGS Units (optional)
-- [ ] Centimeter-Gram-Second system
-- [ ] Conversion to SI
-- [ ] Dyne, Erg, etc.
 
 ---
 
 ## 6. Advanced Features
 
-### Quantity System
-- [ ] Named quantities (e.g., `distance`, `speed`, `mass`)
-- [ ] Distinguish between scalar and vector quantities
-- [ ] Quantity validation framework
-
 ### Dimensionless Quantities
 - [x] Support for scalar/dimensionless units
-- [ ] Named dimensionless quantities (e.g., percentage, ratio, decibel)
+- [x] Named dimensionless quantities (e.g., percentage, ratio, decibel)
 
 ### Constants
-- [ ] Physical constants (Planck constant, Boltzmann constant, etc.)
-- [ ] Unit support for constants
-- [ ] Pre-defined quantity constants
+- [x] Physical constants (Planck constant, Boltzmann constant, etc.)
+- [x] Unit support for constants
+- [x] Pre-defined quantity constants
 
 ### Compound Operations
-- [ ] Power function for units (e.g., `pow<2>(meter)` for area)
-- [x] Already implemented in si_pow.h
+- [x] Power function for units (e.g., `pow<2>(meter)` for area)
+- [x] Implemented in `sdk/include/pkr_units/impl/cast/unit_pow.h`
 - [ ] Square root and other roots
 - [ ] Properly typed results
 
@@ -232,7 +249,7 @@
 
 ### Integration Tests
 - [ ] Real-world use cases (physics simulations)
-- [ ] Cross-compiler testing (GCC, Clang, MSVC)
+- [x] Cross-compiler testing (GCC, Clang, MSVC)
 - [ ] Different platforms (Linux, Windows, macOS)
 
 ---
@@ -240,7 +257,7 @@
 ## 8. Documentation
 
 ### User Documentation
-- [ ] Quick start guide
+- [x] Quick start guide
 - [ ] API reference for all units
 - [ ] Examples for common operations
 - [ ] Best practices guide
@@ -250,7 +267,7 @@
 - [x] Design document (DESIGN.md completed)
 - [x] Assembly optimization analysis (completed)
 - [ ] Implementation internals guide
-- [ ] Extension guide for adding new units
+- [x] Extension guide for adding new units
 - [ ] Performance characteristics document
 
 ### Code Examples
@@ -299,8 +316,8 @@
 - [ ] Add vcpkg support
 
 ### CI/CD
-- [ ] GitHub Actions workflow
-- [ ] Multi-compiler testing (GCC, Clang, MSVC)
+- [x] GitHub Actions workflow
+- [x] Multi-compiler testing (GCC, Clang, MSVC)
 - [ ] Multi-platform testing (Linux, Windows, macOS)
 - [ ] Code coverage reporting
 - [ ] Performance regression testing
@@ -328,9 +345,9 @@
 - [ ] TODO: move helper to separate formatting header (si_unit.h)
 
 ### Design Decisions to Revisit
-- [ ] Should comparison operators be supported? (Currently intentionally omitted)
-- [ ] How to handle temperature offset-based conversions elegantly?
-- [ ] Should implicit conversions be allowed, or always explicit?
+- [x] Comparison operators are supported
+- [x] Offset-based temperature conversions handled via affine traits
+- [ ] Should implicit conversions be allowed, or always explicit^2
 
 ### Low Priority: String Parsing (Future Enhancement)
 - [ ] Parse strings like "5.0 meters"
@@ -358,7 +375,7 @@
 5. Physical constants
 
 ### Low Priority (Enhancement)
-1. CGS unit system
+1. Expand CGS unit system
 2. Astronomical units
 3. Python bindings
 4. Extended documentation and examples
@@ -370,41 +387,29 @@
 
 | Category | Status | % Complete | Notes |
 |----------|--------|-----------|-------|
-| Basic SI Units | 🟡 In Progress | 40% | 4 of 7 base units, partial metric prefixes |
-| Derived Units | 🔴 Not Started | 5% | Partial implementation exists |
-| String Formatting | 🟡 In Progress | 30% | Basic formatting exists, needs completion |
-| Conversion/Casts | 🟡 In Progress | 20% | Implicit conversion works, explicit operators needed |
-| Testing | 🟡 In Progress | 50% | Good test foundation, needs extended coverage |
-| Documentation | 🟡 In Progress | 60% | Design doc complete, user docs needed |
-| Code Quality | ✅ Complete | 95% | Excellent, minor refinements possible |
-| Build System | 🟡 In Progress | 70% | CMake works, packaging needs work |
+| Basic SI Units | Complete | 100% | All listed base units implemented |
+| Derived Units | In Progress | 85% | Thermal units added; others still missing |
+| String Formatting | In Progress | 70% | Formatting done, parsing not implemented |
+| Conversion/Casts | In Progress | 60% | unit_cast done; si_cast and value-type casts missing |
+| Testing | In Progress | 70% | Broad coverage, still missing parsing/edge cases |
+| Documentation | In Progress | 65% | README/design done; API reference still missing |
+| Code Quality | In Progress | 90% | Ongoing review/cleanup items remain |
+| Build System | In Progress | 80% | CI works; packaging/coverage/UBSan missing |
 
 ---
 
 ## Next Immediate Steps
 
-1. **Complete Basic SI Units** (Week 1-2)
-   - Add centimeter, decimeter, hectometer for length
-   - Add milligram through metric_ton for mass
-   - Add ampere and derived units for current
+1. **String Parsing**
+   - Parse basic unit strings ("5.0 m", "10 m/s")
+   - Add parsing tests and edge cases
 
-2. **Implement Essential Derived Units** (Week 2-3)
-   - Area (square_meter_t, etc.)
-   - Volume (cubic_meter_t, etc.)
-   - Velocity (meter_per_second_t, etc.)
-   - Force (newton_t)
+2. **Conversion Framework**
+   - Implement `si_cast<>`
+   - Add value-type conversions (double <-> float)
+   - Clarify/lock temperature arithmetic behavior
 
-3. **Complete String Formatting** (Week 3-4)
-   - Implement full std::format support
-   - Add parsing capability
-   - Write formatting tests
+3. **CI Quality**
+   - Add coverage reporting
+   - Add UBSan to debug builds (where compatible)
 
-4. **Add Conversion Framework** (Week 4-5)
-   - Implement si_cast<> template
-   - Add explicit conversion operators
-   - Test edge cases
-
-5. **Expand Test Coverage** (Ongoing)
-   - Add tests for each new unit
-   - Integration tests
-   - Performance benchmarks

@@ -1,22 +1,20 @@
 #pragma once
 
 /**
- * @file astronomical_units.h
- * @brief Master header for astronomical units
+ * @file cgs_units.h
+ * @brief Master header for CGS (centimeter-gram-second) units
  *
- * Include this file to get access to astronomical units (angstrom, au, light_year, etc.)
- * commonly used in astronomy and physics.
+ * Include this file to get access to the CGS unit system. This includes
+ * common mechanical, magnetic, electrical, and viscosity units.
  *
  * Usage:
- *   #include <pkr_units/astronomical_units.h>
+ *   #include <pkr_units/cgs_units.h>
  *
- *   // Use astronomical units
- *   auto distance = pkr::units::au_t(1.0);  // astronomical unit
- *   auto wavelength = pkr::units::angstrom_t(500.0);
+ *   auto field = pkr::units::gauss_t{2500.0};
  */
 
 // ============================================================================
-// Core Framework (needed for astronomical units)
+// Core Framework
 // ============================================================================
 
 #include <pkr_units/impl/namespace_config.h>
@@ -24,11 +22,18 @@
 #include <pkr_units/impl/dimension.h>
 
 // ============================================================================
-// Astronomical Units
+// CGS Units
 // ============================================================================
 
-#include <pkr_units/units/astronomical/angle.h>  // HMS/DMS angle units + formatting types
-#include <pkr_units/units/astronomical/length.h> // angstrom, au, light_year, parsec, etc.
+#include <pkr_units/units/cgs/acceleration.h>
+#include <pkr_units/units/cgs/viscosity.h>
+#include <pkr_units/units/cgs/electrical/charge.h>
+#include <pkr_units/units/cgs/mechanical/force.h>
+#include <pkr_units/units/cgs/mechanical/energy.h>
+#include <pkr_units/units/cgs/mechanical/pressure.h>
+#include <pkr_units/units/cgs/magnetic/gauss.h>
+#include <pkr_units/units/cgs/magnetic/oersted.h>
+#include <pkr_units/units/cgs/magnetic/maxwell.h>
 
 // ============================================================================
 // Unit Operators and Casting
@@ -40,4 +45,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-// Use <pkr_units/astronomical_units_literals.h> for user-defined literals (none yet).
+// Use <pkr_units/cgs_units_literals.h> for user-defined literals.

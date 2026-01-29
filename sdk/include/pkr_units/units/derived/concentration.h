@@ -10,15 +10,15 @@ namespace PKR_UNITS_NAMESPACE
 
 // Molar concentration units (amount of substance per volume)
 
-// Base unit: mole per cubic meter (mol/m³)
+// Base unit: mole per cubic meter (mol/m^3)
 struct mole_per_cubic_meter_concentration_t final : public details::unit_t<double, std::ratio<1, 1>, molar_concentration_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
     static constexpr std::string_view name{"mole_per_cubic_meter_concentration"};
     static constexpr std::string_view symbol{"mol/m^3"};
-    static constexpr std::wstring_view w_symbol{L"mol/m³"};
-    static constexpr std::u8string_view u8_symbol{u8"mol/m³"};
+    static constexpr std::wstring_view w_symbol{L"mol·m⁻³"};
+    static constexpr std::u8string_view u8_symbol{u8"mol·m⁻³"};
 };
 
 struct mole_per_liter_concentration_t final : public details::unit_t<double, std::ratio<1000, 1>, molar_concentration_v>
@@ -27,8 +27,8 @@ struct mole_per_liter_concentration_t final : public details::unit_t<double, std
     using _base::_base;
     static constexpr std::string_view name{"mole_per_liter_concentration"};
     static constexpr std::string_view symbol{"mol/L"};
-    static constexpr std::wstring_view w_symbol{L"mol/L"};
-    static constexpr std::u8string_view u8_symbol{u8"mol/L"};
+    static constexpr std::wstring_view w_symbol{L"mol·L⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"mol·L⁻¹"};
 };
 
 struct molar_concentration_t final : public details::unit_t<double, std::ratio<1000, 1>, molar_concentration_v>
@@ -87,8 +87,8 @@ struct mole_per_cubic_centimeter_concentration_t final : public details::unit_t<
     using _base::_base;
     static constexpr std::string_view name{"mole_per_cubic_centimeter_concentration"};
     static constexpr std::string_view symbol{"mol/cm^3"};
-    static constexpr std::wstring_view w_symbol{L"mol/cm³"};
-    static constexpr std::u8string_view u8_symbol{u8"mol/cm³"};
+    static constexpr std::wstring_view w_symbol{L"mol·cm⁻³"};
+    static constexpr std::u8string_view u8_symbol{u8"mol·cm⁻³"};
 };
 
 struct mole_per_milliliter_concentration_t final : public details::unit_t<double, std::ratio<1000000, 1>, molar_concentration_v>
@@ -97,8 +97,8 @@ struct mole_per_milliliter_concentration_t final : public details::unit_t<double
     using _base::_base;
     static constexpr std::string_view name{"mole_per_milliliter_concentration"};
     static constexpr std::string_view symbol{"mol/mL"};
-    static constexpr std::wstring_view w_symbol{L"mol/mL"};
-    static constexpr std::u8string_view u8_symbol{u8"mol/mL"};
+    static constexpr std::wstring_view w_symbol{L"mol·mL⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"mol·mL⁻¹"};
 };
 
 // Osmolarity units (moles of osmotically active particles per liter)
@@ -108,8 +108,8 @@ struct osmole_per_liter_concentration_t final : public details::unit_t<double, s
     using _base::_base;
     static constexpr std::string_view name{"osmole_per_liter_concentration"};
     static constexpr std::string_view symbol{"Osm/L"};
-    static constexpr std::wstring_view w_symbol{L"Osm/L"};
-    static constexpr std::u8string_view u8_symbol{u8"Osm/L"};
+    static constexpr std::wstring_view w_symbol{L"Osm·L⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"Osm·L⁻¹"};
 };
 
 struct milliosmole_per_liter_concentration_t final : public details::unit_t<double, std::ratio<1, 1>, molar_concentration_v>
@@ -118,8 +118,8 @@ struct milliosmole_per_liter_concentration_t final : public details::unit_t<doub
     using _base::_base;
     static constexpr std::string_view name{"milliosmole_per_liter_concentration"};
     static constexpr std::string_view symbol{"mOsm/L"};
-    static constexpr std::wstring_view w_symbol{L"mOsm/L"};
-    static constexpr std::u8string_view u8_symbol{u8"mOsm/L"};
+    static constexpr std::wstring_view w_symbol{L"mOsm·L⁻¹"};
+    static constexpr std::u8string_view u8_symbol{u8"mOsm·L⁻¹"};
 };
 
 // ============================================================================

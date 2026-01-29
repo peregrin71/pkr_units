@@ -27,7 +27,7 @@ TEST_F(SiConcentrationFormattingTest, mole_per_cubic_meter_wide_formatting)
 {
     pkr::units::mole_per_cubic_meter_concentration_t conc(1000.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"1000 mol/m³");
+    EXPECT_EQ(formatted, L"1000 mol·m⁻³");
 }
 
 TEST_F(SiConcentrationFormattingTest, mole_per_liter_ascii_formatting)
@@ -41,7 +41,7 @@ TEST_F(SiConcentrationFormattingTest, mole_per_liter_wide_formatting)
 {
     pkr::units::mole_per_liter_concentration_t conc(2.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"2 mol/L");
+    EXPECT_EQ(formatted, L"2 mol·L⁻¹");
 }
 
 TEST_F(SiConcentrationFormattingTest, molar_ascii_formatting)
@@ -83,7 +83,7 @@ TEST_F(SiConcentrationFormattingTest, micromolar_wide_formatting)
 {
     pkr::units::micromolar_concentration_t conc(50.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"50 \u00b5M");
+    EXPECT_EQ(formatted, L"50 µM");
 }
 
 TEST_F(SiConcentrationFormattingTest, nanomolar_ascii_formatting)
@@ -125,7 +125,7 @@ TEST_F(SiConcentrationFormattingTest, osmole_per_liter_wide_formatting)
 {
     pkr::units::osmole_per_liter_concentration_t conc(0.3);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"0.3 Osm/L");
+    EXPECT_EQ(formatted, L"0.3 Osm·L⁻¹");
 }
 
 TEST_F(SiConcentrationFormattingTest, milliosmole_per_liter_ascii_formatting)
@@ -139,7 +139,7 @@ TEST_F(SiConcentrationFormattingTest, milliosmole_per_liter_wide_formatting)
 {
     pkr::units::milliosmole_per_liter_concentration_t conc(300.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"300 mOsm/L");
+    EXPECT_EQ(formatted, L"300 mOsm·L⁻¹");
 }
 
 TEST_F(SiConcentrationFormattingTest, format_large_values)
