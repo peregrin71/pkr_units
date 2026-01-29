@@ -1,0 +1,132 @@
+#include <gtest/gtest.h>
+#include <format>
+#include <string>
+#include <pkr_units/units/base/angle.h>
+#include <pkr_units/astronomical_units.h>
+#include <pkr_units/astronomical_units_formatting.h>
+
+using namespace PKR_UNITS_NAMESPACE;
+
+class AstronomicalAngleFormattingTest : public ::testing::Test
+{
+};
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_formatting)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_archour_t{12.5});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "12h 30m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_negative_formatting)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_archour_t{-1.25});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "-1h 15m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_degree)
+{
+    auto ra = unit_cast<hms_angle_t>(degree_t{15.0});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "1h 0m 0s");
+}
+
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{1.0});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "0h 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second_roundup)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{0.6});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "0h 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second_round_half)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{0.5});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "0h 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second_rounddown)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{0.4});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "0h 0m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_wide_formatting)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_archour_t{12.5});
+    std::wstring result = std::format(L"{}", ra);
+    EXPECT_EQ(result, L"12ʰ30ᵐ0ˢ");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_archour_formatting)
+{
+    hms_archour_t ha{2.0};
+    std::string result = std::format("{}", ha);
+    EXPECT_EQ(result, "2h");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_arcminute_formatting)
+{
+    hms_arcminute_t am{30.0};
+    std::string result = std::format("{}", am);
+    EXPECT_EQ(result, "30m");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_arcsecond_formatting)
+{
+    hms_arcsecond_t as{15.0};
+    std::string result = std::format("{}", as);
+    EXPECT_EQ(result, "15s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_formatting)
+{
+    auto dec = unit_cast<dms_angle_t>(degree_t{12.5});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "12deg 30m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second)
+{
+    auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{1.0});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "0deg 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second_roundup)
+{
+    auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{0.6});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "0deg 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second_round_half)
+{
+    auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{0.5});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "0deg 0m 1s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second_rounddown)
+{
+    auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{0.4});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "0deg 0m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_wide_formatting)
+{
+    auto dec = unit_cast<dms_angle_t>(degree_t{12.5});
+    std::wstring result = std::format(L"{}", dec);
+    EXPECT_EQ(result, L"12°30ᵐ0ˢ");
+}

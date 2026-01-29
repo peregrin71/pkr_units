@@ -94,9 +94,34 @@ constexpr exasecond_t operator""_Es(long double value) noexcept
     return exasecond_t{static_cast<double>(value)};
 }
 
+constexpr minute_t operator""_min(long double value) noexcept
+{
+    return minute_t{static_cast<double>(value)};
+}
+
 constexpr hour_t operator""_h(long double value) noexcept
 {
     return hour_t{static_cast<double>(value)};
+}
+
+constexpr day_t operator""_d(long double value) noexcept
+{
+    return day_t{static_cast<double>(value)};
+}
+
+constexpr week_t operator""_wk(long double value) noexcept
+{
+    return week_t{static_cast<double>(value)};
+}
+
+constexpr month_t operator""_mo(long double value) noexcept
+{
+    return month_t{static_cast<double>(value)};
+}
+
+constexpr year_t operator""_yr(long double value) noexcept
+{
+    return year_t{static_cast<double>(value)};
 }
 
 } // namespace literals

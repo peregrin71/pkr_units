@@ -524,6 +524,19 @@ concept pkr_unit_concept = is_pkr_unit<T>::value;
 - Better error messages when non-unit types are passed
 - Enables overload resolution for unit-specific operations
 
+### 4.3 Specialized unit_cast paths stay isolated
+
+**Decision**: Keep the generic `unit_cast` implementation unchanged and introduce special-case conversions via dedicated headers that provide overloads/specializations for specific unit families.
+
+**Rationale**:
+- The base `unit_cast` remains small, stable, and focused on linear ratio conversions.
+- Conversions that require offsets (affine) or logarithmic math are isolated from the generic path.
+- Special cases are opt-in: users only include the specialized headers when they need those conversions.
+
+**Examples in this codebase**:
+- Temperature conversions are handled in `sdk/include/pkr_units/units/temperature/temperature_cast.h`, using specialization to pick the temperature-aware path.
+- Decibel conversions are handled in `sdk/include/pkr_units/units/dimensionless/decibel_cast.h`, keeping log math out of the generic cast path.
+
 ---
 
 ## 5. Multiplication and Division

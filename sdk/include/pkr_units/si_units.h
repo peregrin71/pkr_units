@@ -53,6 +53,7 @@
 #include <pkr_units/units/derived/concentration.h>
 #include <pkr_units/units/derived/electrical.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
+#include <pkr_units/units/derived/thermal.h>
 
 // ============================================================================
 // Unit Operators and Casting

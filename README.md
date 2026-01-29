@@ -1,762 +1,504 @@
-# pkr_units: Type-Safe Units for Dimensional Correctness in C++
+# pkr_units
 
-A C++ library providing compile-time type safety for physical units, strictly enforcing dimensional correctness in scientific and engineering computations.
+Header-only C++20 library for type-safe physical units with compile-time dimensional checking,
+including measurement support with uncertainty propagation.
 
-## Overview
+License: MIT (see `LICENSE`).
 
-pkr_units is a header-only C++ library that provides type-safe units, strictly enforcing dimensional correctness at compile-time to prevent physical unit errors in calculations.
+## Index
 
-### Characteristics
-- Strict compile-time dimensional correctness enforcement
-- Zero runtime overhead - all unit checking performed at compile time
-- C++20 compatible with concepts and constexpr
-- Header-only library with no external dependencies
-- Extensible unit system using CRTP and template specialization
+- [Introduction](#introduction)
+- [Design Summary](#design-summary)
+- [Library Contents](#library-contents)
+- [Headers and Entry Points](#headers-and-entry-points)
+- [Quick Start](#quick-start)
+- [Core Usage](#core-usage)
+- [Temperature and Affine Units](#temperature-and-affine-units)
+- [Measurements with Uncertainty](#measurements-with-uncertainty)
+- [Numerical Helpers](#numerical-helpers)
+- [Formatting and I-O](#formatting-and-i-o)
+- [Constants](#constants)
+- [User-defined Literals](#user-defined-literals)
+- [Custom Units](#custom-units)
+- [Extensibility](#extensibility)
+- [Appendix: Predefined Unit Types](#appendix-predefined-unit-types)
+- [Build and Tests](#build-and-tests)
 
-### Applications
-- Physics engines and simulations
-- Engineering calculation libraries
-- Scientific computing frameworks
-- Aerospace and automotive control systems
+## Introduction
 
-## Features
+This library exists to prevent unit-mismatch bugs (for example, adding meters to seconds or mixing mph with m/s)
+by introducing strong unit types. Dimensional correctness is enforced at compile time. Conversions are explicit and
+performed with `unit_cast`, so any change of scale or system is visible in the code.
+For convenience a lot of unit types have been declared to allow you to be very expressive in code. 
 
-### Units System
-- SI base units (meter, kilogram, second, ampere, kelvin, mole, candela, radian)
-- Derived units (velocity, acceleration, force, energy, pressure, etc.)
-- Imperial/US customary units
-- Astronomical units
-- Temperature scales with conversions
+## Design Summary
 
-### Arithmetic Operations
-- Strict compile-time dimensional correctness checking
-- Automatic unit conversion during operations
-- Prevention of dimensionally incorrect operations
-- Mixed-unit arithmetic with type safety
+Concise design approach based on the implementation:
 
-### Chrono Integration
-- Bidirectional conversion with std::chrono
-- Interoperability with existing timing code
-- Optimized conversions
+- **Core type model**: `details::unit_t<value_type, ratio, dimension_t>` encodes value type, scaling ratio, and dimensions.
+- **Strong types**: Unit types (e.g., `meter_t`) inherit from `unit_t` via `_base`, preserving strong typing and enabling traits.
+- **Default value type**: Built-in units use `double`. You can define custom units with other value types.
+- **8-dimensional system**: `dimension_t` has 8 integer exponents based on all standard SI units
+- **Type mapping**: `derived_unit_type_t` maps (value type, ratio, dimension) to the most specific strong type when available.
+- **Arithmetic rules**:
+  - Add/Subtract only for same dimensions; **returns the LHS unit type**.
+  - Multiply/Divide combines dimensions and ratios without forced normalization.
+    The result is a `unit_t` with the combined ratio; use `unit_cast` (or `to_si`)
+    when you want a specific named unit type.
+- **Compile-time checks, runtime math**: Dimensional checks happen at compile time; conversions are numeric operations.
+- **Extensible**: New units can be defined by adding types and `derived_unit_type_t` specializations.
+- **Measurements**: `measurement_t` stores value+uncertainty and supports two propagation strategies.
 
-### Numerical Methods
-- Numerically stable operations in pkr::numerical namespace
-- Unit-aware Newton-Raphson and Runge-Kutta methods
-- Transcendental functions with dimensional constraints
+## Library Contents
 
-### Additional Features
-- Custom unit definition system
-- User-defined literals
-- Formatting and I/O support
-- Comprehensive test suite
-- CMake-based build system
+High-level overview of what is present in this repository:
 
-## Getting Started
+- **SI units**: base units plus commonly used derived units (velocity, acceleration, force, pressure, energy, power, density, concentration, electrical, magnetic flux).
+- **Additional derived groups**: area and volume are provided in dedicated headers.
+- **Imperial and astronomical units**: separate headers for non-SI and astronomical length units.
+- **Conversions**: `unit_cast` for same-dimension conversions, with affine support for temperature.
+- **Measurements with uncertainty**: `measurement_t` and optional uncertainty math strategies.
+- **Numerical helpers**: stable arithmetic, Newton-Raphson, and Runge-Kutta.
+- **Formatting**: `std::format` support for units and measurements.
+- **Constants**: selected physical constants as typed units and raw values.
 
-### Basic Usage
+## Headers and Entry Points
+
+Common headers:
+
+- `sdk/include/pkr_units/si_units.h` - SI base units plus several derived groups, unit_cast, measurement_t
+- `sdk/include/pkr_units/imperial_units.h` - imperial and other non-SI units
+- `sdk/include/pkr_units/astronomical_units.h` - astronomical length units
+- `sdk/include/pkr_units/numerical.h` - stable operations, Newton-Raphson, Runge-Kutta
+- `sdk/include/pkr_units/constants.h` - physical constants (typed and raw values)
+- `sdk/include/pkr_units/si_units_formatting.h` - std::format support for units
+
+Some unit groups live in narrower headers, for example:
+
+- `sdk/include/pkr_units/units/derived/area/area_units.h`
+- `sdk/include/pkr_units/units/derived/volume/volume_units.h`
+- `sdk/include/pkr_units/units/temperature/celsius.h`
+- `sdk/include/pkr_units/units/temperature/fahrenheit.h`
+
+Default namespace is `pkr::units`. You can override it by defining `PKR_UNITS_NAMESPACE` before including headers.
+
+```cpp
+#define PKR_UNITS_NAMESPACE my_app::units
+#include <pkr_units/si_units.h>
+
+my_app::units::meter_t d{5.0};
+```
+
+## Quick Start
 
 ```cpp
 #include <pkr_units/si_units.h>
 
-int main() {
-    // Create units
+int main()
+{
     auto distance = pkr::units::meter_t{100.0};
     auto time = pkr::units::second_t{10.0};
 
-    // Arithmetic operations
-    auto speed = distance / time;  // Results in pkr::units::meter_per_second_t
-
-    // Unit conversion
+    auto speed = distance / time; // unit with velocity dimensions
     auto speed_kmh = pkr::units::unit_cast<pkr::units::kilometer_per_hour_t>(speed);
 
-    // Mixed unit operations ()
-    auto total_distance = pkr::units::meter_t{500} + pkr::units::kilometer_t{2};
-
     return 0;
 }
 ```
 
-### Chrono Integration
+## Core Usage
+
+### Dimensional correctness
 
 ```cpp
-#include <pkr_units/si_units.h>
-#include <chrono>
+using namespace pkr::units;
 
-int main() {
-    // Convert between chrono and pkr_units
-    auto chrono_time = std::chrono::seconds{30};
-    auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_time);
+meter_t a{5.0};
+second_t t{2.0};
 
-    // Convert back
-    auto back_to_chrono = pkr::units::unit_cast<std::chrono::milliseconds>(pkr_time);
-
-    return 0;
-}
+auto v = a / t;               // OK (velocity dimensions)
+// auto bad = a + t;           // Compile-time error
 ```
 
-### Numerical Methods
+### LHS return type for add/subtract
 
 ```cpp
-#include <pkr_units/si_units.h>
-#include <pkr_units/numerical.h>
+using namespace pkr::units;
 
-int main() {
-    // Numerically stable operations
-    auto result = pkr::numerical::stable_add(pkr::units::meter_t{1}, pkr::units::millimeter_t{500});
+meter_t m{500.0};
+kilometer_t km{1.0};
 
-    // Unit-aware Newton-Raphson
-    auto f = [](pkr::units::meter_t x) { return x * x - pkr::units::meter_t{4}; };
-    auto df = [](pkr::units::meter_t x) { return pkr::units::meter_t{2} * x; };
-    auto root = pkr::numerical::newton_raphson(pkr::units::meter_t{1.5}, f, df);
-
-    return 0;
-}
+auto sum_m = m + km;  // meter_t (LHS type)
+auto sum_km = km + m; // kilometer_t (LHS type)
 ```
 
-## Implementation Details
-
-### Template Metaprogramming Architecture
-
-pkr_units uses advanced C++ template metaprogramming techniques:
-
-- **CRTP (Curiously Recurring Template Pattern)** for unit type hierarchies
-- **Template specialization** for dimensional analysis
-- **std::ratio** for compile-time rational arithmetic
-- **SFINAE** for conditional compilation and error messages
-- **constexpr** functions for compile-time calculations
-
-### Memory Layout
+### unit_cast
 
 ```cpp
-// Unit types are thin wrappers around arithmetic types
-static_assert(sizeof(pkr::units::meter_t) == sizeof(double));  // No overhead
-static_assert(alignof(pkr::units::meter_t) == alignof(double)); // Same alignment
+using namespace pkr::units;
+
+kilometer_t d{1.2};
+auto d_m = unit_cast<meter_t>(d);
+
+meter_per_second_t v{10.0};
+auto v_kmh = unit_cast<kilometer_per_hour_t>(v);
 ```
 
-### Error Messages
+## Temperature and Affine Units
 
-The library provides clear, actionable compile-time error messages:
+Temperature conversions that involve offsets (Celsius/Fahrenheit) are handled through `unit_cast`
+when affine traits are available. Include the temperature cast header to enable those overloads.
 
 ```cpp
-// Error: cannot add length and time
-auto invalid = pkr::units::meter_t{1} + pkr::units::second_t{1};
-// error: no match for 'operator+' (operand types are 'pkr::units::meter_t' and 'pkr::units::second_t')
+#include <pkr_units/units/temperature/temperature_cast.h>
+
+pkr::units::celsius_t c{20.0};
+auto f = pkr::units::unit_cast<pkr::units::fahrenheit_t>(c);
+auto k = pkr::units::unit_cast<pkr::units::kelvin_t>(c);
 ```
 
-### Extensibility
+Recommendation: use `kelvin_t` for all your calculations and only convert to
+`celsius_t` or `fahrenheit_t` for presentation. Offset-based conversions can
+introduce additional rounding, so repeated conversions in the middle of a
+calculation will accumulate error faster than staying in Kelvin.
 
-Custom units can be defined using the provided macros and template specializations. For simple cases:
+### Affine Traits (How Temperature Casting Works)
 
-```cpp
-// Define a custom unit
-PKR_DEFINE_UNIT(furlong_t, length_dimension, ratio<201168, 1000>, "furlong");
-PKR_DEFINE_UNIT(fortnight_t, time_dimension, ratio<1209600, 1>, "fortnight");
-```
+Temperature units with offsets (Celsius/Fahrenheit) are the only predefined conversions
+that require an additive offset in addition to a scale factor. Ratios alone are not enough
+because the zero points differ between Celsius, Fahrenheit, and Kelvin.
 
-For complex custom units requiring special conversion logic (like temperature scales with offsets), see the [Custom Units Guide](docs/custom_units_guide.md) which covers:
+The library uses `temperature_affine_traits<T>` to provide:
 
-- Defining custom physical dimensions
-- Creating unit types with proper ratios and symbols
-- Registering units with `derived_unit_type_t` for automatic type deduction
-- Handling affine transformations (offsets) for temperature-like units
-- Best practices for extensible unit systems
+- `is_affine` flag
+- `to_kelvin(value)` and `from_kelvin(value)` conversion functions
 
-**Key concepts:**
-- **Dimensions**: Physical properties (length, mass, time, etc.) encoded at compile-time
-- **Ratios**: Conversion factors to SI base units using `std::ratio`
-- **Type deduction**: `derived_unit_type_t` specializations enable automatic type preservation in operations
-- **Affine traits**: Handle units requiring offset conversions (like Celsius ↔ Kelvin)
+`unit_cast` remains generic for all normal units. Temperature handling is added in
+`units/temperature/temperature_cast.h` by providing a more specialized overload for temperature like types,
+so the generic `unit_cast` stays untouched. When the compiler selects the
+temperature-specific overload, it checks `temperature_affine_traits<T>::is_affine`.
+If either the source or target type is affine, it takes the temperature conversion
+path and:
 
-## Dimensional Correctness Enforcement
+1) Converts the source value to Kelvin (ratio-based for Kelvin types, or `to_kelvin` for affine types)
+2) Converts from Kelvin to the target type (ratio-based or `from_kelvin`)
 
-### Physical Dimensions
+This keeps `unit_cast` the single entry point while adding correct offset behavior.
 
-Each unit type encodes its physical dimensions at compile-time to enforce dimensional correctness:
 
-```cpp
-// Base dimensions (7 SI base quantities)
-using length_dimension    = dimension_t<1,0,0,0,0,0,0>;  // L
-using mass_dimension      = dimension_t<0,1,0,0,0,0,0>;  // M
-using time_dimension      = dimension_t<0,0,1,0,0,0,0>;  // T
-using current_dimension   = dimension_t<0,0,0,1,0,0,0>;  // I
-using temperature_dimension = dimension_t<0,0,0,0,1,0,0>; // Θ
-using amount_dimension    = dimension_t<0,0,0,0,0,1,0>;  // N
-using intensity_dimension = dimension_t<0,0,0,0,0,0,1>;  // J
+## Measurements with Uncertainty
 
-// Derived dimensions
-using velocity_dimension  = dimension_t<1,0,-1,0,0,0,0>; // L/T
-using acceleration_dimension = dimension_t<1,0,-2,0,0,0,0>; // L/T²
-using force_dimension     = dimension_t<1,1,-2,0,0,0,0>; // M*L/T²
-```
+`measurement_t<UnitT>` stores a value and an uncertainty of the same unit type.
+Basic arithmetic propagates uncertainties:
 
-### Unit Conversion
-
-Automatic conversion between units of the same dimension with compile-time correctness checking:
-
-```cpp
-// Ratio-based conversion at compile-time
-meter_t m{1000};
-kilometer_t km = unit_cast<kilometer_t>(m);  // Compile-time ratio<1,1000>
-static_assert(km.value() == 1.0);
-```
-
-#### Temperature Conversions with Offsets
-
-Temperature scales require special handling because they have different zero points (Celsius, Fahrenheit) versus absolute zero (Kelvin). The library provides `temperature_affine_traits` to handle offset-based conversions:
-
-```cpp
-// Temperature conversions require offsets, not just ratios
-pkr::units::celsius_t room_temp{20.0};
-pkr::units::fahrenheit_t fahrenheit = pkr::units::unit_cast<pkr::units::fahrenheit_t>(room_temp);  // 68.0 °F
-
-// The system automatically:
-// 1. Converts Celsius to Kelvin: 20°C + 273.15 = 293.15 K
-// 2. Converts Kelvin to Fahrenheit: (293.15 - 273.15) × 9/5 + 32 = 68.0 °F
-```
-
-**How it works:**
-- Most units convert with simple ratios (1 km = 1000 m)
-- Temperature scales have different reference points, so they need offset adjustments
-- `temperature_affine_traits<T>` identifies which temperature types need special offset handling
-- `unit_cast` automatically handles the conversion by going through Kelvin as an intermediate step
-
-### Type Safety
-
-Operations are strictly checked for dimensional correctness at compile-time:
-
-```cpp
-pkr::units::meter_t length{10};
-pkr::units::second_t time{5};
-auto velocity = length / time;  // OK: L/T dimension - correct
-
-// Compile error: dimensional mismatch prevents incorrect operations
-auto invalid = length + time;   // Error: cannot add length and time, caught at compile-time
-```
-
-## Unit Operations
-
-### Arithmetic Operations
-
-```cpp
-// Addition/Subtraction (same dimensions only)
-auto total_length = pkr::units::meter_t{10} + pkr::units::millimeter_t{500};  // Automatic conversion
-auto difference = pkr::units::kilogram_t{5} - pkr::units::gram_t{200};
-
-// Multiplication/Division (combines dimensions)
-auto area = pkr::units::meter_t{5} * pkr::units::meter_t{3};           // meter²
-auto speed = pkr::units::meter_t{100} / pkr::units::second_t{10};      // meter/second
-auto acceleration = speed / pkr::units::second_t{5};       // meter/second²
-
-// Scalar operations
-auto doubled = pkr::units::meter_t{5} * 2.0;               // meter_t
-auto halved = pkr::units::kilogram_t{10} / 2.0;            // kilogram_t
-```
-
-### Unit Casting
-
-```cpp
-// Convert between compatible units
-auto length_m = pkr::units::meter_t{1000};
-auto length_km = pkr::units::unit_cast<pkr::units::kilometer_t>(length_m);     // 1.0 km
-auto length_mm = pkr::units::unit_cast<pkr::units::millimeter_t>(length_m);    // 1000000.0 mm
-
-// Convert between chrono and pkr_units
-auto chrono_time = std::chrono::seconds{30};
-auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_time);
-```
-
-### Comparisons
-
-```cpp
-// Compare same dimensions (automatic conversion)
-bool equal = pkr::units::meter_t{1000} == pkr::units::kilometer_t{1};          // true
-bool less = pkr::units::gram_t{500} < pkr::units::kilogram_t{1};               // true
-
-// Compare with tolerance for floating-point
-bool approx_equal = pkr::units::almost_equal(pkr::units::meter_t{1.0000001}, pkr::units::meter_t{1.0}, 1e-6);
-```
-
-## Chrono Integration
-
-### Overview
-
-pkr_units provides bidirectional conversion with `std::chrono`, allowing use of both libraries together.
-
-### Features
-
-- Conversions when ratios match
-- Automatic ratio arithmetic for different time scales
-- Canonical ratio calculations
-- Compile-time safety prevents chrono/pkr mixing errors
-
-### Usage Examples
-
-```cpp
-#include <pkr_units/si_units.h>
-#include <chrono>
-
-// Convert chrono to pkr_units
-auto chrono_duration = std::chrono::milliseconds{1500};
-auto pkr_time = pkr::units::unit_cast<pkr::units::second_t>(chrono_duration);  // 1.5 seconds
-
-// Convert pkr_units to chrono
-auto pkr_duration = pkr::units::minute_t{2.5};
-auto chrono_result = pkr::units::unit_cast<std::chrono::seconds>(pkr_duration); // 150 seconds
-
-// Use in calculations
-auto speed = pkr::units::meter_t{100} / pkr::units::unit_cast<pkr::units::second_t>(std::chrono::milliseconds{5000});
-```
-
-### Performance Characteristics
-
-- Same ratio: ~1-2 nanoseconds
-- Different ratios: ~5-10 nanoseconds
-- No heap allocation or runtime type checking
-- Fully constexpr compatible
-
-## Numerical Methods
-
-### Overview
-
-The `pkr::numerical` namespace provides numerically stable operations and unit-aware algorithms for scientific computing. These operations return `unit_t` types with canonical ratios to maximize precision in complex calculations.
-
-### Stable Operations
-
-```cpp
-#include <pkr_units/numerical.h>
-
-// Numerically stable arithmetic (returns unit_t with canonical ratios)
-auto result = pkr::numerical::stable_add(pkr::units::meter_t{1}, pkr::units::millimeter_t{500});    // unit_t<..., ratio<1,1>, ...>
-auto product = pkr::numerical::stable_multiply(pkr::units::force_t{10}, pkr::units::meter_t{5});    // unit_t<..., combined_ratio, ...>
-auto quotient = pkr::numerical::stable_divide(pkr::units::energy_t{100}, pkr::units::second_t{2});  // unit_t<..., combined_ratio, ...>
-```
-
-### Transcendental Functions
-
-```cpp
-// Dimensionally constrained functions
-auto exponential = pkr::numerical::exp(pkr::units::dimensionless_t{2.0});        // dimensionless_t
-auto logarithm = pkr::numerical::log(pkr::units::dimensionless_t{10.0});         // dimensionless_t
-auto square_root = pkr::numerical::sqrt(pkr::units::meter_t{4.0});               // unit_t<..., ratio<1,2>, length_dim>
-
-// Compile-time dimensional checking
-auto invalid = pkr::numerical::exp(pkr::units::meter_t{1.0});  // Error: exp requires dimensionless argument
-```
-
-### Newton-Raphson Method
-
-```cpp
-// Find roots of f(x) = 0 with automatic unit checking
-template<typename UnitT, typename Function, typename Derivative>
-UnitT newton_raphson(UnitT initial_guess, Function f, Derivative df,
-                    double tolerance = 1e-10, int max_iterations = 100);
-
-// Example: Find square root of 2
-auto f = [](pkr::units::dimensionless_t x) { return x*x - pkr::units::dimensionless_t{2}; };
-auto df = [](pkr::units::dimensionless_t x) { return pkr::units::dimensionless_t{2}*x; };
-auto root = pkr::numerical::newton_raphson(pkr::units::dimensionless_t{1.5}, f, df);  // ≈ 1.414...
-```
-
-### Runge-Kutta Integration
-
-```cpp
-// Solve ODE dy/dx = f(x,y) with units preserved
-template<typename TimeUnit, typename StateUnit, typename RHS>
-StateUnit runge_kutta_step(RHS f, TimeUnit x, StateUnit y, TimeUnit h);
-
-// Example: Exponential decay dy/dx = -k*y
-auto decay_rate = [](pkr::units::second_t t, pkr::units::dimensionless_t y) {
-    return -pkr::units::dimensionless_t{0.5} * y;  // 1/time units
-};
-auto result = pkr::numerical::runge_kutta_step(decay_rate, pkr::units::second_t{0}, pkr::units::dimensionless_t{1}, pkr::units::second_t{0.1});
-```
-
-### Benefits for Scientific Computing
-
-1. **Automatic Unit Checking**: Functions must have dimensionally correct signatures
-2. **Numerical Stability**: Canonical ratios prevent precision loss in complex calculations
-3. **Type Safety**: Prevents mixing incompatible physical quantities
-4. **Self-Documenting**: Function signatures clearly show physical meanings
-5. **Performance**: No runtime unit checking overhead
-
-## Measurements with Uncertainty Propagation
-
-### Overview
-
-pkr_units provides `measurement_t<UnitT>` for tracking measurements with uncertainties and automatic uncertainty propagation through arithmetic operations. This enables proper error analysis in scientific and engineering calculations.
-
-### Features
-
-- **Automatic Uncertainty Propagation**: Uses proper statistical methods (quadrature for addition/subtraction, relative uncertainties for multiplication/division)
-- **Type-Safe Operations**: All operations maintain dimensional correctness
-- **Mathematical Functions**: Uncertainty propagation through transcendental functions
-- **Formatting Support**: Display measurements with uncertainty notation
-
-### Basic Usage
+- Add/Subtract: root-sum-square (RSS)
+- Multiply/Divide: linear sum of relative uncertainties
 
 ```cpp
 #include <pkr_units/measurements/measurement.h>
 
-// Create measurements with values and uncertainties
-pkr::units::measurement_t<pkr::units::meter_t> length{5.0, 0.1};        // 5.0 ± 0.1 m
-pkr::units::measurement_t<pkr::units::second_t> time{2.0, 0.05};        // 2.0 ± 0.05 s
+using namespace pkr::units;
 
-// Calculate velocity with propagated uncertainty
-auto velocity = length / time;  // 2.5 ± 0.13 m/s
+measurement_t<meter_t> length{5.0, 0.1};  // 5.0 +/- 0.1 m
+measurement_t<second_t> time{2.0, 0.05};  // 2.0 +/- 0.05 s
 
-// Automatic unit conversion during operations
-pkr::units::measurement_t<pkr::units::centimeter_t> width{300.0, 5.0};  // 3.0 ± 0.05 m
-auto area = length * width;  // 15.0 ± 0.58 m²
+auto velocity = length / time;
 ```
 
-### Uncertainty Propagation Rules
+For explicit uncertainty strategies and math helpers, include:
 
-```cpp
-// Addition/Subtraction: uncertainties combine in quadrature (RSS)
-// σ_total = √(σ₁² + σ₂²)
-auto total_length = pkr::units::measurement_t<pkr::units::meter_t>{5.0, 0.1} + pkr::units::measurement_t<pkr::units::meter_t>{3.0, 0.2};
-// Result: 8.0 ± 0.2236 m
+- `sdk/include/pkr_units/measurements/measurement_math_rss.h`
+- `sdk/include/pkr_units/measurements/measurement_math_linear.h`
+- or `sdk/include/pkr_units/measurements/measurement_math.h` (defaults to RSS)
 
-// Multiplication/Division: relative uncertainties add
-// δ(a×b)/(a×b) = δa/a + δb/b
-auto power = pkr::units::measurement_t<pkr::units::watt_t>{100.0, 5.0} * pkr::units::measurement_t<pkr::units::second_t>{10.0, 0.5};
-// Result: 1000.0 ± 55.9 J (relative uncertainties: 5% + 5% = 10%)
-```
+### Uncertainty strategies (step-by-step)
 
-### Mathematical Functions
+Example inputs:
 
-```cpp
-#include <pkr_units/measurements/measurement_math.h>
+- `length = 5.0 ± 0.1 m`
+- `width  = 3.0 ± 0.2 m`
 
-// Transcendental functions with uncertainty propagation
-auto sqrt_result = pkr::math::sqrt(pkr::units::measurement_t<pkr::units::square_meter_t>{16.0, 1.0});  // 4.0 ± 0.125 m
-auto exp_result = pkr::math::exp(pkr::units::measurement_t<pkr::units::scalar_t>{1.0, 0.1});           // 2.718 ± 0.272
-auto sin_result = pkr::math::sin(pkr::units::measurement_t<pkr::units::radian_t>{0.0, 0.1});            // 0.0 ± 0.1
-```
+**RSS strategy** (root-sum-square of uncertainties):
 
-### Uncertainty Propagation Strategies
+1) Addition/Subtraction (absolute):
+   - σ = sqrt(0.1^2 + 0.2^2) = 0.2236 m
+2) Multiplication/Division (relative):
+   - r1 = 0.1 / 5.0 = 0.02
+   - r2 = 0.2 / 3.0 = 0.0667
+   - r_total = sqrt(r1^2 + r2^2) = 0.0696
+   - area = 5.0 * 3.0 = 15.0
+   - σ = 15.0 * 0.0696 = 1.04 m^2
 
-pkr_units supports two uncertainty propagation strategies, selected by including the appropriate header:
+Use `measurement_math_rss.h` for `multiply_rss`, `divide_rss`, `sqrt_rss`, etc.
 
-#### RSS (Root Sum Square) Strategy (Default)
-```cpp
-#include <pkr_units/measurements/measurement_math_rss.h>
-```
-- **Multiplication/Division**: Relative uncertainties add in quadrature: \(\delta_{total} = \sqrt{(\delta_1)^2 + (\delta_2)^2}\)
-- **Addition/Subtraction**: Absolute uncertainties add in quadrature: \(\sigma_{total} = \sqrt{\sigma_1^2 + \sigma_2^2}\)
-- **Functions**: Uses appropriate derivatives for uncertainty propagation
-- **Best for**: Most scientific applications where uncertainties are independent
+**Linear strategy** (sum of relative uncertainties):
 
-**Important**: For correlated measurements (e.g., squaring), use `square_rss()` instead of `multiply_rss(a, a)`.
+1) Addition/Subtraction (absolute):
+   - σ = sqrt(0.1^2 + 0.2^2) = 0.2236 m
+2) Multiplication/Division (relative):
+   - r_total = r1 + r2 = 0.0867
+   - area = 15.0
+   - σ = 15.0 * 0.0867 = 1.30 m^2
 
-#### Linear Strategy
-```cpp
-#include <pkr_units/measurements/measurement_math_linear.h>
-```
-- **All Operations**: Uses linear approximation: \(\delta f \approx |\frac{\partial f}{\partial x}| \delta x\)
-- **Worst-case Bounds**: Provides conservative (upper bound) uncertainty estimates
-- **Simpler**: Direct application of derivatives
-- **Best for**: Simple cases, error bounds, or when computational efficiency is critical
+The linear strategy corresponds to the default `measurement_t` arithmetic for multiply/divide
+and is also available via `measurement_math_linear.h`.
 
-Both strategies maintain dimensional correctness but use different function names to avoid conflicts:
-- RSS functions have `_rss` suffix (e.g., `multiply_rss`, `divide_rss`)
-- Linear functions use standard names (e.g., `multiply`, `divide`)
+## Numerical Helpers
 
-### Formatting and Output
+`sdk/include/pkr_units/numerical.h` provides:
 
-```cpp
-measurement_t<meter_t> length{5.123, 0.456};
+- `stable_add`, `stable_subtract`
+- `stable_multiply`, `stable_divide`
+- `newton_raphson`, `runge_kutta_step`
 
-// ASCII output: "5.12 +/- 0.46 m"
-std::cout << std::format("{:.2f}", length) << std::endl;
+For long calculation chains, prefer the `stable_*` functions. When ratios differ,
+`stable_add`/`stable_subtract` return a canonical `unit_t` (ratio 1/1) so subsequent
+operations stay in a single ratio and avoid repeated conversions. At the end you
+can call `in_base_si_units()` for the canonical unit or `unit_cast`/`to_si` to
+select a named unit type.
 
-// Wide character output: "5.12 ± 0.46 m"
-std::wcout << std::format(L"{:.2f}", length) << std::endl;
-
-// Scientific notation: "1.234567e+06 +/- 1.234567e+04 m"
-measurement_t<meter_t> large_length{1.234567e6, 1.234567e4};
-std::cout << std::format("{:e}", large_length) << std::endl;
-```
-
-### Real-World Example: Drag Force Calculation
-
-```cpp
-// Air density: 1.225 ± 0.005 kg/m³
-measurement_t<kilogram_per_cubic_meter_t> density{1.225, 0.005};
-
-// Velocity: 30.0 ± 0.5 m/s
-measurement_t<meter_per_second_t> velocity{30.0, 0.5};
-
-// Drag coefficient: 0.30 ± 0.02 (dimensionless)
-measurement_t<scalar_t> drag_coeff{0.30, 0.02};
-
-// Cross-sectional area: 2.5 ± 0.1 m²
-measurement_t<square_meter_t> area{2.5, 0.1};
-
-// Calculate drag force: F_d = 0.5 × ρ × v² × C_d × A
-auto velocity_sq = velocity * velocity;
-auto temp1 = density * velocity_sq;
-auto temp2 = temp1 * drag_coeff;
-auto temp3 = temp2 * area;
-auto drag_force = measurement_t<scalar_t>{0.5, 0.0} * temp3;
-
-// Result: 413.4 ± 59.6 N
-std::cout << "Drag force: " << drag_force << std::endl;
-```
-
-### Benefits for Scientific Computing
-
-1. **Proper Error Analysis**: Automatic uncertainty propagation using statistical methods
-2. **Type Safety**: Dimensional correctness maintained throughout calculations
-3. **Self-Documenting**: Measurement uncertainties are explicit in the code
-4. **Comprehensive**: Supports all arithmetic and mathematical operations
-5. **Standards Compliant**: Uses proper uncertainty propagation formulas
-
-## Advanced Usage
-
-### Custom Units
-
-```cpp
-// Define custom units using the framework
-PKR_UNITS_DEFINE_UNIT(lightyear, length_dimension, std::ratio<9460730472580800, 1>, double)
-PKR_UNITS_DEFINE_UNIT(solar_mass, mass_dimension, std::ratio<198847e24, 1>, double)
-
-// Use custom units
-auto distance = lightyear_t{4.24};  // Distance to Alpha Centauri
-auto mass = solar_mass_t{1.0};      // One solar mass
-```
-
-### Performance Considerations
-
-- **Zero runtime overhead** for unit operations
-- **Compile-time computation** of all conversions
-- **Optimal code generation** with modern compilers
-- **Small binary size** (header-only, no runtime libraries)
-
-### Error Handling
-
-```cpp
-// Division by zero throws at runtime
-try {
-    auto result = pkr::units::meter_t{10} / pkr::units::second_t{0};
-} catch (const std::invalid_argument& e) {
-    // Handle error
-}
-
-// Most errors caught at compile-time
-auto invalid = pkr::units::meter_t{5} + pkr::units::second_t{3};  // Compile error
-```
-
-## API Reference
-
-### Core Classes
-
-- `unit_t<ValueType, Ratio, Dimensions>`: Generic unit type
-- Named unit types: `meter_t`, `second_t`, `kilogram_t`, etc.
-- `dimension_t`: Physical dimensions structure
-
-### Key Functions
-
-- `unit_cast<Target>(source)`: Convert between compatible units
-- `almost_equal(a, b, tolerance)`: Floating-point comparison
-- `stable_add/subtract/multiply/divide()`: Numerically stable operations
-- `newton_raphson()`, `runge_kutta_step()`: Numerical methods
-
-### Namespaces
-
-- `pkr`: Main library namespace
-- `pkr::numerical`: Stable numerical operations
-- `pkr::units`: Predefined unit types
-- `pkr::literals`: User-defined literals
-
-## Examples
-
-### Physics Simulation
+Example:
 
 ```cpp
 #include <pkr_units/si_units.h>
 #include <pkr_units/numerical.h>
 
-int main() {
-    // Kinematic equation: distance = (1/2) * acceleration * time²
-    auto acceleration = pkr::units::meter_per_second_squared_t{9.81};  // Gravity
-    auto time = pkr::units::second_t{2.0};
+using namespace pkr::units;
 
-    auto distance = 0.5 * acceleration * time * time;
+kilogram_t mass{1200.0};
+newton_t target_force{3600.0};
+second_t time{3.0};
 
-    // Unit-aware result checking
-    static_assert(std::is_same_v<decltype(distance), pkr::units::meter_t>,
-                  "Result must be in meters");
+// Solve for speed v such that F = m * (v / t)
+auto f = [=](meter_per_second_t v) { return mass * (v / time) - target_force; };
+auto df = [=](meter_per_second_t) { return mass / time; };
 
-    return 0;
-}
+auto speed = pkr::numerical::newton_raphson(meter_per_second_t{1.0}, f, df);
+meter_per_second_squared_t accel = (speed / time).to_si();
 ```
 
-### Engineering Calculations
+## Formatting and I-O
+
+Unit formatting uses `std::format` via `si_units_formatting.h`.
+`measurement_t` provides `operator<<` and a `std::formatter` specialization.
 
 ```cpp
-#include <pkr_units/si_units.h>
+#include <pkr_units/si_units_formatting.h>
+#include <format>
 
-int main() {
-    // Ohm's law: V = I * R
-    auto current = pkr::units::ampere_t{2.0};
-    auto resistance = pkr::units::ohm_t{10.0};
-    auto voltage = current * resistance;  // volt_t
+using namespace pkr::units;
 
-    // Power: P = V * I
-    auto power = voltage * current;  // watt_t
-
-    // Energy over time: E = P * t
-    auto time = pkr::units::hour_t{1.0};
-    auto energy = power * time;  // joule_t
-
-    return 0;
-}
+meter_t d{12.5};
+std::string s = std::format("{}", d); // "12.5 m"
 ```
 
-### Scientific Computing
+Formatting is based on the *unit type*. If you want a different unit symbol/scale,
+convert first and then format:
 
 ```cpp
-#include <pkr_units/si_units.h>
-#include <pkr_units/numerical.h>
+using namespace pkr::units;
 
-int main() {
-    // Solve f(x) = x³ - 2x - 5 = 0 using Newton-Raphson
-    auto f = [](pkr::units::dimensionless_t x) {
-        return x*x*x - pkr::units::dimensionless_t{2}*x - pkr::units::dimensionless_t{5};
-    };
-    auto df = [](pkr::units::dimensionless_t x) {
-        return pkr::units::dimensionless_t{3}*x*x - pkr::units::dimensionless_t{2};
-    };
-
-    auto root = pkr::numerical::newton_raphson(pkr::units::dimensionless_t{2.0}, f, df);
-
-    // Result has correct dimensionless type
-    static_assert(std::is_same_v<decltype(root), pkr::units::dimensionless_t>);
-
-    return 0;
-}
+meter_per_second_t v{10.0};
+auto v_kmh = unit_cast<kilometer_per_hour_t>(v);
+std::string s = std::format("{}", v_kmh); // "36 km/h"
 ```
 
-## Building and Installation
+## Constants
 
-### System Requirements
-- **Compiler**: C++20 compatible (GCC 10+, Clang 12+, MSVC 2022+)
-- **Build System**: CMake 3.16+ with Ninja or Make
-- **Package Manager**: Conan 2.0+ (optional, for dependency management)
-- **Python**: 3.8+ (for build scripts)
+`sdk/include/pkr_units/constants.h` exposes physical constants as:
 
-### Build Configuration
+- Typed units where available (e.g., `speed_of_light`)
+- Raw values (e.g., `boltzmann_constant`) when a dedicated unit type is not defined
 
-The library supports multiple build configurations:
+```cpp
+#include <pkr_units/constants.h>
 
-```bash
-# Debug build with tests
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
-
-# Release build (header-only, no compilation needed)
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
-
-# Cross-platform build with Conan
-conan install . --build missing
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake
+auto c = pkr::units::speed_of_light; // meter_per_second_t
 ```
 
-### Testing
+## User-defined Literals
 
-```bash
-# Build and run all tests
-cmake --build build --target test
+Literal operators exist in specific headers under `sdk/include/pkr_units/impl/literals/`.
+They are **not** pulled in by default.
 
-# Run specific test suite
-ctest -R dimensional_analysis --output-on-failure
+Example:
 
-# Run performance benchmarks
-cmake --build build --target benchmark
+```cpp
+#include <pkr_units/impl/literals/length_literals.h>
+
+using namespace pkr::units::literals;
+
+auto d{5.0_km};
 ```
 
-### Integration with CMake
+## Custom Units
 
-For integrating into existing projects:
+Define a new unit type by providing:
 
-```cmake
-# Add as subdirectory
-add_subdirectory(path/to/pkr_units)
+1. A dimension (`dimension_t`)
+2. A unit type inheriting from `details::unit_t`
+3. A `derived_unit_type_t` specialization
 
-# Link to your target
-target_link_libraries(your_target PRIVATE pkr_units)
+For custom units you will typically include:
+`sdk/include/pkr_units/impl/decls/unit_t_decl.h`
+and `sdk/include/pkr_units/impl/dimension.h`.
 
-# Or include headers directly
-target_include_directories(your_target PRIVATE
-    ${CMAKE_SOURCE_DIR}/path/to/pkr_units/sdk/include
-)
+```cpp
+// Custom unit: furlong (length)
+inline constexpr pkr::units::dimension_t custom_length_dimension{.length = 1};
+
+struct furlong_t final
+    : public pkr::units::details::unit_t<double, std::ratio<201168, 1000>, custom_length_dimension>
+{
+    using _base = pkr::units::details::unit_t<double, std::ratio<201168, 1000>, custom_length_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"furlong"};
+    static constexpr std::string_view symbol{"furlong"};
+    static constexpr std::wstring_view w_symbol{L"furlong"};
+    static constexpr std::u8string_view u8_symbol{u8"furlong"};
+};
+
+template <>
+struct pkr::units::details::derived_unit_type_t<double, std::ratio<201168, 1000>, custom_length_dimension>
+{
+    using type = furlong_t;
+};
 ```
 
-### Package Managers
+## Extensibility
 
-```bash
-# Conan
-conan install pkr_units/1.0.0@
+The library is designed to be extended without modifying core headers. You can:
 
-# vcpkg (planned)
-vcpkg install pkr-units
+- Add new unit types by defining a `unit_t`-derived struct and a `derived_unit_type_t` specialization.
+- Add new dimensions by introducing a new `dimension_t` constant.
+
+Example: add a new dimension and two units, then let arithmetic return the derived types:
+
+```cpp
+#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/dimension.h>
+
+namespace my_units
+{
+inline constexpr pkr::units::dimension_t flow_dimension{.length = 3, .time = -1}; // volume/time
+
+struct liter_per_second_t final
+    : public pkr::units::details::unit_t<double, std::ratio<1, 1000>, flow_dimension>
+{
+    using _base = pkr::units::details::unit_t<double, std::ratio<1, 1000>, flow_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"liter per second"};
+    static constexpr std::string_view symbol{"L/s"};
+    static constexpr std::wstring_view w_symbol{L"L/s"};
+    static constexpr std::u8string_view u8_symbol{u8"L/s"};
+};
+
+struct cubic_meter_per_second_t final
+    : public pkr::units::details::unit_t<double, std::ratio<1, 1>, flow_dimension>
+{
+    using _base = pkr::units::details::unit_t<double, std::ratio<1, 1>, flow_dimension>;
+    using _base::_base;
+    static constexpr std::string_view name{"cubic meter per second"};
+    static constexpr std::string_view symbol{"m^3/s"};
+    static constexpr std::wstring_view w_symbol{L"m^3/s"};
+    static constexpr std::u8string_view u8_symbol{u8"m^3/s"};
+};
+
+template <>
+struct pkr::units::details::derived_unit_type_t<double, std::ratio<1, 1000>, flow_dimension>
+{
+    using type = liter_per_second_t;
+};
+
+template <>
+struct pkr::units::details::derived_unit_type_t<double, std::ratio<1, 1>, flow_dimension>
+{
+    using type = cubic_meter_per_second_t;
+};
+} // namespace my_units
 ```
 
-## Contributing
+## Appendix: Predefined Unit Types
 
-We welcome contributions! Please see our contributing guidelines for:
-- Code style and formatting
-- Testing requirements
-- Documentation standards
-- Release process
+The following unit types are defined in the headers under `sdk/include/pkr_units/units/`.
 
-## License
+### SI Base Units
 
-pkr_units is released under the MIT License. See LICENSE file for details.
+`ampere_t`, `attoampere_t`, `attocandela_t`, `attokelvin_t`, `attometer_t`, `attomole_t`
+`attosecond_t`, `candela_t`, `centiampere_t`, `centicandela_t`, `centigram_t`, `centikelvin_t`
+`centimeter_t`, `centimole_t`, `centisecond_t`, `decaampere_t`, `decacandela_t`, `decagram_t`
+`decakelvin_t`, `decameter_t`, `decamole_t`, `decasecond_t`, `deciampere_t`, `decicandela_t`
+`decigram_t`, `decikelvin_t`, `decimeter_t`, `decimole_t`, `decisecond_t`, `degree_t`, `exaampere_t`
+`exacandela_t`, `exagram_t`, `exakelvin_t`, `exameter_t`, `examole_t`, `exasecond_t`
+`femtoampere_t`, `femtocandela_t`, `femtokelvin_t`, `femtometer_t`, `femtomole_t`, `femtosecond_t`
+`gigaampere_t`, `gigacandela_t`, `gigagram_t`, `gigakelvin_t`, `gigameter_t`, `gigamole_t`
+`gigasecond_t`, `gradian_t`, `gram_t`, `hectoampere_t`, `hectocandela_t`, `hectogram_t`
+`hectokelvin_t`, `hectometer_t`, `hectomole_t`, `hectosecond_t`, `hour_t`, `kelvin_t`
+`day_t`, `minute_t`, `month_t`, `week_t`, `year_t`
+`kiloampere_t`, `kilocandela_t`, `kilogram_t`, `kilokelvin_t`, `kilometer_t`, `kilomole_t`
+`kilosecond_t`, `megaampere_t`, `megacandela_t`, `megakelvin_t`, `megameter_t`, `megamole_t`
+`megasecond_t`, `meter_t`, `metric_ton_t`, `microampere_t`, `microcandela_t`, `microgram_t`
+`microkelvin_t`, `micrometer_t`, `micromole_t`, `microsecond_t`, `milliampere_t`, `millicandela_t`
+`milligram_t`, `millikelvin_t`, `millimeter_t`, `millimole_t`, `millisecond_t`, `mole_t`
+`nanoampere_t`, `nanocandela_t`, `nanogram_t`, `nanokelvin_t`, `nanometer_t`, `nanomole_t`
+`nanosecond_t`, `petaampere_t`, `petacandela_t`, `petagram_t`, `petakelvin_t`, `petameter_t`
+`petamole_t`, `petasecond_t`, `picoampere_t`, `picocandela_t`, `picogram_t`, `picokelvin_t`
+`picometer_t`, `picomole_t`, `picosecond_t`, `radian_t`, `second_t`, `teraampere_t`, `teracandela_t`
+`teragram_t`, `terakelvin_t`, `terameter_t`, `teramole_t`, `terasecond_t`
 
-## Acknowledgments
+### SI Derived Units
 
-- Built on C++20 features and modern template metaprogramming
-- Inspired by existing units libraries (Boost.Units, PhysUnits)
-- Thanks to the C++ community for feedback and contributions
+`atmosphere_t`, `atomic_mass_unit_per_cubic_angstrom_t`, `bar_t`, `calorie_t`
+`centimeter_per_second_squared_t`, `centimeter_per_second_t`, `coulomb_t`, `cubic_centimeter_t`
+`cubic_kilometer_t`, `cubic_meter_t`, `cubic_millimeter_t`, `electronvolt_t`, `farad_t`
+`gigaelectronvolt_t`, `gigajoule_t`, `gigaohm_t`, `gigawatt_t`, `gram_per_cubic_centimeter_t`
+`gram_per_cubic_meter_t`, `gram_per_liter_t`, `gram_per_milliliter_t`, `hectopascal_t`, `henry_t`
+`josephson_t`, `joule_t`, `kilocalorie_t`, `kilocoulomb_t`, `kiloelectronvolt_t`
+`kilogram_per_cubic_meter_t`, `kilogram_per_liter_t`, `kilojoule_t`, `kilometer_per_hour_t`
+`kilometer_per_second_squared_t`, `kilometer_per_second_t`, `kilonewton_t`, `kiloohm_t`
+`specific_heat_capacity_t`, `thermal_conductivity_t`
+`kilopascal_t`, `kilotesla_t`, `kilovolt_t`, `kilowatt_hour_t`, `kilowatt_t`, `kiloweber_t`
+`liter_t`, `megaelectronvolt_t`, `megajoule_t`, `meganewton_t`, `megaohm_t`, `megapascal_t`
+`megatesla_t`, `megavolt_t`, `megawatt_t`, `meter_per_second_squared_t`, `meter_per_second_t`
+`microcoulomb_t`, `microfarad_t`, `microhenry_t`, `microjoule_t`, `micromolar_concentration_t`
+`micronewton_t`, `microohm_t`, `micropascal_t`, `microsiemens_t`, `microtesla_t`, `microvolt_t`
+`microwatt_t`, `microweber_t`, `millicoulomb_t`, `millifarad_t`, `milligram_per_cubic_centimeter_t`
+`milligram_per_milliliter_t`, `millihenry_t`, `millijoule_t`, `milliliter_t`
+`millimeter_per_second_squared_t`, `millimeter_per_second_t`, `millimolar_concentration_t`
+`millinewton_t`, `milliohm_t`, `milliosmole_per_liter_concentration_t`, `millipascal_t`
+`millisiemens_t`, `millitesla_t`, `millivolt_t`, `milliwatt_t`, `milliweber_t`
+`molar_concentration_t`, `mole_per_cubic_centimeter_concentration_t`
+`mole_per_cubic_meter_concentration_t`, `mole_per_liter_concentration_t`
+`mole_per_milliliter_concentration_t`, `nanocoulomb_t`, `nanofarad_t`, `nanohenry_t`, `nanojoule_t`
+`nanomolar_concentration_t`, `nanonewton_t`, `nanopascal_t`, `nanotesla_t`, `nanowatt_t`
+`nanoweber_t`, `newton_t`, `ohm_t`, `osmole_per_liter_concentration_t`, `pascal_t`, `picocoulomb_t`
+`picofarad_t`, `picomolar_concentration_t`, `siemens_t`, `square_centimeter_t`, `square_kilometer_t`
+`square_meter_t`, `square_millimeter_t`, `standard_gravity_t`, `tesla_t`, `ton_per_cubic_meter_t`
+`volt_t`, `watt_hour_t`, `watt_t`, `weber_t`
 
-## Appendix: Unit Types Reference
+### Temperature (Affine Units)
 
-The library provides over 150 unit types derived from `details::unit_t`, all following the `_t` postfix naming convention (e.g., `meter_t`, `joule_t`).
-
-### Base SI Units
-- **Length**: `meter_t`, `attometer_t`, `femtometer_t`, `picometer_t`, `nanometer_t`, `micrometer_t`, `millimeter_t`, `centimeter_t`, `decimeter_t`, `decameter_t`, `hectometer_t`, `kilometer_t`, `megameter_t`, `gigameter_t`, `terameter_t`, `petameter_t`, `exameter_t`
-- **Mass**: `kilogram_t`, `milligram_t`, `microgram_t`, `nanogram_t`, `picogram_t`, `femtogram_t`, `attogram_t`, `gram_t`, `metric_ton_t`, `tonne_t`
-- **Time**: `second_t`, `millisecond_t`, `microsecond_t`, `nanosecond_t`, `kilosecond_t`, `hour_t`, `minute_t`, `day_t`
-- **Electric Current**: `ampere_t`, `milliampere_t`, `microampere_t`, `nanoampere_t`, `kiloampere_t`
-- **Temperature**: `kelvin_t`, `millikelvin_t`, `microkelvin_t`, `nanokelvin_t`, `kilokelvin_t`, `celsius_t`, `fahrenheit_t`
-- **Amount of Substance**: `mole_t`, `millimole_t`, `micromole_t`, `nanomole_t`, `kilomole_t`
-- **Luminous Intensity**: `candela_t`, `millicandela_t`, `microcandela_t`, `nanocandela_t`, `kilocandela_t`
-
-### Derived SI Units
-- **Area**: `square_meter_t`, `square_kilometer_t`, `square_centimeter_t`, `square_millimeter_t`
-- **Volume**: `cubic_meter_t`, `cubic_kilometer_t`, `cubic_centimeter_t`, `cubic_millimeter_t`, `liter_t`, `milliliter_t`
-- **Velocity**: `meter_per_second_t`, `kilometer_per_hour_t`, `centimeter_per_second_t`, `millimeter_per_second_t`, `miles_per_hour_t`, `feet_per_second_t`, `knots_t`
-- **Acceleration**: `meter_per_second_squared_t`, `centimeter_per_second_squared_t`, `millimeter_per_second_squared_t`, `kilometer_per_second_squared_t`, `standard_gravity_t`
-- **Force**: `newton_t`, `kilonewton_t`, `meganewton_t`, `millinewton_t`, `micronewton_t`
-- **Energy/Power**: `joule_t`, `kilojoule_t`, `megajoule_t`, `millijoule_t`, `microjoule_t`, `watt_t`, `kilowatt_t`, `megawatt_t`, `milliwatt_t`, `microwatt_t`, `horsepower_t`
-- **Pressure**: `pascal_t`, `kilopascal_t`, `hectopascal_t`, `megapascal_t`, `bar_t`, `atmosphere_t`, `psi_t`
-- **Electrical**: `coulomb_t`, `kilocoulomb_t`, `millicoulomb_t`, `microcoulomb_t`, `nanocoulomb_t`, `picocoulomb_t`, `volt_t`, `kilovolt_t`, `megavolt_t`, `millivolt_t`, `microvolt_t`, `ohm_t`, `kilohm_t`, `megohm_t`, `gigohm_t`, `milliohm_t`, `microohm_t`, `farad_t`, `millifarad_t`, `microfarad_t`, `nanofarad_t`, `henry_t`, `millihenry_t`, `microhenry_t`, `nanohenry_t`
-- **Magnetic**: `tesla_t`, `millitesla_t`, `microtesla_t`, `nanotesla_t`, `gauss_t`, `weber_t`, `milliweber_t`, `microweber_t`, `nanoweber_t`
-- **Concentration**: `mole_per_cubic_meter_t`, `mole_per_liter_t`, `molar_t`, `millimolar_t`, `micromolar_t`, `nanomolar_t`, `picomolar_t`, `osmole_per_liter_t`, `milliosmole_per_liter_t`
-- **Other Derived**: `becquerel_t`, `gray_t`, `sievert_t`, `katal_t`, `lumen_t`, `lux_t`, `hertz_t`, `radian_t`, `steradian_t`, `degree_t`, `gradian_t`
+`celsius_t`, `fahrenheit_t`
 
 ### Imperial Units
-- **Length**: `inch_t`, `mil_t`, `foot_t`, `yard_t`, `fathom_t`, `rod_t`, `chain_t`, `furlong_t`, `mile_t`, `nautical_mile_t`
-- **Mass**: `pound_t`, `ounce_t`, `stone_t`, `ton_t`
-- **Force**: `pound_force_t`, `kip_t`
-- **Velocity**: `miles_per_hour_t`, `feet_per_second_t`, `knots_t`
+
+`chain_t`, `dram_t`, `fathom_t`, `feet_per_second_squared_t`, `feet_per_second_t`, `foot_t`
+`furlong_t`, `grain_t`, `horsepower_t`, `hundredweight_t`, `inch_t`, `inches_per_second_t`
+`knots_t`, `long_ton_t`, `mil_t`, `mile_t`, `miles_per_hour_t`, `nautical_mile_t`
+`ounce_per_cubic_inch_t`, `ounce_per_fluid_ounce_t`, `ounce_t`, `pound_force_t`
+`pound_per_cubic_foot_t`, `pound_per_cubic_inch_t`, `pound_per_gallon_t`, `pound_t`, `poundal_t`
+`psi_t`, `rod_t`, `stone_t`, `us_ton_t`, `yard_t`
 
 ### Astronomical Units
-- `micron_t`, `angstrom_t`, `au_t`, `light_year_t`, `parsec_t`
 
-### Special/Other
-- `josephson_t`
+`angstrom_t`, `au_t`, `dms_angle_t`, `dms_arcminute_t`, `dms_arcsecond_t`, `dms_degree_t`, `hms_angle_t`,
+`hms_archour_t`, `hms_arcminute_t`, `hms_arcsecond_t`, `light_year_t`, `micron_t`, `parsec_t`
 
-For the complete list, search the codebase with `grep ": public details::unit_t"` in the `sdk/include/pkr_units/` directory.</content>
-<parameter name="filePath">c:\Data\projects\si_units\README.md
+### Other Units
+
+`gauss_t`
+
+## Build and Tests
+
+This is a header-only library. Tests use GTest and live under `tests/`.
+For local builds, use `build/build.py` from the repository root. But read the buildnotes.md first

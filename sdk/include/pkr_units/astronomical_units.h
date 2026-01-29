@@ -27,6 +27,7 @@
 // Astronomical Units
 // ============================================================================
 
+#include <pkr_units/units/astronomical/angle.h>  // HMS/DMS angle units + formatting types
 #include <pkr_units/units/astronomical/length.h> // angstrom, au, light_year, parsec, etc.
 
 // ============================================================================
