@@ -62,6 +62,7 @@ set(TEST_SOURCES
   energy/test_energy_cast.cpp
   thermal/test_specific_heat_capacity.cpp
   thermal/test_thermal_conductivity.cpp
+  viscosity/test_viscosity.cpp
 
   concentration/test_concentration.cpp
   concentration/test_concentration_operators.cpp
@@ -77,6 +78,7 @@ set(TEST_SOURCES
   electrical/test_si_resistance_formatting.cpp
   electrical/test_si_electrical_formatting.cpp
   magnetic/test_magnetic_flux_density.cpp
+  cgs/test_cgs_units.cpp
 
   # Multi-unit cast tests
   multi_cast/test_multi_unit_cast.cpp

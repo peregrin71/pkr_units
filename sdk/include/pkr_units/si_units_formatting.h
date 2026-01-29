@@ -5,6 +5,6 @@
 // ============================================================================
 // Convenience header to include all SI unit formatting specializations
 
-#include <pkr_units/si_formatting.h>
+#include <pkr_units/impl/formatting/unit_formatter.h>
 
-// Future: Add formatting for other unit types (derived, imperial, etc.)
+// SI formatting relies on unit symbols defined on each unit type.

@@ -2,9 +2,8 @@
 #include <format>
 #include <type_traits>
 #include <pkr_units/impl/cast/unit_cast.h>
-#include <pkr_units/impl/formatting/unit_formatter.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
-#include <pkr_units/units/magnetic/gauss.h>
+#include <pkr_units/cgs_units_formatting.h>
 
 using namespace ::testing;
 

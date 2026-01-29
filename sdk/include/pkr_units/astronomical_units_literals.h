@@ -1,8 +1,6 @@
 #pragma once
 
 // ============================================================================
-// SI Units Formatting (deprecated entry point)
+// Astronomical Unit Literal Operators
 // ============================================================================
-// Use <pkr_units/si_units_formatting.h> instead.
-
-#include <pkr_units/si_units_formatting.h>
+// No astronomical literals are defined yet.

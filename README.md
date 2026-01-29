@@ -53,9 +53,9 @@ Concise design approach based on the implementation:
 
 High-level overview of what is present in this repository:
 
-- **SI units**: base units plus commonly used derived units (velocity, acceleration, force, pressure, energy, power, density, concentration, electrical, magnetic flux).
+- **SI units**: base units plus commonly used derived units (velocity, acceleration, force, pressure, energy, power, density, concentration, electrical, magnetic flux, viscosity).
 - **Additional derived groups**: area and volume are provided in dedicated headers.
-- **Imperial and astronomical units**: separate headers for non-SI and astronomical length units.
+- **Imperial, CGS, and astronomical units**: separate headers for non-SI, CGS, and astronomical units.
 - **Conversions**: `unit_cast` for same-dimension conversions, with affine support for temperature.
 - **Measurements with uncertainty**: `measurement_t` and optional uncertainty math strategies.
 - **Numerical helpers**: stable arithmetic, Newton-Raphson, and Runge-Kutta.
@@ -68,10 +68,17 @@ Common headers:
 
 - `sdk/include/pkr_units/si_units.h` - SI base units plus several derived groups, unit_cast, measurement_t
 - `sdk/include/pkr_units/imperial_units.h` - imperial and other non-SI units
+- `sdk/include/pkr_units/cgs_units.h` - CGS units (gauss, dyne, erg, barye, gal, maxwell, poise, stokes, statcoulomb, oersted)
 - `sdk/include/pkr_units/astronomical_units.h` - astronomical length units
+- `sdk/include/pkr_units/chrono.h` - std::chrono conversion overloads for time units
 - `sdk/include/pkr_units/numerical.h` - stable operations, Newton-Raphson, Runge-Kutta
 - `sdk/include/pkr_units/constants.h` - physical constants (typed and raw values)
 - `sdk/include/pkr_units/si_units_formatting.h` - std::format support for units
+- `sdk/include/pkr_units/cgs_units_formatting.h` - std::format support for CGS units
+- `sdk/include/pkr_units/si_units_literals.h` - SI literal operators
+- `sdk/include/pkr_units/imperial_units_literals.h` - imperial literal operators
+- `sdk/include/pkr_units/cgs_units_literals.h` - CGS literal operators (none yet)
+- `sdk/include/pkr_units/astronomical_units_literals.h` - astronomical literal operators (none yet)
 
 Some unit groups live in narrower headers, for example:
 
@@ -279,7 +286,12 @@ meter_per_second_squared_t accel = (speed / time).to_si();
 
 ## Formatting and I-O
 
-Unit formatting uses `std::format` via `si_units_formatting.h`.
+Unit formatting uses `std::format` via per-system formatting headers:
+
+- `sdk/include/pkr_units/si_units_formatting.h`
+- `sdk/include/pkr_units/imperial_units_formatting.h`
+- `sdk/include/pkr_units/cgs_units_formatting.h`
+- `sdk/include/pkr_units/astronomical_units_formatting.h`
 `measurement_t` provides `operator<<` and a `std::formatter` specialization.
 
 ```cpp
@@ -318,13 +330,12 @@ auto c = pkr::units::speed_of_light; // meter_per_second_t
 
 ## User-defined Literals
 
-Literal operators exist in specific headers under `sdk/include/pkr_units/impl/literals/`.
-They are **not** pulled in by default.
+Literal operators are provided via per-system headers and are **not** pulled in by default.
 
 Example:
 
 ```cpp
-#include <pkr_units/impl/literals/length_literals.h>
+#include <pkr_units/si_units_literals.h>
 
 using namespace pkr::units::literals;
 
@@ -471,9 +482,9 @@ The following unit types are defined in the headers under `sdk/include/pkr_units
 `mole_per_cubic_meter_concentration_t`, `mole_per_liter_concentration_t`
 `mole_per_milliliter_concentration_t`, `nanocoulomb_t`, `nanofarad_t`, `nanohenry_t`, `nanojoule_t`
 `nanomolar_concentration_t`, `nanonewton_t`, `nanopascal_t`, `nanotesla_t`, `nanowatt_t`
-`nanoweber_t`, `newton_t`, `ohm_t`, `osmole_per_liter_concentration_t`, `pascal_t`, `picocoulomb_t`
+`nanoweber_t`, `newton_t`, `ohm_t`, `osmole_per_liter_concentration_t`, `pascal_t`, `pascal_second_t`, `picocoulomb_t`
 `picofarad_t`, `picomolar_concentration_t`, `siemens_t`, `square_centimeter_t`, `square_kilometer_t`
-`square_meter_t`, `square_millimeter_t`, `standard_gravity_t`, `tesla_t`, `ton_per_cubic_meter_t`
+`square_meter_t`, `square_meter_per_second_t`, `square_millimeter_t`, `standard_gravity_t`, `tesla_t`, `ton_per_cubic_meter_t`
 `volt_t`, `watt_hour_t`, `watt_t`, `weber_t`
 
 ### Temperature (Affine Units)
@@ -494,9 +505,9 @@ The following unit types are defined in the headers under `sdk/include/pkr_units
 `angstrom_t`, `au_t`, `dms_angle_t`, `dms_arcminute_t`, `dms_arcsecond_t`, `dms_degree_t`, `hms_angle_t`,
 `hms_archour_t`, `hms_arcminute_t`, `hms_arcsecond_t`, `light_year_t`, `micron_t`, `parsec_t`
 
-### Other Units
+### CGS Units
 
-`gauss_t`
+`barye_t`, `dyne_t`, `erg_t`, `gal_t`, `gauss_t`, `maxwell_t`, `oersted_t`, `poise_t`, `stokes_t`, `statcoulomb_t`
 
 ## Build and Tests
 

@@ -142,6 +142,10 @@
 - [ ] Specific Heat Capacity (energy/(mass × temperature))
 - [ ] Thermal Conductivity
 
+### Viscosity
+- [x] Dynamic viscosity (Pa*s)
+- [x] Kinematic viscosity (m^2/s)
+
 ### Chemical
 - [x] Concentration (molar) - mol/m³
 - [x] Concentration (mass) - kg/m³
@@ -177,6 +181,19 @@
 ---
 
 ## 5. Extended Unit Systems
+
+### CGS Units
+- [x] Gauss (magnetic flux density)
+- [x] Dyne (force)
+- [x] Erg (energy)
+- [x] Barye (pressure)
+- [x] Gal (acceleration)
+- [x] Maxwell (magnetic flux)
+- [x] Poise (dynamic viscosity)
+- [x] Stokes (kinematic viscosity)
+- [x] Statcoulomb (charge)
+- [x] Oersted (magnetic field strength)
+- [ ] Add more CGS units (abvolt, abampere, abohm, etc.)
 
 ### Imperial Units
 - [x] inch_t, foot_t, yard_t, mile_t
@@ -330,7 +347,7 @@
 ### Design Decisions to Revisit
 - [x] Comparison operators are supported
 - [x] Offset-based temperature conversions handled via affine traits
-- [ ] Should implicit conversions be allowed, or always explicit?
+- [ ] Should implicit conversions be allowed, or always explicit^2
 
 ### Low Priority: String Parsing (Future Enhancement)
 - [ ] Parse strings like "5.0 meters"
@@ -358,7 +375,7 @@
 5. Physical constants
 
 ### Low Priority (Enhancement)
-1. CGS unit system
+1. Expand CGS unit system
 2. Astronomical units
 3. Python bindings
 4. Extended documentation and examples

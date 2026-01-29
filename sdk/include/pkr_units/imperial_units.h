@@ -36,7 +36,6 @@
 #include <pkr_units/units/imperial/mechanical/pressure.h> // psi_t, etc.
 #include <pkr_units/units/imperial/mechanical/power.h>    // horsepower_t, etc.
 #include <pkr_units/units/imperial/density.h>             // pound_per_cubic_inch_t, etc.
-#include <pkr_units/units/imperial/formatting.h>          // imperial unit formatting
 
 // ============================================================================
 // Unit Operators and Casting
@@ -49,5 +48,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-
-#include <pkr_units/impl/literals/literals.h>
+// Use <pkr_units/imperial_units_literals.h> for user-defined literals.
