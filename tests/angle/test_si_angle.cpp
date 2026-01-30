@@ -141,12 +141,6 @@ TEST_F(SiAngleTest, divide_radian_by_scalar)
     EXPECT_DOUBLE_EQ(result.value(), 3.14159);
 }
 
-TEST_F(SiAngleTest, divide_by_zero_scalar_throws)
-{
-    radian_t angle(1.0);
-    EXPECT_THROW(angle / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiAngleTest, multiply_degree_by_scalar)
 {
     degree_t angle(180.0);

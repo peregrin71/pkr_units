@@ -4,7 +4,7 @@
 #include <pkr_units/si_units.h>
 #include <pkr_units/astronomical_units.h>
 #include <pkr_units/measurements/measurement.h>
-#include <pkr_units/math/measurement_math_rss.h>
+#include <pkr_units/math/measurements/measurement_math_rss.h>
 #include <pkr_units/math/unit/unit_math_4d.h>
 #include <pkr_units/math/measurements/measurement_math_4d.h>
 

@@ -88,7 +88,7 @@ set(TEST_SOURCES
   math/test_math_functions.cpp
   
   # Numerical tests
-  # numerical/test_three_body_problem.cpp  # Temporarily disabled due to compilation issues
+  numerical/test_three_body_problem.cpp
   
   # Measurement tests
   measurements/test_measurement_linear.cpp

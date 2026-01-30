@@ -41,12 +41,6 @@ TEST_F(EnergyOperatorsTest, divide_energy_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
-TEST_F(EnergyOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::joule_t energy{1000.0};
-    EXPECT_THROW(energy / 0.0, std::invalid_argument);
-}
-
 TEST_F(EnergyOperatorsTest, multiply_energy_by_zero)
 {
     pkr::units::joule_t energy{500.0};

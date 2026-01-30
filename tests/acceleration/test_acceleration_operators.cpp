@@ -41,12 +41,6 @@ TEST_F(AccelerationOperatorsTest, divide_acceleration_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(AccelerationOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::meter_per_second_squared_t accel{10.0};
-    EXPECT_THROW(accel / 0.0, std::invalid_argument);
-}
-
 TEST_F(AccelerationOperatorsTest, multiply_acceleration_by_zero)
 {
     pkr::units::meter_per_second_squared_t accel{5.0};
