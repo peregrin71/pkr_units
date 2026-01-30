@@ -197,12 +197,6 @@ TEST_F(SiMassTest, divide_kilogram_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiMassTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kilogram_t kg{5.0};
-    ASSERT_THROW(kg / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiMassTest, multiply_gram_by_scalar)
 {
     pkr::units::gram_t g{100.0};

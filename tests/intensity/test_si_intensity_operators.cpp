@@ -87,19 +87,6 @@ TEST_F(SiIntensityOperatorsTest, divide_candela_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiIntensityOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::candela_t cd{10.0};
-    ASSERT_THROW(cd / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiIntensityOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::candela_t cd1{10.0};
-    pkr::units::candela_t cd2{0.0};
-    ASSERT_THROW(cd1 / cd2, std::invalid_argument);
-}
-
 TEST_F(SiIntensityOperatorsTest, multiply_candela_by_zero)
 {
     pkr::units::candela_t cd{5.0};

@@ -2,6 +2,7 @@
 
 #include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/base/temperature.h>
 #include <pkr_units/units/temperature/celsius.h>
 #include <pkr_units/units/temperature/fahrenheit.h>
@@ -66,7 +67,7 @@ struct is_temperature_pkr_unit : std::false_type
 };
 
 template <typename T>
-struct is_temperature_pkr_unit<T, std::enable_if_t<details::pkr_unit_concept<T>>>
+struct is_temperature_pkr_unit<T, std::enable_if_t<is_pkr_unit_c<T>>>
     : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
 {
 };

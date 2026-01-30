@@ -13,9 +13,9 @@
 #define PKR_UNITS_DETAIL_STRATEGY_VALUE_linear 2
 
 #if PKR_UNITS_DETAIL_STRATEGY_VALUE(PKR_UNITS_MEASUREMENT_UNCERTAINTY_STRATEGY) == 1
-#include <pkr_units/measurements/measurement_math_rss.h>
+#include <pkr_units/math/measurements/measurement_math_rss.h>
 #elif PKR_UNITS_DETAIL_STRATEGY_VALUE(PKR_UNITS_MEASUREMENT_UNCERTAINTY_STRATEGY) == 2
-#include <pkr_units/measurements/measurement_math_linear.h>
+#include <pkr_units/math/measurements/measurement_math_linear.h>
 #else
 #error "Unknown PKR_UNITS_MEASUREMENT_UNCERTAINTY_STRATEGY. Use 'rss' or 'linear'."
 #endif

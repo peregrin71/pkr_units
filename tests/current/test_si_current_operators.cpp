@@ -89,19 +89,6 @@ TEST_F(SiCurrentOperatorsTest, divide_ampere_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiCurrentOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::ampere_t a{10.0};
-    ASSERT_THROW(a / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiCurrentOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::ampere_t a1{10.0};
-    pkr::units::ampere_t a2{0.0};
-    ASSERT_THROW(a1 / a2, std::invalid_argument);
-}
-
 TEST_F(SiCurrentOperatorsTest, multiply_ampere_by_zero)
 {
     pkr::units::ampere_t a{5.0};

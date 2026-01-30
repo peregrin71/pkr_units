@@ -87,18 +87,6 @@ TEST_F(SiMassOperatorsTest, divide_kilogram_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiMassOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kilogram_t kg{10.0};
-    ASSERT_THROW(kg / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiMassOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::kilogram_t kg1{10.0};
-    pkr::units::kilogram_t kg2{0.0};
-    ASSERT_THROW(kg1 / kg2, std::invalid_argument);
-}
 
 TEST_F(SiMassOperatorsTest, multiply_kilogram_by_zero)
 {

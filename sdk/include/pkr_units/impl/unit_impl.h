@@ -19,7 +19,7 @@ namespace PKR_UNITS_NAMESPACE
 // All dimensions must match between operands
 template <typename T1, typename T2>
 concept same_dimensions_c =
-    details::pkr_unit_concept<T1> && details::pkr_unit_concept<T2> && details::is_pkr_unit<T1>::value_dimension.length ==
+    is_pkr_unit_c<T1> && is_pkr_unit_c<T2> && details::is_pkr_unit<T1>::value_dimension.length ==
     details::is_pkr_unit<T2>::value_dimension.length&& details::is_pkr_unit<T1>::value_dimension.mass ==
     details::is_pkr_unit<T2>::value_dimension.mass&& details::is_pkr_unit<T1>::value_dimension.time ==
     details::is_pkr_unit<T2>::value_dimension.time&& details::is_pkr_unit<T1>::value_dimension.current ==
@@ -29,14 +29,12 @@ concept same_dimensions_c =
     details::is_pkr_unit<T2>::value_dimension.intensity&& details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle;
 
 // Addition operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using result_ratio = typename details::is_pkr_unit<T1>::ratio_type;
     using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
     using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
 
@@ -46,38 +44,34 @@ constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
     }
     else
     {
-        value_type canonical_sum = details::add_canonical<value_type, ratio1, ratio2>(lhs.value(), rhs.value());
-        value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_sum);
-        return T1{converted};
+        // Convert rhs to lhs ratio and add
+        value_type converted_rhs = details::convert_ratio_to<value_type, ratio2, ratio1>(rhs.value());
+        return T1{lhs.value() + converted_rhs};
     }
 }
 
 // Named add function
-template <details::pkr_unit_concept ResultType, details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c ResultType, is_pkr_unit_c T1, is_pkr_unit_c T2>
 
 requires(same_dimensions_c<T1, T2>&& same_dimensions_c<T1, ResultType>) constexpr auto add(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<ResultType>::value_type;
     using result_ratio = typename details::is_pkr_unit<ResultType>::ratio_type;
-    constexpr auto dim = details::is_pkr_unit<ResultType>::value_dimension;
 
-    value_type canonical_sum = details::add_canonical<value_type, typename details::is_pkr_unit<T1>::ratio_type, typename details::is_pkr_unit<T2>::ratio_type>(
-        lhs.value(), rhs.value());
+    // Convert both operands to result ratio and add
+    value_type converted_lhs = details::convert_ratio_to<value_type, typename details::is_pkr_unit<T1>::ratio_type, result_ratio>(lhs.value());
+    value_type converted_rhs = details::convert_ratio_to<value_type, typename details::is_pkr_unit<T2>::ratio_type, result_ratio>(rhs.value());
 
-    value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_sum);
-
-    return details::unit_t<value_type, result_ratio, dim>{converted};
+    return ResultType{converted_lhs + converted_rhs};
 }
 
 // Subtraction operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using result_ratio = typename details::is_pkr_unit<T1>::ratio_type;
     using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
     using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
 
@@ -87,14 +81,14 @@ constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
     }
     else
     {
-        value_type canonical_diff = details::subtract_canonical<value_type, ratio1, ratio2>(lhs.value(), rhs.value());
-        value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_diff);
-        return T1{converted};
+        // Convert rhs to lhs ratio and subtract
+        value_type converted_rhs = details::convert_ratio_to<value_type, ratio2, ratio1>(rhs.value());
+        return T1{lhs.value() - converted_rhs};
     }
 }
 
 // Multiplication operators
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
@@ -123,8 +117,8 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
 }
 
 // Division operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-constexpr auto operator/(const T1& lhs, const T2& rhs)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+constexpr auto operator/(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
     using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
@@ -154,7 +148,7 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
 // Free function scalar multiplication (scalar * unit) - returns the most derived type
 template <typename ScalarType, typename T>
 
-requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
+requires(is_pkr_unit_c<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
@@ -167,7 +161,7 @@ requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) conste
 // Free function scalar division (scalar / unit) - returns the most derived type of 1/unit
 template <typename ScalarType, typename T>
 
-requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator/(const ScalarType& scalar, const T& unit)
+requires(is_pkr_unit_c<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator/(const ScalarType& scalar, const T& unit)
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
@@ -192,7 +186,7 @@ requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) conste
 }
 
 // Comparison operators
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
@@ -216,7 +210,7 @@ constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
@@ -224,7 +218,7 @@ constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
     return !(lhs == rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
@@ -238,7 +232,7 @@ constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
     return to_canonical(lhs) < to_canonical(rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
@@ -246,7 +240,7 @@ constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
     return lhs < rhs || lhs == rhs;
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
@@ -254,7 +248,7 @@ constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
     return !(lhs <= rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
@@ -262,7 +256,7 @@ constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
     return !(lhs < rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires same_dimensions_c<T1, T2>
 
 constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept

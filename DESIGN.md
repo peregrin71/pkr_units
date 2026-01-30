@@ -309,7 +309,7 @@ meter(500) + kilometer(1)
 **Decision**: Addition and subtraction only work when **dimensions exactly match**:
 
 ```cpp
-template<pkr_unit_concept T1, pkr_unit_concept T2>
+template<is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 ```
@@ -321,7 +321,7 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 
 ### 3.3 Free-Function Operators
 
-**Decision**: Implement `operator+`, `operator-`, `operator*`, and `operator/` as free functions (not class methods) that work with any `pkr_unit_concept`.
+**Decision**: Implement `operator+`, `operator-`, `operator*`, and `operator/` as free functions (not class methods) that work with any `is_pkr_unit_c`.
 
 **Benefits**:
 - Works seamlessly with strong types (derived from `unit_t`) via the `is_pkr_unit` trait
@@ -330,7 +330,7 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 
 **Implementation**:
 ```cpp
-template<pkr_unit_concept T1, pkr_unit_concept T2>
+template<is_pkr_unit_c T1, is_pkr_unit_c T2>
 requires (is_pkr_unit<T1>::value_dimension == is_pkr_unit<T2>::value_dimension)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept { /* ... */ }
 ```
@@ -510,13 +510,13 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
 - Works transparently with both `unit_t<...>` and derived strong types
 - `_base` pattern enables compile-time introspection
 
-### 4.2 pkr_unit_concept
+### 4.2 is_pkr_unit_c
 
 **Decision**: Use a concept to constrain templates to only accept PKR unit types:
 
 ```cpp
 template<typename T>
-concept pkr_unit_concept = is_pkr_unit<T>::value;
+concept is_pkr_unit_c = is_pkr_unit<T>::value;
 ```
 
 **Rationale**:

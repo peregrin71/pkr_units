@@ -157,7 +157,7 @@ struct apply_numerators<Ratio, Dim>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename... Rest>
-requires(details::pkr_unit_concept<Unit>)
+requires(is_pkr_unit_c<Unit>)
 struct apply_numerators<Ratio, Dim, Unit, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -179,7 +179,7 @@ struct apply_denominators<Ratio, Dim>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit>
-requires(details::pkr_unit_concept<Unit>)
+requires(is_pkr_unit_c<Unit>)
 struct apply_denominators<Ratio, Dim, Unit>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -192,7 +192,7 @@ struct apply_denominators<Ratio, Dim, Unit>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename PowerConst, typename... Rest>
-requires(details::pkr_unit_concept<Unit> && is_integral_constant_v<PowerConst>)
+requires(is_pkr_unit_c<Unit> && is_integral_constant_v<PowerConst>)
 struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -207,7 +207,7 @@ struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename Unit2, typename... Rest>
-requires(details::pkr_unit_concept<Unit> && details::pkr_unit_concept<Unit2>)
+requires(is_pkr_unit_c<Unit> && is_pkr_unit_c<Unit2>)
 struct apply_denominators<Ratio, Dim, Unit, Unit2, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -272,15 +272,15 @@ constexpr bool is_per_v = is_per<T>::value;
 // ========================================================================
 
 template <typename NumUnit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_single = details::pkr_unit_concept<NumUnit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
 concept valid_multi_unit_cast_dual =
-    details::pkr_unit_concept<Num1Unit> && details::pkr_unit_concept<Num2Unit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_triple = details::pkr_unit_concept<Num1Unit> && details::pkr_unit_concept<Num2Unit> &&
-    details::pkr_unit_concept<Num3Unit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+concept valid_multi_unit_cast_triple = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> &&
+    is_pkr_unit_c<Num3Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 // Helper struct for single numerator with per denominator
 template <typename num_t, typename per_wrapper>

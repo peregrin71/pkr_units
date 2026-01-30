@@ -71,7 +71,7 @@ Common headers:
 - `sdk/include/pkr_units/cgs_units.h` - CGS units (gauss, dyne, erg, barye, gal, maxwell, poise, stokes, statcoulomb, oersted)
 - `sdk/include/pkr_units/astronomical_units.h` - astronomical length units
 - `sdk/include/pkr_units/chrono.h` - std::chrono conversion overloads for time units
-- `sdk/include/pkr_units/numerical.h` - stable operations, Newton-Raphson, Runge-Kutta
+- `sdk/include/pkr_units/math/unit_math.h` - stable operations, Newton-Raphson, Runge-Kutta, math functions
 - `sdk/include/pkr_units/constants.h` - physical constants (typed and raw values)
 - `sdk/include/pkr_units/si_units_formatting.h` - std::format support for units
 - `sdk/include/pkr_units/cgs_units_formatting.h` - std::format support for CGS units
@@ -252,35 +252,47 @@ and is also available via `measurement_math_linear.h`.
 
 ## Numerical Helpers
 
-`sdk/include/pkr_units/numerical.h` provides:
+`sdk/include/pkr_units/math/unit_math.h` provides numerical utilities for unit-aware calculations:
 
-- `stable_add`, `stable_subtract`
-- `stable_multiply`, `stable_divide`
-- `newton_raphson`, `runge_kutta_step`
+### Regular Operators vs Stable Functions
 
-For long calculation chains, prefer the `stable_*` functions. When ratios differ,
-`stable_add`/`stable_subtract` return a canonical `unit_t` (ratio 1/1) so subsequent
-operations stay in a single ratio and avoid repeated conversions. At the end you
-can call `in_base_si_units()` for the canonical unit or `unit_cast`/`to_si` to
-select a named unit type.
+**Regular operators (+, -, *, /)** perform ratio conversions during each operation:
+- Convert operands to compatible ratios as needed
+- Return results in the type of the left-hand operand
+- Suitable for general arithmetic where type conversion is expected
+
+**Stable functions** maintain working ratios to avoid accumulating rounding errors:
+- `stable_add`, `stable_subtract` convert the right operand to match the left operand's ratio
+- `stable_multiply`, `stable_divide` combine ratios naturally
+- Return results maintaining the ratio of the left operand
+- Preferred for iterative algorithms (Newton-Raphson, Runge-Kutta) where precision matters
+
+### Available Functions
+
+- **Stable arithmetic**: `stable_add`, `stable_subtract`, `stable_multiply`, `stable_divide`
+- **Numerical methods**: `newton_raphson`, `runge_kutta_step`
+- **Math functions**: `exp`, `log`, `sqrt` (with dimensional constraints)
+
+For long calculation chains in numerical algorithms, use `stable_*` functions to maintain precision. Regular operators are fine for general use. At the end of calculations, use `to_si()`, `in_base_si_units()`, or `unit_cast` to convert to canonical or specific unit forms.
 
 Example:
 
 ```cpp
 #include <pkr_units/si_units.h>
-#include <pkr_units/numerical.h>
+#include <pkr_units/math/unit_math.h>
 
 using namespace pkr::units;
+using namespace pkr::math;
 
 kilogram_t mass{1200.0};
 newton_t target_force{3600.0};
 second_t time{3.0};
 
 // Solve for speed v such that F = m * (v / t)
-auto f = [=](meter_per_second_t v) { return mass * (v / time) - target_force; };
+auto f = [=](meter_per_second_t v) { return stable_multiply(mass, v / time) - target_force; };
 auto df = [=](meter_per_second_t) { return mass / time; };
 
-auto speed = pkr::numerical::newton_raphson(meter_per_second_t{1.0}, f, df);
+auto speed = newton_raphson(meter_per_second_t{1.0}, f, df);
 meter_per_second_squared_t accel = (speed / time).to_si();
 ```
 

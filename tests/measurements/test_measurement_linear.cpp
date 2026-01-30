@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/measurements/measurement.h>
-#include <pkr_units/measurements/measurement_math_linear.h>
+#include <pkr_units/math/measurements/measurement_math_linear.h>
 #include <pkr_units/si_units.h>
 
 // Define test types

@@ -191,12 +191,6 @@ TEST_F(SiIntensityTest, divide_candela_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiIntensityTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::candela_t cd{5.0};
-    ASSERT_THROW(cd / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiIntensityTest, multiply_millicandela_by_scalar)
 {
     pkr::units::millicandela_t mcd{100.0};

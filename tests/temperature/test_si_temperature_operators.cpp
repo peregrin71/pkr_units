@@ -87,18 +87,6 @@ TEST_F(SiTemperatureOperatorsTest, divide_kelvin_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiTemperatureOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kelvin_t k{10.0};
-    ASSERT_THROW(k / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiTemperatureOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::kelvin_t k1{10.0};
-    pkr::units::kelvin_t k2{0.0};
-    ASSERT_THROW(k1 / k2, std::invalid_argument);
-}
 
 TEST_F(SiTemperatureOperatorsTest, multiply_kelvin_by_zero)
 {

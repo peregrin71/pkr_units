@@ -87,19 +87,6 @@ TEST_F(SiAmountOperatorsTest, divide_mole_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiAmountOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::mole_t mol{10.0};
-    ASSERT_THROW(mol / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiAmountOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::mole_t mol1{10.0};
-    pkr::units::mole_t mol2{0.0};
-    ASSERT_THROW(mol1 / mol2, std::invalid_argument);
-}
-
 TEST_F(SiAmountOperatorsTest, multiply_mole_by_zero)
 {
     pkr::units::mole_t mol{5.0};

@@ -103,19 +103,6 @@ TEST_F(SiLengthOperatorsTest, divide_meter_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiLengthOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::meter_t m{10.0};
-    ASSERT_THROW(m / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiLengthOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::meter_t m1{10.0};
-    pkr::units::meter_t m2{0.0};
-    ASSERT_THROW(m1 / m2, std::invalid_argument);
-}
-
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_zero)
 {
     pkr::units::meter_t m{5.0};

@@ -191,12 +191,6 @@ TEST_F(SiCurrentTest, divide_ampere_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiCurrentTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::ampere_t a{5.0};
-    ASSERT_THROW(a / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiCurrentTest, multiply_milliampere_by_scalar)
 {
     pkr::units::milliampere_t ma{100.0};

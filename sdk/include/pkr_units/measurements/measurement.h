@@ -8,7 +8,7 @@
 #include <format>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
-#include <pkr_units/units/unit_math.h>
+#include <pkr_units/math/unit/unit_math.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -19,8 +19,15 @@ namespace PKR_UNITS_NAMESPACE
 // This class wraps unit_t types and provides automatic uncertainty propagation
 // through arithmetic operations using dimensional analysis.
 
+struct is_measurement_t_tag
+{
+};
+
+template<typename T>
+concept is_measurement_c = std::is_base_of_v<is_measurement_t_tag, T>;
+
 template <typename UnitT>
-class measurement_t
+class measurement_t : public is_measurement_t_tag
 {
 private:
     UnitT m_value;       // The measured value with units

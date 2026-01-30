@@ -87,19 +87,6 @@ TEST_F(SiTimeOperatorsTest, divide_second_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-TEST_F(SiTimeOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::second_t s{10.0};
-    ASSERT_THROW(s / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiTimeOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::second_t s1{10.0};
-    pkr::units::second_t s2{0.0};
-    ASSERT_THROW(s1 / s2, std::invalid_argument);
-}
-
 TEST_F(SiTimeOperatorsTest, multiply_second_by_zero)
 {
     pkr::units::second_t s{5.0};

@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace std
@@ -42,7 +43,7 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<type_t, ratio_t, dim_v>, C
 
 // Specialization for derived unit types
 template <typename T, typename CharT>
-requires PKR_UNITS_NAMESPACE::details::pkr_unit_concept<T> && std::is_base_of_v<typename T::_base, T>
+requires PKR_UNITS_NAMESPACE::is_pkr_unit_c<T> && std::is_base_of_v<typename T::_base, T>
 
 struct formatter<T, CharT>
 {
