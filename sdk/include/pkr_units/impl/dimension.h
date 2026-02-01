@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_formatting_traits.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -60,61 +61,31 @@ inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = 
 template <>
 inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad"};
 
-// Helper to get superscript exponent string
+// Helper to get superscript exponent string using lookup tables
 template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
-    if (exp == 0) return std::basic_string<CharT>{};
+    if (exp == 0)
+        return std::basic_string<CharT>{};
+
     bool negative = exp < 0;
     int abs_exp = negative ? -exp : exp;
     std::basic_string<CharT> s;
-    if (negative) {
-        if constexpr (std::is_same_v<CharT, char>) s += "⁻";
-        else if constexpr (std::is_same_v<CharT, char8_t>) s += u8"⁻";
-        else if constexpr (std::is_same_v<CharT, wchar_t>) s += L"⁻";
-        else s += "-";
-    } else {
-        s += "^";
-    }
+
+    // Add sign using dispatch traits
+    if (negative)
+        s += impl::char_traits_dispatch<CharT>::superscript_minus();
+    else
+        s += impl::char_traits_dispatch<CharT>::superscript_caret();
+
+    // Convert digits using lookup table (no branching)
     std::string digit_str = std::to_string(abs_exp);
-    for (char c : digit_str) {
-        if constexpr (std::is_same_v<CharT, char>) {
-            if (c == '0') s += "⁰";
-            else if (c == '1') s += "¹";
-            else if (c == '2') s += "²";
-            else if (c == '3') s += "³";
-            else if (c == '4') s += "⁴";
-            else if (c == '5') s += "⁵";
-            else if (c == '6') s += "⁶";
-            else if (c == '7') s += "⁷";
-            else if (c == '8') s += "⁸";
-            else if (c == '9') s += "⁹";
-        } else if constexpr (std::is_same_v<CharT, char8_t>) {
-            if (c == '0') s += u8"⁰";
-            else if (c == '1') s += u8"¹";
-            else if (c == '2') s += u8"²";
-            else if (c == '3') s += u8"³";
-            else if (c == '4') s += u8"⁴";
-            else if (c == '5') s += u8"⁵";
-            else if (c == '6') s += u8"⁶";
-            else if (c == '7') s += u8"⁷";
-            else if (c == '8') s += u8"⁸";
-            else if (c == '9') s += u8"⁹";
-        } else if constexpr (std::is_same_v<CharT, wchar_t>) {
-            if (c == '0') s += L"⁰";
-            else if (c == '1') s += L"¹";
-            else if (c == '2') s += L"²";
-            else if (c == '3') s += L"³";
-            else if (c == '4') s += L"⁴";
-            else if (c == '5') s += L"⁵";
-            else if (c == '6') s += L"⁶";
-            else if (c == '7') s += L"⁷";
-            else if (c == '8') s += L"⁸";
-            else if (c == '9') s += L"⁹";
-        } else {
-            s += c;
-        }
+    for (char c : digit_str)
+    {
+        int digit_idx = c - '0';
+        s += impl::superscript_digit_lookup<CharT>(digit_idx);
     }
+
     return s;
 }
 
@@ -135,29 +106,16 @@ std::basic_string<CharT> build_dimension_symbol(const dimension_t& dim)
         if (dims[i] != 0)
         {
             if (!result.empty())
-            {
-                // Middle dot (·) separator
-                if constexpr (std::is_same_v<CharT, char>)
-                    result += "·";
-                else if constexpr (std::is_same_v<CharT, char8_t>)
-                    result += u8"·";
-                else if constexpr (std::is_same_v<CharT, wchar_t>)
-                    result += L"·";
-                else
-                    result += "·";
-            }
+                result += impl::char_traits_dispatch<CharT>::separator();
+
             result += symbols[i];
             if (dims[i] != 1)
-            {
                 result += superscript_exponent<CharT>(dims[i]);
-            }
         }
     }
 
     if (result.empty())
-    {
         return std::basic_string<CharT>{};
-    }
 
     return result;
 }

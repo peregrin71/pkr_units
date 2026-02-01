@@ -313,7 +313,8 @@ TEST_F(MultiCastTest, three_numerators_complex_dimension)
     // Test with three numerators: kg*m*s/s^2 = kg*m/s
     pkr::units::meter_per_second_t mps{15.0};
 
-    auto complex_three = pkr::units::multi_unit_cast<pkr::units::kilogram_t, pkr::units::meter_t, pkr::units::second_t, pkr::units::per_unit_squared<pkr::units::second_t>>(mps);
+    auto complex_three =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t, pkr::units::meter_t, pkr::units::second_t, pkr::units::per_unit_squared<pkr::units::second_t>>(mps);
 
     ASSERT_GT(complex_three.value(), 0.0);
 }

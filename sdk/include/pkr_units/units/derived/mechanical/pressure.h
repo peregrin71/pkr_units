@@ -103,7 +103,6 @@ struct atmosphere_t final : public details::unit_t<double, std::ratio<101325, 1>
     static constexpr std::u8string_view u8_symbol{u8"atm"};
 };
 
-
 // Pressure units
 template <>
 struct details::derived_unit_type_t<double, std::ratio<1, 1>, pressure_dimension>
@@ -158,6 +157,5 @@ struct details::derived_unit_type_t<double, std::ratio<101325, 1>, pressure_dime
 {
     using type = atmosphere_t;
 };
-
 
 } // namespace PKR_UNITS_NAMESPACE

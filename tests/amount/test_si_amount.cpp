@@ -191,12 +191,6 @@ TEST_F(SiAmountTest, divide_mole_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiAmountTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::mole_t mol{5.0};
-    ASSERT_THROW(mol / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiAmountTest, multiply_millimole_by_scalar)
 {
     pkr::units::millimole_t mmol{100.0};

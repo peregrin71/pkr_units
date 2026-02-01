@@ -140,11 +140,6 @@ struct details::derived_unit_type_t<double, std::ratio<1000, 1>, density_dimensi
     using type = kilogram_per_liter_t;
 };
 
-
-
-
-
-
 template <>
 struct details::derived_unit_type_t<double, std::ratio<166054, 1>, density_dimension>
 {

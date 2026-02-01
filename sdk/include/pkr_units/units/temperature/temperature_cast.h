@@ -2,6 +2,7 @@
 
 #include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/base/temperature.h>
 #include <pkr_units/units/temperature/celsius.h>
 #include <pkr_units/units/temperature/fahrenheit.h>
@@ -66,8 +67,7 @@ struct is_temperature_pkr_unit : std::false_type
 };
 
 template <typename T>
-struct is_temperature_pkr_unit<T, std::enable_if_t<details::pkr_unit_concept<T>>>
-    : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
+struct is_temperature_pkr_unit<T, std::enable_if_t<is_pkr_unit_c<T>>> : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
 {
 };
 
@@ -75,8 +75,8 @@ template <typename T>
 inline constexpr bool is_temperature_like_v = temperature_affine_traits<T>::is_affine || is_temperature_pkr_unit<T>::value;
 
 template <typename target_unit_t, typename source_unit_t>
-requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
-    (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
+    requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
+             (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 {
     double kelvin_value = 0.0;
@@ -109,7 +109,7 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 
 // Helper function to convert any temperature unit to Kelvin for comparison
 template <typename T>
-requires is_temperature_like_v<T>
+    requires is_temperature_like_v<T>
 constexpr double to_kelvin_for_comparison(const T& temp) noexcept
 {
     if constexpr (temperature_affine_traits<T>::is_affine)
@@ -125,7 +125,7 @@ constexpr double to_kelvin_for_comparison(const T& temp) noexcept
 
 // Three-way comparison for temperature units
 template <typename T1, typename T2>
-requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+    requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
 constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
 {
     double lhs_kelvin = to_kelvin_for_comparison(lhs);
@@ -135,7 +135,7 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
 
 // Equality comparison for temperature units (needed for <=> to work properly)
 template <typename T1, typename T2>
-requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+    requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
 {
     double lhs_kelvin = to_kelvin_for_comparison(lhs);

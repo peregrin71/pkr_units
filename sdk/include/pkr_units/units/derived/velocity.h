@@ -97,8 +97,4 @@ struct details::derived_unit_type_t<double, std::ratio<1000, 1>, velocity_dimens
     using type = kilometer_per_second_t;
 };
 
-
-
-
-
 } // namespace PKR_UNITS_NAMESPACE

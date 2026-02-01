@@ -19,20 +19,20 @@ constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
     return result;
 }
 
-// Pow<Unit, Power> - Represents a unit raised to a power
+// power_of<Unit, Power> - Represents a unit raised to a power
 // Usage:
-//   Pow<seconds, 2>     → seconds squared (m/s²)
-//   Pow<seconds, -1>    → 1/second (frequency)
-//   Pow<seconds, -2>    → 1/second squared (jerk denominator)
+//   power_of<seconds, 2>     → seconds squared (m/s²)
+//   power_of<seconds, -1>    → 1/second (frequency)
+//   power_of<seconds, -2>    → 1/second squared (jerk denominator)
 //
 // Examples:
-//   si_cast<meters, per<Pow<seconds, 2>>>(value)     // m/s²
-//   si_cast<meters, per<Pow<seconds, -1>>>(value)    // m⋅s
-//   si_cast<kilograms, per<Pow<meters, 3>>>(value)   // kg/m³
+//   si_cast<meters, per<power_of<seconds, 2>>>(value)     // m/s²
+//   si_cast<meters, per<power_of<seconds, -1>>>(value)    // m⋅s
+//   si_cast<kilograms, per<power_of<meters, 3>>>(value)   // kg/m³
 template <typename unit_type, int power_v>
-struct Pow
+struct power_of
 {
-    static_assert(details::is_pkr_unit<unit_type>::value, "Pow requires an si_unit type");
+    static_assert(details::is_pkr_unit<unit_type>::value, "power_of requires an si_unit type");
 
     using unit_traits = details::is_pkr_unit<unit_type>;
     using value_type = typename unit_traits::value_type;
@@ -65,24 +65,28 @@ struct Pow
     using type = details::unit_t<value_type, powered_ratio, powered_dim>;
 };
 
-// Convenience alias to get the unit type from Pow
+// Convenience alias to get the unit type from power_of
 template <typename unit_type, int power_v>
-using Pow_t = typename Pow<unit_type, power_v>::type;
+using power_of_t = typename power_of<unit_type, power_v>::type;
 
-// Convenience alias with same order as Pow for cleaner syntax
-// Usage: per<pow<seconds, 2>>  instead of  per<Pow<seconds, 2>>
+// Deprecated: Use power_of instead of Pow
+// The old name was confusing due to case-sensitivity with the pow() function
 template <typename unit_type, int power_v>
-using pow = Pow<unit_type, power_v>;
+using Pow [[deprecated("Use power_of<unit_type, power_v> instead of Pow<unit_type, power_v>")]] = power_of<unit_type, power_v>;
 
-// Special case: make Pow itself act like a unit for use in si_cast
-// This allows: si_cast<meters, per<Pow<seconds, 2>>>(value)
+// Legacy alias for backward compatibility
 template <typename unit_type, int power_v>
-struct details::is_pkr_unit<Pow<unit_type, power_v>> : std::true_type
+using Pow_t [[deprecated("Use power_of_t<unit_type, power_v> instead of Pow_t<unit_type, power_v>")]] = power_of_t<unit_type, power_v>;
+
+// Special case: make power_of itself act like a unit for use in si_cast
+// This allows: si_cast<meters, per<power_of<seconds, 2>>>(value)
+template <typename unit_type, int power_v>
+struct details::is_pkr_unit<power_of<unit_type, power_v>> : std::true_type
 {
     static constexpr bool value = true;
-    using value_type = typename Pow<unit_type, power_v>::value_type;
-    using ratio_type = typename Pow<unit_type, power_v>::powered_ratio;
-    static constexpr dimension_t value_dimension = Pow<unit_type, power_v>::powered_dim;
+    using value_type = typename power_of<unit_type, power_v>::value_type;
+    using ratio_type = typename power_of<unit_type, power_v>::powered_ratio;
+    static constexpr dimension_t value_dimension = power_of<unit_type, power_v>::powered_dim;
 };
 
 } // namespace PKR_UNITS_NAMESPACE

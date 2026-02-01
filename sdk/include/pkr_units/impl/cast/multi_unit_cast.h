@@ -128,10 +128,10 @@ template <typename Ratio, int power_v>
 struct ratio_pow
 {
     static constexpr int power = power_v;
-    static constexpr intmax_t num = (power >= 0) ? constexpr_pow(Ratio::num, static_cast<unsigned int>(power))
-                                                 : constexpr_pow(Ratio::den, static_cast<unsigned int>(-power));
-    static constexpr intmax_t den = (power >= 0) ? constexpr_pow(Ratio::den, static_cast<unsigned int>(power))
-                                                 : constexpr_pow(Ratio::num, static_cast<unsigned int>(-power));
+    static constexpr intmax_t num =
+        (power >= 0) ? constexpr_pow(Ratio::num, static_cast<unsigned int>(power)) : constexpr_pow(Ratio::den, static_cast<unsigned int>(-power));
+    static constexpr intmax_t den =
+        (power >= 0) ? constexpr_pow(Ratio::den, static_cast<unsigned int>(power)) : constexpr_pow(Ratio::num, static_cast<unsigned int>(-power));
     using type = std::ratio<num, den>;
 };
 
@@ -139,7 +139,7 @@ template <typename type_t, typename source_ratio_t, typename target_ratio_t>
 constexpr type_t compute_conversion_factor() noexcept
 {
     return (static_cast<type_t>(source_ratio_t::num) * static_cast<type_t>(target_ratio_t::den)) /
-        (static_cast<type_t>(source_ratio_t::den) * static_cast<type_t>(target_ratio_t::num));
+           (static_cast<type_t>(source_ratio_t::den) * static_cast<type_t>(target_ratio_t::num));
 }
 
 // ========================================================================
@@ -157,7 +157,7 @@ struct apply_numerators<Ratio, Dim>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename... Rest>
-requires(details::pkr_unit_concept<Unit>)
+    requires(is_pkr_unit_c<Unit>)
 struct apply_numerators<Ratio, Dim, Unit, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -179,7 +179,7 @@ struct apply_denominators<Ratio, Dim>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit>
-requires(details::pkr_unit_concept<Unit>)
+    requires(is_pkr_unit_c<Unit>)
 struct apply_denominators<Ratio, Dim, Unit>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -192,7 +192,7 @@ struct apply_denominators<Ratio, Dim, Unit>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename PowerConst, typename... Rest>
-requires(details::pkr_unit_concept<Unit> && is_integral_constant_v<PowerConst>)
+    requires(is_pkr_unit_c<Unit> && is_integral_constant_v<PowerConst>)
 struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -207,7 +207,7 @@ struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename Unit2, typename... Rest>
-requires(details::pkr_unit_concept<Unit> && details::pkr_unit_concept<Unit2>)
+    requires(is_pkr_unit_c<Unit> && is_pkr_unit_c<Unit2>)
 struct apply_denominators<Ratio, Dim, Unit, Unit2, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -272,22 +272,21 @@ constexpr bool is_per_v = is_per<T>::value;
 // ========================================================================
 
 template <typename NumUnit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_single = details::pkr_unit_concept<NumUnit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_dual =
-    details::pkr_unit_concept<Num1Unit> && details::pkr_unit_concept<Num2Unit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+concept valid_multi_unit_cast_dual = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_triple = details::pkr_unit_concept<Num1Unit> && details::pkr_unit_concept<Num2Unit> &&
-    details::pkr_unit_concept<Num3Unit> && is_per_v<DenomPer> && details::pkr_unit_concept<SourceUnit>;
+concept valid_multi_unit_cast_triple =
+    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_pkr_unit_c<Num3Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 // Helper struct for single numerator with per denominator
 template <typename num_t, typename per_wrapper>
 struct multi_unit_cast_helper;
 
 template <typename num_t, typename per_wrapper>
-requires(requires { typename per_wrapper::per_type; })
+    requires(requires { typename per_wrapper::per_type; })
 struct multi_unit_cast_helper<num_t, per_wrapper>
 {
     template <typename source_t>
@@ -312,7 +311,7 @@ template <typename num1_t, typename num2_t, typename per_wrapper>
 struct multi_unit_cast_helper2;
 
 template <typename num1_t, typename num2_t, typename per_wrapper>
-requires(requires { typename per_wrapper::per_type; })
+    requires(requires { typename per_wrapper::per_type; })
 struct multi_unit_cast_helper2<num1_t, num2_t, per_wrapper>
 {
     template <typename source_t>
@@ -337,7 +336,7 @@ template <typename num1_t, typename num2_t, typename num3_t, typename per_wrappe
 struct multi_unit_cast_helper3;
 
 template <typename num1_t, typename num2_t, typename num3_t, typename per_wrapper>
-requires(requires { typename per_wrapper::per_type; })
+    requires(requires { typename per_wrapper::per_type; })
 struct multi_unit_cast_helper3<num1_t, num2_t, num3_t, per_wrapper>
 {
     template <typename source_t>
@@ -364,7 +363,7 @@ struct multi_unit_cast_helper3<num1_t, num2_t, num3_t, per<denoms...>>
 // ============================================================================
 
 template <typename num_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
 constexpr auto multi_unit_cast(const source_t& source) noexcept
 {
     return _multi_unit_cast_detail::multi_unit_cast_helper<num_t, per_unit>::call(source);
@@ -376,7 +375,7 @@ constexpr auto multi_unit_cast(const source_t& source) noexcept
 // ============================================================================
 
 template <typename num1_t, typename num2_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
 constexpr auto multi_unit_cast(const source_t& source) noexcept
 {
     return _multi_unit_cast_detail::multi_unit_cast_helper2<num1_t, num2_t, per_unit>::call(source);
@@ -388,7 +387,7 @@ constexpr auto multi_unit_cast(const source_t& source) noexcept
 // ============================================================================
 
 template <typename num1_t, typename num2_t, typename num3_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
 constexpr auto multi_unit_cast(const source_t& source) noexcept
 {
     return _multi_unit_cast_detail::multi_unit_cast_helper3<num1_t, num2_t, num3_t, per_unit>::call(source);
@@ -400,7 +399,7 @@ constexpr auto multi_unit_cast(const source_t& source) noexcept
 // ========================================================================
 
 template <typename num_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 {
     auto result = multi_unit_cast<num_t, per_unit>(source);
@@ -408,7 +407,7 @@ constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 }
 
 template <typename num1_t, typename num2_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 {
     auto result = multi_unit_cast<num1_t, num2_t, per_unit>(source);
@@ -416,7 +415,7 @@ constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 }
 
 template <typename num1_t, typename num2_t, typename num3_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 {
     auto result = multi_unit_cast<num1_t, num2_t, num3_t, per_unit>(source);
@@ -429,7 +428,7 @@ constexpr auto multi_unit_cast_to_base_units(const source_t& source) noexcept
 // ========================================================================
 
 template <typename num_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_single<num_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 {
     auto base = multi_unit_cast_to_base_units<num_t, per_unit>(source);
@@ -440,7 +439,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 }
 
 template <typename num1_t, typename num2_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_dual<num1_t, num2_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 {
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, per_unit>(source);
@@ -451,7 +450,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 }
 
 template <typename num1_t, typename num2_t, typename num3_t, typename per_unit, typename source_t>
-requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
+    requires _multi_unit_cast_detail::valid_multi_unit_cast_triple<num1_t, num2_t, num3_t, per_unit, source_t>
 constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 {
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, num3_t, per_unit>(source);

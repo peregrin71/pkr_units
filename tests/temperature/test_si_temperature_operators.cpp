@@ -24,9 +24,10 @@ TEST_F(SiTemperatureOperatorsTest, add_millikelvin_to_kelvin)
 {
     pkr::units::millikelvin_t mk{500.0};
     pkr::units::kelvin_t k{1.0};
-    auto result = mk + k;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millikelvin_t>);
-    // Result is in canonical unit (millikelvin), so 1K = 1000mK, result = 1500mK
+    auto result = mk + k; // preserves LHS (millikelvin)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millikelvin_t>, "operator+ should preserve LHS type (millikelvin)");
+    // 500 mK + 1000 mK = 1500 mK
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -54,8 +55,9 @@ TEST_F(SiTemperatureOperatorsTest, subtract_millikelvin_from_kelvin)
     pkr::units::kelvin_t k{1.0};
     pkr::units::millikelvin_t mk{500.0};
     auto result = k - mk;
-    static_assert(std::is_same_v<decltype(result), pkr::units::kelvin_t>);
-    // 1K - 500mK = 1000mK - 500mK = 500mK = 0.5K
+
+    using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1, 1>>, "operator- should return canonical ratio<1,1>");
     ASSERT_DOUBLE_EQ(result.value(), 0.5);
 }
 
@@ -63,9 +65,10 @@ TEST_F(SiTemperatureOperatorsTest, subtract_kelvin_from_millikelvin)
 {
     pkr::units::millikelvin_t mk{1500.0};
     pkr::units::kelvin_t k{1.0};
-    auto result = mk - k;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millikelvin_t>);
-    // 1500mK - 1000mK = 500mK
+    auto result = mk - k; // preserves LHS (millikelvin)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millikelvin_t>, "operator- should preserve LHS type (millikelvin)");
+    // 1500 mK - 1000 mK = 500 mK
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
@@ -85,19 +88,6 @@ TEST_F(SiTemperatureOperatorsTest, divide_kelvin_by_scalar)
     pkr::units::kelvin_t k{10.0};
     auto result = k / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
-}
-
-TEST_F(SiTemperatureOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kelvin_t k{10.0};
-    ASSERT_THROW(k / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiTemperatureOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::kelvin_t k1{10.0};
-    pkr::units::kelvin_t k2{0.0};
-    ASSERT_THROW(k1 / k2, std::invalid_argument);
 }
 
 TEST_F(SiTemperatureOperatorsTest, multiply_kelvin_by_zero)

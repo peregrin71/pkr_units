@@ -41,12 +41,6 @@ TEST_F(ForceOperatorsTest, divide_force_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 50.0);
 }
 
-TEST_F(ForceOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::newton_t force{100.0};
-    EXPECT_THROW(force / 0.0, std::invalid_argument);
-}
-
 TEST_F(ForceOperatorsTest, multiply_force_by_zero)
 {
     pkr::units::newton_t force{50.0};

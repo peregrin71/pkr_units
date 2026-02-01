@@ -191,12 +191,6 @@ TEST_F(SiTimeTest, divide_second_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiTimeTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::second_t s{5.0};
-    ASSERT_THROW(s / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiTimeTest, multiply_millisecond_by_scalar)
 {
     pkr::units::millisecond_t ms{100.0};

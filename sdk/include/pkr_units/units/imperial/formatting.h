@@ -8,7 +8,7 @@ namespace std
 
 // Explicit specialization for si::foot
 template<>
-struct formatter<::si::foot>
+struct formatter<::foot>
 {
     std::formatter<double> m_value_formatter;
 
@@ -19,7 +19,7 @@ struct formatter<::si::foot>
     }
 
     template<typename FormatContext>
-    auto format(const ::si::foot& unit, FormatContext& ctx) const
+    auto format(const ::foot& unit, FormatContext& ctx) const
     {
         double feet_value = unit.value();
         double whole_feet = std::floor(feet_value);
@@ -55,7 +55,7 @@ struct formatter<::si::foot>
 
 // Explicit specialization for si::inch
 template<>
-struct formatter<::si::inch>
+struct formatter<::inch>
 {
     std::formatter<double> m_value_formatter;
 
@@ -66,7 +66,7 @@ struct formatter<::si::inch>
     }
 
     template<typename FormatContext>
-    auto format(const ::si::inch& unit, FormatContext& ctx) const
+    auto format(const ::inch& unit, FormatContext& ctx) const
     {
         double inches_value = unit.value();
         double whole_inches = std::round(inches_value);
@@ -79,7 +79,7 @@ struct formatter<::si::inch>
 
 // Explicit specialization for si::ounce
 template<>
-struct formatter<::si::ounce>
+struct formatter<::ounce>
 {
     std::formatter<double> m_value_formatter;
 
@@ -90,7 +90,7 @@ struct formatter<::si::ounce>
     }
 
     template<typename FormatContext>
-    auto format(const ::si::ounce& unit, FormatContext& ctx) const
+    auto format(const ::ounce& unit, FormatContext& ctx) const
     {
         double ounces_value = unit.value();
         double whole_ounces = std::round(ounces_value);
@@ -103,7 +103,7 @@ struct formatter<::si::ounce>
 
 // Explicit specialization for si::pound
 template<>
-struct formatter<::si::pound>
+struct formatter<::pound>
 {
     std::formatter<double> m_value_formatter;
 
@@ -114,7 +114,7 @@ struct formatter<::si::pound>
     }
 
     template<typename FormatContext>
-    auto format(const ::si::pound& unit, FormatContext& ctx) const
+    auto format(const ::pound& unit, FormatContext& ctx) const
     {
         double pounds_value = unit.value();
         double whole_pounds = std::floor(pounds_value);

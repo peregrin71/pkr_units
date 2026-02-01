@@ -55,6 +55,7 @@
 #include <pkr_units/units/derived/magnetic_flux.h>
 #include <pkr_units/units/derived/thermal.h>
 #include <pkr_units/units/derived/viscosity.h>
+#include <pkr_units/units/dimensionless/scalar.h>
 
 // ============================================================================
 // Unit Operators and Casting
@@ -64,10 +65,10 @@
 // #include <pkr_units/impl/cast/multi_unit_cast.h>
 
 // ============================================================================
-// Measurements with Uncertainty Propagation
+// Math Functions
 // ============================================================================
 
-#include <pkr_units/measurements/measurement.h>
+#include <pkr_units/math/unit/unit_math.h>
 
 // ============================================================================
 // Unit Literals

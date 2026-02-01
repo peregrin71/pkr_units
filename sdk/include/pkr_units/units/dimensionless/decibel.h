@@ -56,21 +56,17 @@ struct formatter<PKR_UNITS_NAMESPACE::decibel_power_t, CharT>
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
         }
         if constexpr (std::is_same_v<CharT, wchar_t>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.end(), out);
         }
         if constexpr (std::is_same_v<CharT, char8_t>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.end(), out);
         }
-        return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(),
-                         PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
+        return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
     }
 };
 
@@ -93,21 +89,17 @@ struct formatter<PKR_UNITS_NAMESPACE::decibel_amplitude_t, CharT>
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
         }
         if constexpr (std::is_same_v<CharT, wchar_t>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.end(), out);
         }
         if constexpr (std::is_same_v<CharT, char8_t>)
         {
-            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.begin(),
-                             PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.end(), out);
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.end(), out);
         }
-        return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(),
-                         PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
+        return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
     }
 };
 

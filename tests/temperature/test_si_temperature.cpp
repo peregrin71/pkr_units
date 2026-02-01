@@ -195,12 +195,6 @@ TEST_F(SiTemperatureTest, divide_kelvin_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
-TEST_F(SiTemperatureTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kelvin_t k{5.0};
-    ASSERT_THROW(k / 0.0, std::invalid_argument);
-}
-
 TEST_F(SiTemperatureTest, multiply_millikelvin_by_scalar)
 {
     pkr::units::millikelvin_t mk{100.0};

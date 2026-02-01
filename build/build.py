@@ -80,9 +80,10 @@ pipx install conan || pipx upgrade conan
         except subprocess.CalledProcessError as e:
             raise Exception(f"Failed to setup WSL environment: {e}")
     
-    # Check if conan is installed
+    # Check if conan is installed (try running conan directly in WSL, and include pipx user bin)
     try:
-        subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "conan"], check=True)
+        # Try to run conan --version in a login shell and also check user local pipx bin
+        subprocess.run(["wsl", "-d", "Ubuntu", "--", "bash", "-lc", "export PATH=\"$PATH:$HOME/.local/bin\"; conan --version"], check=True)
         print_success("Conan already installed in WSL")
     except subprocess.CalledProcessError:
         print_info("Conan not found, installing...")

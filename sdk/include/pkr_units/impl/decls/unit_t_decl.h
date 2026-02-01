@@ -4,10 +4,30 @@
 #include <stdexcept>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/concepts/unit_concepts.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
+
+// Concept for types that can represent unit quantity values
+// Supports:
+//   - Arithmetic types (int, float, double, etc.)
+//   - Complex types (std::complex<float>, std::complex<double>, etc.)
+template <typename type_t>
+concept is_unit_value_type_c = requires(type_t a, type_t b, double d) {
+    { a + b } -> std::convertible_to<type_t>;
+    { a - b } -> std::convertible_to<type_t>;
+    { a * b } -> std::convertible_to<type_t>;
+    { a / b } -> std::convertible_to<type_t>;
+    { a * d } -> std::convertible_to<type_t>;
+    { a / d } -> std::convertible_to<type_t>;
+    { static_cast<type_t>(d) };
+};
+
+// Verify fundamental types satisfy the concept
+static_assert(is_unit_value_type_c<float>);
+static_assert(is_unit_value_type_c<double>);
+static_assert(is_unit_value_type_c<int>);
+
 namespace details
 {
 
@@ -24,40 +44,6 @@ constexpr type_t convert_ratio_to(type_t value) noexcept
     return (value / static_cast<type_t>(conversion::den)) * static_cast<type_t>(conversion::num);
 }
 
-// Helper: add two values with different ratios, result in canonical ratio (1/1)
-template <typename type_t, typename ratio_t1, typename ratio_t2>
-constexpr type_t add_canonical(type_t val1, type_t val2) noexcept
-{
-    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
-    {
-        return val1 + val2;
-    }
-    else
-    {
-        // Convert both to canonical ratio (1/1) and add
-        type_t canonical_val1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-        type_t canonical_val2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-        return canonical_val1 + canonical_val2;
-    }
-}
-
-// Helper: subtract two values with different ratios, result in canonical ratio (1/1)
-template <typename type_t, typename ratio_t1, typename ratio_t2>
-constexpr type_t subtract_canonical(type_t val1, type_t val2) noexcept
-{
-    if constexpr (std::is_same_v<ratio_t1, ratio_t2>)
-    {
-        return val1 - val2;
-    }
-    else
-    {
-        // Convert both to canonical ratio (1/1) and subtract
-        type_t canonical_val1 = convert_ratio_to<type_t, ratio_t1, std::ratio<1, 1>>(val1);
-        type_t canonical_val2 = convert_ratio_to<type_t, ratio_t2, std::ratio<1, 1>>(val2);
-        return canonical_val1 - canonical_val2;
-    }
-}
-
 // Helper: multiply two values
 template <typename type_t>
 constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
@@ -67,16 +53,8 @@ constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
 
 // Helper: divide two values
 template <typename type_t>
-constexpr type_t divide_values(type_t val1, type_t val2)
+constexpr type_t divide_values(type_t val1, type_t val2) noexcept
 {
-    // Division by zero check: at runtime throw, at compile-time assert
-    if (!std::is_constant_evaluated())
-    {
-        if ((val2 < static_cast<type_t>(0) ? -val2 : val2) == static_cast<type_t>(0))
-        {
-            throw std::invalid_argument("Division by zero");
-        }
-    }
     return val1 / val2;
 }
 
@@ -174,12 +152,8 @@ public:
     }
 
     // Divide by scalar - returns the most derived unit type
-    constexpr auto operator/(std::same_as<type_t> auto scalar) const
+    constexpr auto operator/(std::same_as<type_t> auto scalar) const noexcept
     {
-        if ((scalar < static_cast<type_t>(0) ? -scalar : scalar) == static_cast<type_t>(0))
-        {
-            throw std::invalid_argument("Division by zero in si_unit::operator/");
-        }
         using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value / scalar};
     }
@@ -203,12 +177,8 @@ public:
         return *this;
     }
 
-    constexpr unit_t& operator/=(std::same_as<type_t> auto scalar)
+    constexpr unit_t& operator/=(std::same_as<type_t> auto scalar) noexcept
     {
-        if ((scalar < static_cast<type_t>(0) ? -scalar : scalar) == static_cast<type_t>(0))
-        {
-            throw std::invalid_argument("Division by zero in si_unit::operator/=");
-        }
         m_value /= scalar;
         return *this;
     }
@@ -291,7 +261,7 @@ struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 // Specialization for derived types that inherit from unit_t
 // (e.g., struct meter : public details::unit_t<...>)
 template <typename T>
-requires std::is_base_of_v<typename T::_base, T>
+    requires std::is_base_of_v<typename T::_base, T>
 
 struct is_pkr_unit<T> : std::true_type
 {
@@ -321,9 +291,6 @@ struct is_pkr_unit<const T> : is_pkr_unit<T>
 {
 };
 
-// Concept for any pkr_unit type
-template <typename T>
-concept pkr_unit_concept = is_pkr_unit<T>::value;
-
 } // namespace details
+
 } // namespace PKR_UNITS_NAMESPACE

@@ -83,7 +83,6 @@ struct nanowatt_t final : public details::unit_t<double, std::ratio<1, 100000000
     static constexpr std::u8string_view u8_symbol{u8"nW"};
 };
 
-
 // Power units
 template <>
 struct details::derived_unit_type_t<double, std::ratio<1, 1>, power_dimension>
@@ -126,6 +125,5 @@ struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, power_dim
 {
     using type = nanowatt_t;
 };
-
 
 } // namespace PKR_UNITS_NAMESPACE

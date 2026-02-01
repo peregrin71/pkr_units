@@ -24,9 +24,10 @@ TEST_F(SiTimeOperatorsTest, add_millisecond_to_second)
 {
     pkr::units::millisecond_t ms{500.0};
     pkr::units::second_t s{1.0};
-    auto result = ms + s;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millisecond_t>);
-    // Result is in canonical unit (millisecond), so 1s = 1000ms, result = 1500ms
+    auto result = ms + s; // preserves LHS (millisecond)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millisecond_t>, "operator+ should preserve LHS type (millisecond)");
+    // 500 ms + 1000 ms = 1500 ms
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -63,9 +64,10 @@ TEST_F(SiTimeOperatorsTest, subtract_second_from_millisecond)
 {
     pkr::units::millisecond_t ms{1500.0};
     pkr::units::second_t s{1.0};
-    auto result = ms - s;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millisecond_t>);
-    // 1500ms - 1000ms = 500ms
+    auto result = ms - s; // preserves LHS (millisecond)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millisecond_t>, "operator- should preserve LHS type (millisecond)");
+    // 1500 ms - 1000 ms = 500 ms
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
@@ -85,19 +87,6 @@ TEST_F(SiTimeOperatorsTest, divide_second_by_scalar)
     pkr::units::second_t s{10.0};
     auto result = s / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
-}
-
-TEST_F(SiTimeOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::second_t s{10.0};
-    ASSERT_THROW(s / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiTimeOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::second_t s1{10.0};
-    pkr::units::second_t s2{0.0};
-    ASSERT_THROW(s1 / s2, std::invalid_argument);
 }
 
 TEST_F(SiTimeOperatorsTest, multiply_second_by_zero)

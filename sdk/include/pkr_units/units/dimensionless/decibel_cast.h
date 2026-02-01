@@ -31,7 +31,7 @@ inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit<T>::value;
 
 // Linear ratio -> decibel (power)
 template <typename target_unit_t, typename source_unit_t>
-requires std::is_same_v<target_unit_t, decibel_power_t> && details::is_dimensionless_unit_v<source_unit_t>
+    requires std::is_same_v<target_unit_t, decibel_power_t> && details::is_dimensionless_unit_v<source_unit_t>
 inline decibel_power_t unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
@@ -45,7 +45,7 @@ inline decibel_power_t unit_cast(const source_unit_t& source)
 
 // Linear ratio -> decibel (amplitude)
 template <typename target_unit_t, typename source_unit_t>
-requires std::is_same_v<target_unit_t, decibel_amplitude_t> && details::is_dimensionless_unit_v<source_unit_t>
+    requires std::is_same_v<target_unit_t, decibel_amplitude_t> && details::is_dimensionless_unit_v<source_unit_t>
 inline decibel_amplitude_t unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
@@ -59,7 +59,7 @@ inline decibel_amplitude_t unit_cast(const source_unit_t& source)
 
 // Decibel (power) -> linear ratio (dimensionless)
 template <typename target_unit_t>
-requires details::is_dimensionless_unit_v<target_unit_t>
+    requires details::is_dimensionless_unit_v<target_unit_t>
 inline target_unit_t unit_cast(const decibel_power_t& source)
 {
     double linear = std::pow(10.0, source.value() / 10.0);
@@ -70,7 +70,7 @@ inline target_unit_t unit_cast(const decibel_power_t& source)
 
 // Decibel (amplitude) -> linear ratio (dimensionless)
 template <typename target_unit_t>
-requires details::is_dimensionless_unit_v<target_unit_t>
+    requires details::is_dimensionless_unit_v<target_unit_t>
 inline target_unit_t unit_cast(const decibel_amplitude_t& source)
 {
     double linear = std::pow(10.0, source.value() / 20.0);

@@ -15,98 +15,152 @@
 namespace PKR_UNITS_NAMESPACE
 {
 
-// Concept for dimension compatibility
-// All dimensions must match between operands
+// Concept for dimension compatibility - works with both base and derived types
 template <typename T1, typename T2>
-concept same_dimensions_c =
-    details::pkr_unit_concept<T1> && details::pkr_unit_concept<T2> && details::is_pkr_unit<T1>::value_dimension.length ==
-    details::is_pkr_unit<T2>::value_dimension.length&& details::is_pkr_unit<T1>::value_dimension.mass ==
-    details::is_pkr_unit<T2>::value_dimension.mass&& details::is_pkr_unit<T1>::value_dimension.time ==
-    details::is_pkr_unit<T2>::value_dimension.time&& details::is_pkr_unit<T1>::value_dimension.current ==
-    details::is_pkr_unit<T2>::value_dimension.current&& details::is_pkr_unit<T1>::value_dimension.temperature ==
-    details::is_pkr_unit<T2>::value_dimension.temperature&& details::is_pkr_unit<T1>::value_dimension.amount ==
-    details::is_pkr_unit<T2>::value_dimension.amount&& details::is_pkr_unit<T1>::value_dimension.intensity ==
-    details::is_pkr_unit<T2>::value_dimension.intensity&& details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle;
+concept same_dimensions_c = details::is_pkr_unit<T1>::value_dimension.length == details::is_pkr_unit<T2>::value_dimension.length &&
+                            details::is_pkr_unit<T1>::value_dimension.mass == details::is_pkr_unit<T2>::value_dimension.mass &&
+                            details::is_pkr_unit<T1>::value_dimension.time == details::is_pkr_unit<T2>::value_dimension.time &&
+                            details::is_pkr_unit<T1>::value_dimension.current == details::is_pkr_unit<T2>::value_dimension.current &&
+                            details::is_pkr_unit<T1>::value_dimension.temperature == details::is_pkr_unit<T2>::value_dimension.temperature &&
+                            details::is_pkr_unit<T1>::value_dimension.amount == details::is_pkr_unit<T2>::value_dimension.amount &&
+                            details::is_pkr_unit<T1>::value_dimension.intensity == details::is_pkr_unit<T2>::value_dimension.intensity &&
+                            details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle;
 
-// Addition operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
-
-constexpr T1 operator+(const T1& lhs, const T2& rhs) noexcept
+// Direct unit_t addition for base units (same ratio, same dimension)
+template <typename type_t, typename ratio_t, dimension_t dim_v>
+constexpr details::unit_t<type_t, ratio_t, dim_v>
+    operator+(const details::unit_t<type_t, ratio_t, dim_v>& lhs, const details::unit_t<type_t, ratio_t, dim_v>& rhs) noexcept
 {
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using result_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
+    return details::unit_t<type_t, ratio_t, dim_v>{lhs.value() + rhs.value()};
+}
 
-    if constexpr (std::is_same_v<ratio1, ratio2>)
+// Direct unit_t addition for units with same dimension, different ratios
+template <typename type_t, typename ratio_t1, typename ratio_t2, dimension_t dim_v>
+    requires(!std::is_same_v<ratio_t1, ratio_t2>)
+constexpr details::unit_t<type_t, ratio_t1, dim_v>
+    operator+(const details::unit_t<type_t, ratio_t1, dim_v>& lhs, const details::unit_t<type_t, ratio_t2, dim_v>& rhs) noexcept
+{
+    type_t converted_rhs = details::convert_ratio_to<type_t, ratio_t2, ratio_t1>(rhs.value());
+    return details::unit_t<type_t, ratio_t1, dim_v>{lhs.value() + converted_rhs};
+}
+
+// ============================================================================
+// Unified arithmetic operators with if constexpr for base/derived handling
+// ============================================================================
+
+// Addition operator - handles all combinations of base and derived types
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+    // Unwrap derived types to their base for calculation
+    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
     {
-        return T1{lhs.value() + rhs.value()};
+        // Both derived: delegate to base operators, wrap result in T1
+        auto base_result = (static_cast<const typename T1::_base&>(lhs) + static_cast<const typename T2::_base&>(rhs));
+        return T1{base_result.value()};
+    }
+    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
+    {
+        // T1 derived, T2 base: delegate and wrap in T1
+        auto base_result = (static_cast<const typename T1::_base&>(lhs) + rhs);
+        return T1{base_result.value()};
+    }
+    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    {
+        // T1 base, T2 derived: delegate and wrap in T2
+        auto base_result = (lhs + static_cast<const typename T2::_base&>(rhs));
+        return T2{base_result.value()};
     }
     else
     {
-        value_type canonical_sum = details::add_canonical<value_type, ratio1, ratio2>(lhs.value(), rhs.value());
-        value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_sum);
-        return T1{converted};
+        // Both base: normal base type logic
+        if constexpr (std::is_same_v<T1, T2>)
+        {
+            return T1{lhs.value() + rhs.value()};
+        }
+        else
+        {
+            // Different base types, same dimension: use LHS ratio
+            using value_type = typename details::is_pkr_unit<T1>::value_type;
+            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
+            {
+                return T1{lhs.value() + rhs.value()};
+            }
+            else
+            {
+                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+                return T1{lhs.value() + converted_rhs};
+            }
+        }
     }
 }
 
-// Named add function
-template <details::pkr_unit_concept ResultType, details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-
-requires(same_dimensions_c<T1, T2>&& same_dimensions_c<T1, ResultType>) constexpr auto add(const T1& lhs, const T2& rhs) noexcept
+// Subtraction operator - unified for all base/derived combinations
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
 {
-    using value_type = typename details::is_pkr_unit<ResultType>::value_type;
-    using result_ratio = typename details::is_pkr_unit<ResultType>::ratio_type;
-    constexpr auto dim = details::is_pkr_unit<ResultType>::value_dimension;
-
-    value_type canonical_sum = details::add_canonical<value_type, typename details::is_pkr_unit<T1>::ratio_type, typename details::is_pkr_unit<T2>::ratio_type>(
-        lhs.value(), rhs.value());
-
-    value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_sum);
-
-    return details::unit_t<value_type, result_ratio, dim>{converted};
-}
-
-// Subtraction operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
-
-constexpr T1 operator-(const T1& lhs, const T2& rhs) noexcept
-{
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using result_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
-
-    if constexpr (std::is_same_v<ratio1, ratio2>)
+    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
     {
-        return T1{lhs.value() - rhs.value()};
+        auto base_result = (static_cast<const typename T1::_base&>(lhs) - static_cast<const typename T2::_base&>(rhs));
+        return T1{base_result.value()};
+    }
+    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
+    {
+        auto base_result = (static_cast<const typename T1::_base&>(lhs) - rhs);
+        return T1{base_result.value()};
+    }
+    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    {
+        auto base_result = (lhs - static_cast<const typename T2::_base&>(rhs));
+        return T2{base_result.value()};
     }
     else
     {
-        value_type canonical_diff = details::subtract_canonical<value_type, ratio1, ratio2>(lhs.value(), rhs.value());
-        value_type converted = details::convert_ratio_to<value_type, std::ratio<1, 1>, result_ratio>(canonical_diff);
-        return T1{converted};
+        if constexpr (std::is_same_v<T1, T2>)
+        {
+            return T1{lhs.value() - rhs.value()};
+        }
+        else
+        {
+            using value_type = typename details::is_pkr_unit<T1>::value_type;
+            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
+            {
+                return T1{lhs.value() - rhs.value()};
+            }
+            else
+            {
+                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+                return T1{lhs.value() - converted_rhs};
+            }
+        }
     }
+}
+
+// Unary negation operator - unified for base and derived types
+template <is_pkr_unit_c T>
+constexpr T operator-(const T& a) noexcept
+{
+    return T{-a.value()};
 }
 
 // Multiplication operators
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
+template <is_base_pkr_unit_c T1, is_base_pkr_unit_c T2>
 constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
 {
+    // Multiply stored values and set result ratio = lhs_ratio * rhs_ratio (do not canonicalize)
     using value_type = typename details::is_pkr_unit<T1>::value_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
+    using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
     constexpr auto dim1 = details::is_pkr_unit<T1>::value_dimension;
     constexpr auto dim2 = details::is_pkr_unit<T2>::value_dimension;
-
-    using combined_ratio = std::conditional_t<
-        std::is_same_v<ratio1, std::ratio<1, 1>>,
-        ratio2,
-        std::conditional_t<std::is_same_v<ratio2, std::ratio<1, 1>>, ratio1, std::ratio_multiply<ratio1, ratio2>>>;
 
     constexpr dimension_t combined_dim{
         .length = dim1.length + dim2.length,
@@ -118,24 +172,21 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
         .intensity = dim1.intensity + dim2.intensity,
         .angle = dim1.angle + dim2.angle};
 
-    using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
-    return result_type(details::multiply_values(lhs.value(), rhs.value()));
+    using result_ratio = std::ratio_multiply<lhs_ratio, rhs_ratio>;
+    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+    return result_type{details::multiply_values(lhs.value(), rhs.value())};
 }
 
 // Division operator
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-constexpr auto operator/(const T1& lhs, const T2& rhs)
+template <is_base_pkr_unit_c T1, is_base_pkr_unit_c T2>
+constexpr auto operator/(const T1& lhs, const T2& rhs) noexcept
 {
+    // Divide stored values and set result ratio = lhs_ratio / rhs_ratio (do not canonicalize)
     using value_type = typename details::is_pkr_unit<T1>::value_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
+    using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
     constexpr auto dim1 = details::is_pkr_unit<T1>::value_dimension;
     constexpr auto dim2 = details::is_pkr_unit<T2>::value_dimension;
-
-    using combined_ratio = std::conditional_t<
-        std::is_same_v<ratio2, std::ratio<1, 1>>,
-        ratio1,
-        std::conditional_t<std::is_same_v<ratio1, ratio2>, std::ratio<1, 1>, std::ratio_divide<ratio1, ratio2>>>;
 
     constexpr dimension_t combined_dim{
         .length = dim1.length - dim2.length,
@@ -147,27 +198,156 @@ constexpr auto operator/(const T1& lhs, const T2& rhs)
         .intensity = dim1.intensity - dim2.intensity,
         .angle = dim1.angle - dim2.angle};
 
-    using result_type = details::unit_t<value_type, combined_ratio, combined_dim>;
-    return result_type(details::divide_values(lhs.value(), rhs.value()));
+    using result_ratio = std::ratio_divide<lhs_ratio, rhs_ratio>;
+    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+    return result_type{details::divide_values(lhs.value(), rhs.value())};
 }
 
-// Free function scalar multiplication (scalar * unit) - returns the most derived type
-template <typename ScalarType, typename T>
+// Support multiplying/dividing by dimensionless unit types (`scalar_t`-like) while preserving non-scalar unit ratio
+// operator*(Unit, scalar_t) -> preserves Unit
+template <is_base_pkr_unit_c T, is_base_pkr_unit_c S>
+    requires(details::is_pkr_unit<S>::value_dimension == scalar_dimension && details::is_pkr_unit<T>::value_dimension != scalar_dimension)
+constexpr auto operator*(const T& lhs, const S& rhs) noexcept
+{
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    using lhs_ratio = typename details::is_pkr_unit<T>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<S>::ratio_type;
+    constexpr auto dim1 = details::is_pkr_unit<T>::value_dimension;
+    constexpr auto dim2 = details::is_pkr_unit<S>::value_dimension;
 
-requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
+    constexpr dimension_t combined_dim{
+        .length = dim1.length + dim2.length,
+        .mass = dim1.mass + dim2.mass,
+        .time = dim1.time + dim2.time,
+        .current = dim1.current + dim2.current,
+        .temperature = dim1.temperature + dim2.temperature,
+        .amount = dim1.amount + dim2.amount,
+        .intensity = dim1.intensity + dim2.intensity,
+        .angle = dim1.angle + dim2.angle};
+
+    // Preserve lhs unit and ratio
+    value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, combined_dim>::type;
+    return result_type{details::multiply_values(lhs.value(), rhs_converted)};
+}
+
+// operator*(scalar_t, Unit) -> preserves Unit (use rhs as reference)
+template <is_base_pkr_unit_c S, is_base_pkr_unit_c T>
+    requires(details::is_pkr_unit<S>::value_dimension == scalar_dimension && details::is_pkr_unit<T>::value_dimension != scalar_dimension)
+constexpr auto operator*(const S& lhs, const T& rhs) noexcept
+{
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    using lhs_ratio = typename details::is_pkr_unit<S>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<T>::ratio_type;
+    constexpr auto dim1 = details::is_pkr_unit<S>::value_dimension;
+    constexpr auto dim2 = details::is_pkr_unit<T>::value_dimension;
+
+    constexpr dimension_t combined_dim{
+        .length = dim1.length + dim2.length,
+        .mass = dim1.mass + dim2.mass,
+        .time = dim1.time + dim2.time,
+        .current = dim1.current + dim2.current,
+        .temperature = dim1.temperature + dim2.temperature,
+        .amount = dim1.amount + dim2.amount,
+        .intensity = dim1.intensity + dim2.intensity,
+        .angle = dim1.angle + dim2.angle};
+
+    // Use rhs as reference
+    value_type lhs_converted = details::convert_ratio_to<value_type, lhs_ratio, rhs_ratio>(lhs.value());
+    using result_type = typename details::derived_unit_type_t<value_type, rhs_ratio, combined_dim>::type;
+    return result_type{details::multiply_values(lhs_converted, rhs.value())};
+}
+
+// operator/(Unit, scalar_t) -> preserves Unit
+template <is_base_pkr_unit_c T, is_base_pkr_unit_c S>
+    requires(details::is_pkr_unit<S>::value_dimension == scalar_dimension && details::is_pkr_unit<T>::value_dimension != scalar_dimension)
+constexpr auto operator/(const T& lhs, const S& rhs) noexcept
+{
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    using lhs_ratio = typename details::is_pkr_unit<T>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<S>::ratio_type;
+    constexpr auto dim1 = details::is_pkr_unit<T>::value_dimension;
+    constexpr auto dim2 = details::is_pkr_unit<S>::value_dimension;
+
+    constexpr dimension_t result_dim{
+        .length = dim1.length - dim2.length,
+        .mass = dim1.mass - dim2.mass,
+        .time = dim1.time - dim2.time,
+        .current = dim1.current - dim2.current,
+        .temperature = dim1.temperature - dim2.temperature,
+        .amount = dim1.amount - dim2.amount,
+        .intensity = dim1.intensity - dim2.intensity,
+        .angle = dim1.angle - dim2.angle};
+
+    // Preserve lhs unit ratio
+    value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, result_dim>::type;
+    return result_type{details::divide_values(lhs.value(), rhs_converted)};
+}
+
+// operator/(scalar_t, Unit) -> produces inverse unit (1/Unit)
+template <is_base_pkr_unit_c S, is_base_pkr_unit_c T>
+    requires(details::is_pkr_unit<S>::value_dimension == scalar_dimension && details::is_pkr_unit<T>::value_dimension != scalar_dimension)
+constexpr auto operator/(const S& lhs, const T& rhs) noexcept
+{
+    using value_type = typename details::is_pkr_unit<S>::value_type;
+    using lhs_ratio = typename details::is_pkr_unit<S>::ratio_type;
+    using rhs_ratio = typename details::is_pkr_unit<T>::ratio_type;
+    constexpr auto dim1 = details::is_pkr_unit<S>::value_dimension;
+    constexpr auto dim2 = details::is_pkr_unit<T>::value_dimension;
+
+    // Invert the ratio and dimensions of rhs for the result
+    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, rhs_ratio>;
+    constexpr dimension_t inv_dim{
+        .length = -dim2.length,
+        .mass = -dim2.mass,
+        .time = -dim2.time,
+        .current = -dim2.current,
+        .temperature = -dim2.temperature,
+        .amount = -dim2.amount,
+        .intensity = -dim2.intensity,
+        .angle = -dim2.angle};
+
+    using result_type = typename details::derived_unit_type_t<value_type, inv_ratio, inv_dim>::type;
+    // Convert rhs to canonical for stable division
+    value_type rhs_canonical = details::convert_ratio_to<value_type, rhs_ratio, std::ratio<1, 1>>(rhs.value());
+    return result_type{details::divide_values(lhs.value(), rhs_canonical)};
+}
+
+// Free function scalar division (unit / scalar) - returns the most derived type
+template <typename T, typename ScalarType>
+    requires(is_base_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
     using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
-    return result_type(details::multiply_values(scalar, unit.value()));
+    // Ensure scalar uses same value_type before dividing
+    return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
+}
+
+// Free function scalar multiplication (scalar * unit) - returns the most derived type
+template <typename ScalarType, typename T>
+
+    requires(is_base_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
+{
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
+    constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
+
+    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    // Ensure scalar and unit value use the same value_type before multiplying
+    return result_type(details::multiply_values<value_type>(static_cast<value_type>(scalar), unit.value()));
 }
 
 // Free function scalar division (scalar / unit) - returns the most derived type of 1/unit
 template <typename ScalarType, typename T>
 
-requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) constexpr auto operator/(const ScalarType& scalar, const T& unit)
+    requires(is_base_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator/(const ScalarType& scalar, const T& unit)
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
@@ -187,103 +367,171 @@ requires(details::pkr_unit_concept<T>&& std::is_arithmetic_v<ScalarType>) conste
     // Invert the ratio for division
     using inverted_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
 
-    using result_type = details::unit_t<value_type, inverted_ratio, inverted_dim>;
-    return result_type(details::divide_values(scalar, unit.value()));
+    using result_type = typename details::derived_unit_type_t<value_type, inverted_ratio, inverted_dim>::type;
+    // Ensure scalar uses same value_type before dividing
+    return result_type(details::divide_values<value_type>(static_cast<value_type>(scalar), unit.value()));
+}
+
+// ============================================================================
+// Derived Type Operator Overloads
+// ============================================================================
+
+// Free function scalar multiplication (scalar * derived_unit) - delegates to base
+template <typename ScalarType, typename T>
+    requires(is_derived_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
+{
+    using base_type = typename T::_base;
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    // Delegate to base type operation, then convert result back to derived if needed
+    auto base_result = scalar * static_cast<const base_type&>(unit);
+    return T{base_result.value()};
+}
+
+// Free function unit * scalar (derived_unit * scalar)
+template <typename T, typename ScalarType>
+    requires(is_derived_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator*(const T& unit, const ScalarType& scalar) noexcept
+{
+    return scalar * unit;
+}
+
+// Free function scalar division (scalar / derived_unit)
+template <typename ScalarType, typename T>
+    requires(is_derived_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator/(const ScalarType& scalar, const T& unit) noexcept
+{
+    using base_type = typename T::_base;
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    // Delegate to base type operation
+    auto base_result = scalar / static_cast<const base_type&>(unit);
+    // Result type may differ (e.g., scalar/meter -> 1/meter), so return as-is
+    return base_result;
+}
+
+// Free function derived_unit / scalar
+template <typename T, typename ScalarType>
+    requires(is_derived_pkr_unit_c<T> && scalar_value_c<ScalarType>)
+constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
+{
+    using value_type = typename details::is_pkr_unit<T>::value_type;
+    using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
+    constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
+
+    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
 
 // Comparison operators
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
 {
-    using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-    using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
-    using canonical_value_lhs = double;
+    auto to_canonical = [](const auto& unit)
+    {
+        using unit_type = std::remove_cvref_t<decltype(unit)>;
+        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
+        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
 
-    if constexpr (std::ratio_equal_v<lhs_ratio, rhs_ratio>)
-    {
-        return lhs.value() == rhs.value();
-    }
-    else
-    {
-        auto to_canonical = [](const auto& unit)
+        if constexpr (is_derived_pkr_unit_c<unit_type>)
         {
-            using ratio_type = typename details::is_pkr_unit<decltype(unit)>::ratio_type;
+            const auto& base_unit = static_cast<const actual_type&>(unit);
+            return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        }
+        else
+        {
             return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
-        };
-        return to_canonical(lhs) == to_canonical(rhs);
-    }
+        }
+    };
+    return to_canonical(lhs) == to_canonical(rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
 {
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
-        return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
+        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
+
+        if constexpr (is_derived_pkr_unit_c<unit_type>)
+        {
+            const auto& base_unit = static_cast<const actual_type&>(unit);
+            return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        }
+        else
+        {
+            return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        }
     };
     return to_canonical(lhs) < to_canonical(rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
 {
     return lhs < rhs || lhs == rhs;
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs <= rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
 {
     return !(lhs < rhs);
 }
 
-template <details::pkr_unit_concept T1, details::pkr_unit_concept T2>
-requires same_dimensions_c<T1, T2>
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
 
 constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
 {
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
-        return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
+        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
+
+        if constexpr (is_derived_pkr_unit_c<unit_type>)
+        {
+            const auto& base_unit = static_cast<const actual_type&>(unit);
+            return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        }
+        else
+        {
+            return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
+        }
     };
     return to_canonical(lhs) <=> to_canonical(rhs);
 }
 
-} // namespace PKR_UNITS_NAMESPACE
+// Equality operator for derived types (now handled by unified operator== above)
+// template <is_derived_pkr_unit_c T>
+// constexpr bool operator==(const T& lhs, const T& rhs) noexcept
+// {
+//     return lhs.value() == rhs.value();
+// }
 
-// Include dimension definitions at global scope after all namespaces close
-// The _decl.h files will open their own namespace PKR_UNITS_NAMESPACE blocks
-#include <pkr_units/impl/decls/length_decl.h>
-#include <pkr_units/impl/decls/mass_decl.h>
-#include <pkr_units/impl/decls/time_decl.h>
-#include <pkr_units/impl/decls/current_decl.h>
-#include <pkr_units/impl/decls/temperature_decl.h>
-#include <pkr_units/impl/decls/amount_decl.h>
-#include <pkr_units/impl/decls/intensity_decl.h>
+} // namespace PKR_UNITS_NAMESPACE

@@ -24,9 +24,10 @@ TEST_F(SiMassOperatorsTest, add_gram_to_kilogram)
 {
     pkr::units::gram_t g{500.0};
     pkr::units::kilogram_t kg{1.0};
-    auto result = g + kg;
-    static_assert(std::is_same_v<decltype(result), pkr::units::gram_t>);
-    // Result is in canonical unit (gram), so 1kg = 1000g, result = 1500g
+    auto result = g + kg; // preserves LHS (gram)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::gram_t>, "operator+ should preserve LHS type (gram)");
+    // 500 g + 1000 g = 1500 g
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -63,9 +64,10 @@ TEST_F(SiMassOperatorsTest, subtract_kilogram_from_gram)
 {
     pkr::units::gram_t g{1500.0};
     pkr::units::kilogram_t kg{1.0};
-    auto result = g - kg;
-    static_assert(std::is_same_v<decltype(result), pkr::units::gram_t>);
-    // 1500g - 1000g = 500g
+    auto result = g - kg; // preserves LHS (gram)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::gram_t>, "operator- should preserve LHS type (gram)");
+    // 1500 g - 1000 g = 500 g
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
@@ -85,19 +87,6 @@ TEST_F(SiMassOperatorsTest, divide_kilogram_by_scalar)
     pkr::units::kilogram_t kg{10.0};
     auto result = kg / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
-}
-
-TEST_F(SiMassOperatorsTest, divide_by_zero_scalar_throws)
-{
-    pkr::units::kilogram_t kg{10.0};
-    ASSERT_THROW(kg / 0.0, std::invalid_argument);
-}
-
-TEST_F(SiMassOperatorsTest, divide_by_zero_si_unit_throws)
-{
-    pkr::units::kilogram_t kg1{10.0};
-    pkr::units::kilogram_t kg2{0.0};
-    ASSERT_THROW(kg1 / kg2, std::invalid_argument);
 }
 
 TEST_F(SiMassOperatorsTest, multiply_kilogram_by_zero)

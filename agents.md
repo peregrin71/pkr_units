@@ -11,6 +11,7 @@ This file documents the coding style rules for the SI Units library. All code ge
 - Use `build/build.py` as the primary build entry point for all build-related tasks. Do not invoke PowerShell scripts or CMake commands directly. Refer to `.buildnotes.md` for detailed instructions on usage and options.
 - On Windows, use PowerShell syntax in examples and commands.
 - On macOS/Linux, use bash syntax in examples and commands.
+- Do not pipe or truncate build output (e.g., do not use `| head -100` or `2>&1 |`). Always run builds to completion so full output is visible.
 
 
 ## C++ Code Style
