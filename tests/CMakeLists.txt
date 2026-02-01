@@ -6,8 +6,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 # Collect all test source files
 set(TEST_SOURCES
   main.cpp
-    
-  # Math tests
+  
   acceleration/test_acceleration_cast.cpp
   acceleration/test_acceleration_formatting.cpp
   acceleration/test_acceleration_operators.cpp
@@ -89,7 +88,7 @@ set(TEST_SOURCES
   viscosity/test_viscosity.cpp
   volume/test_si_volume_formatting.cpp
   
-  # Numerical (stability) tests
+  # Numerical (stability) tests - WIP, not complete
   # numerical/test_three_body_problem.cpp
 )
 

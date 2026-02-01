@@ -8,7 +8,6 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/dimensionless/scalar.h>
 
-
 namespace PKR_UNITS_NAMESPACE
 {
 
@@ -66,104 +65,6 @@ template <typename T, typename Ratio, dimension_t Dim>
 constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a / scalar;
-}
-
-// ============================================================================
-// Numerically Stable Operations (work with named units)
-// ============================================================================
-
-// Stable addition - returns unit_t with canonical ratio for numerical stability
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto stable_add(const T1& lhs, const T2& rhs) noexcept
-{
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
-
-    if constexpr (std::is_same_v<ratio1, ratio2>)
-    {
-        return T1{lhs.value() + rhs.value()};
-    }
-    else
-    {
-        // Convert rhs to lhs ratio and add
-        value_type converted_rhs = details::convert_ratio_to<value_type, ratio2, ratio1>(rhs.value());
-        return T1{lhs.value() + converted_rhs};
-    }
-}
-
-// Stable subtraction - returns unit_t with canonical ratio
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto stable_subtract(const T1& lhs, const T2& rhs) noexcept
-{
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    constexpr auto dim = details::is_pkr_unit<T1>::value_dimension;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
-
-    if constexpr (std::is_same_v<ratio1, ratio2>)
-    {
-        return T1{lhs.value() - rhs.value()};
-    }
-    else
-    {
-        // Convert rhs to lhs ratio and subtract
-        value_type converted_rhs = details::convert_ratio_to<value_type, ratio2, ratio1>(rhs.value());
-        return T1{lhs.value() - converted_rhs};
-    }
-}
-
-// Stable multiplication - returns unit_t with combined ratio
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-constexpr auto stable_multiply(const T1& lhs, const T2& rhs) noexcept
-{
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
-    constexpr auto dim1 = details::is_pkr_unit<T1>::value_dimension;
-    constexpr auto dim2 = details::is_pkr_unit<T2>::value_dimension;
-
-    using combined_ratio = std::ratio_multiply<ratio1, ratio2>;
-
-    constexpr dimension_t combined_dim{
-        .length = dim1.length + dim2.length,
-        .mass = dim1.mass + dim2.mass,
-        .time = dim1.time + dim2.time,
-        .current = dim1.current + dim2.current,
-        .temperature = dim1.temperature + dim2.temperature,
-        .amount = dim1.amount + dim2.amount,
-        .intensity = dim1.intensity + dim2.intensity,
-        .angle = dim1.angle + dim2.angle};
-
-    return details::unit_t<value_type, combined_ratio, combined_dim>{lhs.value() * rhs.value()};
-}
-
-// Stable division - returns unit_t with combined ratio
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-constexpr auto stable_divide(const T1& lhs, const T2& rhs) noexcept
-{
-    using value_type = typename details::is_pkr_unit<T1>::value_type;
-    using ratio1 = typename details::is_pkr_unit<T1>::ratio_type;
-    using ratio2 = typename details::is_pkr_unit<T2>::ratio_type;
-    constexpr auto dim1 = details::is_pkr_unit<T1>::value_dimension;
-    constexpr auto dim2 = details::is_pkr_unit<T2>::value_dimension;
-
-    using combined_ratio = std::ratio_divide<ratio1, ratio2>;
-
-    constexpr dimension_t combined_dim{
-        .length = dim1.length - dim2.length,
-        .mass = dim1.mass - dim2.mass,
-        .time = dim1.time - dim2.time,
-        .current = dim1.current - dim2.current,
-        .temperature = dim1.temperature - dim2.temperature,
-        .amount = dim1.amount - dim2.amount,
-        .intensity = dim1.intensity - dim2.intensity,
-        .angle = dim1.angle - dim2.angle};
-
-    return details::unit_t<value_type, combined_ratio, combined_dim>{lhs.value() / rhs.value()};
 }
 
 // ============================================================================
@@ -276,7 +177,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     if constexpr (std::is_same_v<Ratio, std::ratio<1, 1>>)
     {
         using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
-        
+
         if constexpr (N == 0)
             return result_type{1.0};
         else if constexpr (N == 1)
@@ -300,7 +201,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     {
         // For other ratios, just return generic unit_t (specializations would be needed for derived types)
         using result_type = details::unit_t<T, Ratio, powered_dim>;
-        
+
         if constexpr (N == 0)
             return result_type{1.0};
         else if constexpr (N == 1)
@@ -327,7 +228,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
 // ============================================================================
 
 // exp() - only works on dimensionless units (all dimensions zero)
-template <is_pkr_unit_c T>
+template <is_base_pkr_unit_c T>
 auto exp(const T& x) noexcept
 {
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
@@ -339,7 +240,7 @@ auto exp(const T& x) noexcept
 }
 
 // log() - returns dimensionless unit (log of dimensionless input)
-template <is_pkr_unit_c T>
+template <is_base_pkr_unit_c T>
 auto log(const T& x)
 {
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
@@ -356,7 +257,7 @@ auto log(const T& x)
 }
 
 // sqrt() - returns unit with square root dimensions
-template <is_pkr_unit_c T>
+template <is_base_pkr_unit_c T>
 auto sqrt(const T& x)
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
@@ -386,7 +287,7 @@ auto sqrt(const T& x)
 }
 
 // Normalize a unit_t to its canonical SI form (ratio 1/1)
-template <is_pkr_unit_c T>
+template <is_base_pkr_unit_c T>
 constexpr auto normalize(const T& unit) noexcept
 {
     return unit.in_base_si_units();

@@ -8,7 +8,7 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Magnetic field strength dimension: A·m^-1
-inline constexpr dimension_t magnetic_field_strength_dimension{ -1, 0, 0, 1, 0, 0, 0, 0 };
+inline constexpr dimension_t magnetic_field_strength_dimension{-1, 0, 0, 1, 0, 0, 0, 0};
 
 // CGS magnetic field strength unit
 // Oersted = (1000 / (4*pi)) A/m (approximate ratio)

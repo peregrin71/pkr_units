@@ -23,7 +23,7 @@ struct is_measurement_t_tag
 {
 };
 
-template<typename T>
+template <typename T>
 concept is_measurement_c = std::is_base_of_v<is_measurement_t_tag, T>;
 
 template <typename UnitT>
@@ -262,40 +262,45 @@ std::ostream& operator<<(std::ostream& os, const measurement_t<UnitT>& measureme
 
 // Scalar operations
 template <typename UnitT, typename T>
-requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
-auto operator*(const measurement_t<UnitT>& lhs, T rhs) {
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(const measurement_t<UnitT>& lhs, T rhs)
+{
     return measurement_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
 }
 
 template <typename T, typename UnitT>
-requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
-auto operator*(T lhs, const measurement_t<UnitT>& rhs) {
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(T lhs, const measurement_t<UnitT>& rhs)
+{
     return rhs * lhs;
 }
 
 template <typename UnitT, typename T>
-requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
-auto operator/(const measurement_t<UnitT>& lhs, T rhs) {
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator/(const measurement_t<UnitT>& lhs, T rhs)
+{
     return measurement_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
 }
 
 template <typename T, typename UnitT>
-requires is_unit_value_type_c<T>
-auto operator/(T lhs, const measurement_t<UnitT>& rhs) {
+    requires is_unit_value_type_c<T>
+auto operator/(T lhs, const measurement_t<UnitT>& rhs)
+{
     // For scalar / measurement, result is measurement with inverse unit
     using stored_t = std::remove_cv_t<UnitT>;
     using value_type = typename details::is_pkr_unit<stored_t>::value_type;
     using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
-    constexpr dimension_t inv_dim{
-        -dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle
-    };
+    constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
     using inv_ratio = std::ratio_divide<std::ratio<1>, ratio_type>;
     using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
 
 } // namespace PKR_UNITS_NAMESPACE
+
+// Include formatting traits for measurement formatting
+#include <pkr_units/impl/unit_formatting_traits.h>
 
 // std::formatter specialization for measurement_t
 namespace std
@@ -321,57 +326,23 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_t<UnitT>, CharT>
         // Format the value part using the value formatter (which handles format specifiers)
         out = value_formatter.format(measurement.value(), ctx);
 
-        // Add uncertainty with appropriate ± symbol, also using the value formatter
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            out = std::format_to(out, " +/- ");
-            out = value_formatter.format(measurement.uncertainty(), ctx);
-        }
-        else if constexpr (std::is_same_v<CharT, char8_t>)
-        {
-            // For UTF-8, use ± symbol
-            out = std::format_to(out, u8" \u00B1 ");
-            out = value_formatter.format(measurement.uncertainty(), ctx);
-        }
-        else if constexpr (std::is_same_v<CharT, char16_t>)
-        {
-            // For UTF-16, use ± symbol
-            out = std::format_to(out, u" \u00B1 ");
-            out = value_formatter.format(measurement.uncertainty(), ctx);
-        }
-        else if constexpr (std::is_same_v<CharT, char32_t>)
-        {
-            // For UTF-32, use ± symbol
-            out = std::format_to(out, U" \u00B1 ");
-            out = value_formatter.format(measurement.uncertainty(), ctx);
-        }
-        else
-        {
-            // For wide char (wchar_t), use ± symbol
-            out = std::format_to(out, L" \u00B1 ");
-            out = value_formatter.format(measurement.uncertainty(), ctx);
-        }
+        // Add uncertainty with appropriate ± symbol using dispatch traits
+        auto pm_symbol = PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::plus_minus();
+        out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
+        out = value_formatter.format(measurement.uncertainty(), ctx);
 
         // Add unit symbol
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
-        {
             return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
-        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
-        {
             return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
-        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
             return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
-        }
         else
         {
             for (char ch : stored_t::symbol)
-            {
                 *out++ = static_cast<CharT>(ch);
-            }
             return out;
         }
     }

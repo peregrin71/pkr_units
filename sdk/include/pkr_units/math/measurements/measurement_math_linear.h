@@ -79,7 +79,7 @@ constexpr auto divide_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, c
 
 // Overload for multiplying measurement by scalar (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto multiply_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 {
     auto result_value = a.unit_value() * b;
@@ -89,7 +89,7 @@ auto multiply_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 
 // Overload for multiplying scalar by measurement (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto multiply_lin(T a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
 {
     auto result_value = a * b.unit_value();
@@ -99,7 +99,7 @@ auto multiply_lin(T a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
 
 // Overload for dividing measurement by scalar (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto divide_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 {
     auto result_value = a.unit_value() / b;
@@ -109,12 +109,12 @@ auto divide_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 
 // Overload for dividing scalar by measurement (zero uncertainty for scalar)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto divide_lin(T a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
 {
     auto result_value = a / b.unit_value();
     auto result_relative_uncertainty = b.relative_uncertainty();
-    auto result_uncertainty_value = decltype(result_value){ result_relative_uncertainty.value() * std::abs(result_value.value()) };
+    auto result_uncertainty_value = decltype(result_value){result_relative_uncertainty.value() * std::abs(result_value.value())};
     return PKR_UNITS_NAMESPACE::measurement_t<decltype(result_value)>{result_value, result_uncertainty_value};
 }
 
@@ -174,7 +174,7 @@ constexpr auto pow_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurem
 // For f(x) = sin(x), the uncertainty δf = |cos(x)| * δx
 // Only works on angle units (dimensionless in angle sense)
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 auto sin_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     // Use std::sin for the value (angle input in radians)
@@ -191,7 +191,7 @@ auto sin_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // For f(x) = cos(x), the uncertainty δf = |sin(x)| * δx
 // Only works on angle units (dimensionless in angle sense)
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 auto cos_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     // Use std::cos for the value (angle input in radians)
@@ -208,7 +208,7 @@ auto cos_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 // For f(x) = tan(x), the relative uncertainty δf/f = (1/cos²(x)) * δx/x
 // Only works on angle units (dimensionless in angle sense)
 template <typename UnitT>
-requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
+    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 auto tan_lin(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measurement)
 {
     // Use std::tan for the value (angle input in radians)

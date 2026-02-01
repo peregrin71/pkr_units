@@ -179,6 +179,7 @@ struct examole_t final : public details::unit_t<double, std::exa, amount_dimensi
     static constexpr std::wstring_view w_symbol{L"Emol"};
     static constexpr std::u8string_view u8_symbol{u8"Emol"};
 };
+
 // ============================================================================
 // Most derived unit type specializations for amount units
 // ============================================================================

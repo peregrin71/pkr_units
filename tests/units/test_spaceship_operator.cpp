@@ -38,8 +38,8 @@ TEST_F(SpaceshipOperatorTest, RegularUnitsComparison)
 // Test <=> operator for temperature units with affine transformations
 TEST_F(SpaceshipOperatorTest, TemperatureUnitsComparison)
 {
-    pkr::units::kelvin_t k1{273.15}; // 0°C
-    pkr::units::celsius_t c1{0.0};   // 0°C
+    pkr::units::kelvin_t k1{273.15};   // 0°C
+    pkr::units::celsius_t c1{0.0};     // 0°C
     pkr::units::fahrenheit_t f1{32.0}; // 0°C
 
     // All should be equal (representing same temperature)

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/math/unit/unit_math.h>
 #include <pkr_units/si_units.h>
+#include <numbers>
 
 namespace test
 {
@@ -91,7 +92,7 @@ TEST_F(UnitMathTest, trigonometric_functions)
     static_assert(std::is_same_v<decltype(t), pkr::units::scalar_t>, "tan returns scalar");
 
     // Test with pi/2 radians
-    pkr::units::radian_t angle_pi_2{M_PI / 2.0};
+    pkr::units::radian_t angle_pi_2{std::numbers::pi / 2.0};
     auto sin_pi_2 = pkr::units::sin(angle_pi_2);
     ASSERT_NEAR(sin_pi_2.value(), 1.0, 1e-10);
 
@@ -99,4 +100,4 @@ TEST_F(UnitMathTest, trigonometric_functions)
     ASSERT_NEAR(cos_pi_2.value(), 0.0, 1e-10);
 }
 
-}
+} // namespace test

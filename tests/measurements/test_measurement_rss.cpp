@@ -1,5 +1,6 @@
 #include <cmath>
 #include <gtest/gtest.h>
+#include <numbers>
 #include <pkr_units/measurements/measurement.h>
 #include <pkr_units/math/measurements/measurement_math_rss.h>
 #include <pkr_units/si_units.h>
@@ -57,6 +58,7 @@ TEST_F(MeasurementRssTest, drag_force_calculation_rss)
     ASSERT_NEAR(drag_force.value(), 413.4, 1e-1);
     ASSERT_NEAR(drag_force.uncertainty(), 35.0, 0.2);
 }
+
 TEST_F(MeasurementRssTest, pow_integer_exponent_rss)
 {
     // Test power function with fully correlated uncertainty
@@ -113,7 +115,7 @@ TEST_F(MeasurementRssTest, cos_rss_measurement)
 TEST_F(MeasurementRssTest, tan_rss_measurement)
 {
     // Angle measurement in radians: pi/4 ± 0.05 rad
-    pkr::units::measurement_t<pkr::units::radian_t> angle{M_PI / 4.0, 0.05};
+    pkr::units::measurement_t<pkr::units::radian_t> angle{std::numbers::pi / 4.0, 0.05};
 
     auto result = pkr::units::tan_rss(angle);
 

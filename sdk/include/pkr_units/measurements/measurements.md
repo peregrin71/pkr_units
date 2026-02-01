@@ -191,8 +191,6 @@ public:
 The `measurement_t` class requires additional math functions to be added to the units library:
 
 ```cpp
-namespace math {
-
 // Square root for unit_t types (needed for quadrature uncertainty combination)
 template<typename UnitT>
 auto sqrt(const UnitT& value) -> /* appropriate result type */;
@@ -206,8 +204,6 @@ auto exp(const UnitT& value) -> /* dimensionless result */;
 
 template<typename UnitT>
 auto log(const UnitT& value) -> /* dimensionless result */;
-
-} // namespace math
 ```
 
 **Note**: `math::sqrt()` needs to handle dimensional analysis correctly. For example:

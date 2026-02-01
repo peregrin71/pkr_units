@@ -183,8 +183,6 @@ TEST_F(MathFunctionsTest, sqrt_velocity_squared)
     static_assert(std::is_same_v<result_ratio, std::ratio<1, 1>>, "Should have ratio of 1");
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
-    
-
 }
 
 TEST_F(MathFunctionsTest, normalize_complex_operations)

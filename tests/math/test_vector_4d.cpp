@@ -17,7 +17,7 @@ class Vector4DTest : public Test
 
 TEST_F(Vector4DTest, construction)
 {
-    pkr::units::math::vec_4d_t<double> v{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v{1.0, 2.0, 3.0, 4.0};
     EXPECT_DOUBLE_EQ(v.x, 1.0);
     EXPECT_DOUBLE_EQ(v.y, 2.0);
     EXPECT_DOUBLE_EQ(v.z, 3.0);
@@ -26,10 +26,10 @@ TEST_F(Vector4DTest, construction)
 
 TEST_F(Vector4DTest, addition)
 {
-    pkr::units::math::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
-    pkr::units::math::vec_4d_t<double> v2{0.5, 1.5, 2.5, 3.5};
+    pkr::units::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v2{0.5, 1.5, 2.5, 3.5};
     auto result = v1 + v2;
-    
+
     EXPECT_DOUBLE_EQ(result.x, 1.5);
     EXPECT_DOUBLE_EQ(result.y, 3.5);
     EXPECT_DOUBLE_EQ(result.z, 5.5);
@@ -38,10 +38,10 @@ TEST_F(Vector4DTest, addition)
 
 TEST_F(Vector4DTest, subtraction)
 {
-    pkr::units::math::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
-    pkr::units::math::vec_4d_t<double> v2{0.5, 1.5, 2.5, 3.5};
+    pkr::units::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v2{0.5, 1.5, 2.5, 3.5};
     auto result = v1 - v2;
-    
+
     EXPECT_DOUBLE_EQ(result.x, 0.5);
     EXPECT_DOUBLE_EQ(result.y, 0.5);
     EXPECT_DOUBLE_EQ(result.z, 0.5);
@@ -50,9 +50,9 @@ TEST_F(Vector4DTest, subtraction)
 
 TEST_F(Vector4DTest, scalar_multiplication)
 {
-    pkr::units::math::vec_4d_t<double> v{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v{1.0, 2.0, 3.0, 4.0};
     auto result = v * 2.0;
-    
+
     EXPECT_DOUBLE_EQ(result.x, 2.0);
     EXPECT_DOUBLE_EQ(result.y, 4.0);
     EXPECT_DOUBLE_EQ(result.z, 6.0);
@@ -61,9 +61,9 @@ TEST_F(Vector4DTest, scalar_multiplication)
 
 TEST_F(Vector4DTest, scalar_division)
 {
-    pkr::units::math::vec_4d_t<double> v{2.0, 4.0, 6.0, 8.0};
+    pkr::units::vec_4d_t<double> v{2.0, 4.0, 6.0, 8.0};
     auto result = v / 2.0;
-    
+
     EXPECT_DOUBLE_EQ(result.x, 1.0);
     EXPECT_DOUBLE_EQ(result.y, 2.0);
     EXPECT_DOUBLE_EQ(result.z, 3.0);
@@ -72,9 +72,9 @@ TEST_F(Vector4DTest, scalar_division)
 
 TEST_F(Vector4DTest, negation)
 {
-    pkr::units::math::vec_4d_t<double> v{1.0, -2.0, 3.0, -4.0};
+    pkr::units::vec_4d_t<double> v{1.0, -2.0, 3.0, -4.0};
     auto result = -v;
-    
+
     EXPECT_DOUBLE_EQ(result.x, -1.0);
     EXPECT_DOUBLE_EQ(result.y, 2.0);
     EXPECT_DOUBLE_EQ(result.z, -3.0);
@@ -83,19 +83,19 @@ TEST_F(Vector4DTest, negation)
 
 TEST_F(Vector4DTest, equality)
 {
-    pkr::units::math::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
-    pkr::units::math::vec_4d_t<double> v2{1.0, 2.0, 3.0, 4.0};
-    pkr::units::math::vec_4d_t<double> v3{1.1, 2.0, 3.0, 4.0};
-    
+    pkr::units::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v2{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v3{1.1, 2.0, 3.0, 4.0};
+
     EXPECT_TRUE(v1 == v2);
     EXPECT_FALSE(v1 == v3);
 }
 
 TEST_F(Vector4DTest, inequality)
 {
-    pkr::units::math::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
-    pkr::units::math::vec_4d_t<double> v2{1.1, 2.0, 3.0, 4.0};
-    
+    pkr::units::vec_4d_t<double> v1{1.0, 2.0, 3.0, 4.0};
+    pkr::units::vec_4d_t<double> v2{1.1, 2.0, 3.0, 4.0};
+
     EXPECT_TRUE(v1 != v2);
 }
 

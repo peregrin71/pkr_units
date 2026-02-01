@@ -6,6 +6,7 @@
 #include <string>
 #include <type_traits>
 #include <pkr_units/units/astronomical/angle.h>
+#include <pkr_units/impl/unit_formatting_traits.h>
 
 namespace std
 {
@@ -37,8 +38,7 @@ struct hms_component_formatter
         }
         else
         {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>,
-                          "UTF-8 formatting is not supported for astronomical angle units");
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
             return out;
         }
     }
@@ -133,8 +133,7 @@ struct formatter<PKR_UNITS_NAMESPACE::hms_angle_t, CharT>
         }
         else
         {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>,
-                          "UTF-8 formatting is not supported for astronomical angle units");
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
         }
 
         if constexpr (std::is_same_v<CharT, char>)
@@ -211,8 +210,7 @@ struct formatter<PKR_UNITS_NAMESPACE::dms_angle_t, CharT>
         }
         else
         {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>,
-                          "UTF-8 formatting is not supported for astronomical angle units");
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
         }
 
         if constexpr (std::is_same_v<CharT, char>)

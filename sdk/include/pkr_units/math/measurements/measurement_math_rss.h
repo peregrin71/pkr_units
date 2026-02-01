@@ -70,9 +70,10 @@ constexpr auto square_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& measu
 // Sum of squares helper (x^2 + y^2 + z^2) for measurements of the same unit type
 // Uses constexpr RSS operations where available
 template <typename UnitT>
-constexpr auto sum_of_squares_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& x,
-                                  const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& y,
-                                  const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& z)
+constexpr auto sum_of_squares_rss(
+    const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& x,
+    const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& y,
+    const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& z)
 {
     return add_rss(add_rss(square_rss(x), square_rss(y)), square_rss(z));
 }
@@ -96,7 +97,7 @@ auto multiply_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, const PKR
 
 // Overload for multiplying measurement by scalar (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto multiply_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 {
     auto result_value = a.unit_value() * b;
@@ -106,7 +107,7 @@ auto multiply_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 
 // Overload for multiplying scalar by measurement (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto multiply_rss(T a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
 {
     auto result_value = a * b.unit_value();
@@ -131,7 +132,7 @@ constexpr auto divide_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT1>& a, c
 
 // Overload for dividing measurement by scalar (zero uncertainty)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto divide_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 {
     auto result_value = a.unit_value() / b;
@@ -141,12 +142,12 @@ auto divide_rss(const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& a, T b)
 
 // Overload for dividing scalar by measurement (zero uncertainty for scalar)
 template <typename UnitT, typename T>
-    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_pkr_unit_c<T>
+    requires std::is_arithmetic_v<T> || PKR_UNITS_NAMESPACE::is_base_pkr_unit_c<T>
 auto divide_rss(T a, const PKR_UNITS_NAMESPACE::measurement_t<UnitT>& b)
 {
     auto result_value = a / b.unit_value();
     auto result_relative_uncertainty = b.relative_uncertainty();
-    auto result_uncertainty_value = decltype(result_value){ result_relative_uncertainty.value() * std::abs(result_value.value()) };
+    auto result_uncertainty_value = decltype(result_value){result_relative_uncertainty.value() * std::abs(result_value.value())};
     return PKR_UNITS_NAMESPACE::measurement_t<decltype(result_value)>{result_value, result_uncertainty_value};
 }
 

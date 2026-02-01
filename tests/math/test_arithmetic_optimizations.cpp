@@ -67,4 +67,3 @@ TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_kilometer_by_millimet
 
 // End: keep tests focused on optimization math rather than duplicating
 // per-dimension operator behavior.
-

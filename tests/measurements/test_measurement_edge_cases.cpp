@@ -73,26 +73,22 @@ TEST_F(MeasurementEdgeCasesTest, SpecialValues)
     using std::numeric_limits;
 
     // NaN value
-    pkr::units::measurement_t<pkr::units::meter_t> nan_val{
-        numeric_limits<double>::quiet_NaN(), 1.0};
+    pkr::units::measurement_t<pkr::units::meter_t> nan_val{numeric_limits<double>::quiet_NaN(), 1.0};
     EXPECT_TRUE(std::isnan(nan_val.value()));
     EXPECT_DOUBLE_EQ(nan_val.uncertainty(), 1.0);
 
     // Infinity value
-    pkr::units::measurement_t<pkr::units::meter_t> inf_val{
-        numeric_limits<double>::infinity(), 1.0};
+    pkr::units::measurement_t<pkr::units::meter_t> inf_val{numeric_limits<double>::infinity(), 1.0};
     EXPECT_TRUE(std::isinf(inf_val.value()));
     EXPECT_DOUBLE_EQ(inf_val.uncertainty(), 1.0);
 
     // NaN uncertainty
-    pkr::units::measurement_t<pkr::units::meter_t> nan_unc{1.0,
-        numeric_limits<double>::quiet_NaN()};
+    pkr::units::measurement_t<pkr::units::meter_t> nan_unc{1.0, numeric_limits<double>::quiet_NaN()};
     EXPECT_DOUBLE_EQ(nan_unc.value(), 1.0);
     EXPECT_TRUE(std::isnan(nan_unc.uncertainty()));
 
     // Infinity uncertainty
-    pkr::units::measurement_t<pkr::units::meter_t> inf_unc{1.0,
-        numeric_limits<double>::infinity()};
+    pkr::units::measurement_t<pkr::units::meter_t> inf_unc{1.0, numeric_limits<double>::infinity()};
     EXPECT_DOUBLE_EQ(inf_unc.value(), 1.0);
     EXPECT_TRUE(std::isinf(inf_unc.uncertainty()));
 }
@@ -115,8 +111,8 @@ TEST_F(MeasurementEdgeCasesTest, ArithmeticWithEdgeCases)
 
     // Division with zero uncertainty
     auto result3 = zero_unc / normal;
-    EXPECT_DOUBLE_EQ(result3.value(), 5.0/3.0);
-    EXPECT_NEAR(result3.uncertainty(), 5.0/3.0 * 0.1/3.0, 1e-10);
+    EXPECT_DOUBLE_EQ(result3.value(), 5.0 / 3.0);
+    EXPECT_NEAR(result3.uncertainty(), 5.0 / 3.0 * 0.1 / 3.0, 1e-10);
 }
 
 // Test measurement comparisons with edge cases

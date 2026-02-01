@@ -14,14 +14,29 @@ namespace PKR_UNITS_NAMESPACE
 // Specialized 4D Vector for Units (using stable math)
 // ============================================================================
 
-template<is_pkr_unit_c T>
-struct vec_4d_t<T> {
+template <is_base_pkr_unit_c T>
+struct vec_4d_t<T>
+{
     T x, y, z, w;
 
-    vec_4d_t() : x{0}, y{0}, z{0}, w{1} {}
-    vec_4d_t(T x, T y, T z, T w = 1) : x{x}, y{y}, z{z}, w{w} {}
+    vec_4d_t()
+        : x{0}
+        , y{0}
+        , z{0}
+        , w{1}
+    {
+    }
 
-    constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept {
+    vec_4d_t(T x, T y, T z, T w = 1)
+        : x{x}
+        , y{y}
+        , z{z}
+        , w{w}
+    {
+    }
+
+    constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept
+    {
         x = x + other.x;
         y = y + other.y;
         z = z + other.z;
@@ -29,7 +44,8 @@ struct vec_4d_t<T> {
         return *this;
     }
 
-    constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept {
+    constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept
+    {
         x = x - other.x;
         y = y - other.y;
         z = z - other.z;
@@ -38,7 +54,8 @@ struct vec_4d_t<T> {
     }
 
     template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator*=(const ScalarT& scalar) noexcept {
+    constexpr vec_4d_t& operator*=(const ScalarT& scalar) noexcept
+    {
         x = x * scalar;
         y = y * scalar;
         z = z * scalar;
@@ -47,7 +64,8 @@ struct vec_4d_t<T> {
     }
 
     template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator/=(const ScalarT& scalar) noexcept {
+    constexpr vec_4d_t& operator/=(const ScalarT& scalar) noexcept
+    {
         x = x / scalar;
         y = y / scalar;
         z = z / scalar;
@@ -56,7 +74,8 @@ struct vec_4d_t<T> {
     }
 
     // scalar_t overloads
-    constexpr vec_4d_t& operator*=(const scalar_t& scalar) noexcept {
+    constexpr vec_4d_t& operator*=(const scalar_t& scalar) noexcept
+    {
         x = x * scalar;
         y = y * scalar;
         z = z * scalar;
@@ -64,7 +83,8 @@ struct vec_4d_t<T> {
         return *this;
     }
 
-    constexpr vec_4d_t& operator/=(const scalar_t& scalar) noexcept {
+    constexpr vec_4d_t& operator/=(const scalar_t& scalar) noexcept
+    {
         x = x / scalar;
         y = y / scalar;
         z = z / scalar;
@@ -73,84 +93,69 @@ struct vec_4d_t<T> {
     }
 };
 
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
-    return vec_4d_t<T>{
-        a.x + b.x,
-        a.y + b.y,
-        a.z + b.z,
-        a.w + b.w
-    };
+template <is_base_pkr_unit_c T>
+constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+{
+    return vec_4d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 }
 
-template<is_pkr_unit_c T1, is_pkr_unit_c T2>
-requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept {
+template <is_base_pkr_unit_c T1, is_base_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept
+{
     using ResultT = decltype(a.x + b.x);
-    return vec_4d_t<ResultT>{
-        a.x + b.x,
-        a.y + b.y,
-        a.z + b.z,
-        a.w + b.w
-    };
+    return vec_4d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
 }
 
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
-    return vec_4d_t<T>{
-        a.x - b.x,
-        a.y - b.y,
-        a.z - b.z,
-        a.w - b.w
-    };
+template <is_base_pkr_unit_c T>
+constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+{
+    return vec_4d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
 }
 
-template<scalar_value_c ScalarT, is_pkr_unit_c T>
-constexpr auto operator*(const ScalarT& scalar, const vec_4d_t<T>& v) noexcept {
+template <scalar_value_c ScalarT, is_base_pkr_unit_c T>
+constexpr auto operator*(const ScalarT& scalar, const vec_4d_t<T>& v) noexcept
+{
     using ResultT = decltype(scalar * v.x);
-    return vec_4d_t<ResultT>{ scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w };
+    return vec_4d_t<ResultT>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
 }
 
-template<is_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar) {
+template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
+constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar)
+{
     return scalar * v;
 }
 
 // scalar_t overloads
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const scalar_t& scalar, const vec_4d_t<T>& v) noexcept {
-    return vec_4d_t<T>{
-        scalar * v.x,
-        scalar * v.y,
-        scalar * v.z,
-        scalar * v.w
-    };
+template <is_base_pkr_unit_c T>
+constexpr vec_4d_t<T> operator*(const scalar_t& scalar, const vec_4d_t<T>& v) noexcept
+{
+    return vec_4d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
 }
 
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept {
+template <is_base_pkr_unit_c T>
+constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept
+{
     return scalar * v;
 }
 
 // division by scalar_t
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept {
-    return vec_4d_t<T>{
-        v.x / scalar,
-        v.y / scalar,
-        v.z / scalar,
-        v.w / scalar
-    };
+template <is_base_pkr_unit_c T>
+constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept
+{
+    return vec_4d_t<T>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
 }
 
-template<is_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator/(const vec_4d_t<T>& v, const ScalarT& scalar) noexcept {
+template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
+constexpr auto operator/(const vec_4d_t<T>& v, const ScalarT& scalar) noexcept
+{
     using ResultT = decltype(v.x / scalar);
-    return vec_4d_t<ResultT>{ v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar };
+    return vec_4d_t<ResultT>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
 }
 
-template<is_pkr_unit_c T>
-constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
+template <is_base_pkr_unit_c T>
+constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+{
     // Use unit operators directly; addition combines units appropriately
     return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
 }

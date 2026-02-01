@@ -7,6 +7,8 @@
 #include <cmath>
 #include <iostream>
 #include <type_traits>
+#include <iomanip>
+#include <limits>
 
 #include "three_body_helpers.h"
 #include "vector_math_double.h"
@@ -20,6 +22,65 @@ namespace test
 {
 
 using namespace ::testing;
+
+// ============================================================================
+// Validation Helpers
+// ============================================================================
+
+namespace
+{
+// Checks if a value has diverged (exceeded reasonable bounds)
+bool has_diverged_double(double value, double max_allowed = 1e10)
+{
+    return std::isnan(value) || std::isinf(value) || std::abs(value) > max_allowed;
+}
+
+// Check if any component in a double vector has diverged
+bool vector_diverged_double(const pkr::units::math::vec_4d_t<double>& v, double max_allowed = 1e10)
+{
+    return has_diverged_double(v.x, max_allowed) || has_diverged_double(v.y, max_allowed) || has_diverged_double(v.z, max_allowed) ||
+           has_diverged_double(v.w, max_allowed);
+}
+
+// Compute total energy for double-based simulation
+// E = (1/2)*sum(m*v^2) + sum_pairs(-G*m_i*m_j/r_ij)
+double compute_total_energy_double(const pkr::test::numerical::three_body_state_double_t& state, double m1, double m2, double m3, double G)
+{
+    // Kinetic energy
+    double v1_sq = state.vel1.x * state.vel1.x + state.vel1.y * state.vel1.y + state.vel1.z * state.vel1.z;
+    double v2_sq = state.vel2.x * state.vel2.x + state.vel2.y * state.vel2.y + state.vel2.z * state.vel2.z;
+    double v3_sq = state.vel3.x * state.vel3.x + state.vel3.y * state.vel3.y + state.vel3.z * state.vel3.z;
+    double KE = 0.5 * (m1 * v1_sq + m2 * v2_sq + m3 * v3_sq);
+
+    // Potential energy
+    double dx12 = state.pos1.x - state.pos2.x, dy12 = state.pos1.y - state.pos2.y, dz12 = state.pos1.z - state.pos2.z;
+    double r12 = std::sqrt(dx12 * dx12 + dy12 * dy12 + dz12 * dz12);
+
+    double dx13 = state.pos1.x - state.pos3.x, dy13 = state.pos1.y - state.pos3.y, dz13 = state.pos1.z - state.pos3.z;
+    double r13 = std::sqrt(dx13 * dx13 + dy13 * dy13 + dz13 * dz13);
+
+    double dx23 = state.pos2.x - state.pos3.x, dy23 = state.pos2.y - state.pos3.y, dz23 = state.pos2.z - state.pos3.z;
+    double r23 = std::sqrt(dx23 * dx23 + dy23 * dy23 + dz23 * dz23);
+
+    double PE = -G * m1 * m2 / r12 - G * m1 * m3 / r13 - G * m2 * m3 / r23;
+
+    return KE + PE;
+}
+
+// Helper to check if positions are within reasonable bounds (AU scale)
+bool positions_reasonable_double(const pkr::test::numerical::three_body_state_double_t& state, double max_distance = 100.0)
+{
+    return !vector_diverged_double(state.pos1, max_distance) && !vector_diverged_double(state.pos2, max_distance) &&
+           !vector_diverged_double(state.pos3, max_distance);
+}
+
+// Helper to check if velocities are within reasonable bounds (AU/day scale)
+bool velocities_reasonable_double(const pkr::test::numerical::three_body_state_double_t& state, double max_velocity = 10.0)
+{
+    return !vector_diverged_double(state.vel1, max_velocity) && !vector_diverged_double(state.vel2, max_velocity) &&
+           !vector_diverged_double(state.vel3, max_velocity);
+}
+} // anonymous namespace
 
 class NumericalStabilityTest : public Test
 {
@@ -123,8 +184,7 @@ TEST_F(NumericalStabilityTest, ThreeBodyHelpers_TypesCompileAndDefaultConstruct)
     // Compile-time type checks
     static_assert(std::is_same_v<decltype(initial_state_double.pos1), pkr::units::vec_4d_t<double>>);
     static_assert(std::is_same_v<decltype(initial_state_si.pos1), pkr::units::vec_4d_units_t<pkr::units::meter_t>>);
-    static_assert(
-        std::is_same_v<decltype(initial_state_meas.pos1), pkr::units::vec_4d_measurements_rss_t<pkr::units::measurement_t<pkr::units::meter_t>>>);
+    static_assert(std::is_same_v<decltype(initial_state_meas.pos1), pkr::units::vec_4d_measurements_rss_t<pkr::units::measurement_t<pkr::units::meter_t>>>);
 
     // Default / example values are accessible at runtime
     EXPECT_TRUE(std::isfinite(initial_state_double.pos1.x));
@@ -259,14 +319,16 @@ TEST_F(NumericalStabilityTest, ThreeBodyProblem_SIUnits)
     EXPECT_TRUE(std::isfinite(result.pos3_final[0]) && std::isfinite(result.pos3_final[1]) && std::isfinite(result.pos3_final[2]));
 }
 
-TEST_F(NumericalStabilityTest, ThreeBodyProblem_SIUnits_Perturbed) {
+TEST_F(NumericalStabilityTest, ThreeBodyProblem_SIUnits_Perturbed)
+{
     using namespace pkr::test::numerical;
 
     // Deterministic small perturbations (in AU for positions, AU/year for velocities)
     std::vector<double> pos_eps = {1e-6, 1e-4, 1e-3};
     double dt = 0.01; // original problematic dt; ensure non-degenerate initial conditions are stable
 
-    for (double eps : pos_eps) {
+    for (double eps : pos_eps)
+    {
         // Start from the perturbed initial condition
         three_body_state_si_t s = initial_state_si;
 
@@ -320,10 +382,10 @@ TEST_F(NumericalStabilityTest, ThreeBodyDiagnostics_GravPerStep)
             auto r2 = pkr::units::dot(diff, diff);
             auto r = pkr::units::sqrt(r2);
             auto r3 = r * r2;
-            auto inv_r3 = pkr::units::stable_divide(1.0, r3);
-            auto gm = pkr::units::stable_multiply(constants::gravitational_constant, mj);
-            auto factor = pkr::units::stable_multiply(gm, inv_r3);
-            auto delta = pkr::units::stable_multiply(factor, diff);
+            auto inv_r3 = 1.0 / r3;
+            auto gm = constants::gravitational_constant * mj;
+            auto factor = gm * inv_r3;
+            auto delta = factor * diff;
 
             auto accel_conv = (au_t(1.0) / year_t(1.0) / year_t(1.0));
             auto delta_in_au_per_year2 = (delta.x / accel_conv).value();
@@ -362,91 +424,160 @@ TEST_F(NumericalStabilityTest, ThreeBodyDiagnostics_GravPerStep)
         EXPECT_TRUE(std::isfinite(state_pd.pos1.x));
         EXPECT_TRUE(std::isfinite(state_si.pos1.x.value()));
     }
-
-    // TEST_F(NumericalStabilityTest, ThreeBodyProblem_Measurements) {
-    //     auto result = pkr::test::numerical::run_three_body_simulation_measurements();
-
-    //     // Report comprehensive results
-    //     std::cout << "\n=== Measurements Results ===\n";
-    //     std::cout << "Steps: " << result.steps_run << ", Time step: " << result.time_step << " years, Total time: " << result.total_time << " years\n";
-    //     std::cout << "Initial energy: " << result.initial_energy << "\n";
-    //     std::cout << "Final energy: " << result.final_energy << "\n";
-    //     std::cout << "Max energy drift: " << result.max_energy_drift << "\n";
-    //     std::cout << "Final positions (AU): (" << result.pos1_final[0] << ", " << result.pos1_final[1] << ", " << result.pos1_final[2] << ") "
-    //               << "(" << result.pos2_final[0] << ", " << result.pos2_final[1] << ", " << result.pos2_final[2] << ") "
-    //               << "(" << result.pos3_final[0] << ", " << result.pos3_final[1] << ", " << result.pos3_final[2] << ")\n";
-    //     std::cout << "Final velocities (AU/year): (" << result.vel1_final[0] << ", " << result.vel1_final[1] << ", " << result.vel1_final[2] << ") "
-    //               << "(" << result.vel2_final[0] << ", " << result.vel2_final[1] << ", " << result.vel2_final[2] << ") "
-    //               << "(" << result.vel3_final[0] << ", " << result.vel3_final[1] << ", " << result.vel3_final[2] << ")\n";
-    //     std::cout << "Position uncertainties (AU): (" << result.pos1_uncertainty[0] << ", " << result.pos1_uncertainty[1] << ", " << result.pos1_uncertainty[2] << ") "
-    //               << "(" << result.pos2_uncertainty[0] << ", " << result.pos2_uncertainty[1] << ", " << result.pos2_uncertainty[2] << ") "
-    //               << "(" << result.pos3_uncertainty[0] << ", " << result.pos3_uncertainty[1] << ", " << result.pos3_uncertainty[2] << ")\n";
-    //     std::cout << "Velocity uncertainties (AU/year): (" << result.vel1_uncertainty[0] << ", " << result.vel1_uncertainty[1] << ", " << result.vel1_uncertainty[2] << ") "
-    //               << "(" << result.vel2_uncertainty[0] << ", " << result.vel2_uncertainty[1] << ", " << result.vel2_uncertainty[2] << ") "
-    //               << "(" << result.vel3_uncertainty[0] << ", " << result.vel3_uncertainty[1] << ", " << result.vel3_uncertainty[2] << ")\n";
-
-    //     // Check that energy drift is reasonable (measurements have uncertainty propagation)
-    //     EXPECT_LT(result.max_energy_drift, 1e-4) << "Energy conservation violated - numerical instability detected";
-
-    //     // Check that positions are finite and uncertainties are reasonable
-    //     EXPECT_TRUE(std::isfinite(result.pos1_final[0]) && std::isfinite(result.pos1_final[1]) && std::isfinite(result.pos1_final[2]));
-    //     EXPECT_TRUE(std::isfinite(result.pos2_final[0]) && std::isfinite(result.pos2_final[1]) && std::isfinite(result.pos2_final[2]));
-    //     EXPECT_TRUE(std::isfinite(result.pos3_final[0]) && std::isfinite(result.pos3_final[1]) && std::isfinite(result.pos3_final[2]));
-
-    //     // Check that uncertainties haven't exploded
-    //     EXPECT_LT(result.pos1_uncertainty[0], 1e10);
-    //     EXPECT_LT(result.pos1_uncertainty[1], 1e10);
-    //     EXPECT_LT(result.pos1_uncertainty[2], 1e10);
-    // }
-
-    // TEST_F(ThreeBodyAccuracyTest, ThreeBodyProblem_MethodComparison) {
-    //     auto comparison = pkr::test::numerical::run_three_body_comparison();
-
-    //     // Report comprehensive comparison results
-    //     std::cout << "\n=== Method Comparison Results ===\n";
-    //     std::cout << "Plain Doubles - Max energy drift: " << comparison.plain_double.max_energy_drift << "\n";
-    //     std::cout << "SI Units - Max energy drift: " << comparison.si_units.max_energy_drift << "\n";
-    //     std::cout << "Measurements - Max energy drift: " << comparison.measurements.max_energy_drift << "\n";
-
-    //     std::cout << "\nFinal Positions (AU) - Plain Doubles:\n";
-    //     std::cout << "Body 1: (" << comparison.plain_double.pos1_final[0] << ", " << comparison.plain_double.pos1_final[1] << ", " << comparison.plain_double.pos1_final[2] << ")\n";
-    //     std::cout << "Body 2: (" << comparison.plain_double.pos2_final[0] << ", " << comparison.plain_double.pos2_final[1] << ", " << comparison.plain_double.pos2_final[2] << ")\n";
-    //     std::cout << "Body 3: (" << comparison.plain_double.pos3_final[0] << ", " << comparison.plain_double.pos3_final[1] << ", " << comparison.plain_double.pos3_final[2] << ")\n";
-
-    //     std::cout << "\nFinal Positions (AU) - SI Units:\n";
-    //     std::cout << "Body 1: (" << comparison.si_units.pos1_final[0] << ", " << comparison.si_units.pos1_final[1] << ", " << comparison.si_units.pos1_final[2] << ")\n";
-    //     std::cout << "Body 2: (" << comparison.si_units.pos2_final[0] << ", " << comparison.si_units.pos2_final[1] << ", " << comparison.si_units.pos2_final[2] << ")\n";
-    //     std::cout << "Body 3: (" << comparison.si_units.pos3_final[0] << ", " << comparison.si_units.pos3_final[1] << ", " << comparison.si_units.pos3_final[2] << ")\n";
-
-    //     std::cout << "\nFinal Positions (AU) - Measurements:\n";
-    //     std::cout << "Body 1: (" << comparison.measurements.pos1_final[0] << ", " << comparison.measurements.pos1_final[1] << ", " << comparison.measurements.pos1_final[2] << ")\n";
-    //     std::cout << "Body 2: (" << comparison.measurements.pos2_final[0] << ", " << comparison.measurements.pos2_final[1] << ", " << comparison.measurements.pos2_final[2] << ")\n";
-    //     std::cout << "Body 3: (" << comparison.measurements.pos3_final[0] << ", " << comparison.measurements.pos3_final[1] << ", " << comparison.measurements.pos3_final[2] << ")\n";
-
-    //     std::cout << "\nPosition Differences (SI - Plain Doubles):\n";
-    //     std::cout << "Body 1: (" << comparison.pos1_diff_si[0] << ", " << comparison.pos1_diff_si[1] << ", " << comparison.pos1_diff_si[2] << ")\n";
-    //     std::cout << "Body 2: (" << comparison.pos2_diff_si[0] << ", " << comparison.pos2_diff_si[1] << ", " << comparison.pos2_diff_si[2] << ")\n";
-    //     std::cout << "Body 3: (" << comparison.pos3_diff_si[0] << ", " << comparison.pos3_diff_si[1] << ", " << comparison.pos3_diff_si[2] << ")\n";
-    //     std::cout << "Max position difference: " << comparison.max_pos_diff_si << " AU\n";
-
-    //     std::cout << "\nPosition Differences (Measurements - Plain Doubles):\n";
-    //     std::cout << "Body 1: (" << comparison.pos1_diff_meas[0] << ", " << comparison.pos1_diff_meas[1] << ", " << comparison.pos1_diff_meas[2] << ")\n";
-    //     std::cout << "Body 2: (" << comparison.pos2_diff_meas[0] << ", " << comparison.pos2_diff_meas[1] << ", " << comparison.pos2_diff_meas[2] << ")\n";
-    //     std::cout << "Body 3: (" << comparison.pos3_diff_meas[0] << ", " << comparison.pos3_diff_meas[1] << ", " << comparison.pos3_diff_meas[2] << ")\n";
-    //     std::cout << "Max position difference: " << comparison.max_pos_diff_meas << " AU\n";
-
-    //     // Validate that all methods produce very similar results
-    //     EXPECT_LT(comparison.max_pos_diff_si, 1e-10) << "SI units results differ too much from plain doubles";
-    //     EXPECT_LT(comparison.max_vel_diff_si, 1e-10) << "SI units velocity results differ too much from plain doubles";
-
-    //     // Measurements should be close but may have some differences due to uncertainty propagation and fewer steps
-    //     EXPECT_LT(comparison.max_pos_diff_meas, 1e-6) << "Measurement results differ too much from plain doubles";
-    //     EXPECT_LT(comparison.max_vel_diff_meas, 1e-6) << "Measurement velocity results differ too much from plain doubles";
-
-    //     // Energy conservation should be similar across methods
-    //     EXPECT_LT(std::abs(comparison.plain_double.max_energy_drift - comparison.si_units.max_energy_drift), 1e-12)
-    //         << "Energy conservation differs between plain doubles and SI units";
-    // }
-
 }
+
+// ============================================================================
+// Comprehensive 3-Body Numerical Stability Test
+// ============================================================================
+
+TEST_F(NumericalStabilityTest, ThreeBodyProblem_DoublesNumericalStability)
+{
+    using namespace pkr::test::numerical;
+
+    // Setup simulation with reasonable time step
+    auto state = initial_state_double;
+    const double dt = 0.001;                     // years, ~3.65 days
+    const int num_steps = 1000;                  // 3.65 years total
+    const double max_energy_drift_percent = 0.1; // Allow 0.1% energy drift
+
+    // Track diagnostics
+    double initial_energy = compute_total_energy_double(state, m1, m2, m3, G);
+    double max_energy_drift = 0.0;
+    double max_energy_relative_drift = 0.0;
+
+    // Simulate
+    for (int step = 0; step < num_steps; ++step)
+    {
+        // VALIDATION 1: Check for divergence before stepping
+        ASSERT_TRUE(positions_reasonable_double(state, 100.0)) << "Position diverged at step " << step;
+        ASSERT_TRUE(velocities_reasonable_double(state, 10.0)) << "Velocity diverged at step " << step;
+
+        // VALIDATION 2: Energy conservation
+        double current_energy = compute_total_energy_double(state, m1, m2, m3, G);
+        double energy_drift = std::abs(current_energy - initial_energy);
+        double relative_drift = std::abs(energy_drift / initial_energy);
+
+        max_energy_drift = std::max(max_energy_drift, energy_drift);
+        max_energy_relative_drift = std::max(max_energy_relative_drift, relative_drift);
+
+        // Every 100 steps, log diagnostics
+        if (step % 100 == 0)
+        {
+            std::cout << "Step " << step << ": E=" << std::scientific << current_energy << ", drift=" << std::scientific << energy_drift << " (" << std::fixed
+                      << std::setprecision(4) << relative_drift * 100.0 << "%)\n";
+        }
+
+        // Advance
+        state = rk4_step_double(state, dt);
+    }
+
+    // Final energy check
+    double final_energy = compute_total_energy_double(state, m1, m2, m3, G);
+    double final_drift_percent = std::abs((final_energy - initial_energy) / initial_energy) * 100.0;
+
+    std::cout << "\n=== Double Simulation Summary ===\n";
+    std::cout << "Initial energy: " << std::scientific << initial_energy << "\n";
+    std::cout << "Final energy:   " << std::scientific << final_energy << "\n";
+    std::cout << "Max absolute drift: " << std::scientific << max_energy_drift << "\n";
+    std::cout << "Max relative drift: " << std::fixed << std::setprecision(4) << max_energy_relative_drift * 100.0 << "%\n";
+
+    // Assertions
+    EXPECT_TRUE(positions_reasonable_double(state, 100.0));
+    EXPECT_TRUE(velocities_reasonable_double(state, 10.0));
+    EXPECT_LT(final_drift_percent, max_energy_drift_percent) << "Energy drift exceeded threshold: " << final_drift_percent << "%";
+}
+
+TEST_F(NumericalStabilityTest, ThreeBodyProblem_UnitsNumericalStability)
+{
+    using namespace pkr::test::numerical;
+    using km_t = pkr::units::kilometer_t;
+    using km_per_s_t = pkr::units::kilometer_per_second_t;
+    using s_t = pkr::units::second_t;
+
+    // Setup simulation
+    auto state = initial_state_si;               // Already in SI units (meters, m/s)
+    const auto dt = s_t{86400.0};                // 1 day in seconds
+    const int num_steps = 10;                    // Just 10 days for sanity check
+    const double max_energy_drift_percent = 1.0; // Allow 1% energy drift (larger due to unit conversions)
+
+    // Verify initial unit types
+    EXPECT_TRUE((std::is_same_v<decltype(state.pos1.x), km_t> || std::is_same_v<decltype(state.pos1.x), pkr::units::meter_t>));
+    EXPECT_TRUE((std::is_same_v<decltype(state.vel1.x), km_per_s_t> || std::is_same_v<decltype(state.vel1.x), pkr::units::meter_per_second_t>));
+
+    // Run a few steps
+    for (int step = 0; step < num_steps; ++step)
+    {
+        // Verify units are maintained
+        // (This is compile-time checked, but we verify the values are finite at runtime)
+        EXPECT_TRUE(std::isfinite(state.pos1.x.value()));
+        EXPECT_TRUE(std::isfinite(state.pos1.y.value()));
+        EXPECT_TRUE(std::isfinite(state.pos1.z.value()));
+
+        EXPECT_TRUE(std::isfinite(state.vel1.x.value()));
+        EXPECT_TRUE(std::isfinite(state.vel1.y.value()));
+        EXPECT_TRUE(std::isfinite(state.vel1.z.value()));
+
+        // Advance
+        state = rk4_step_si(state, dt);
+    }
+
+    // Final checks
+    EXPECT_TRUE(std::isfinite(state.pos1.value()));
+    EXPECT_TRUE(std::isfinite(state.vel1.value()));
+
+    std::cout << "\n=== Unit-Based Simulation Summary ===\n";
+    std::cout << "Final pos1: (" << state.pos1.x.value() << ", " << state.pos1.y.value() << ", " << state.pos1.z.value() << ") " << "meters\n";
+    std::cout << "Final vel1: (" << state.vel1.x.value() << ", " << state.vel1.y.value() << ", " << state.vel1.z.value() << ") " << "m/s\n";
+}
+
+TEST_F(NumericalStabilityTest, ThreeBodyProblem_MeasurementsNumericalStability)
+{
+    using namespace pkr::test::numerical;
+
+    // Setup simulation with measurements
+    auto state = initial_state_meas;
+    const auto dt = pkr::units::second_t{86400.0};      // 1 day
+    const int num_steps = 5;                            // Just 5 days for sanity
+    const double max_uncertainty_growth_percent = 50.0; // Allow 50% growth in uncertainty
+
+    // Track initial uncertainties
+    double initial_pos_unc = state.pos1.x.uncertainty().value();
+    double initial_vel_unc = state.vel1.x.uncertainty().value();
+
+    std::cout << "\n=== Measurement Simulation Summary ===\n";
+    std::cout << "Initial position uncertainty: " << initial_pos_unc << " m\n";
+    std::cout << "Initial velocity uncertainty: " << initial_vel_unc << " m/s\n";
+
+    // Run steps
+    for (int step = 0; step < num_steps; ++step)
+    {
+        // Verify measurements are finite and uncertainties are reasonable
+        EXPECT_TRUE(std::isfinite(state.pos1.x.value().value()));
+        EXPECT_TRUE(std::isfinite(state.pos1.x.uncertainty().value()));
+        EXPECT_TRUE(std::isfinite(state.vel1.x.value().value()));
+        EXPECT_TRUE(std::isfinite(state.vel1.x.uncertainty().value()));
+
+        // Check uncertainty growth isn't catastrophic
+        double current_pos_unc = state.pos1.x.uncertainty().value();
+        double current_vel_unc = state.vel1.x.uncertainty().value();
+
+        ASSERT_LT(current_pos_unc, initial_pos_unc * (1.0 + max_uncertainty_growth_percent / 100.0)) << "Position uncertainty grew too much at step " << step;
+        ASSERT_LT(current_vel_unc, initial_vel_unc * (1.0 + max_uncertainty_growth_percent / 100.0)) << "Velocity uncertainty grew too much at step " << step;
+
+        std::cout << "Step " << step << ": pos_unc=" << std::scientific << current_pos_unc << " m, vel_unc=" << current_vel_unc << " m/s\n";
+
+        // Advance
+        state = rk4_step_measurement(state, dt);
+    }
+
+    std::cout << "Final position uncertainty: " << state.pos1.x.uncertainty().value() << " m\n";
+    std::cout << "Final velocity uncertainty: " << state.vel1.x.uncertainty().value() << " m/s\n";
+
+    // Final uncertainty check
+    double final_pos_unc = state.pos1.x.uncertainty().value();
+    double pos_unc_growth_percent = (final_pos_unc - initial_pos_unc) / initial_pos_unc * 100.0;
+
+    EXPECT_LT(pos_unc_growth_percent, max_uncertainty_growth_percent) << "Position uncertainty grew by " << pos_unc_growth_percent << "%";
+}
+
 } // namespace test

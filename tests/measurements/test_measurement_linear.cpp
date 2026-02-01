@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <numbers>
 #include <pkr_units/measurements/measurement.h>
 #include <pkr_units/math/measurements/measurement_math_linear.h>
 #include <pkr_units/si_units.h>
@@ -274,7 +275,6 @@ TEST_F(MeasurementTest, math_sin)
     // Angle measurement in radians
     pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
-
     auto result = pkr::units::sin_lin(angle);
 
     // Value: sin(0) = 0
@@ -301,7 +301,7 @@ TEST_F(MeasurementTest, math_cos)
 TEST_F(MeasurementTest, math_tan)
 {
     // Angle measurement in radians: pi/4 ± 0.05 rad
-    pkr::units::measurement_t<pkr::units::radian_t> angle{M_PI / 4.0, 0.05};
+    pkr::units::measurement_t<pkr::units::radian_t> angle{std::numbers::pi / 4.0, 0.05};
 
     auto result = pkr::units::tan_lin(angle);
 

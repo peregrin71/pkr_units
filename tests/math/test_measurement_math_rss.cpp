@@ -23,7 +23,7 @@ TEST_F(MeasurementMathRSSTest, add_rss)
     auto result = pkr::units::add_rss(m1, m2);
 
     EXPECT_DOUBLE_EQ(result.value(), 8.0);
-    EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1*0.1 + 0.2*0.2));
+    EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1 * 0.1 + 0.2 * 0.2));
 }
 
 TEST_F(MeasurementMathRSSTest, subtract_rss)
@@ -34,7 +34,7 @@ TEST_F(MeasurementMathRSSTest, subtract_rss)
     auto result = pkr::units::subtract_rss(m1, m2);
 
     EXPECT_DOUBLE_EQ(result.value(), 2.0);
-    EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1*0.1 + 0.2*0.2));
+    EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1 * 0.1 + 0.2 * 0.2));
 }
 
 TEST_F(MeasurementMathRSSTest, multiply_rss)
@@ -47,7 +47,7 @@ TEST_F(MeasurementMathRSSTest, multiply_rss)
 
     EXPECT_DOUBLE_EQ(result.value(), 15.0);
     // Uncertainty calculation: sqrt((m.value*s.uncertainty)^2 + (s.value*m.uncertainty)^2)
-    double expected_uncertainty = std::sqrt((5.0*0.2)*(5.0*0.2) + (3.0*0.1)*(3.0*0.1));
+    double expected_uncertainty = std::sqrt((5.0 * 0.2) * (5.0 * 0.2) + (3.0 * 0.1) * (3.0 * 0.1));
     EXPECT_DOUBLE_EQ(result.uncertainty(), expected_uncertainty);
 }
 
@@ -62,7 +62,7 @@ TEST_F(MeasurementMathRSSTest, divide_rss)
     EXPECT_DOUBLE_EQ(result.value(), 2.0);
     // Uncertainty calculation for division is more complex
     // Relative uncertainty: sqrt((dm/m)^2 + (ds/s)^2) * result
-    double rel_uncertainty = std::sqrt((0.1/6.0)*(0.1/6.0) + (0.2/3.0)*(0.2/3.0));
+    double rel_uncertainty = std::sqrt((0.1 / 6.0) * (0.1 / 6.0) + (0.2 / 3.0) * (0.2 / 3.0));
     double expected_uncertainty = rel_uncertainty * 2.0;
     EXPECT_DOUBLE_EQ(result.uncertainty(), expected_uncertainty);
 }
@@ -133,10 +133,10 @@ TEST_F(MeasurementMathRSSTest, SumOfSquaresRSS)
     EXPECT_DOUBLE_EQ(result.value(), 14.0);
 
     // uncertainties: 2*m*dm for each squared term, combined in quadrature
-    double u1 = 2.0 * 1.0 * 0.1; // 0.2
+    double u1 = 2.0 * 1.0 * 0.1;         // 0.2
     double u2 = 2.0 * 4.0 * (0.2 / 2.0); // equals 0.8
     double u3 = 2.0 * 9.0 * (0.3 / 3.0); // equals 1.8
-    double expected_unc = std::sqrt(u1*u1 + u2*u2 + u3*u3);
+    double expected_unc = std::sqrt(u1 * u1 + u2 * u2 + u3 * u3);
 
     EXPECT_NEAR(result.uncertainty(), expected_unc, 1e-12);
 }

@@ -57,8 +57,7 @@ TEST_F(SiTemperatureOperatorsTest, subtract_millikelvin_from_kelvin)
     auto result = k - mk;
 
     using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1,1>>,
-                  "operator- should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1, 1>>, "operator- should return canonical ratio<1,1>");
     ASSERT_DOUBLE_EQ(result.value(), 0.5);
 }
 
@@ -90,7 +89,6 @@ TEST_F(SiTemperatureOperatorsTest, divide_kelvin_by_scalar)
     auto result = k / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
-
 
 TEST_F(SiTemperatureOperatorsTest, multiply_kelvin_by_zero)
 {

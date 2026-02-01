@@ -89,7 +89,6 @@ TEST_F(SiMassOperatorsTest, divide_kilogram_by_scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
-
 TEST_F(SiMassOperatorsTest, multiply_kilogram_by_zero)
 {
     pkr::units::kilogram_t kg{5.0};

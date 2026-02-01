@@ -20,8 +20,7 @@ TEST_F(SiLengthOperatorsTest, add_meters)
     pkr::units::meter_t m2{2.0};
     auto result = m1 + m2;
     using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1,1>>,
-                  "operator+ should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
@@ -32,8 +31,7 @@ TEST_F(SiLengthOperatorsTest, add_kilometer_to_meter)
     auto result = km + m; // preserves LHS (kilometer)
     using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio, km_ratio>,
-                  "operator+ should preserve LHS unit ratio");
+    static_assert(std::ratio_equal_v<res_ratio, km_ratio>, "operator+ should preserve LHS unit ratio");
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
@@ -43,8 +41,7 @@ TEST_F(SiLengthOperatorsTest, add_meter_to_kilometer)
     pkr::units::kilometer_t km{1.0};
     auto result = m + km;
     using res_ratio2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio2, std::ratio<1,1>>,
-                  "operator+ should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio2, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
     // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
@@ -56,8 +53,7 @@ TEST_F(SiLengthOperatorsTest, subtract_meters)
     auto result = m1 - m2;
 
     using res_ratio_sub = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio_sub, std::ratio<1,1>>,
-                  "operator- should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio_sub, std::ratio<1, 1>>, "operator- should return canonical ratio<1,1>");
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
@@ -68,8 +64,7 @@ TEST_F(SiLengthOperatorsTest, subtract_kilometer_from_meter)
     pkr::units::kilometer_t km{1.0};
     auto result = m - km;
     using res_ratio_sub2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio_sub2, std::ratio<1,1>>,
-                  "operator- should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio_sub2, std::ratio<1, 1>>, "operator- should return canonical ratio<1,1>");
     // Result is in m (LHS ratio), so 1km = 1000m, result = 500m
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
@@ -81,8 +76,7 @@ TEST_F(SiLengthOperatorsTest, subtract_meter_from_kilometer)
     auto result = km - m; // preserves LHS (kilometer)
     using res_ratio_sub3 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio_sub3, km_ratio>,
-                  "operator- should preserve LHS unit ratio");
+    static_assert(std::ratio_equal_v<res_ratio_sub3, km_ratio>, "operator- should preserve LHS unit ratio");
     // 2 km - 0.5 km = 1.5 km
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
@@ -93,8 +87,7 @@ TEST_F(SiLengthOperatorsTest, add_millimeter_to_meter)
     pkr::units::millimeter_t mm{500.0};
     auto result = m + mm;
     using res_ratio_sub4 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
-    static_assert(std::ratio_equal_v<res_ratio_sub4, std::ratio<1,1>>,
-                  "operator+ should return canonical ratio<1,1>");
+    static_assert(std::ratio_equal_v<res_ratio_sub4, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
     // Result is in canonical unit (meter), so 500mm = 0.5m, result = 1.5m
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }

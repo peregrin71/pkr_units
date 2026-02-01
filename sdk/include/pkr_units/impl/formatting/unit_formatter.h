@@ -9,6 +9,7 @@
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
+#include <pkr_units/impl/unit_formatting_traits.h>
 
 namespace std
 {
@@ -43,8 +44,7 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<type_t, ratio_t, dim_v>, C
 
 // Specialization for derived unit types
 template <typename T, typename CharT>
-requires PKR_UNITS_NAMESPACE::is_pkr_unit_c<T> && std::is_base_of_v<typename T::_base, T>
-
+    requires PKR_UNITS_NAMESPACE::is_derived_pkr_unit_c<T>
 struct formatter<T, CharT>
 {
     std::formatter<typename PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value_type, CharT> value_formatter;
@@ -61,24 +61,16 @@ struct formatter<T, CharT>
         auto out = ctx.out();
         out = value_formatter.format(unit.value(), ctx);
 
-        // For derived types, use the constexpr symbol
+        // For derived types, select appropriate symbol using traits dispatch
         std::basic_string_view<CharT> sym;
         if constexpr (std::is_same_v<CharT, char>)
-        {
             sym = T::symbol;
-        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
-        {
             sym = T::u8_symbol;
-        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
             sym = T::w_symbol;
-        }
         else
-        {
             sym = T::symbol;
-        }
 
         // Space before symbol
         *out++ = static_cast<CharT>(' ');

@@ -8,7 +8,7 @@ namespace PKR_UNITS_NAMESPACE
 {
 struct scalar_t final : public details::unit_t<double, std::ratio<1>, scalar_dimension>
 {
-    using _base = details::unit_t<double, std::ratio<1,1>, scalar_dimension>;
+    using _base = details::unit_t<double, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"scalar"};
     static constexpr std::string_view symbol{""};

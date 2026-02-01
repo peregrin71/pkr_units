@@ -32,7 +32,6 @@ TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_degree)
     EXPECT_EQ(result, "1h 0m 0s");
 }
 
-
 TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second)
 {
     auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{1.0});

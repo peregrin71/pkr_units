@@ -3,7 +3,9 @@
 
 function(clang_format dir)
 
-string(REPLACE "/" "_" clang_format_target ${dir})
+string(REPLACE "\\" "_" clang_format_target ${dir})
+string(REPLACE "/" "_" clang_format_target ${clang_format_target})
+string(REPLACE ":" "" clang_format_target ${clang_format_target})
 message (STATUS "[clang-format.cmake] clang_format_target: ${clang_format_target}")
 
 unset(LOCAL_CLANG_FORMAT_EXE)

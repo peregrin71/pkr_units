@@ -73,7 +73,6 @@ constexpr atmosphere_t operator""_atm(long double value) noexcept
     return atmosphere_t{static_cast<double>(value)};
 }
 
-
 // Energy unit literals
 constexpr joule_t operator""_J(long double value) noexcept
 {
@@ -180,7 +179,6 @@ constexpr nanowatt_t operator""_nW(long double value) noexcept
 {
     return nanowatt_t{static_cast<double>(value)};
 }
-
 
 } // namespace literals
 

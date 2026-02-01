@@ -261,7 +261,7 @@ struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
 // Specialization for derived types that inherit from unit_t
 // (e.g., struct meter : public details::unit_t<...>)
 template <typename T>
-requires std::is_base_of_v<typename T::_base, T>
+    requires std::is_base_of_v<typename T::_base, T>
 
 struct is_pkr_unit<T> : std::true_type
 {
@@ -290,7 +290,6 @@ template <typename T>
 struct is_pkr_unit<const T> : is_pkr_unit<T>
 {
 };
-
 
 } // namespace details
 
