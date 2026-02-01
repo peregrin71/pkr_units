@@ -24,9 +24,10 @@ TEST_F(SiAmountOperatorsTest, add_millimole_to_mole)
 {
     pkr::units::millimole_t mmol{500.0};
     pkr::units::mole_t mol{1.0};
-    auto result = mmol + mol;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millimole_t>);
-    // Result is in canonical unit (millimole), so 1mol = 1000mmol, result = 1500mmol
+    auto result = mmol + mol; // preserves LHS (millimole)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millimole_t>, "operator+ should preserve LHS type (millimole)");
+    // 500 mmol + 1000 mmol = 1500 mmol
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -63,9 +64,10 @@ TEST_F(SiAmountOperatorsTest, subtract_mole_from_millimole)
 {
     pkr::units::millimole_t mmol{1500.0};
     pkr::units::mole_t mol{1.0};
-    auto result = mmol - mol;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millimole_t>);
-    // 1500mmol - 1000mmol = 500mmol
+    auto result = mmol - mol; // preserves LHS (millimole)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millimole_t>, "operator- should preserve LHS type (millimole)");
+    // 1500 mmol - 1000 mmol = 500 mmol
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 

@@ -4,8 +4,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Specialized 4x4 Matrix for Measurements (using RSS uncertainty propagation)
@@ -38,8 +36,8 @@ constexpr matrix_4d_measurements_t<T> identity_4d() {
 }
 
 template<pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> matrix_vector_multiply(const matrix_4d_measurements_t<T>& m, const vec_4d_t<T>& v) noexcept {
-    return vec_4d_t<T>{
+constexpr vec_4d_measurements_rss_t<T> matrix_vector_multiply(const matrix_4d_measurements_t<T>& m, const vec_4d_measurements_rss_t<T>& v) noexcept {
+    return vec_4d_measurements_rss_t<T>{
         pkr::units::math::add_rss(
             pkr::units::math::add_rss(
                 pkr::units::math::multiply_rss(m.data[0][0], v.x),
@@ -84,9 +82,8 @@ constexpr vec_4d_t<T> matrix_vector_multiply(const matrix_4d_measurements_t<T>& 
 }
 
 template<pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> operator*(const matrix_4d_measurements_t<T>& m, const vec_4d_t<T>& v) noexcept {
+constexpr vec_4d_measurements_rss_t<T> operator*(const matrix_4d_measurements_t<T>& m, const vec_4d_measurements_rss_t<T>& v) noexcept {
     return matrix_vector_multiply(m, v);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

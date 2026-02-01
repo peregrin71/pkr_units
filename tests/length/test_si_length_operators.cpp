@@ -2,6 +2,7 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/units/imperial/length.h>
 #include <pkr_units/units/astronomical/length.h>
+#include <pkr_units/impl/cast/unit_cast.h>
 
 using namespace ::testing;
 
@@ -18,7 +19,9 @@ TEST_F(SiLengthOperatorsTest, add_meters)
     pkr::units::meter_t m1{3.0};
     pkr::units::meter_t m2{2.0};
     auto result = m1 + m2;
-    static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
+    using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio, std::ratio<1,1>>,
+                  "operator+ should return canonical ratio<1,1>");
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
@@ -26,9 +29,11 @@ TEST_F(SiLengthOperatorsTest, add_kilometer_to_meter)
 {
     pkr::units::kilometer_t km{1.0};
     pkr::units::meter_t m{500.0};
-    auto result = km + m;
-    static_assert(std::is_same_v<decltype(result), pkr::units::kilometer_t>);
-    // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
+    auto result = km + m; // preserves LHS (kilometer)
+    using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio, km_ratio>,
+                  "operator+ should preserve LHS unit ratio");
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
@@ -37,7 +42,9 @@ TEST_F(SiLengthOperatorsTest, add_meter_to_kilometer)
     pkr::units::meter_t m{500.0};
     pkr::units::kilometer_t km{1.0};
     auto result = m + km;
-    static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
+    using res_ratio2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio2, std::ratio<1,1>>,
+                  "operator+ should return canonical ratio<1,1>");
     // Result is in canonical unit (meter), so 1km = 1000m, result = 1500m
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
@@ -48,7 +55,9 @@ TEST_F(SiLengthOperatorsTest, subtract_meters)
     pkr::units::meter_t m2{2.0};
     auto result = m1 - m2;
 
-    static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
+    using res_ratio_sub = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio_sub, std::ratio<1,1>>,
+                  "operator- should return canonical ratio<1,1>");
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
@@ -58,7 +67,9 @@ TEST_F(SiLengthOperatorsTest, subtract_kilometer_from_meter)
     pkr::units::meter_t m{1500.0};
     pkr::units::kilometer_t km{1.0};
     auto result = m - km;
-    static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
+    using res_ratio_sub2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio_sub2, std::ratio<1,1>>,
+                  "operator- should return canonical ratio<1,1>");
     // Result is in m (LHS ratio), so 1km = 1000m, result = 500m
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
@@ -67,9 +78,12 @@ TEST_F(SiLengthOperatorsTest, subtract_meter_from_kilometer)
 {
     pkr::units::kilometer_t km{2.0};
     pkr::units::meter_t m{500.0};
-    auto result = km - m;
-    static_assert(std::is_same_v<decltype(result), pkr::units::kilometer_t>);
-    // Result is in LHS unit (kilometer), so 500m = 0.5km, result = 1.5km
+    auto result = km - m; // preserves LHS (kilometer)
+    using res_ratio_sub3 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio_sub3, km_ratio>,
+                  "operator- should preserve LHS unit ratio");
+    // 2 km - 0.5 km = 1.5 km
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
 
@@ -78,7 +92,9 @@ TEST_F(SiLengthOperatorsTest, add_millimeter_to_meter)
     pkr::units::meter_t m{1.0};
     pkr::units::millimeter_t mm{500.0};
     auto result = m + mm;
-    static_assert(std::is_same_v<decltype(result), pkr::units::meter_t>);
+    using res_ratio_sub4 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
+    static_assert(std::ratio_equal_v<res_ratio_sub4, std::ratio<1,1>>,
+                  "operator+ should return canonical ratio<1,1>");
     // Result is in canonical unit (meter), so 500mm = 0.5m, result = 1.5m
     ASSERT_DOUBLE_EQ(result.value(), 1.5);
 }
@@ -237,7 +253,10 @@ TEST_F(SiLengthOperatorsTest, add_to)
 {
     pkr::units::decimeter_t m1{3.0}; // 3 decimeters = 0.3 meters
     pkr::units::kilometer_t m2{2.0}; // 2 kilometers = 2000 meters
-    auto result = pkr::units::add<pkr::units::millimeter_t>(m1, m2);
+    // Convert both to millimeters explicitly and add
+    auto a = pkr::units::unit_cast<pkr::units::millimeter_t>(m1);
+    auto b = pkr::units::unit_cast<pkr::units::millimeter_t>(m2);
+    auto result = a + b;
     // 0.3 + 2000 = 2000.3 meters = 2000300 millimeters
     ASSERT_DOUBLE_EQ(result.value(), 2000300.0);
 }
@@ -246,7 +265,9 @@ TEST_F(SiLengthOperatorsTest, constexpr_add_to)
 {
     constexpr pkr::units::meter_t m1{1.0};      // 1 meter
     constexpr pkr::units::decimeter_t m2{30.0}; // 30 decimeters = 3 meters
-    constexpr auto result = pkr::units::add<pkr::units::millimeter_t>(m1, m2);
+    constexpr auto a = pkr::units::unit_cast<pkr::units::millimeter_t>(m1);
+    constexpr auto b = pkr::units::unit_cast<pkr::units::millimeter_t>(m2);
+    constexpr auto result = a + b;
     // 1 + 3 = 4 meters = 4000 millimeters (power of 2 in meters domain)
     static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
 }

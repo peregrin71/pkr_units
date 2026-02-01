@@ -4,8 +4,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Specialized 4x4 Matrix for Units (using stable math)
@@ -88,5 +86,4 @@ constexpr vec_4d_t<T> operator*(const matrix_4d_units_t<T>& m, const vec_4d_t<T>
     return matrix_vector_multiply(m, v);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

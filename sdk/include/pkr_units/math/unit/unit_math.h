@@ -6,6 +6,8 @@
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/units/dimensionless/scalar.h>
+
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -15,9 +17,6 @@ namespace PKR_UNITS_NAMESPACE
 // ============================================================================
 // Provides mathematical operations that work with unit_t types, including
 // automatic ratio conversion, dimensional analysis, and numerical stability
-
-namespace math
-{
 
 // ============================================================================
 // Basic Arithmetic Functions
@@ -75,7 +74,7 @@ constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
 
 // Stable addition - returns unit_t with canonical ratio for numerical stability
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-requires same_dimensions_c<T1, T2>
+    requires same_dimensions_c<T1, T2>
 constexpr auto stable_add(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
@@ -97,7 +96,7 @@ constexpr auto stable_add(const T1& lhs, const T2& rhs) noexcept
 
 // Stable subtraction - returns unit_t with canonical ratio
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-requires same_dimensions_c<T1, T2>
+    requires same_dimensions_c<T1, T2>
 constexpr auto stable_subtract(const T1& lhs, const T2& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<T1>::value_type;
@@ -206,16 +205,21 @@ constexpr auto square(const details::unit_t<T, Ratio, Dim>& a)
 
     using result_ratio = Ratio; // Simplified - should compute square of ratio
     constexpr dimension_t result_dim = {
-        Dim.length * 2,
-        Dim.mass * 2,
-        Dim.time * 2,
-        Dim.current * 2,
-        Dim.temperature * 2,
-        Dim.amount * 2,
-        Dim.intensity * 2,
-        Dim.angle * 2};
+        Dim.length * 2, Dim.mass * 2, Dim.time * 2, Dim.current * 2, Dim.temperature * 2, Dim.amount * 2, Dim.intensity * 2, Dim.angle * 2};
 
     return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
+}
+
+// Cube function with dimensional analysis
+// cube(unit_t) produces a unit_t with triple the dimensional exponents
+template <typename T, typename Ratio, dimension_t Dim>
+constexpr auto cube(const details::unit_t<T, Ratio, Dim>& a)
+{
+    using result_ratio = Ratio;
+    constexpr dimension_t result_dim = {
+        Dim.length * 3, Dim.mass * 3, Dim.time * 3, Dim.current * 3, Dim.temperature * 3, Dim.amount * 3, Dim.intensity * 3, Dim.angle * 3};
+
+    return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
 }
 
 // Exponential function (result is dimensionless)
@@ -242,12 +246,80 @@ auto log(const details::unit_t<T, Ratio, Dim>& a)
 
 // Power function (exponent must be dimensionless)
 template <typename T, typename Ratio, dimension_t Dim, typename ExpT, typename ExpRatio>
-auto
-    pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
+auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
 {
     // This would need full dimensional exponent manipulation
     // Simplified implementation for now
     return details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
+}
+
+// Compile-time power function with integer exponent (for measurement math)
+// Usage: pow<2>(meter) for squaring, pow<-1>(meter) for reciprocal, etc.
+// Returns the most specific derived unit type for the powered dimensions, or unit_t if no specialization exists
+
+// Base template - default for any N (requires specialization for actual ratios)
+template <int N, typename T, typename Ratio, dimension_t Dim>
+auto pow(const details::unit_t<T, Ratio, Dim>& base)
+{
+    // For general case, compute powered dimensions
+    constexpr dimension_t powered_dim{
+        .length = static_cast<signed char>(Dim.length * N),
+        .mass = static_cast<signed char>(Dim.mass * N),
+        .time = static_cast<signed char>(Dim.time * N),
+        .current = static_cast<signed char>(Dim.current * N),
+        .temperature = static_cast<signed char>(Dim.temperature * N),
+        .amount = static_cast<signed char>(Dim.amount * N),
+        .intensity = static_cast<signed char>(Dim.intensity * N),
+        .angle = static_cast<signed char>(Dim.angle * N)};
+
+    // For ratio<1,1>, the powered ratio is also ratio<1,1>
+    if constexpr (std::is_same_v<Ratio, std::ratio<1, 1>>)
+    {
+        using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
+        
+        if constexpr (N == 0)
+            return result_type{1.0};
+        else if constexpr (N == 1)
+            return result_type{base.value()};
+        else if constexpr (N > 0)
+        {
+            T result = base.value();
+            for (int i = 1; i < N; ++i)
+                result *= base.value();
+            return result_type{result};
+        }
+        else // N < 0
+        {
+            T result = 1.0 / base.value();
+            for (int i = 1; i < -N; ++i)
+                result /= base.value();
+            return result_type{result};
+        }
+    }
+    else
+    {
+        // For other ratios, just return generic unit_t (specializations would be needed for derived types)
+        using result_type = details::unit_t<T, Ratio, powered_dim>;
+        
+        if constexpr (N == 0)
+            return result_type{1.0};
+        else if constexpr (N == 1)
+            return result_type{base.value()};
+        else if constexpr (N > 0)
+        {
+            T result = base.value();
+            for (int i = 1; i < N; ++i)
+                result *= base.value();
+            return result_type{result};
+        }
+        else // N < 0
+        {
+            T result = 1.0 / base.value();
+            for (int i = 1; i < -N; ++i)
+                result /= base.value();
+            return result_type{result};
+        }
+    }
 }
 
 // ============================================================================
@@ -291,8 +363,8 @@ auto sqrt(const T& x)
     using ratio = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    // Square root of ratio
-    using sqrt_ratio = std::ratio<ratio::num, ratio::den * 2>;
+    // Square root of ratio - ratio does not change, only value and dimensions
+    using sqrt_ratio = ratio;
 
     // Square root of dimensions (divide by 2)
     constexpr dimension_t sqrt_dim{
@@ -320,6 +392,29 @@ constexpr auto normalize(const T& unit) noexcept
     return unit.in_base_si_units();
 }
 
-} // namespace math
+// ============================================================================
+// Trigonometric Functions (return dimensionless for angle inputs)
+// ============================================================================
+
+// Sine function - only works on angle units
+template <is_angle_unit_c T>
+auto sin(const T& angle) noexcept
+{
+    return scalar_t{std::sin(angle.value())};
+}
+
+// Cosine function - only works on angle units
+template <is_angle_unit_c T>
+auto cos(const T& angle) noexcept
+{
+    return scalar_t{std::cos(angle.value())};
+}
+
+// Tangent function - only works on angle units
+template <is_angle_unit_c T>
+auto tan(const T& angle) noexcept
+{
+    return scalar_t{std::tan(angle.value())};
+}
 
 } // namespace PKR_UNITS_NAMESPACE

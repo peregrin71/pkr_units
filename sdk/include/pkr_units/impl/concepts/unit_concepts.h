@@ -1,6 +1,7 @@
 #pragma once
 #include <concepts>
 #include <complex>
+#include <type_traits>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
 
@@ -12,6 +13,16 @@ template <typename UnitT>
 concept is_angle_unit_c = requires { typename UnitT::dimension; } && UnitT::dimension::value.angle == 1 && UnitT::dimension::value.length == 0 &&
                           UnitT::dimension::value.mass == 0 && UnitT::dimension::value.time == 0 && UnitT::dimension::value.current == 0 &&
                           UnitT::dimension::value.temperature == 0 && UnitT::dimension::value.amount == 0 && UnitT::dimension::value.intensity == 0;
+
+// Concept for scalar-like numeric types accepted by scalar operators and APIs
+// Accepts: float, double (complex types excluded for now)
+// Explicitly excludes boolean and integer types
+template <typename ScalarT>
+concept scalar_value_c = std::same_as<std::remove_cvref_t<ScalarT>, float> || std::same_as<std::remove_cvref_t<ScalarT>, double>;
+
+static_assert(scalar_value_c<float>);
+static_assert(scalar_value_c<double>);
+static_assert(!scalar_value_c<bool>);
 
 // Concept for any pkr_unit type
 template <typename T>

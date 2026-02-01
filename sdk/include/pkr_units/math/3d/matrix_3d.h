@@ -5,8 +5,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Templated 3x3 Matrix
@@ -48,5 +46,4 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_t<T>& m, const vec_3d_t<T>& v) {
     return matrix_vector_multiply(m, v);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

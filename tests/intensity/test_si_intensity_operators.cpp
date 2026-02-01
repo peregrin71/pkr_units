@@ -24,9 +24,10 @@ TEST_F(SiIntensityOperatorsTest, add_millicandela_to_candela)
 {
     pkr::units::millicandela_t mcd{500.0};
     pkr::units::candela_t cd{1.0};
-    auto result = mcd + cd;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millicandela_t>);
-    // Result is in canonical unit (millicandela), so 1cd = 1000mcd, result = 1500mcd
+    auto result = mcd + cd; // preserves LHS (millicandela)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millicandela_t>, "operator+ should preserve LHS type (millicandela)");
+    // 500 mcd + 1000 mcd = 1500 mcd
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -63,9 +64,10 @@ TEST_F(SiIntensityOperatorsTest, subtract_candela_from_millicandela)
 {
     pkr::units::millicandela_t mcd{1500.0};
     pkr::units::candela_t cd{1.0};
-    auto result = mcd - cd;
-    static_assert(std::is_same_v<decltype(result), pkr::units::millicandela_t>);
-    // 1500mcd - 1000mcd = 500mcd
+    auto result = mcd - cd; // preserves LHS (millicandela)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::millicandela_t>, "operator- should preserve LHS type (millicandela)");
+    // 1500 mcd - 1000 mcd = 500 mcd
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 

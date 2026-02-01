@@ -30,38 +30,39 @@ template <typename UnitT>
 class measurement_t : public is_measurement_t_tag
 {
 private:
-    UnitT m_value;       // The measured value with units
-    UnitT m_uncertainty; // Uncertainty as same unit type
+    using stored_unit_t = std::remove_cv_t<UnitT>;
+    stored_unit_t m_value;       // The measured value with units
+    stored_unit_t m_uncertainty; // Uncertainty as same unit type
 
 public:
     // Type aliases
-    using value_type = UnitT;
-    using uncertainty_type = UnitT;
+    using value_type = stored_unit_t;
+    using uncertainty_type = stored_unit_t;
 
     // Default constructor
     constexpr measurement_t() = default;
 
     // Construction: uncertainty must be compatible unit type
-    constexpr measurement_t(UnitT value, UnitT uncertainty)
+    constexpr measurement_t(stored_unit_t value, stored_unit_t uncertainty)
         : m_value(value)
         , m_uncertainty(uncertainty)
     {
         // Ensure uncertainty is non-negative
         if (uncertainty.value() < 0)
         {
-            m_uncertainty = UnitT{0};
+            m_uncertainty = stored_unit_t{0};
         }
     }
 
     // Construction from raw values (convenience constructor)
-    constexpr measurement_t(typename UnitT::value_type value, typename UnitT::value_type uncertainty)
-        : m_value(UnitT{value})
-        , m_uncertainty(UnitT{uncertainty})
+    constexpr measurement_t(typename stored_unit_t::value_type value, typename stored_unit_t::value_type uncertainty)
+        : m_value(stored_unit_t{value})
+        , m_uncertainty(stored_unit_t{uncertainty})
     {
         // Ensure uncertainty is non-negative
         if (uncertainty < 0)
         {
-            m_uncertainty = UnitT{0};
+            m_uncertainty = stored_unit_t{0};
         }
     }
 
@@ -161,6 +162,12 @@ public:
         return measurement_t<result_type>{result_value, result_type{result_uncertainty_value}};
     }
 
+    // Unary negation
+    constexpr measurement_t operator-() const noexcept
+    {
+        return measurement_t{-m_value, m_uncertainty};
+    }
+
     // ============================================================================
     // Accessors
     // ============================================================================
@@ -178,13 +185,13 @@ public:
     }
 
     // Get the measured value with units
-    constexpr const UnitT& unit_value() const
+    constexpr const stored_unit_t& unit_value() const
     {
         return m_value;
     }
 
     // Get the uncertainty with units
-    constexpr const UnitT& unit_uncertainty() const
+    constexpr const stored_unit_t& unit_uncertainty() const
     {
         return m_uncertainty;
     }
@@ -194,16 +201,16 @@ public:
     {
         // Special case: if value is zero, treat relative uncertainty as 0 to avoid NaN/inf.
         // Using NaN/inf would require additional checks across the math pipeline and add overhead.
-        if (m_value.value() == static_cast<typename UnitT::value_type>(0))
+        if (m_value.value() == static_cast<typename stored_unit_t::value_type>(0))
         {
             using result_type = decltype(m_uncertainty / m_value);
-            return result_type{static_cast<typename UnitT::value_type>(0)};
+            return result_type{static_cast<typename stored_unit_t::value_type>(0)};
         }
         return m_uncertainty / m_value;
     }
 
     // Get combined uncertainty estimate in the same units as the measurement
-    constexpr const UnitT& combined_uncertainty() const
+    constexpr const stored_unit_t& combined_uncertainty() const
     {
         return m_uncertainty;
     }
@@ -248,8 +255,44 @@ constexpr bool operator!=(const measurement_t<UnitT>& lhs, const measurement_t<U
 template <typename UnitT>
 std::ostream& operator<<(std::ostream& os, const measurement_t<UnitT>& measurement)
 {
-    os << measurement.value() << " +/- " << measurement.uncertainty() << " " << UnitT::symbol;
+    using stored_t = std::remove_cv_t<UnitT>;
+    os << measurement.value() << " +/- " << measurement.uncertainty() << " " << stored_t::symbol;
     return os;
+}
+
+// Scalar operations
+template <typename UnitT, typename T>
+requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
+auto operator*(const measurement_t<UnitT>& lhs, T rhs) {
+    return measurement_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
+auto operator*(T lhs, const measurement_t<UnitT>& rhs) {
+    return rhs * lhs;
+}
+
+template <typename UnitT, typename T>
+requires (std::is_arithmetic_v<T> || pkr::units::is_pkr_unit_c<T>)
+auto operator/(const measurement_t<UnitT>& lhs, T rhs) {
+    return measurement_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+requires is_unit_value_type_c<T>
+auto operator/(T lhs, const measurement_t<UnitT>& rhs) {
+    // For scalar / measurement, result is measurement with inverse unit
+    using stored_t = std::remove_cv_t<UnitT>;
+    using value_type = typename details::is_pkr_unit<stored_t>::value_type;
+    using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
+    constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
+    constexpr dimension_t inv_dim{
+        -dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle
+    };
+    using inv_ratio = std::ratio_divide<std::ratio<1>, ratio_type>;
+    using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
+    return measurement_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
 
 } // namespace PKR_UNITS_NAMESPACE
@@ -261,7 +304,8 @@ namespace std
 template <typename UnitT, typename CharT>
 struct formatter<PKR_UNITS_NAMESPACE::measurement_t<UnitT>, CharT>
 {
-    std::formatter<typename UnitT::value_type, CharT> value_formatter;
+    using stored_t = std::remove_cv_t<UnitT>;
+    std::formatter<typename stored_t::value_type, CharT> value_formatter;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
@@ -312,19 +356,19 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_t<UnitT>, CharT>
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
         {
-            return std::copy(UnitT::symbol.begin(), UnitT::symbol.end(), out);
+            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
         }
         else if constexpr (std::is_same_v<CharT, char8_t>)
         {
-            return std::copy(UnitT::u8_symbol.begin(), UnitT::u8_symbol.end(), out);
+            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
         }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
         {
-            return std::copy(UnitT::w_symbol.begin(), UnitT::w_symbol.end(), out);
+            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
         }
         else
         {
-            for (char ch : UnitT::symbol)
+            for (char ch : stored_t::symbol)
             {
                 *out++ = static_cast<CharT>(ch);
             }

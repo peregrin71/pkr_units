@@ -1,10 +1,13 @@
 #pragma once
 
+#include <type_traits>
+#include <utility>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
+#include <pkr_units/units/dimensionless/scalar.h>
 
 namespace PKR_UNITS_NAMESPACE
-{
-namespace math
 {
 
 // ============================================================================
@@ -19,34 +22,53 @@ struct vec_4d_t<T> {
     vec_4d_t(T x, T y, T z, T w = 1) : x{x}, y{y}, z{z}, w{w} {}
 
     constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept {
-        x = stable_add(x, other.x);
-        y = stable_add(y, other.y);
-        z = stable_add(z, other.z);
-        w = stable_add(w, other.w);
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
         return *this;
     }
 
     constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept {
-        x = stable_subtract(x, other.x);
-        y = stable_subtract(y, other.y);
-        z = stable_subtract(z, other.z);
-        w = stable_subtract(w, other.w);
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
         return *this;
     }
 
-    constexpr vec_4d_t& operator*=(double scalar) noexcept {
-        x = stable_multiply(x, scalar);
-        y = stable_multiply(y, scalar);
-        z = stable_multiply(z, scalar);
-        w = stable_multiply(w, scalar);
+    template <scalar_value_c ScalarT>
+    constexpr vec_4d_t& operator*=(const ScalarT& scalar) noexcept {
+        x = x * scalar;
+        y = y * scalar;
+        z = z * scalar;
+        w = w * scalar;
         return *this;
     }
 
-    constexpr vec_4d_t& operator/=(double scalar) noexcept {
-        x = T{x.value() / scalar};
-        y = T{y.value() / scalar};
-        z = T{z.value() / scalar};
-        w = T{w.value() / scalar};
+    template <scalar_value_c ScalarT>
+    constexpr vec_4d_t& operator/=(const ScalarT& scalar) noexcept {
+        x = x / scalar;
+        y = y / scalar;
+        z = z / scalar;
+        w = w / scalar;
+        return *this;
+    }
+
+    // scalar_t overloads
+    constexpr vec_4d_t& operator*=(const scalar_t& scalar) noexcept {
+        x = x * scalar;
+        y = y * scalar;
+        z = z * scalar;
+        w = w * scalar;
+        return *this;
+    }
+
+    constexpr vec_4d_t& operator/=(const scalar_t& scalar) noexcept {
+        x = x / scalar;
+        y = y / scalar;
+        z = z / scalar;
+        w = w / scalar;
         return *this;
     }
 };
@@ -54,51 +76,83 @@ struct vec_4d_t<T> {
 template<is_pkr_unit_c T>
 constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
     return vec_4d_t<T>{
-        stable_add(a.x, b.x),
-        stable_add(a.y, b.y),
-        stable_add(a.z, b.z),
-        stable_add(a.w, b.w)
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z,
+        a.w + b.w
+    };
+}
+
+template<is_pkr_unit_c T1, is_pkr_unit_c T2>
+requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept {
+    using ResultT = decltype(a.x + b.x);
+    return vec_4d_t<ResultT>{
+        a.x + b.x,
+        a.y + b.y,
+        a.z + b.z,
+        a.w + b.w
     };
 }
 
 template<is_pkr_unit_c T>
 constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
     return vec_4d_t<T>{
-        stable_subtract(a.x, b.x),
-        stable_subtract(a.y, b.y),
-        stable_subtract(a.z, b.z),
-        stable_subtract(a.w, b.w)
+        a.x - b.x,
+        a.y - b.y,
+        a.z - b.z,
+        a.w - b.w
     };
 }
 
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(double scalar, const vec_4d_t<T>& v) noexcept {
-    return vec_4d_t<T>{
-        stable_multiply(scalar, v.x),
-        stable_multiply(scalar, v.y),
-        stable_multiply(scalar, v.z),
-        stable_multiply(scalar, v.w)
-    };
+template<scalar_value_c ScalarT, is_pkr_unit_c T>
+constexpr auto operator*(const ScalarT& scalar, const vec_4d_t<T>& v) noexcept {
+    using ResultT = decltype(scalar * v.x);
+    return vec_4d_t<ResultT>{ scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w };
 }
 
-template<is_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, double scalar) {
+template<is_pkr_unit_c T, scalar_value_c ScalarT>
+constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar) {
     return scalar * v;
+}
+
+// scalar_t overloads
+template<is_pkr_unit_c T>
+constexpr vec_4d_t<T> operator*(const scalar_t& scalar, const vec_4d_t<T>& v) noexcept {
+    return vec_4d_t<T>{
+        scalar * v.x,
+        scalar * v.y,
+        scalar * v.z,
+        scalar * v.w
+    };
+}
+
+template<is_pkr_unit_c T>
+constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept {
+    return scalar * v;
+}
+
+// division by scalar_t
+template<is_pkr_unit_c T>
+constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept {
+    return vec_4d_t<T>{
+        v.x / scalar,
+        v.y / scalar,
+        v.z / scalar,
+        v.w / scalar
+    };
+}
+
+template<is_pkr_unit_c T, scalar_value_c ScalarT>
+constexpr auto operator/(const vec_4d_t<T>& v, const ScalarT& scalar) noexcept {
+    using ResultT = decltype(v.x / scalar);
+    return vec_4d_t<ResultT>{ v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar };
 }
 
 template<is_pkr_unit_c T>
 constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
-    return stable_add(
-        stable_add(
-            stable_multiply(a.x, b.x),
-            stable_multiply(a.y, b.y)
-        ),
-        stable_add(
-            stable_multiply(a.z, b.z),
-            stable_multiply(a.w, b.w)
-        )
-    );
+    // Use unit operators directly; addition combines units appropriately
+    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

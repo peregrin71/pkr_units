@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string_view>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/length_decl.h>

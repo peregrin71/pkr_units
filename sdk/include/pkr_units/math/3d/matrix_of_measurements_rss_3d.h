@@ -7,8 +7,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Specialized 3x3 Matrix for Measurements (using RSS uncertainty propagation)
@@ -53,26 +51,26 @@ constexpr matrix_3d_measurements_t<T> identity_3d() {
 template<pkr::units::is_measurement_c T>
 constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_measurements_t<T>& m, const vec_3d_t<T>& v) noexcept {
     return vec_3d_t<T>{
-        pkr::units::math::add_rss(
-            pkr::units::math::add_rss(
-                pkr::units::math::multiply_rss(m.data[0][0], v.x),
-                pkr::units::math::multiply_rss(m.data[0][1], v.y)
+        pkr::units::add_rss(
+            pkr::units::add_rss(
+                pkr::units::multiply_rss(m.data[0][0], v.x),
+                pkr::units::multiply_rss(m.data[0][1], v.y)
             ),
-            pkr::units::math::multiply_rss(m.data[0][2], v.z)
+            pkr::units::multiply_rss(m.data[0][2], v.z)
         ),
-        pkr::units::math::add_rss(
-            pkr::units::math::add_rss(
-                pkr::units::math::multiply_rss(m.data[1][0], v.x),
-                pkr::units::math::multiply_rss(m.data[1][1], v.y)
+        pkr::units::add_rss(
+            pkr::units::add_rss(
+                pkr::units::multiply_rss(m.data[1][0], v.x),
+                pkr::units::multiply_rss(m.data[1][1], v.y)
             ),
-            pkr::units::math::multiply_rss(m.data[1][2], v.z)
+            pkr::units::multiply_rss(m.data[1][2], v.z)
         ),
-        pkr::units::math::add_rss(
-            pkr::units::math::add_rss(
-                pkr::units::math::multiply_rss(m.data[2][0], v.x),
-                pkr::units::math::multiply_rss(m.data[2][1], v.y)
+        pkr::units::add_rss(
+            pkr::units::add_rss(
+                pkr::units::multiply_rss(m.data[2][0], v.x),
+                pkr::units::multiply_rss(m.data[2][1], v.y)
             ),
-            pkr::units::math::multiply_rss(m.data[2][2], v.z)
+            pkr::units::multiply_rss(m.data[2][2], v.z)
         )
     };
 }
@@ -82,5 +80,4 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_measurements_t<T>& m, const vec_
     return matrix_vector_multiply(m, v);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

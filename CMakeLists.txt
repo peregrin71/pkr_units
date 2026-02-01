@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 project(si_units CXX)
 
+# Include clang-format setup
+include(${CMAKE_CURRENT_SOURCE_DIR}/build/clang-format.cmake)
+
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -33,4 +36,10 @@ find_package(GTest REQUIRED CONFIG)
 
 # Add the tests subdirectory
 add_subdirectory(tests)
+
+# Run clang-format on SDK and tests directories (local builds only, not in CI)
+if(NOT DEFINED ENV{GITHUB_ACTIONS} AND NOT DEFINED ENV{CI})
+    clang_format(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
+    clang_format(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+endif()
 

@@ -4,8 +4,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Templated 3D Vector
@@ -73,5 +71,4 @@ constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) {
     };
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

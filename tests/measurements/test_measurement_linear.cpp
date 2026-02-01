@@ -12,9 +12,6 @@ namespace units
 // Area unit (m²) for testing
 using square_meter_t = details::unit_t<double, std::ratio<1>, dimension_t{2, 0, 0, 0, 0, 0, 0, 0}>;
 
-// Dimensionless unit for testing
-using scalar_t = details::unit_t<double, std::ratio<1>, scalar_dimension>;
-
 } // namespace units
 } // namespace pkr
 
@@ -235,7 +232,7 @@ TEST_F(MeasurementTest, math_sqrt)
 {
     pkr::units::measurement_t<pkr::units::square_meter_t> area{16.0, 1.0}; // 16 ± 1 m²
 
-    auto length = pkr::units::math::sqrt(area);
+    auto length = pkr::units::sqrt_lin(area);
 
     // Value: √16 = 4 m
     ASSERT_DOUBLE_EQ(length.value(), 4.0);
@@ -245,46 +242,31 @@ TEST_F(MeasurementTest, math_sqrt)
     ASSERT_NEAR(length.uncertainty(), 0.125, 1e-10);
 }
 
-TEST_F(MeasurementTest, math_exp)
+TEST_F(MeasurementTest, pow_integer_exponent_lin)
 {
-    // Dimensionless measurement
-    pkr::units::measurement_t<pkr::units::scalar_t> exponent{1.0, 0.1}; // 1.0 ± 0.1
+    // Test power function with fully correlated uncertainty
+    // Measurement: x = 2.0 ± 0.1 m
+    pkr::units::measurement_t<pkr::units::meter_t> measurement{2.0, 0.1};
 
-    auto result = pkr::units::math::exp(exponent);
+    // x^0 should equal 1 (dimensionless)
+    auto power_zero = pkr::units::pow_lin<0>(measurement);
+    ASSERT_DOUBLE_EQ(power_zero.value(), 1.0);
+    ASSERT_DOUBLE_EQ(power_zero.uncertainty(), 0.0);
 
-    // Value: e^1 ≈ 2.71828
-    ASSERT_NEAR(result.value(), 2.718281828459045, 1e-10);
+    // x^2 = 4 m^2, relative uncertainty = 2 * 0.1/2.0 = 0.1, absolute = 0.4
+    auto power_two = pkr::units::pow_lin<2>(measurement);
+    ASSERT_DOUBLE_EQ(power_two.value(), 4.0);
+    ASSERT_NEAR(power_two.uncertainty(), 0.4, 1e-10);
 
-    // Uncertainty: e^1 * 0.1 ≈ 0.2718
-    ASSERT_NEAR(result.uncertainty(), 0.2718281828459045, 1e-10);
-}
+    // x^3 = 8 m^3, relative uncertainty = 3 * 0.1/2.0 = 0.15, absolute = 1.2
+    auto power_three = pkr::units::pow_lin<3>(measurement);
+    ASSERT_DOUBLE_EQ(power_three.value(), 8.0);
+    ASSERT_NEAR(power_three.uncertainty(), 1.2, 1e-10);
 
-TEST_F(MeasurementTest, math_log)
-{
-    // Dimensionless measurement
-    pkr::units::measurement_t<pkr::units::scalar_t> value{10.0, 1.0}; // 10.0 ± 1.0
-
-    auto result = pkr::units::math::log(value);
-
-    // Value: ln(10) ≈ 2.302585
-    ASSERT_NEAR(result.value(), 2.302585092994046, 1e-10);
-
-    // Uncertainty: relative uncertainty of input = 1.0/10.0 = 0.1
-    ASSERT_NEAR(result.uncertainty(), 0.1, 1e-10);
-}
-
-TEST_F(MeasurementTest, math_pow_scalar_exponent)
-{
-    pkr::units::measurement_t<pkr::units::meter_t> length{2.0, 0.1}; // 2.0 ± 0.1 m
-
-    auto result = pkr::units::math::pow(length, 3.0);
-
-    // Value: 2^3 = 8 m³
-    ASSERT_DOUBLE_EQ(result.value(), 8.0);
-
-    // Relative uncertainty: |3| * (0.1/2.0) = 3 * 0.05 = 0.15
-    // Absolute uncertainty: 8 * 0.15 = 1.2
-    ASSERT_NEAR(result.uncertainty(), 1.2, 1e-10);
+    // x^-1 = 0.5 m^-1, relative uncertainty = 1 * 0.1/2.0 = 0.05, absolute = 0.025
+    auto power_neg_one = pkr::units::pow_lin<-1>(measurement);
+    ASSERT_DOUBLE_EQ(power_neg_one.value(), 0.5);
+    ASSERT_NEAR(power_neg_one.uncertainty(), 0.025, 1e-10);
 }
 
 TEST_F(MeasurementTest, math_sin)
@@ -292,7 +274,8 @@ TEST_F(MeasurementTest, math_sin)
     // Angle measurement in radians
     pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
-    auto result = pkr::units::math::sin(angle);
+
+    auto result = pkr::units::sin_lin(angle);
 
     // Value: sin(0) = 0
     ASSERT_DOUBLE_EQ(result.value(), 0.0);
@@ -306,13 +289,27 @@ TEST_F(MeasurementTest, math_cos)
     // Angle measurement in radians
     pkr::units::measurement_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
-    auto result = pkr::units::math::cos(angle);
+    auto result = pkr::units::cos_lin(angle);
 
     // Value: cos(0) = 1
     ASSERT_DOUBLE_EQ(result.value(), 1.0);
 
     // Uncertainty: |sin(0)| * 0.1 = 0 * 0.1 = 0.0
     ASSERT_DOUBLE_EQ(result.uncertainty(), 0.0);
+}
+
+TEST_F(MeasurementTest, math_tan)
+{
+    // Angle measurement in radians: pi/4 ± 0.05 rad
+    pkr::units::measurement_t<pkr::units::radian_t> angle{M_PI / 4.0, 0.05};
+
+    auto result = pkr::units::tan_lin(angle);
+
+    // Value: tan(pi/4) = 1
+    ASSERT_NEAR(result.value(), 1.0, 1e-10);
+
+    // Uncertainty: sec²(pi/4) * 0.05 = 2 * 0.05 = 0.1
+    ASSERT_NEAR(result.uncertainty(), 0.1, 1e-10);
 }
 
 TEST_F(MeasurementTest, combined_uncertainty_method)
@@ -329,7 +326,7 @@ TEST_F(MeasurementTest, relative_uncertainty_percent)
     pkr::units::measurement_t<pkr::units::meter_t> length{10.0, 0.5};
 
     // 0.5 / 10.0 = 0.05 = 5%
-    ASSERT_DOUBLE_EQ(pkr::units::math::relative_uncertainty_percent(length), 5.0);
+    ASSERT_DOUBLE_EQ(pkr::units::relative_uncertainty_percent_lin(length), 5.0);
 }
 
 TEST_F(MeasurementTest, drag_force_calculation)
@@ -350,28 +347,28 @@ TEST_F(MeasurementTest, drag_force_calculation)
     pkr::units::measurement_t<pkr::units::square_meter_t> area{2.5, 0.1};
 
     // Calculate drag force: F_d = 0.5 * ρ * v² * C_d * A
-    auto velocity_squared = pkr::units::math::multiply(velocity, velocity);
+    auto velocity_squared = pkr::units::multiply_lin(velocity, velocity);
     // v² = 30² = 900 m²/s², uncertainty: 2 * (0.5/30) * 900 ≈ 30 m²/s²
     ASSERT_NEAR(velocity_squared.value(), 900.0, 1e-10);
     ASSERT_NEAR(velocity_squared.uncertainty(), 30.0, 1e-1);
 
-    auto temp1 = pkr::units::math::multiply(density, velocity_squared);
+    auto temp1 = pkr::units::multiply_lin(density, velocity_squared);
     // ρ * v² = 1.225 * 900 = 1102.5 kg/(m·s²), uncertainty ≈ 41.2 kg/(m·s²)
     ASSERT_NEAR(temp1.value(), 1102.5, 1e-1);
     ASSERT_NEAR(temp1.uncertainty(), 41.2, 1e-1);
 
-    auto temp2 = pkr::units::math::multiply(temp1, drag_coefficient);
+    auto temp2 = pkr::units::multiply_lin(temp1, drag_coefficient);
     // temp1 * C_d = 1102.5 * 0.30 = 330.75 kg/(m·s²), uncertainty ≈ 34.4 kg/(m·s²)
     ASSERT_NEAR(temp2.value(), 330.75, 1e-2);
     ASSERT_NEAR(temp2.uncertainty(), 34.4, 1e-1);
 
-    auto temp3 = pkr::units::math::multiply(temp2, area);
+    auto temp3 = pkr::units::multiply_lin(temp2, area);
 
     // temp2 * A = 330.75 * 2.5 = 826.875 kg/(m·s²), uncertainty ≈ 119.1 kg/(m·s²)
     ASSERT_NEAR(temp3.value(), 826.875, 1e-3);
     ASSERT_NEAR(temp3.uncertainty(), 119.1, 1e-1);
 
-    auto drag_force = pkr::units::math::multiply(pkr::units::measurement_t<pkr::units::scalar_t>{0.5, 0.0}, temp3);
+    auto drag_force = pkr::units::multiply_lin(pkr::units::measurement_t<pkr::units::scalar_t>{0.5, 0.0}, temp3);
 
     // Expected calculation:
     // v² = 30² = 900 m²/s²

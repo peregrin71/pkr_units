@@ -1,11 +1,13 @@
 #pragma once
 
+#include <type_traits>
+#include <utility>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
+
+#include <pkr_units/math/unit/unit_math.h>
 
 // ============================================================================
 // Specialized 3D Vector for Units (using stable math)
@@ -32,23 +34,38 @@ struct vec_3d_t<T> {
         return *this;
     }
 
-    constexpr vec_3d_t& operator*=(double scalar) noexcept {
+    template<typename ScalarT>
+    requires (std::is_arithmetic_v<ScalarT> || is_pkr_unit_c<ScalarT>)
+    constexpr vec_3d_t& operator*=(const ScalarT& scalar) noexcept {
         x = stable_multiply(x, scalar);
         y = stable_multiply(y, scalar);
         z = stable_multiply(z, scalar);
         return *this;
     }
 
-    constexpr vec_3d_t& operator/=(double scalar) noexcept {
-        x = T{x.value() / scalar};
-        y = T{y.value() / scalar};
-        z = T{z.value() / scalar};
+    template<typename ScalarT>
+    requires std::is_arithmetic_v<ScalarT>
+    constexpr vec_3d_t& operator/=(const ScalarT& scalar) noexcept {
+        x = stable_divide(x, scalar);
+        y = stable_divide(y, scalar);
+        z = stable_divide(z, scalar);
         return *this;
     }
 };
 
 constexpr vec_3d_t<T> operator+(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept {
     return vec_3d_t<T>{
+        stable_add(a.x, b.x),
+        stable_add(a.y, b.y),
+        stable_add(a.z, b.z)
+    };
+}
+
+template<is_pkr_unit_c T1, is_pkr_unit_c T2>
+requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_3d_t<T1>& a, const vec_3d_t<T2>& b) noexcept {
+    using ResultT = decltype(a.x + b.x);
+    return vec_3d_t<ResultT>{
         stable_add(a.x, b.x),
         stable_add(a.y, b.y),
         stable_add(a.z, b.z)
@@ -103,5 +120,4 @@ constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
     };
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

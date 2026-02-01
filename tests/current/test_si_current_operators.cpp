@@ -24,9 +24,10 @@ TEST_F(SiCurrentOperatorsTest, add_milliampere_to_ampere)
 {
     pkr::units::milliampere_t ma{500.0};
     pkr::units::ampere_t a{1.0};
-    auto result = ma + a;
-    static_assert(std::is_same_v<decltype(result), pkr::units::milliampere_t>);
-    // Result is in canonical unit (milliampere), so 1A = 1000mA, result = 1500mA
+    auto result = ma + a; // preserves LHS (milliampere)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::milliampere_t>, "operator+ should preserve LHS type (milliampere)");
+    // 500 mA + 1000 mA = 1500 mA
     ASSERT_DOUBLE_EQ(result.value(), 1500.0);
 }
 
@@ -63,9 +64,10 @@ TEST_F(SiCurrentOperatorsTest, subtract_ampere_from_milliampere)
 {
     pkr::units::milliampere_t ma{1500.0};
     pkr::units::ampere_t a{1.0};
-    auto result = ma - a;
-    static_assert(std::is_same_v<decltype(result), pkr::units::milliampere_t>);
-    // 1500mA - 1000mA = 500mA
+    auto result = ma - a; // preserves LHS (milliampere)
+
+    static_assert(std::is_same_v<decltype(result), pkr::units::milliampere_t>, "operator- should preserve LHS type (milliampere)");
+    // 1500 mA - 1000 mA = 500 mA
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 

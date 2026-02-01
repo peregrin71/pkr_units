@@ -4,8 +4,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Specialized 4D Vector for Measurements (using RSS uncertainty propagation)
@@ -43,10 +41,10 @@ struct vec_4d_t<T> {
     }
 
     constexpr vec_4d_t& operator/=(double scalar) noexcept {
-        x = T{x.value() / scalar};
-        y = T{y.value() / scalar};
-        z = T{z.value() / scalar};
-        w = T{w.value() / scalar};
+        x = pkr::units::math::divide_rss(x, scalar);
+        y = pkr::units::math::divide_rss(y, scalar);
+        z = pkr::units::math::divide_rss(z, scalar);
+        w = pkr::units::math::divide_rss(w, scalar);
         return *this;
     }
 };
@@ -61,29 +59,46 @@ constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noex
     };
 }
 
+template<pkr::units::is_measurement_c T1, pkr::units::is_measurement_c T2>
+requires same_dimensions_c<T1::unit_type, T2::unit_type>
+constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept {
+    using ResultT = decltype(a.x + b.x);
+    return vec_4d_t<ResultT>{
+        pkr::units::math::stable_add(a.x, b.x),
+        pkr::units::math::stable_add(a.y, b.y),
+        pkr::units::math::stable_add(a.z, b.z),
+        pkr::units::math::stable_add(a.w, b.w)
+    };
+}
+
 template<pkr::units::is_measurement_c T>
 constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
     return vec_4d_t<T>{
-        pkr::units::math::subtract_rss(a.x, b.x),
-        pkr::units::math::subtract_rss(a.y, b.y),
-        pkr::units::math::subtract_rss(a.z, b.z),
-        pkr::units::math::subtract_rss(a.w, b.w)
+        pkr::units::math::stable_subtract(a.x, b.x),
+        pkr::units::math::stable_subtract(a.y, b.y),
+        pkr::units::math::stable_subtract(a.z, b.z),
+        pkr::units::math::stable_subtract(a.w, b.w)
     };
 }
 
 template<pkr::units::is_measurement_c T>
 constexpr vec_4d_t<T> operator*(double scalar, const vec_4d_t<T>& v) noexcept {
     return vec_4d_t<T>{
-        pkr::units::math::multiply_rss(scalar, v.x),
-        pkr::units::math::multiply_rss(scalar, v.y),
-        pkr::units::math::multiply_rss(scalar, v.z),
-        pkr::units::math::multiply_rss(scalar, v.w)
+        pkr::units::math::stable_multiply(scalar, v.x),
+        pkr::units::math::stable_multiply(scalar, v.y),
+        pkr::units::math::stable_multiply(scalar, v.z),
+        pkr::units::math::stable_multiply(scalar, v.w)
     };
 }
 
 template<pkr::units::is_measurement_c T>
 constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, double scalar) noexcept {
-    return scalar * v;
+    return vec_4d_t<T>{
+        pkr::units::math::stable_multiply(v.x, scalar),
+        pkr::units::math::stable_multiply(v.y, scalar),
+        pkr::units::math::stable_multiply(v.z, scalar),
+        pkr::units::math::stable_multiply(v.w, scalar)
+    };
 }
 
 template<pkr::units::is_measurement_c T>
@@ -100,5 +115,4 @@ constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept {
     );
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

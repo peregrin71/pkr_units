@@ -8,8 +8,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-namespace math
-{
 
 // ============================================================================
 // Specialized 3x3 Matrix for Units (using stable math)
@@ -54,26 +52,26 @@ constexpr matrix_3d_units_t<T> identity_3d() {
 template<is_pkr_unit_c T>
 constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept {
     return vec_3d_t<T>{
-        numerical::stable_add(
-            numerical::stable_add(
-                numerical::stable_multiply(m.data[0][0], v.x),
-                numerical::stable_multiply(m.data[0][1], v.y)
+        stable_add(
+            stable_add(
+                stable_multiply(m.data[0][0], v.x),
+                stable_multiply(m.data[0][1], v.y)
             ),
-            numerical::stable_multiply(m.data[0][2], v.z)
+            stable_multiply(m.data[0][2], v.z)
         ),
-        numerical::stable_add(
-            numerical::stable_add(
-                numerical::stable_multiply(m.data[1][0], v.x),
-                numerical::stable_multiply(m.data[1][1], v.y)
+        stable_add(
+            stable_add(
+                stable_multiply(m.data[1][0], v.x),
+                stable_multiply(m.data[1][1], v.y)
             ),
-            numerical::stable_multiply(m.data[1][2], v.z)
+            stable_multiply(m.data[1][2], v.z)
         ),
-        numerical::stable_add(
-            numerical::stable_add(
-                numerical::stable_multiply(m.data[2][0], v.x),
-                numerical::stable_multiply(m.data[2][1], v.y)
+        stable_add(
+            stable_add(
+                stable_multiply(m.data[2][0], v.x),
+                stable_multiply(m.data[2][1], v.y)
             ),
-            numerical::stable_multiply(m.data[2][2], v.z)
+            stable_multiply(m.data[2][2], v.z)
         )
     };
 }
@@ -83,5 +81,4 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>
     return matrix_vector_multiply(m, v);
 }
 
-} // namespace math
 } // namespace PKR_UNITS_NAMESPACE

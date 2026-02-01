@@ -83,7 +83,7 @@ TEST_F(SiConcentrationFormattingTest, micromolar_wide_formatting)
 {
     pkr::units::micromolar_concentration_t conc(50.0);
     std::wstring formatted = std::format(L"{}", conc);
-    EXPECT_EQ(formatted, L"50 µM");
+    EXPECT_EQ(formatted, L"50 \u00B5M");
 }
 
 TEST_F(SiConcentrationFormattingTest, nanomolar_ascii_formatting)
