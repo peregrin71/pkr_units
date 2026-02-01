@@ -63,6 +63,7 @@ set(TEST_SOURCES
   measurements/test_measurement_edge_cases.cpp
   measurements/test_measurement_linear.cpp
   measurements/test_measurement_rss.cpp
+  measurements/test_rk4_calculation_patterns_rss.cpp
   multi_cast/test_multi_unit_cast.cpp
   power/test_imperial_power_formatting.cpp
   power/test_si_power_formatting.cpp
@@ -87,9 +88,7 @@ set(TEST_SOURCES
   velocity/test_si_velocity.cpp
   viscosity/test_viscosity.cpp
   volume/test_si_volume_formatting.cpp
-  
-  # Numerical (stability) tests - WIP, not complete
-  # numerical/test_three_body_problem.cpp
+  # integration/test_three_body_problem.cpp
 )
 
 # Create the test executable

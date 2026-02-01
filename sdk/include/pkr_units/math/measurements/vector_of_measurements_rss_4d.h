@@ -1,20 +1,22 @@
 #pragma once
 
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/measurements/measurement_rss_t.h>
+#include <cmath>
 
 namespace PKR_UNITS_NAMESPACE
 {
 
 // ============================================================================
-// Specialized 4D Vector for Measurements (using RSS uncertainty propagation)
+// Specialized 4D Vector for RSS Measurements with RSS uncertainty propagation
 // ============================================================================
 
-template <pkr::units::is_measurement_c T>
-struct vec_4d_t<T>
+template <pkr::units::is_pkr_unit_c T>
+struct vec_measurement_rss_4d_t
 {
-    T x, y, z, w;
+    pkr::units::measurement_rss_t<T> x, y, z, w;
 
-    vec_4d_t()
+    vec_measurement_rss_4d_t()
         : x{0}
         , y{0}
         , z{0}
@@ -22,7 +24,11 @@ struct vec_4d_t<T>
     {
     }
 
-    vec_4d_t(T x, T y, T z, T w = 1)
+    vec_measurement_rss_4d_t(
+        pkr::units::measurement_rss_t<T> x,
+        pkr::units::measurement_rss_t<T> y,
+        pkr::units::measurement_rss_t<T> z,
+        pkr::units::measurement_rss_t<T> w = pkr::units::measurement_rss_t<T>{1.0, 0.0})
         : x{x}
         , y{y}
         , z{z}
@@ -30,77 +36,126 @@ struct vec_4d_t<T>
     {
     }
 
-    constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept
+    // Constructor accepting scalar values for convenience
+    vec_measurement_rss_4d_t(
+        typename T::value_type x_val,
+        typename T::value_type x_unc,
+        typename T::value_type y_val,
+        typename T::value_type y_unc,
+        typename T::value_type z_val,
+        typename T::value_type z_unc,
+        typename T::value_type w_val = 1.0,
+        typename T::value_type w_unc = 0.0)
+        : x{x_val, x_unc}
+        , y{y_val, y_unc}
+        , z{z_val, z_unc}
+        , w{w_val, w_unc}
     {
-        x = pkr::units::add_rss(x, other.x);
-        y = pkr::units::add_rss(y, other.y);
-        z = pkr::units::add_rss(z, other.z);
-        w = pkr::units::add_rss(w, other.w);
+    }
+
+    constexpr vec_measurement_rss_4d_t& operator+=(const vec_measurement_rss_4d_t& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
         return *this;
     }
 
-    constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept
+    constexpr vec_measurement_rss_4d_t& operator-=(const vec_measurement_rss_4d_t& other) noexcept
     {
-        x = pkr::units::subtract_rss(x, other.x);
-        y = pkr::units::subtract_rss(y, other.y);
-        z = pkr::units::subtract_rss(z, other.z);
-        w = pkr::units::subtract_rss(w, other.w);
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
         return *this;
     }
 
-    constexpr vec_4d_t& operator*=(double scalar) noexcept
+    constexpr vec_measurement_rss_4d_t& operator*=(double scalar) noexcept
     {
-        x = pkr::units::multiply_rss(x, scalar);
-        y = pkr::units::multiply_rss(y, scalar);
-        z = pkr::units::multiply_rss(z, scalar);
-        w = pkr::units::multiply_rss(w, scalar);
+        x = x * scalar;
+        y = y * scalar;
+        z = z * scalar;
+        w = w * scalar;
         return *this;
     }
 
-    constexpr vec_4d_t& operator/=(double scalar) noexcept
+    constexpr vec_measurement_rss_4d_t& operator/=(double scalar) noexcept
     {
-        x = pkr::units::divide_rss(x, scalar);
-        y = pkr::units::divide_rss(y, scalar);
-        z = pkr::units::divide_rss(z, scalar);
-        w = pkr::units::divide_rss(w, scalar);
+        x = x / scalar;
+        y = y / scalar;
+        z = z / scalar;
+        w = w / scalar;
         return *this;
+    }
+
+    // Calculate magnitude of the 3D portion with RSS uncertainty propagation
+    constexpr auto magnitude() const noexcept
+    {
+        using measurement_t = pkr::units::measurement_rss_t<T>;
+        // RSS combination: sqrt(x^2 + y^2 + z^2)
+        auto x_sq = x * x;
+        auto y_sq = y * y;
+        auto z_sq = z * z;
+        auto sum_sq = x_sq + y_sq + z_sq;
+        // For magnitude, we need to take the square root
+        // Return as a measurement with the value being the sqrt and uncertainty propagated
+        auto value = std::sqrt(sum_sq.value());
+        auto uncertainty = std::sqrt((sum_sq.uncertainty() * sum_sq.uncertainty()) / (4.0 * value * value));
+        return measurement_t{value, uncertainty};
     }
 };
 
-template <pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr auto operator+(const vec_measurement_rss_4d_t<T>& a, const vec_measurement_rss_4d_t<T>& b) noexcept
 {
-    return vec_4d_t<T>{pkr::units::add_rss(a.x, b.x), pkr::units::add_rss(a.y, b.y), pkr::units::add_rss(a.z, b.z), pkr::units::add_rss(a.w, b.w)};
+    auto res_x = a.x + b.x;
+    auto res_y = a.y + b.y;
+    auto res_z = a.z + b.z;
+    auto res_w = a.w + b.w;
+
+    return vec_measurement_rss_4d_t<T>{
+        pkr::units::measurement_rss_t<T>{res_x.value(), res_x.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_y.value(), res_y.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_z.value(), res_z.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_w.value(), res_w.uncertainty()}};
 }
 
-template <pkr::units::is_measurement_c T1, pkr::units::is_measurement_c T2>
-    requires same_dimensions_c<T1::unit_type, T2::unit_type>
-constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr auto operator-(const vec_measurement_rss_4d_t<T>& a, const vec_measurement_rss_4d_t<T>& b) noexcept
 {
-    using ResultT = decltype(a.x + b.x);
-    return vec_4d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+    auto res_x = a.x - b.x;
+    auto res_y = a.y - b.y;
+    auto res_z = a.z - b.z;
+    auto res_w = a.w - b.w;
+
+    return vec_measurement_rss_4d_t<T>{
+        pkr::units::measurement_rss_t<T>{res_x.value(), res_x.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_y.value(), res_y.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_z.value(), res_z.uncertainty()},
+        pkr::units::measurement_rss_t<T>{res_w.value(), res_w.uncertainty()}};
 }
 
-template <pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr vec_measurement_rss_4d_t<T> operator*(const vec_measurement_rss_4d_t<T>& v, double scalar) noexcept
 {
-    return vec_4d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
+    return vec_measurement_rss_4d_t<T>{v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar};
 }
 
-template <pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> operator*(double scalar, const vec_4d_t<T>& v) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr vec_measurement_rss_4d_t<T> operator*(double scalar, const vec_measurement_rss_4d_t<T>& v) noexcept
 {
-    return vec_4d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
+    return v * scalar;
 }
 
-template <pkr::units::is_measurement_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, double scalar) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr vec_measurement_rss_4d_t<T> operator/(const vec_measurement_rss_4d_t<T>& v, double scalar) noexcept
 {
-    return vec_4d_t<T>{v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar};
+    return vec_measurement_rss_4d_t<T>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
 }
 
-template <pkr::units::is_measurement_c T>
-constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
+template <pkr::units::is_pkr_unit_c T>
+constexpr auto dot(const vec_measurement_rss_4d_t<T>& a, const vec_measurement_rss_4d_t<T>& b) noexcept
 {
     return (a.x * b.x) + (a.y * b.y) + ((a.z * b.z) + (a.w * b.w));
 }

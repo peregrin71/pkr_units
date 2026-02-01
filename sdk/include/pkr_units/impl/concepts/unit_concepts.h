@@ -38,7 +38,7 @@ concept is_derived_pkr_unit_c = requires { typename T::_base; } && std::is_base_
 template <typename T>
 concept is_base_pkr_unit_c = details::is_pkr_unit<T>::value && !is_derived_pkr_unit_c<T>;
 
-// Concept for ANY pkr_unit type (direct or derived)
+// Concept for ANY pkr_unit type (direct or derived, but NOT measurement-wrapped)
 template <typename T>
 concept is_pkr_unit_c = is_base_pkr_unit_c<T> || is_derived_pkr_unit_c<T>;
 

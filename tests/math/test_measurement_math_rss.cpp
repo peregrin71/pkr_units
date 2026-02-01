@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <pkr_units/math/measurements/measurement_math_rss.h>
+#include <pkr_units/measurements/measurement_rss_t.h>
 #include <pkr_units/si_units.h>
 
 namespace test
@@ -17,10 +17,10 @@ class MeasurementMathRSSTest : public Test
 
 TEST_F(MeasurementMathRSSTest, add_rss)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m1{5.0, 0.1};
     meter_meas m2{3.0, 0.2};
-    auto result = pkr::units::add_rss(m1, m2);
+    auto result = m1 + m2;
 
     EXPECT_DOUBLE_EQ(result.value(), 8.0);
     EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1 * 0.1 + 0.2 * 0.2));
@@ -28,10 +28,10 @@ TEST_F(MeasurementMathRSSTest, add_rss)
 
 TEST_F(MeasurementMathRSSTest, subtract_rss)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m1{5.0, 0.1};
     meter_meas m2{3.0, 0.2};
-    auto result = pkr::units::subtract_rss(m1, m2);
+    auto result = m1 - m2;
 
     EXPECT_DOUBLE_EQ(result.value(), 2.0);
     EXPECT_DOUBLE_EQ(result.uncertainty(), std::sqrt(0.1 * 0.1 + 0.2 * 0.2));
@@ -39,11 +39,11 @@ TEST_F(MeasurementMathRSSTest, subtract_rss)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
-    using second_meas = pkr::units::measurement_t<pkr::units::second_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t>;
     meter_meas m{5.0, 0.1};
     second_meas s{3.0, 0.2};
-    auto result = pkr::units::multiply_rss(m, s);
+    auto result = m * s;
 
     EXPECT_DOUBLE_EQ(result.value(), 15.0);
     // Uncertainty calculation: sqrt((m.value*s.uncertainty)^2 + (s.value*m.uncertainty)^2)
@@ -53,11 +53,11 @@ TEST_F(MeasurementMathRSSTest, multiply_rss)
 
 TEST_F(MeasurementMathRSSTest, divide_rss)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
-    using second_meas = pkr::units::measurement_t<pkr::units::second_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t>;
     meter_meas m{6.0, 0.1};
     second_meas s{3.0, 0.2};
-    auto result = pkr::units::divide_rss(m, s);
+    auto result = m / s;
 
     EXPECT_DOUBLE_EQ(result.value(), 2.0);
     // Uncertainty calculation for division is more complex
@@ -80,9 +80,9 @@ TEST_F(MeasurementMathRSSTest, divide_rss)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss_measurement_scalar)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m{5.0, 0.1};
-    auto result = pkr::units::multiply_rss(m, 2.0);
+    auto result = m * 2.0;
 
     EXPECT_DOUBLE_EQ(result.value(), 10.0);
     EXPECT_DOUBLE_EQ(result.uncertainty(), 2.0 * 0.1);
@@ -90,9 +90,9 @@ TEST_F(MeasurementMathRSSTest, multiply_rss_measurement_scalar)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss_scalar_measurement)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m{5.0, 0.1};
-    auto result = pkr::units::multiply_rss(2.0, m);
+    auto result = 2.0 * m;
 
     EXPECT_DOUBLE_EQ(result.value(), 10.0);
     EXPECT_DOUBLE_EQ(result.uncertainty(), 2.0 * 0.1);
@@ -100,9 +100,9 @@ TEST_F(MeasurementMathRSSTest, multiply_rss_scalar_measurement)
 
 TEST_F(MeasurementMathRSSTest, divide_rss_measurement_scalar)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m{6.0, 0.1};
-    auto result = pkr::units::divide_rss(m, 2.0);
+    auto result = m / 2.0;
 
     EXPECT_DOUBLE_EQ(result.value(), 3.0);
     EXPECT_DOUBLE_EQ(result.uncertainty(), 0.1 / 2.0);
@@ -110,9 +110,9 @@ TEST_F(MeasurementMathRSSTest, divide_rss_measurement_scalar)
 
 TEST_F(MeasurementMathRSSTest, divide_rss_scalar_measurement)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
     meter_meas m{2.0, 0.1};
-    auto result = pkr::units::divide_rss(6.0, m);
+    auto result = 6.0 / m;
 
     EXPECT_DOUBLE_EQ(result.value(), 3.0);
     // For 6.0 / m, uncertainty is |6.0| * |dm| / |m|^2
@@ -121,13 +121,13 @@ TEST_F(MeasurementMathRSSTest, divide_rss_scalar_measurement)
 
 TEST_F(MeasurementMathRSSTest, SumOfSquaresRSS)
 {
-    using meter_meas = pkr::units::measurement_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
 
     meter_meas x{1.0, 0.1};
     meter_meas y{2.0, 0.2};
     meter_meas z{3.0, 0.3};
 
-    auto result = pkr::units::sum_of_squares_rss(x, y, z);
+    auto result = sum_of_squares_rss(x, y, z);
 
     // value should be x^2 + y^2 + z^2 = 1 + 4 + 9 = 14
     EXPECT_DOUBLE_EQ(result.value(), 14.0);

@@ -2,7 +2,8 @@
 
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
-#include <pkr_units/measurements/measurement.h>
+#include <pkr_units/measurements.h>
+#include <cmath>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -67,10 +68,17 @@ struct vec_4d_t
         w /= scalar;
         return *this;
     }
+
+    // Calculate magnitude of the 3D portion (ignoring w component)
+    double magnitude() const
+        requires requires(T a) { std::sqrt(a * a); }
+    {
+        return std::sqrt(static_cast<double>(x * x + y * y + z * z));
+    }
 };
 
 template <typename T>
-    requires(!is_base_pkr_unit_c<T> && !is_measurement_c<T>)
+    requires(!is_base_pkr_unit_c<T>)
 constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b)
 {
     return vec_4d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
@@ -117,7 +125,7 @@ constexpr bool operator==(const vec_4d_t<T>& a, const vec_4d_t<T>& b)
 
 // Dot product for plain vectors (non-unit, non-measurement)
 template <typename T>
-    requires(!is_base_pkr_unit_c<T> && !is_measurement_c<T>)
+    requires(!is_base_pkr_unit_c<T>)
 constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
 {
     return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;

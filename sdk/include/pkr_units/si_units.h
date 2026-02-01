@@ -71,12 +71,6 @@
 #include <pkr_units/math/unit/unit_math.h>
 
 // ============================================================================
-// Measurements with Uncertainty Propagation
-// ============================================================================
-
-#include <pkr_units/measurements/measurement.h>
-
-// ============================================================================
 // Unit Literals
 // ============================================================================
 // Use <pkr_units/si_units_literals.h> for user-defined literals.
