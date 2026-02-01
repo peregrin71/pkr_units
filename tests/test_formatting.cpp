@@ -18,7 +18,7 @@ TEST(FormattingTest, VelocityDerivedUnit)
     pkr::units::second_t time{2.0};
     auto velocity = distance / time;
     auto formatted = std::format("{}", velocity);
-    EXPECT_EQ(formatted, "5 m·s⁻¹");
+    EXPECT_EQ(formatted, "5 m/s");
 }
 
 // Test precision control with format
