@@ -1,7 +1,7 @@
 #include <cmath>
 #include <gtest/gtest.h>
 #include <numbers>
-#include <pkr_units/measurements/measurement_rss_t.h>
+#include <pkr_units/measurements/decl/measurement_rss_decl.h>
 #include <pkr_units/si_units.h>
 #include <pkr_units/units/dimensionless/scalar.h>
 #include <pkr_units/units/derived/area/area_units.h>
@@ -123,3 +123,4 @@ TEST_F(MeasurementRssTest, tan_rss_measurement)
     // Uncertainty: sec²(pi/4) * 0.05 = 2 * 0.05 = 0.1
     ASSERT_NEAR(result.uncertainty(), 0.1, 1e-10);
 }
+

@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 
-#include <pkr_units/measurements/measurement_rss_t.h>
+#include <pkr_units/measurements/decl/measurement_rss_decl.h>
 #include <pkr_units/si_units.h>
 #include <limits>
 
@@ -157,3 +157,4 @@ TEST_F(MeasurementEdgeCasesTest, ConstructionEdgeCases)
 }
 
 } // namespace test
+

@@ -30,16 +30,6 @@ if(ENABLE_COVERAGE)
     endif()
 endif()
 
-find_program(LLD_LINKER ld.lld lld)
-if(LLD_LINKER)
-    add_link_options(
-        -fuse-ld=lld
-        -Wl,--threads=4
-    )
-else()
-    message (STATUS "[${CMAKE_CURRENT_LIST_FILE})(${CMAKE_CURRENT_LIST_LINE})] : lld not found; using default linker")
-endif()
-
 # Only add -fPIC for non-Windows targets
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_compile_options(-fPIC)
