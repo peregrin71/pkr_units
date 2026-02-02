@@ -133,4 +133,3 @@ TEST_F(UnitMathTest, trigonometric_functions)
 }
 
 } // namespace test
-

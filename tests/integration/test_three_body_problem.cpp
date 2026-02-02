@@ -150,7 +150,7 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
         std::vector<std::array<double, 3>> positions;
         for (const auto& body : bodies)
         {
-            positions.push_back({body.position.x, body.position.y, body.position.z});
+            positions.push_back(std::array<double, 3>{{body.position.x, body.position.y, body.position.z}});
         }
         return positions;
     };
@@ -162,7 +162,7 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
         std::vector<std::array<double, 3>> positions;
         for (const auto& body : bodies)
         {
-            positions.push_back({body.position.x.value(), body.position.y.value(), body.position.z.value()});
+            positions.push_back(std::array<double, 3>{{body.position.x.value(), body.position.y.value(), body.position.z.value()}});
         }
         return positions;
     };
@@ -174,7 +174,7 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
         std::vector<std::array<double, 3>> positions;
         for (const auto& body : bodies)
         {
-            positions.push_back({body.position.x.value(), body.position.y.value(), body.position.z.value()});
+            positions.push_back(std::array<double, 3>{{body.position.x.value(), body.position.y.value(), body.position.z.value()}});
         }
         return positions;
     };
@@ -215,21 +215,17 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
                 double dist_double_units = std::sqrt(
                     (double_pos[i][0] - units_pos[i][0]) * (double_pos[i][0] - units_pos[i][0]) +
                     (double_pos[i][1] - units_pos[i][1]) * (double_pos[i][1] - units_pos[i][1]) +
-                    (double_pos[i][2] - units_pos[i][2]) * (double_pos[i][2] - units_pos[i][2])
-                );
+                    (double_pos[i][2] - units_pos[i][2]) * (double_pos[i][2] - units_pos[i][2]));
 
                 double dist_double_measurements = std::sqrt(
                     (double_pos[i][0] - measurements_pos[i][0]) * (double_pos[i][0] - measurements_pos[i][0]) +
                     (double_pos[i][1] - measurements_pos[i][1]) * (double_pos[i][1] - measurements_pos[i][1]) +
-                    (double_pos[i][2] - measurements_pos[i][2]) * (double_pos[i][2] - measurements_pos[i][2])
-                );
+                    (double_pos[i][2] - measurements_pos[i][2]) * (double_pos[i][2] - measurements_pos[i][2]));
 
-                EXPECT_LT(dist_double_units, max_divergence) 
-                    << "Body " << i << " position divergence (double vs units) at step " << step 
-                    << ": " << dist_double_units << " km";
-                EXPECT_LT(dist_double_measurements, max_divergence) 
-                    << "Body " << i << " position divergence (double vs measurements) at step " << step 
-                    << ": " << dist_double_measurements << " km";
+                EXPECT_LT(dist_double_units, max_divergence)
+                    << "Body " << i << " position divergence (double vs units) at step " << step << ": " << dist_double_units << " km";
+                EXPECT_LT(dist_double_measurements, max_divergence)
+                    << "Body " << i << " position divergence (double vs measurements) at step " << step << ": " << dist_double_measurements << " km";
             }
         }
     }
@@ -259,18 +255,16 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
         double final_dist_double_units = std::sqrt(
             (final_double_pos[i][0] - final_units_pos[i][0]) * (final_double_pos[i][0] - final_units_pos[i][0]) +
             (final_double_pos[i][1] - final_units_pos[i][1]) * (final_double_pos[i][1] - final_units_pos[i][1]) +
-            (final_double_pos[i][2] - final_units_pos[i][2]) * (final_double_pos[i][2] - final_units_pos[i][2])
-        );
+            (final_double_pos[i][2] - final_units_pos[i][2]) * (final_double_pos[i][2] - final_units_pos[i][2]));
 
         double final_dist_double_measurements = std::sqrt(
             (final_double_pos[i][0] - final_measurements_pos[i][0]) * (final_double_pos[i][0] - final_measurements_pos[i][0]) +
             (final_double_pos[i][1] - final_measurements_pos[i][1]) * (final_double_pos[i][1] - final_measurements_pos[i][1]) +
-            (final_double_pos[i][2] - final_measurements_pos[i][2]) * (final_double_pos[i][2] - final_measurements_pos[i][2])
-        );
+            (final_double_pos[i][2] - final_measurements_pos[i][2]) * (final_double_pos[i][2] - final_measurements_pos[i][2]));
 
-        EXPECT_LT(final_dist_double_units, max_final_divergence) 
+        EXPECT_LT(final_dist_double_units, max_final_divergence)
             << "Final body " << i << " position divergence (double vs units): " << final_dist_double_units << " km";
-        EXPECT_LT(final_dist_double_measurements, max_final_divergence) 
+        EXPECT_LT(final_dist_double_measurements, max_final_divergence)
             << "Final body " << i << " position divergence (double vs measurements): " << final_dist_double_measurements << " km";
     }
 }

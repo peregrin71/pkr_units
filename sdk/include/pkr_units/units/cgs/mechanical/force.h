@@ -13,10 +13,13 @@ struct dyne_t final : public details::unit_t<double, std::ratio<1, 100000>, forc
 {
     using _base = details::unit_t<double, std::ratio<1, 100000>, force_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"dyne"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"dyn"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dyn"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dyn"};
+    [[maybe_unused]] static constexpr std::string_view name{"dyne"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"dyn"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dyn"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dyn"};
 };
 
 template <>

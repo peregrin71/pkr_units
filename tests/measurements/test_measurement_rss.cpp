@@ -123,4 +123,3 @@ TEST_F(MeasurementRssTest, tan_rss_measurement)
     // Uncertainty: sec²(pi/4) * 0.05 = 2 * 0.05 = 0.1
     ASSERT_NEAR(result.uncertainty(), 0.1, 1e-10);
 }
-

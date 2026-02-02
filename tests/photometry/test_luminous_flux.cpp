@@ -68,7 +68,7 @@ TEST_F(LuminousFluxTest, LumenComparison)
     lumen_t lm1(800.0);
     lumen_t lm2(1200.0);
     lumen_t lm3(800.0);
-    
+
     EXPECT_TRUE(lm1 < lm2);
     EXPECT_TRUE(lm2 > lm1);
     EXPECT_TRUE(lm1 == lm3);

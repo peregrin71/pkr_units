@@ -20,7 +20,6 @@ struct steradian_t final : public details::unit_t<double, std::ratio<1, 1>, soli
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"sr"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"sr"};
-
 };
 
 // ============================================================================

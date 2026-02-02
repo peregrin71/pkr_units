@@ -170,4 +170,3 @@ TEST_F(RK4CalculationPatternsTest, ForceMagnitudePattern)
     EXPECT_DOUBLE_EQ(distance_sq.value(), 100.0);
 }
 } // namespace test
-

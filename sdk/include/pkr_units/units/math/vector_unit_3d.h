@@ -114,4 +114,3 @@ constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-

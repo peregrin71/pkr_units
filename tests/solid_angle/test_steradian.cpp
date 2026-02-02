@@ -75,7 +75,7 @@ TEST_F(SteradianTest, SteradianComparison)
     steradian_t sr1(2.0);
     steradian_t sr2(3.0);
     steradian_t sr3(2.0);
-    
+
     EXPECT_TRUE(sr1 < sr2);
     EXPECT_TRUE(sr2 > sr1);
     EXPECT_TRUE(sr1 == sr3);

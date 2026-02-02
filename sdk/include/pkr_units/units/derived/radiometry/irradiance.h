@@ -66,7 +66,6 @@ struct watt_per_square_meter_t final : public details::unit_t<double, std::ratio
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2"};
-
 };
 
 // Shorter alias for irradiance
@@ -81,7 +80,6 @@ struct irradiance_t final : public details::unit_t<double, std::ratio<1, 1>, dim
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2"};
-
 };
 
 // ============================================================================

@@ -55,7 +55,6 @@ struct lux_t final : public details::unit_t<double, std::ratio<1, 1>, dimension_
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cd\u00b7sr\u00b7m\u207b\u00b2"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cd\u00b7sr\u00b7m\u207b\u00b2"};
-
 };
 
 // ============================================================================

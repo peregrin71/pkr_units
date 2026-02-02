@@ -514,4 +514,3 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_lin_t<UnitT>, CharT>
 };
 
 } // namespace std
-

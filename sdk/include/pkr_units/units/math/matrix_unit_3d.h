@@ -88,5 +88,3 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-
-

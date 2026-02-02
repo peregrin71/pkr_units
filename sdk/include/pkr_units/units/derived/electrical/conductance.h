@@ -15,30 +15,39 @@ struct siemens_t final : public details::unit_t<double, std::ratio<1, 1>, conduc
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, conductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"siemens"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"S"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"S"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"S"};
+    [[maybe_unused]] static constexpr std::string_view name{"siemens"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"S"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"S"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"S"};
 };
 
 struct millisiemens_t final : public details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, conductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"millisiemens"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mS"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mS"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mS"};
+    [[maybe_unused]] static constexpr std::string_view name{"millisiemens"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mS"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mS"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mS"};
 };
 
 struct microsiemens_t final : public details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"microsiemens"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"uS"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5S"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5S"};
+    [[maybe_unused]] static constexpr std::string_view name{"microsiemens"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"uS"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5S"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5S"};
 };
 
 // ============================================================================

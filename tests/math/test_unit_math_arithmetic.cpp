@@ -246,4 +246,3 @@ TEST_F(MathFunctionsTest, math_functions_work_with_existing_operations)
 }
 
 } // namespace test
-

@@ -157,4 +157,3 @@ TEST_F(MeasurementEdgeCasesTest, ConstructionEdgeCases)
 }
 
 } // namespace test
-

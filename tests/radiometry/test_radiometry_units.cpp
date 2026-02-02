@@ -33,10 +33,10 @@ TEST_F(RadiantIntensityTest, WattPerSteradianArithmetic)
 {
     watt_per_steradian_t intensity1(50.0);
     watt_per_steradian_t intensity2(30.0);
-    
+
     watt_per_steradian_t sum = intensity1 + intensity2;
     EXPECT_DOUBLE_EQ(sum.value(), 80.0);
-    
+
     watt_per_steradian_t diff = intensity1 - intensity2;
     EXPECT_DOUBLE_EQ(diff.value(), 20.0);
 }
@@ -46,7 +46,7 @@ TEST_F(RadiantIntensityTest, WattPerSteradianComparison)
 {
     watt_per_steradian_t intensity1(100.0);
     watt_per_steradian_t intensity2(150.0);
-    
+
     EXPECT_TRUE(intensity1 < intensity2);
     EXPECT_TRUE(intensity2 > intensity1);
 }
@@ -79,12 +79,12 @@ TEST_F(RadianceTest, RadianceSymbols)
 // Test radiance arithmetic
 TEST_F(RadianceTest, RadianceArithmetic)
 {
-    radiance_t rad1(1000000.0);  // 1 MW/(m²·sr)
+    radiance_t rad1(1000000.0); // 1 MW/(m²·sr)
     radiance_t rad2(500000.0);
-    
+
     radiance_t sum = rad1 + rad2;
     EXPECT_DOUBLE_EQ(sum.value(), 1500000.0);
-    
+
     radiance_t diff = rad1 - rad2;
     EXPECT_DOUBLE_EQ(diff.value(), 500000.0);
 }
@@ -94,7 +94,7 @@ TEST_F(RadianceTest, RadianceComparison)
 {
     radiance_t rad1(1000000.0);
     radiance_t rad2(500000.0);
-    
+
     EXPECT_TRUE(rad2 < rad1);
     EXPECT_TRUE(rad1 > rad2);
 }
@@ -142,12 +142,12 @@ TEST_F(IrradianceTest, IrradianceSymbols)
 // Test irradiance arithmetic
 TEST_F(IrradianceTest, IrradianceArithmetic)
 {
-    irradiance_t irr1(1361.0);  // Solar constant at Earth orbit
+    irradiance_t irr1(1361.0); // Solar constant at Earth orbit
     irradiance_t irr2(500.0);
-    
+
     irradiance_t sum = irr1 + irr2;
     EXPECT_DOUBLE_EQ(sum.value(), 1861.0);
-    
+
     irradiance_t diff = irr1 - irr2;
     EXPECT_DOUBLE_EQ(diff.value(), 861.0);
 }
@@ -157,7 +157,7 @@ TEST_F(IrradianceTest, IrradianceComparison)
 {
     irradiance_t irr1(1361.0);
     irradiance_t irr2(1000.0);
-    
+
     EXPECT_TRUE(irr2 < irr1);
     EXPECT_TRUE(irr1 > irr2);
 }

@@ -29,7 +29,6 @@ struct celsius_t final : public details::unit_t<double, std::ratio<1, 1>, temper
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b0C"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b0C"};
-
 };
 
 } // namespace PKR_UNITS_NAMESPACE

@@ -143,4 +143,3 @@ constexpr auto dot(const vec_measurement_lin_4d_t<T>& a, const vec_measurement_l
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-

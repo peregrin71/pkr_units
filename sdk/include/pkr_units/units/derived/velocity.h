@@ -20,7 +20,6 @@ struct meter_per_second_t final : public details::unit_t<double, std::ratio<1, 1
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m\u00b7s\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m\u00b7s\u207b\u00b9"};
-
 };
 
 // Strong type for kilometer per hour
@@ -35,7 +34,6 @@ struct kilometer_per_hour_t final : public details::unit_t<double, std::ratio<5,
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km\u00b7h\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km\u00b7h\u207b\u00b9"};
-
 };
 
 // Strong type for centimeter per second
@@ -50,7 +48,6 @@ struct centimeter_per_second_t final : public details::unit_t<double, std::ratio
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm\u00b7s\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm\u00b7s\u207b\u00b9"};
-
 };
 
 // Strong type for millimeter per second
@@ -65,7 +62,6 @@ struct millimeter_per_second_t final : public details::unit_t<double, std::ratio
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm\u00b7s\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm\u00b7s\u207b\u00b9"};
-
 };
 
 // Strong type for kilometer per second
@@ -80,7 +76,6 @@ struct kilometer_per_second_t final : public details::unit_t<double, std::ratio<
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km\u00b7s\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km·s⁻¹"};
-
 };
 
 // ============================================================================

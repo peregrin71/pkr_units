@@ -13,10 +13,13 @@ struct meter_per_second_squared_t final : public details::unit_t<double, std::ra
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"meter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"m/s^2"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m·s⁻²"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m·s⁻²"};
+    [[maybe_unused]] static constexpr std::string_view name{"meter per second squared"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"m/s^2"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m·s⁻²"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m·s⁻²"};
 };
 
 // Strong type for centimeter per second squared
@@ -24,10 +27,13 @@ struct centimeter_per_second_squared_t final : public details::unit_t<double, st
 {
     using _base = details::unit_t<double, std::ratio<1, 100>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"centimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"cm/s^2"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm·s⁻²"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm·s⁻²"};
+    [[maybe_unused]] static constexpr std::string_view name{"centimeter per second squared"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"cm/s^2"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm·s⁻²"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm·s⁻²"};
 };
 
 // Strong type for millimeter per second squared
@@ -35,10 +41,13 @@ struct millimeter_per_second_squared_t final : public details::unit_t<double, st
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"millimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mm/s^2"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm·s⁻²"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm·s⁻²"};
+    [[maybe_unused]] static constexpr std::string_view name{"millimeter per second squared"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mm/s^2"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm·s⁻²"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm·s⁻²"};
 };
 
 // Strong type for kilometer per second squared
@@ -46,10 +55,13 @@ struct kilometer_per_second_squared_t final : public details::unit_t<double, std
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"kilometer per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"km/s^2"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km·s⁻²"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km·s⁻²"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilometer per second squared"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"km/s^2"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km·s⁻²"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km·s⁻²"};
 };
 
 // Standard gravity (g) - Strong type
@@ -59,10 +71,13 @@ struct standard_gravity_t final : public details::unit_t<double, std::ratio<9806
 {
     using _base = details::unit_t<double, std::ratio<980665, 100000>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"standard gravity"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"g"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"g"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"g"};
+    [[maybe_unused]] static constexpr std::string_view name{"standard gravity"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"g"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"g"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"g"};
 };
 
 // ============================================================================

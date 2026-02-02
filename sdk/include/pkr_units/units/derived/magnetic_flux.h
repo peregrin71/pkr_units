@@ -28,50 +28,65 @@ struct weber_t final : public details::unit_t<double, std::ratio<1, 1>, magnetic
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, magnetic_flux_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"weber"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"Wb"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Wb"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Wb"};
+    [[maybe_unused]] static constexpr std::string_view name{"weber"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"Wb"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Wb"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Wb"};
 };
 
 struct milliweber_t final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"milliweber"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mWb"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mWb"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mWb"};
+    [[maybe_unused]] static constexpr std::string_view name{"milliweber"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mWb"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mWb"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mWb"};
 };
 
 struct microweber_t final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"microweber"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"uWb"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5Wb"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5Wb"};
+    [[maybe_unused]] static constexpr std::string_view name{"microweber"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"uWb"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5Wb"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5Wb"};
 };
 
 struct nanoweber_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"nanoweber"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"nWb"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nWb"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nWb"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanoweber"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"nWb"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nWb"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nWb"};
 };
 
 struct kiloweber_t final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"kiloweber"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"kWb"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kWb"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kWb"};
+    [[maybe_unused]] static constexpr std::string_view name{"kiloweber"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"kWb"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kWb"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kWb"};
 };
 
 // Magnetic flux density units (Tesla and derived)
@@ -81,60 +96,78 @@ struct tesla_t final : public details::unit_t<double, std::ratio<1, 1>, magnetic
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"tesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"T"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"T"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"T"};
+    [[maybe_unused]] static constexpr std::string_view name{"tesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"T"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"T"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"T"};
 };
 
 struct millitesla_t final : public details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"millitesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mT"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mT"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mT"};
+    [[maybe_unused]] static constexpr std::string_view name{"millitesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mT"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mT"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mT"};
 };
 
 struct microtesla_t final : public details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"microtesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"uT"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5T"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5T"};
+    [[maybe_unused]] static constexpr std::string_view name{"microtesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"uT"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5T"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5T"};
 };
 
 struct nanotesla_t final : public details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"nanotesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"nT"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nT"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nT"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanotesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"nT"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nT"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nT"};
 };
 
 struct kilotesla_t final : public details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"kilotesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"kT"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kT"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kT"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilotesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"kT"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kT"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kT"};
 };
 
 struct megatesla_t final : public details::unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"megatesla"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"MT"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MT"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MT"};
+    [[maybe_unused]] static constexpr std::string_view name{"megatesla"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"MT"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MT"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MT"};
 };
 
 // ============================================================================

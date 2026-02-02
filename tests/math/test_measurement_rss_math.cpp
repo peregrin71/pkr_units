@@ -142,4 +142,3 @@ TEST_F(MeasurementMathRSSTest, SumOfSquaresRSS)
 }
 
 } // namespace test
-

@@ -15,10 +15,13 @@ struct thermal_conductivity_t final : public details::unit_t<double, std::ratio<
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, thermal_conductivity_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"thermal_conductivity"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m*K)"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W·m⁻¹·K⁻¹"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W·m⁻¹·K⁻¹"};
+    [[maybe_unused]] static constexpr std::string_view name{"thermal_conductivity"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m*K)"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W·m⁻¹·K⁻¹"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W·m⁻¹·K⁻¹"};
 };
 
 template <>

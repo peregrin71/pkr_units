@@ -13,10 +13,13 @@ struct radian_t final : public details::unit_t<double, std::ratio<1, 1>, angle_d
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"radian"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"rad"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"rad"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"rad"};
+    [[maybe_unused]] static constexpr std::string_view name{"radian"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"rad"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"rad"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"rad"};
 };
 
 // Strong type for degree
@@ -26,10 +29,13 @@ struct degree_t final : public details::unit_t<double, std::ratio<1745329, 10000
 {
     using _base = details::unit_t<double, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"degree"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"deg"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"°"};
+    [[maybe_unused]] static constexpr std::string_view name{"degree"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"deg"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"°"};
 };
 
 // Strong type for gradian (also called gon)
@@ -39,10 +45,13 @@ struct gradian_t final : public details::unit_t<double, std::ratio<1570796, 1000
 {
     using _base = details::unit_t<double, std::ratio<1570796, 100000000>, angle_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"gradian"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"grad"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"gon"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"gon"};
+    [[maybe_unused]] static constexpr std::string_view name{"gradian"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"grad"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"gon"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"gon"};
 };
 
 // ============================================================================

@@ -31,17 +31,11 @@ struct Body
 {
     measurement_vec_t position; // position in km with uncertainty (w=1)
     measurement_vec_t velocity; // velocity in km/s (w=0)
-    double mass;       // mass in kg
+    double mass;                // mass in kg
 
     Body(pkr::units::vec_4d_t<double> pos, pkr::units::vec_4d_t<double> vel, double m)
-        : position{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.x, std::abs(pos.x * 0.001)},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.y, std::abs(pos.y * 0.001)},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.z, std::abs(pos.z * 0.001)},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.w, 0.0}}
-        , velocity{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.x, 0.0},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.y, 0.0},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.z, 0.0},
-              pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.w, 0.0}}
+        : position{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.x, std::abs(pos.x * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.y, std::abs(pos.y * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.z, std::abs(pos.z * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.w, 0.0}}
+        , velocity{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.x, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.y, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.z, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.w, 0.0}}
         , mass(m)
     {
     }
@@ -156,8 +150,7 @@ public:
         double kinetic_energy = 0.0;
         for (const auto& body : bodies)
         {
-            double v_sq = body.velocity.x.value() * body.velocity.x.value() +
-                          body.velocity.y.value() * body.velocity.y.value() +
+            double v_sq = body.velocity.x.value() * body.velocity.x.value() + body.velocity.y.value() * body.velocity.y.value() +
                           body.velocity.z.value() * body.velocity.z.value();
             kinetic_energy += 0.5 * body.mass * v_sq;
         }

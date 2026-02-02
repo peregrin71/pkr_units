@@ -68,7 +68,7 @@ TEST_F(IlluminanceTest, LuxComparison)
     lux_t lux1(300.0);
     lux_t lux2(500.0);
     lux_t lux3(300.0);
-    
+
     EXPECT_TRUE(lux1 < lux2);
     EXPECT_TRUE(lux2 > lux1);
     EXPECT_TRUE(lux1 == lux3);

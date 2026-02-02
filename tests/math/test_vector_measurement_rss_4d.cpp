@@ -124,4 +124,3 @@ TEST_F(Vector4DMeasurementsRSSTest, construction)
 // }
 
 } // namespace test
-

@@ -15,8 +15,7 @@ namespace details
 template <typename type_t>
 constexpr type_t compute_conversion_factor(long long source_num, long long source_den, long long target_num, long long target_den) noexcept
 {
-    return (static_cast<type_t>(source_num) * static_cast<type_t>(target_den)) /
-           (static_cast<type_t>(source_den) * static_cast<type_t>(target_num));
+    return (static_cast<type_t>(source_num) * static_cast<type_t>(target_den)) / (static_cast<type_t>(source_den) * static_cast<type_t>(target_num));
 }
 
 // Internal cast function (preserves dimension, converts ratio)

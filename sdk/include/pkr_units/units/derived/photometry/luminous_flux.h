@@ -12,7 +12,7 @@ namespace PKR_UNITS_NAMESPACE
 // ============================================================================
 // Luminous Flux (Lumen)
 // ============================================================================
-// 
+//
 // Luminous flux is the total amount of visible light emitted by a source.
 // Unit: lumen (lm) = candela × steradian (cd · sr)
 //
@@ -43,7 +43,6 @@ struct lumen_t final : public details::unit_t<double, std::ratio<1, 1>, dimensio
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cd\u00b7sr"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cd\u00b7sr"};
-
 };
 
 // ============================================================================

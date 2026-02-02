@@ -230,15 +230,13 @@ TEST_F(PhotometryTest, lux_greater_than)
 TEST_F(PhotometryTest, lumen_distinct_from_watt)
 {
     // Luminous flux [cd·sr] should be distinct from radiant flux [M·L²·T⁻³]
-    static_assert(!std::is_same_v<lumen_t, watt_t>, 
-                  "lumen_t and watt_t should be distinct types");
+    static_assert(!std::is_same_v<lumen_t, watt_t>, "lumen_t and watt_t should be distinct types");
 }
 
 TEST_F(PhotometryTest, lux_distinct_from_watt_per_square_meter)
 {
     // Illuminance [cd·sr·m⁻²] should be distinct from irradiance [M·L⁻²·T⁻³]
-    static_assert(!std::is_same_v<lux_t, watt_per_square_meter_t>, 
-                  "lux_t and watt_per_square_meter_t should be distinct types");
+    static_assert(!std::is_same_v<lux_t, watt_per_square_meter_t>, "lux_t and watt_per_square_meter_t should be distinct types");
 }
 
 // ============================================================================
@@ -250,9 +248,8 @@ TEST_F(PhotometryTest, candela_as_luminous_intensity)
     // Verify candela_t is available and distinct from lumen_t
     candela_t intensity(100.0);
     EXPECT_EQ(intensity.value(), 100.0);
-    
-    static_assert(!std::is_same_v<candela_t, lumen_t>, 
-                  "candela_t and lumen_t should be distinct types");
+
+    static_assert(!std::is_same_v<candela_t, lumen_t>, "candela_t and lumen_t should be distinct types");
 }
 
 TEST_F(PhotometryTest, steradian_in_photometry)
@@ -260,7 +257,7 @@ TEST_F(PhotometryTest, steradian_in_photometry)
     // Verify steradian_t is available for photometric calculations
     steradian_t solid_angle(2.0);
     candela_t intensity(100.0);
-    
+
     EXPECT_EQ(solid_angle.value(), 2.0);
     EXPECT_EQ(intensity.value(), 100.0);
 }

@@ -74,7 +74,6 @@ struct watt_per_square_meter_per_steradian_t final : public details::unit_t<doub
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
-
 };
 
 // Shorter alias for radiance
@@ -89,7 +88,6 @@ struct radiance_t final : public details::unit_t<double, std::ratio<1, 1>, dimen
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
-
 };
 
 // ============================================================================

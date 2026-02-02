@@ -372,30 +372,26 @@ TEST_F(RadiometryTest, irradiance_greater_than)
 TEST_F(RadiometryTest, radiant_flux_distinct_from_luminous_flux)
 {
     // Radiant flux [M·L²·T⁻³] should be distinct from luminous flux [cd·sr]
-    static_assert(!std::is_same_v<watt_t, lumen_t>, 
-                  "watt_t and lumen_t should be distinct types");
+    static_assert(!std::is_same_v<watt_t, lumen_t>, "watt_t and lumen_t should be distinct types");
 }
 
 TEST_F(RadiometryTest, radiant_intensity_distinct_from_candela)
 {
     // Radiant intensity [M·L²·T⁻³·sr⁻¹] should be distinct from candela [cd]
-    static_assert(!std::is_same_v<watt_per_steradian_t, candela_t>, 
-                  "watt_per_steradian_t and candela_t should be distinct types");
+    static_assert(!std::is_same_v<watt_per_steradian_t, candela_t>, "watt_per_steradian_t and candela_t should be distinct types");
 }
 
 TEST_F(RadiometryTest, radiance_distinct_from_luminance)
 {
-    // While there's no luminance type in this library, radiance should be 
+    // While there's no luminance type in this library, radiance should be
     // distinct from photometric quantities
-    static_assert(!std::is_same_v<radiance_t, lux_t>, 
-                  "radiance_t and lux_t should be distinct types");
+    static_assert(!std::is_same_v<radiance_t, lux_t>, "radiance_t and lux_t should be distinct types");
 }
 
 TEST_F(RadiometryTest, irradiance_distinct_from_illuminance)
 {
     // Irradiance [M·L⁻²·T⁻³] should be distinct from illuminance [cd·sr·m⁻²]
-    static_assert(!std::is_same_v<irradiance_t, lux_t>, 
-                  "irradiance_t and lux_t should be distinct types");
+    static_assert(!std::is_same_v<irradiance_t, lux_t>, "irradiance_t and lux_t should be distinct types");
 }
 
 // ============================================================================
@@ -407,7 +403,7 @@ TEST_F(RadiometryTest, steradian_in_radiometry)
     // Verify steradian_t is available for radiometric calculations
     steradian_t solid_angle(1.5);
     watt_per_steradian_t intensity(100.0);
-    
+
     EXPECT_EQ(solid_angle.value(), 1.5);
     EXPECT_EQ(intensity.value(), 100.0);
 }
@@ -419,7 +415,7 @@ TEST_F(RadiometryTest, radiometric_quantities_consistency)
     watt_per_steradian_t intensity(100.0);
     radiance_t radiance(50.0);
     irradiance_t irradiance(500.0);
-    
+
     EXPECT_GT(flux.value(), 0.0);
     EXPECT_GT(intensity.value(), 0.0);
     EXPECT_GT(radiance.value(), 0.0);

@@ -13,10 +13,13 @@ struct horsepower_t final : public details::unit_t<double, std::ratio<745700, 10
 {
     using _base = details::unit_t<double, std::ratio<745700, 1000>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"horsepower"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"hp"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hp"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hp"};
+    [[maybe_unused]] static constexpr std::string_view name{"horsepower"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"hp"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hp"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hp"};
 };
 
 // ============================================================================

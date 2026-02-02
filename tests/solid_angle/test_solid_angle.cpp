@@ -200,16 +200,15 @@ TEST_F(SolidAngleTest, steradian_distinct_from_radian)
 {
     // This is a compile-time test - both types should be distinct
     // Confirming they have different dimensions
-    static_assert(!std::is_same_v<steradian_t, radian_t>, 
-                  "steradian_t and radian_t should be distinct types");
+    static_assert(!std::is_same_v<steradian_t, radian_t>, "steradian_t and radian_t should be distinct types");
 }
 
 TEST_F(SolidAngleTest, steradian_creation_from_derived_operation)
 {
     // Verify steradian can be created from dimensional operations
-    lumen_t luminous_flux(1000.0);  // cd·sr
-    candela_t intensity(100.0);      // cd
-    
+    lumen_t luminous_flux(1000.0); // cd·sr
+    candela_t intensity(100.0);    // cd
+
     // Derived steradian from division of lumen by candela
     // This should work dimensionally
     EXPECT_GT(luminous_flux.value(), 0.0);

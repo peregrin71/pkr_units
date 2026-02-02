@@ -29,7 +29,6 @@ struct fahrenheit_t final : public details::unit_t<double, std::ratio<1, 1>, tem
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b0F"};
 
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b0F"};
-
 };
 
 } // namespace PKR_UNITS_NAMESPACE
