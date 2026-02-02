@@ -27,7 +27,7 @@
 #include <pkr_units/impl/dimension.h>
 
 // ============================================================================
-// SI Base Units (8 fundamental units)
+// SI Base Units (9 fundamental units)
 // ============================================================================
 
 #include <pkr_units/units/base/length.h>      // meter (m)
@@ -38,6 +38,7 @@
 #include <pkr_units/units/base/amount.h>      // mole (mol)
 #include <pkr_units/units/base/intensity.h>   // candela (cd)
 #include <pkr_units/units/base/angle.h>       // radian (rad)
+#include <pkr_units/units/base/solid_angle.h> // steradian (sr)
 
 // ============================================================================
 // Derived SI Units (common compound units)
@@ -55,6 +56,11 @@
 #include <pkr_units/units/derived/magnetic_flux.h>
 #include <pkr_units/units/derived/thermal.h>
 #include <pkr_units/units/derived/viscosity.h>
+#include <pkr_units/units/derived/photometry/luminous_flux.h>
+#include <pkr_units/units/derived/photometry/luminous_exitance.h>
+#include <pkr_units/units/derived/radiometry/radiant_intensity.h>
+#include <pkr_units/units/derived/radiometry/radiance.h>
+#include <pkr_units/units/derived/radiometry/irradiance.h>
 #include <pkr_units/units/dimensionless/scalar.h>
 
 // ============================================================================

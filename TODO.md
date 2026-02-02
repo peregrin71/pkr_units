@@ -81,8 +81,8 @@
 - [x] HMS/DMS type for formatting
 
 ### Solid Angle Units (star radians)
-- [ ] consider adding
-- [ ] if needed adds another dimension
+- [x] implement as 9th dimension (steradian_t)
+- [x] add to dimension tracking system
 
 ### Electric Current Units
 - [x] ampere
@@ -150,6 +150,17 @@
 - [x] Concentration (molar) - mol/m³
 - [x] Concentration (mass) - kg/m³
 - [x] Molarity - mol/L
+
+### Photometry
+- [x] Luminous Flux (candela × steradian) - Lumen
+- [x] Luminous Intensity (candela × steradian) - relationship documentation
+- [x] Illuminance (candela × steradian / length²) - Lux
+
+### Radiometry
+- [x] Radiant Flux (power) - Watts
+- [x] Radiant Intensity (power / steradian) - Watts per Steradian
+- [x] Radiance (power / (area × steradian)) - Watts per Square Meter per Steradian
+- [x] Irradiance (power / area) - Watts per Square Meter
 
 ---
 
