@@ -10,10 +10,13 @@ struct scalar_t final : public details::unit_t<double, std::ratio<1>, scalar_dim
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"scalar"};
-    [[maybe_unused]] static constexpr std::string_view symbol{""};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L""};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8""};
+    [[maybe_unused]] static constexpr std::string_view name{"scalar"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{""};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L""};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8""};
 };
 
 template <>

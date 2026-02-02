@@ -15,10 +15,13 @@ namespace PKR_UNITS_NAMESPACE
 struct decibel_power_t final : public details::unit_t<double, std::ratio<1, 1>, scalar_dimension>
 {
     using decibel_power_t::unit_t::unit_t;
-    [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
+    [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
 // Decibel (amplitude ratio, 20 * log10)
@@ -26,10 +29,13 @@ struct decibel_power_t final : public details::unit_t<double, std::ratio<1, 1>, 
 struct decibel_amplitude_t final : public details::unit_t<double, std::ratio<1, 1>, scalar_dimension>
 {
     using decibel_amplitude_t::unit_t::unit_t;
-    [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
+    [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE

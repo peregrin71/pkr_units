@@ -19,7 +19,6 @@ struct ampere_per_meter_t final : public pkr::units::details::unit_t<double, std
     [[maybe_unused]] static constexpr std::string_view symbol{"A/m"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"A·m⁻¹"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"A·m⁻¹"};
-
 };
 } // namespace
 

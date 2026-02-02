@@ -23,10 +23,7 @@ struct vec_measurement_lin_3d_t
     {
     }
 
-    vec_measurement_lin_3d_t(
-        pkr::units::measurement_lin_t<T> x,
-        pkr::units::measurement_lin_t<T> y,
-        pkr::units::measurement_lin_t<T> z)
+    vec_measurement_lin_3d_t(pkr::units::measurement_lin_t<T> x, pkr::units::measurement_lin_t<T> y, pkr::units::measurement_lin_t<T> z)
         : x{x}
         , y{y}
         , z{z}
@@ -132,10 +129,7 @@ constexpr auto dot(const vec_measurement_lin_3d_t<T>& a, const vec_measurement_l
 template <pkr::units::is_pkr_unit_c T>
 constexpr vec_measurement_lin_3d_t<T> cross(const vec_measurement_lin_3d_t<T>& a, const vec_measurement_lin_3d_t<T>& b) noexcept
 {
-    return vec_measurement_lin_3d_t<T>{
-        (a.y * b.z) - (a.z * b.y),
-        (a.z * b.x) - (a.x * b.z),
-        (a.x * b.y) - (a.y * b.x)};
+    return vec_measurement_lin_3d_t<T>{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
 }
 
 } // namespace PKR_UNITS_NAMESPACE

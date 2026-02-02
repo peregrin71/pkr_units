@@ -140,8 +140,44 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
     using namespace three_body_units;
     using namespace three_body_measurements;
 
-    const int num_steps = 1000;
+    const int num_steps = 10000;
     const double dt = 0.001;
+
+    // Lambda to extract positions from double system
+    auto get_double_positions = [](const auto& system)
+    {
+        const auto& bodies = system.get_bodies();
+        std::vector<std::array<double, 3>> positions;
+        for (const auto& body : bodies)
+        {
+            positions.push_back(std::array<double, 3>{{body.position.x, body.position.y, body.position.z}});
+        }
+        return positions;
+    };
+
+    // Lambda to extract positions from units system
+    auto get_units_positions = [](const auto& system)
+    {
+        const auto& bodies = system.get_bodies();
+        std::vector<std::array<double, 3>> positions;
+        for (const auto& body : bodies)
+        {
+            positions.push_back(std::array<double, 3>{{body.position.x.value(), body.position.y.value(), body.position.z.value()}});
+        }
+        return positions;
+    };
+
+    // Lambda to extract positions from measurements system
+    auto get_measurements_positions = [](const auto& system)
+    {
+        const auto& bodies = system.get_bodies();
+        std::vector<std::array<double, 3>> positions;
+        for (const auto& body : bodies)
+        {
+            positions.push_back(std::array<double, 3>{{body.position.x.value(), body.position.y.value(), body.position.z.value()}});
+        }
+        return positions;
+    };
 
     // Run simulation for all three implementations
     for (int step = 0; step < num_steps; ++step)
@@ -150,7 +186,7 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
         units_system->rk4_step(dt);
         measurements_system->rk4_step(dt);
 
-        // Periodically check energy conservation
+        // Periodically check energy conservation and position divergence
         if (step % 100 == 0)
         {
             double double_energy = double_system->total_energy();
@@ -165,6 +201,32 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
             EXPECT_LT(double_energy_deviation, 0.01) << "Double precision energy drift at step " << step;
             EXPECT_LT(units_energy_deviation, 0.01) << "Units energy drift at step " << step;
             EXPECT_LT(measurements_energy_deviation, 0.02) << "Measurements energy drift at step " << step;
+
+            // Check position convergence between implementations
+            auto double_pos = get_double_positions(*double_system);
+            auto units_pos = get_units_positions(*units_system);
+            auto measurements_pos = get_measurements_positions(*measurements_system);
+
+            for (size_t i = 0; i < double_pos.size(); ++i)
+            {
+                // Maximum allowed position divergence: 1% of initial separation or 1e5 km
+                double max_divergence = 1e5;
+
+                double dist_double_units = std::sqrt(
+                    (double_pos[i][0] - units_pos[i][0]) * (double_pos[i][0] - units_pos[i][0]) +
+                    (double_pos[i][1] - units_pos[i][1]) * (double_pos[i][1] - units_pos[i][1]) +
+                    (double_pos[i][2] - units_pos[i][2]) * (double_pos[i][2] - units_pos[i][2]));
+
+                double dist_double_measurements = std::sqrt(
+                    (double_pos[i][0] - measurements_pos[i][0]) * (double_pos[i][0] - measurements_pos[i][0]) +
+                    (double_pos[i][1] - measurements_pos[i][1]) * (double_pos[i][1] - measurements_pos[i][1]) +
+                    (double_pos[i][2] - measurements_pos[i][2]) * (double_pos[i][2] - measurements_pos[i][2]));
+
+                EXPECT_LT(dist_double_units, max_divergence)
+                    << "Body " << i << " position divergence (double vs units) at step " << step << ": " << dist_double_units << " km";
+                EXPECT_LT(dist_double_measurements, max_divergence)
+                    << "Body " << i << " position divergence (double vs measurements) at step " << step << ": " << dist_double_measurements << " km";
+            }
         }
     }
 
@@ -180,6 +242,31 @@ TEST_F(ThreeBodySimulationTest, three_body_simulation_convergence)
     EXPECT_LT(double_deviation, 0.01) << "Final double precision energy deviation";
     EXPECT_LT(units_deviation, 0.01) << "Final units energy deviation";
     EXPECT_LT(measurements_deviation, 0.02) << "Final measurements energy deviation";
+
+    // Final position convergence check
+    auto final_double_pos = get_double_positions(*double_system);
+    auto final_units_pos = get_units_positions(*units_system);
+    auto final_measurements_pos = get_measurements_positions(*measurements_system);
+
+    for (size_t i = 0; i < final_double_pos.size(); ++i)
+    {
+        double max_final_divergence = 1e5; // 100,000 km tolerance
+
+        double final_dist_double_units = std::sqrt(
+            (final_double_pos[i][0] - final_units_pos[i][0]) * (final_double_pos[i][0] - final_units_pos[i][0]) +
+            (final_double_pos[i][1] - final_units_pos[i][1]) * (final_double_pos[i][1] - final_units_pos[i][1]) +
+            (final_double_pos[i][2] - final_units_pos[i][2]) * (final_double_pos[i][2] - final_units_pos[i][2]));
+
+        double final_dist_double_measurements = std::sqrt(
+            (final_double_pos[i][0] - final_measurements_pos[i][0]) * (final_double_pos[i][0] - final_measurements_pos[i][0]) +
+            (final_double_pos[i][1] - final_measurements_pos[i][1]) * (final_double_pos[i][1] - final_measurements_pos[i][1]) +
+            (final_double_pos[i][2] - final_measurements_pos[i][2]) * (final_double_pos[i][2] - final_measurements_pos[i][2]));
+
+        EXPECT_LT(final_dist_double_units, max_final_divergence)
+            << "Final body " << i << " position divergence (double vs units): " << final_dist_double_units << " km";
+        EXPECT_LT(final_dist_double_measurements, max_final_divergence)
+            << "Final body " << i << " position divergence (double vs measurements): " << final_dist_double_measurements << " km";
+    }
 }
 
 TEST_F(ThreeBodySimulationTest, three_body_numerical_stability_comparison)

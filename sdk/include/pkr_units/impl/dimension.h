@@ -10,9 +10,10 @@ namespace PKR_UNITS_NAMESPACE
 // Dimension struct for dimensional analysis (C++20 as NTTP)
 // ============================================================================
 //
-// 8-Dimensional SI System:
+// 9-Dimensional SI System:
 // - Standard 7 SI base units (length, mass, time, current, temperature, amount, intensity)
 // - Extended with plane angle (radians) as 8th dimension for type-safe rotational mechanics
+// - Extended with solid angle (steradians) as 9th dimension for type-safe solid angle measurements
 //
 // See design.md § 1.4 for rationale on adding angle to the standard SI system.
 struct dimension_t
@@ -25,18 +26,19 @@ struct dimension_t
     int amount = 0;      // mole (mol)
     int intensity = 0;   // candela (cd)
     int angle = 0;       // radian (rad) - plane angle [NON-STANDARD SI EXTENSION]
+    int star_angle = 0;  // steradian (sr) - solid angle [NON-STANDARD SI EXTENSION]
 
     constexpr bool operator==(const dimension_t&) const = default;
 };
 
 // Dimensionless (scalar) dimension - default constructed with all zeros
-inline constexpr dimension_t scalar_dimension{0, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t scalar_dimension{0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 // ============================================================================
 // Dimension symbol building for formatting
 // ============================================================================
 
-// Base unit symbols in canonical dimension order: mass, length, time, current, temperature, amount, intensity, angle
+// Base unit symbols in canonical dimension order: mass, length, time, current, temperature, amount, intensity, angle, star_angle
 template <typename CharT>
 inline constexpr std::basic_string_view<CharT> base_unit_symbols[] = {
     std::basic_string_view<CharT>{}, // mass (kg)
@@ -46,20 +48,21 @@ inline constexpr std::basic_string_view<CharT> base_unit_symbols[] = {
     std::basic_string_view<CharT>{}, // temperature (K)
     std::basic_string_view<CharT>{}, // amount (mol)
     std::basic_string_view<CharT>{}, // intensity (cd)
-    std::basic_string_view<CharT>{}  // angle (rad)
+    std::basic_string_view<CharT>{}, // angle (rad)
+    std::basic_string_view<CharT>{}  // star_angle (sr)
 };
 
 // Specialization for char
 template <>
-inline constexpr std::basic_string_view<char> base_unit_symbols<char>[] = {"kg", "m", "s", "A", "K", "mol", "cd", "rad"};
+inline constexpr std::basic_string_view<char> base_unit_symbols<char>[] = {"kg", "m", "s", "A", "K", "mol", "cd", "rad", "sr"};
 
 // Specialization for wchar_t
 template <>
-inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = {L"kg", L"m", L"s", L"A", L"K", L"mol", L"cd", L"rad"};
+inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = {L"kg", L"m", L"s", L"A", L"K", L"mol", L"cd", L"rad", L"sr"};
 
 // Specialization for char8_t
 template <>
-inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad"};
+inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
 
 // Helper to get superscript exponent string using lookup tables
 template <typename CharT>
@@ -90,18 +93,18 @@ std::basic_string<CharT> superscript_exponent(int exp)
 }
 
 // Build dimension symbol string from dimension_t
-// Produces canonical form: M·L·T·I·Θ·N·J·A with negative exponents
+// Produces canonical form: M·L·T·I·Θ·N·J·A·Ω with negative exponents
 template <typename CharT>
 std::basic_string<CharT> build_dimension_symbol(const dimension_t& dim)
 {
     std::basic_string<CharT> result;
 
-    // Canonical dimension order: mass, length, time, current, temperature, amount, intensity, angle
-    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle};
+    // Canonical dimension order: mass, length, time, current, temperature, amount, intensity, angle, star_angle
+    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
     const auto& symbols = base_unit_symbols<CharT>;
 
     // Process all dimensions in canonical order
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 9; ++i)
     {
         if (dims[i] != 0)
         {

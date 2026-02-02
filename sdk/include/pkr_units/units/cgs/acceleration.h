@@ -13,10 +13,13 @@ struct gal_t final : public details::unit_t<double, std::ratio<1, 100>, accelera
 {
     using _base = details::unit_t<double, std::ratio<1, 100>, acceleration_v>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"gal"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"Gal"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gal"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gal"};
+    [[maybe_unused]] static constexpr std::string_view name{"gal"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gal"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gal"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gal"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE

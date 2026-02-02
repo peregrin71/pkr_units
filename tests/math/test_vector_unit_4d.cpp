@@ -231,5 +231,3 @@ TEST_F(Vector4DUnitsTest, ratio_preservation_km_add_meter)
 }
 
 } // namespace test
-
-

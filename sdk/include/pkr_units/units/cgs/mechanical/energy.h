@@ -13,10 +13,13 @@ struct erg_t final : public details::unit_t<double, std::ratio<1, 10000000>, ene
 {
     using _base = details::unit_t<double, std::ratio<1, 10000000>, energy_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"erg"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"erg"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"erg"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"erg"};
+    [[maybe_unused]] static constexpr std::string_view name{"erg"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"erg"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"erg"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"erg"};
 };
 
 template <>

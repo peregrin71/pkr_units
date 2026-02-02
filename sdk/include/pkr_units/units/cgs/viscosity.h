@@ -13,10 +13,13 @@ struct poise_t final : public details::unit_t<double, std::ratio<1, 10>, dynamic
 {
     using _base = details::unit_t<double, std::ratio<1, 10>, dynamic_viscosity_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"poise"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"P"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"P"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"P"};
+    [[maybe_unused]] static constexpr std::string_view name{"poise"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"P"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"P"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"P"};
 };
 
 // CGS kinematic viscosity unit
@@ -25,10 +28,13 @@ struct stokes_t final : public details::unit_t<double, std::ratio<1, 10000>, kin
 {
     using _base = details::unit_t<double, std::ratio<1, 10000>, kinematic_viscosity_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"stokes"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"St"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"St"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"St"};
+    [[maybe_unused]] static constexpr std::string_view name{"stokes"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"St"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"St"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"St"};
 };
 
 template <>

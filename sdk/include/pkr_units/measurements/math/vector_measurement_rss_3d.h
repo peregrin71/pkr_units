@@ -132,11 +132,7 @@ constexpr auto dot(const vec_measurement_rss_3d_t<T>& a, const vec_measurement_r
 template <pkr::units::is_pkr_unit_c T>
 constexpr vec_measurement_rss_3d_t<T> cross(const vec_measurement_rss_3d_t<T>& a, const vec_measurement_rss_3d_t<T>& b) noexcept
 {
-    return vec_measurement_rss_3d_t<T>{
-        (a.y * b.z) - (a.z * b.y),
-        (a.z * b.x) - (a.x * b.z),
-        (a.x * b.y) - (a.y * b.x)};
+    return vec_measurement_rss_3d_t<T>{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-

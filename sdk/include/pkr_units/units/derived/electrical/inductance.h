@@ -15,40 +15,52 @@ struct henry_t final : public details::unit_t<double, std::ratio<1, 1>, inductan
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, inductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"henry"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"H"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"H"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"H"};
+    [[maybe_unused]] static constexpr std::string_view name{"henry"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"H"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"H"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"H"};
 };
 
 struct millihenry_t final : public details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, inductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"millihenry"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mH"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mH"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mH"};
+    [[maybe_unused]] static constexpr std::string_view name{"millihenry"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mH"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mH"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mH"};
 };
 
 struct microhenry_t final : public details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, inductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"microhenry"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"uH"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5H"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5H"};
+    [[maybe_unused]] static constexpr std::string_view name{"microhenry"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"uH"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5H"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5H"};
 };
 
 struct nanohenry_t final : public details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, inductance_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"nanohenry"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"nH"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nH"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nH"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanohenry"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"nH"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nH"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nH"};
 };
 
 // ============================================================================

@@ -417,4 +417,3 @@ TEST_F(MeasurementTest, multiplication_with_zero_value_has_zero_uncertainty)
 }
 
 } // namespace test
-

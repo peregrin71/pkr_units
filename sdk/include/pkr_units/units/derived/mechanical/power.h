@@ -17,70 +17,91 @@ struct watt_t final : public details::unit_t<double, std::ratio<1, 1>, power_dim
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"watt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"W"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W"};
+    [[maybe_unused]] static constexpr std::string_view name{"watt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"W"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W"};
 };
 
 struct kilowatt_t final : public details::unit_t<double, std::ratio<1000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"kilowatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"kW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kW"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kW"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilowatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"kW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kW"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kW"};
 };
 
 struct megawatt_t final : public details::unit_t<double, std::ratio<1000000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"megawatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"MW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MW"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MW"};
+    [[maybe_unused]] static constexpr std::string_view name{"megawatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"MW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MW"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MW"};
 };
 
 struct gigawatt_t final : public details::unit_t<double, std::ratio<1000000000, 1>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"gigawatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"GW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GW"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GW"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigawatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"GW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GW"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GW"};
 };
 
 struct microwatt_t final : public details::unit_t<double, std::ratio<1, 1000000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"microwatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"uW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5W"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5W"};
+    [[maybe_unused]] static constexpr std::string_view name{"microwatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"uW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5W"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5W"};
 };
 
 struct milliwatt_t final : public details::unit_t<double, std::ratio<1, 1000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"milliwatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mW"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mW"};
+    [[maybe_unused]] static constexpr std::string_view name{"milliwatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"mW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mW"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mW"};
 };
 
 struct nanowatt_t final : public details::unit_t<double, std::ratio<1, 1000000000>, power_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, power_dimension>;
     using _base::_base;
-    [[maybe_unused]] static constexpr std::string_view name{"nanowatt"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"nW"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nW"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nW"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanowatt"};
+
+    [[maybe_unused]] static constexpr std::string_view symbol{"nW"};
+
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nW"};
+
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nW"};
 };
 
 // Power units

@@ -76,4 +76,3 @@ constexpr vec_measurement_rss_3d_t<T> operator*(const matrix_measurement_rss_3d_
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-

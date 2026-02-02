@@ -202,4 +202,3 @@ constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b
 }
 
 } // namespace PKR_UNITS_NAMESPACE
-

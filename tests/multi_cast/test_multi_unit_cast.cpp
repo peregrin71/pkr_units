@@ -184,8 +184,7 @@ TEST_F(MultiCastTest, cast_with_two_denominator_units)
     // Use two denominators to exercise multi-denominator processing
     pkr::units::meter_per_second_t mps{2.0};
 
-    auto per_second_meter =
-        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, pkr::units::meter_t>>(mps);
+    auto per_second_meter = pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, pkr::units::meter_t>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(per_second_meter)>;
     static_assert(traits::value_dimension.length == 0);
@@ -199,8 +198,7 @@ TEST_F(MultiCastTest, cast_with_integral_constant_power_denominator)
     pkr::units::meter_per_second_t mps{3.0};
 
     auto per_second_squared =
-        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, 2>, pkr::units::meter_t>>(
-            mps);
+        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, 2>, pkr::units::meter_t>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(per_second_squared)>;
     static_assert(traits::value_dimension.length == 0);
@@ -214,8 +212,7 @@ TEST_F(MultiCastTest, cast_with_integral_constant_negative_power_denominator)
     pkr::units::meter_per_second_t mps{4.0};
 
     auto times_second_squared =
-        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, -2>, pkr::units::meter_t>>(
-            mps);
+        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, -2>, pkr::units::meter_t>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(times_second_squared)>;
     static_assert(traits::value_dimension.length == 0);
