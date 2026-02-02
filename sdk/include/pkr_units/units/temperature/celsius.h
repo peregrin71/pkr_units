@@ -22,10 +22,10 @@ struct celsius_t final : public details::unit_t<double, std::ratio<1, 1>, temper
     // Intentionally no _base typedef - this is the marker that prevents unit_cast usage
     using celsius_t::unit_t::unit_t;
 
-    static constexpr std::string_view name{"celsius"};
-    static constexpr std::string_view symbol{"C"};
-    static constexpr std::wstring_view w_symbol{L"°C"};
-    static constexpr std::u8string_view u8_symbol{u8"°C"};
+    [[maybe_unused]] static constexpr std::string_view name{"celsius"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"C"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°C"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"°C"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE

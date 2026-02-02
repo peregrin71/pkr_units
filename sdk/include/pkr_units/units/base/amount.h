@@ -13,10 +13,10 @@ struct mole_t final : public details::unit_t<double, std::ratio<1, 1>, amount_di
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"mole"};
-    static constexpr std::string_view symbol{"mol"};
-    static constexpr std::wstring_view w_symbol{L"mol"};
-    static constexpr std::u8string_view u8_symbol{u8"mol"};
+    [[maybe_unused]] static constexpr std::string_view name{"mole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mol"};
 };
 
 // Metric amount prefixes (strong types)
@@ -24,160 +24,160 @@ struct attomole_t final : public details::unit_t<double, std::atto, amount_dimen
 {
     using _base = details::unit_t<double, std::atto, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"attomole"};
-    static constexpr std::string_view symbol{"amol"};
-    static constexpr std::wstring_view w_symbol{L"amol"};
-    static constexpr std::u8string_view u8_symbol{u8"amol"};
+    [[maybe_unused]] static constexpr std::string_view name{"attomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"amol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"amol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"amol"};
 };
 
 struct femtomole_t final : public details::unit_t<double, std::femto, amount_dimension>
 {
     using _base = details::unit_t<double, std::femto, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"femtomole"};
-    static constexpr std::string_view symbol{"fmol"};
-    static constexpr std::wstring_view w_symbol{L"fmol"};
-    static constexpr std::u8string_view u8_symbol{u8"fmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"femtomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"fmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"fmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"fmol"};
 };
 
 struct picomole_t final : public details::unit_t<double, std::pico, amount_dimension>
 {
     using _base = details::unit_t<double, std::pico, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"picomole"};
-    static constexpr std::string_view symbol{"pmol"};
-    static constexpr std::wstring_view w_symbol{L"pmol"};
-    static constexpr std::u8string_view u8_symbol{u8"pmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"picomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"pmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"pmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"pmol"};
 };
 
 struct nanomole_t final : public details::unit_t<double, std::nano, amount_dimension>
 {
     using _base = details::unit_t<double, std::nano, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"nanomole"};
-    static constexpr std::string_view symbol{"nmol"};
-    static constexpr std::wstring_view w_symbol{L"nmol"};
-    static constexpr std::u8string_view u8_symbol{u8"nmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"nmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nmol"};
 };
 
 struct micromole_t final : public details::unit_t<double, std::micro, amount_dimension>
 {
     using _base = details::unit_t<double, std::micro, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"micromole"};
-    static constexpr std::string_view symbol{"umol"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5mol"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5mol"};
+    [[maybe_unused]] static constexpr std::string_view name{"micromole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"umol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5mol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5mol"};
 };
 
 struct millimole_t final : public details::unit_t<double, std::milli, amount_dimension>
 {
     using _base = details::unit_t<double, std::milli, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millimole"};
-    static constexpr std::string_view symbol{"mmol"};
-    static constexpr std::wstring_view w_symbol{L"mmol"};
-    static constexpr std::u8string_view u8_symbol{u8"mmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"millimole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mmol"};
 };
 
 struct centimole_t final : public details::unit_t<double, std::centi, amount_dimension>
 {
     using _base = details::unit_t<double, std::centi, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"centimole"};
-    static constexpr std::string_view symbol{"cmol"};
-    static constexpr std::wstring_view w_symbol{L"cmol"};
-    static constexpr std::u8string_view u8_symbol{u8"cmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"centimole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cmol"};
 };
 
 struct decimole_t final : public details::unit_t<double, std::deci, amount_dimension>
 {
     using _base = details::unit_t<double, std::deci, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decimole"};
-    static constexpr std::string_view symbol{"dmol"};
-    static constexpr std::wstring_view w_symbol{L"dmol"};
-    static constexpr std::u8string_view u8_symbol{u8"dmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"decimole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"dmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dmol"};
 };
 
 struct decamole_t final : public details::unit_t<double, std::deca, amount_dimension>
 {
     using _base = details::unit_t<double, std::deca, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decamole"};
-    static constexpr std::string_view symbol{"damol"};
-    static constexpr std::wstring_view w_symbol{L"damol"};
-    static constexpr std::u8string_view u8_symbol{u8"damol"};
+    [[maybe_unused]] static constexpr std::string_view name{"decamole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"damol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"damol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"damol"};
 };
 
 struct hectomole_t final : public details::unit_t<double, std::hecto, amount_dimension>
 {
     using _base = details::unit_t<double, std::hecto, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hectomole"};
-    static constexpr std::string_view symbol{"hmol"};
-    static constexpr std::wstring_view w_symbol{L"hmol"};
-    static constexpr std::u8string_view u8_symbol{u8"hmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"hectomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"hmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hmol"};
 };
 
 struct kilomole_t final : public details::unit_t<double, std::kilo, amount_dimension>
 {
     using _base = details::unit_t<double, std::kilo, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilomole"};
-    static constexpr std::string_view symbol{"kmol"};
-    static constexpr std::wstring_view w_symbol{L"kmol"};
-    static constexpr std::u8string_view u8_symbol{u8"kmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilomole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kmol"};
 };
 
 struct megamole_t final : public details::unit_t<double, std::mega, amount_dimension>
 {
     using _base = details::unit_t<double, std::mega, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megamole"};
-    static constexpr std::string_view symbol{"Mmol"};
-    static constexpr std::wstring_view w_symbol{L"Mmol"};
-    static constexpr std::u8string_view u8_symbol{u8"Mmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"megamole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Mmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Mmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Mmol"};
 };
 
 struct gigamole_t final : public details::unit_t<double, std::giga, amount_dimension>
 {
     using _base = details::unit_t<double, std::giga, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigamole"};
-    static constexpr std::string_view symbol{"Gmol"};
-    static constexpr std::wstring_view w_symbol{L"Gmol"};
-    static constexpr std::u8string_view u8_symbol{u8"Gmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigamole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gmol"};
 };
 
 struct teramole_t final : public details::unit_t<double, std::tera, amount_dimension>
 {
     using _base = details::unit_t<double, std::tera, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"teramole"};
-    static constexpr std::string_view symbol{"Tmol"};
-    static constexpr std::wstring_view w_symbol{L"Tmol"};
-    static constexpr std::u8string_view u8_symbol{u8"Tmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"teramole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Tmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Tmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Tmol"};
 };
 
 struct petamole_t final : public details::unit_t<double, std::peta, amount_dimension>
 {
     using _base = details::unit_t<double, std::peta, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"petamole"};
-    static constexpr std::string_view symbol{"Pmol"};
-    static constexpr std::wstring_view w_symbol{L"Pmol"};
-    static constexpr std::u8string_view u8_symbol{u8"Pmol"};
+    [[maybe_unused]] static constexpr std::string_view name{"petamole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Pmol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Pmol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Pmol"};
 };
 
 struct examole_t final : public details::unit_t<double, std::exa, amount_dimension>
 {
     using _base = details::unit_t<double, std::exa, amount_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"examole"};
-    static constexpr std::string_view symbol{"Emol"};
-    static constexpr std::wstring_view w_symbol{L"Emol"};
-    static constexpr std::u8string_view u8_symbol{u8"Emol"};
+    [[maybe_unused]] static constexpr std::string_view name{"examole"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Emol"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Emol"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Emol"};
 };
 
 // ============================================================================

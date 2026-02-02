@@ -16,10 +16,10 @@ struct hms_archour_t final : public details::unit_t<double, std::ratio<26179935,
 {
     using _base = details::unit_t<double, std::ratio<26179935, 100000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hms_archour"};
-    static constexpr std::string_view symbol{"h"};
-    static constexpr std::wstring_view w_symbol{L"ʰ"};
-    static constexpr std::u8string_view u8_symbol{u8"h"};
+    [[maybe_unused]] static constexpr std::string_view name{"hms_archour"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"h"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ʰ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"h"};
 };
 
 // HMS minute (1/60 archour).
@@ -27,10 +27,10 @@ struct hms_arcminute_t final : public details::unit_t<double, std::ratio<2617993
 {
     using _base = details::unit_t<double, std::ratio<26179935, 6000000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hms_arcminute"};
-    static constexpr std::string_view symbol{"m"};
-    static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::string_view name{"hms_arcminute"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"m"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
 };
 
 // HMS second (1/3600 archour).
@@ -38,10 +38,10 @@ struct hms_arcsecond_t final : public details::unit_t<double, std::ratio<2617993
 {
     using _base = details::unit_t<double, std::ratio<26179935, 360000000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hms_arcsecond"};
-    static constexpr std::string_view symbol{"s"};
-    static constexpr std::wstring_view w_symbol{L"ˢ"};
-    static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::string_view name{"hms_arcsecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"s"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
 };
 
 // DMS degree (formatting-only).
@@ -49,10 +49,10 @@ struct dms_degree_t final : public details::unit_t<double, std::ratio<1745329, 1
 {
     using _base = details::unit_t<double, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"dms_degree"};
-    static constexpr std::string_view symbol{"deg"};
-    static constexpr std::wstring_view w_symbol{L"°"};
-    static constexpr std::u8string_view u8_symbol{u8"deg"};
+    [[maybe_unused]] static constexpr std::string_view name{"dms_degree"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"deg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"deg"};
 };
 
 // DMS arcminute (formatting-only).
@@ -60,10 +60,10 @@ struct dms_arcminute_t final : public details::unit_t<double, std::ratio<1745329
 {
     using _base = details::unit_t<double, std::ratio<1745329, 6000000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"dms_arcminute"};
-    static constexpr std::string_view symbol{"m"};
-    static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::string_view name{"dms_arcminute"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"m"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
 };
 
 // DMS arcsecond (formatting-only).
@@ -71,10 +71,10 @@ struct dms_arcsecond_t final : public details::unit_t<double, std::ratio<1745329
 {
     using _base = details::unit_t<double, std::ratio<1745329, 360000000000>, angle_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"dms_arcsecond"};
-    static constexpr std::string_view symbol{"s"};
-    static constexpr std::wstring_view w_symbol{L"ˢ"};
-    static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::string_view name{"dms_arcsecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"s"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
 };
 
 // HMS formatting type (hour/minute/second components).

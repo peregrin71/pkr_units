@@ -22,10 +22,10 @@ struct fahrenheit_t final : public details::unit_t<double, std::ratio<1, 1>, tem
     // Intentionally no _base typedef - this is the marker that prevents unit_cast usage
     using fahrenheit_t::unit_t::unit_t;
 
-    static constexpr std::string_view name{"fahrenheit"};
-    static constexpr std::string_view symbol{"F"};
-    static constexpr std::wstring_view w_symbol{L"°F"};
-    static constexpr std::u8string_view u8_symbol{u8"°F"};
+    [[maybe_unused]] static constexpr std::string_view name{"fahrenheit"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"F"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°F"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"°F"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE

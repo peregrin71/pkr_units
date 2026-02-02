@@ -15,10 +15,10 @@ struct specific_heat_capacity_t final : public details::unit_t<double, std::rati
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, specific_heat_capacity_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"specific_heat_capacity"};
-    static constexpr std::string_view symbol{"J/(kg*K)"};
-    static constexpr std::wstring_view w_symbol{L"J·kg⁻¹·K⁻¹"};
-    static constexpr std::u8string_view u8_symbol{u8"J·kg⁻¹·K⁻¹"};
+    [[maybe_unused]] static constexpr std::string_view name{"specific_heat_capacity"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"J/(kg*K)"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"J·kg⁻¹·K⁻¹"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"J·kg⁻¹·K⁻¹"};
 };
 
 template <>

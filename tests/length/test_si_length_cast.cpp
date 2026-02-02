@@ -50,7 +50,7 @@ TEST_F(SiLengthCastTest, cast_meter_to_millimeter)
 
 TEST_F(SiLengthCastTest, cast_kilometer_to_millimeter)
 {
-    pkr::units::kilometer_t km{1.0};
+    [[maybe_unused]] pkr::units::kilometer_t km{1.0};
     auto mm = pkr::units::unit_cast<pkr::units::millimeter_t>(km);
     static_assert(std::is_same_v<decltype(mm), pkr::units::millimeter_t>);
     ASSERT_DOUBLE_EQ(mm.value(), 1000000.0);
@@ -58,7 +58,7 @@ TEST_F(SiLengthCastTest, cast_kilometer_to_millimeter)
 
 TEST_F(SiLengthCastTest, cast_kilometer_to_ratio_must_not_compile)
 {
-    pkr::units::kilometer_t km{1.0};
+    [[maybe_unused]] pkr::units::kilometer_t km{1.0};
     // MUST_NOT_COMPILE(pkr::units::unit_cast<std::milli>(km)); // Note std::milli is a ratio, not a unit type
     // Commented out because MUST_NOT_COMPILE doesn't work with template deduction failures
 }

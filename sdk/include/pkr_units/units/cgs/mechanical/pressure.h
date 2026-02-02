@@ -13,10 +13,10 @@ struct barye_t final : public details::unit_t<double, std::ratio<1, 10>, pressur
 {
     using _base = details::unit_t<double, std::ratio<1, 10>, pressure_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"barye"};
-    static constexpr std::string_view symbol{"Ba"};
-    static constexpr std::wstring_view w_symbol{L"Ba"};
-    static constexpr std::u8string_view u8_symbol{u8"Ba"};
+    [[maybe_unused]] static constexpr std::string_view name{"barye"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Ba"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Ba"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Ba"};
 };
 
 template <>

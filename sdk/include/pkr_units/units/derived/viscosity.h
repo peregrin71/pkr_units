@@ -13,10 +13,10 @@ struct pascal_second_t final : public details::unit_t<double, std::ratio<1, 1>, 
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, dynamic_viscosity_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"pascal_second"};
-    static constexpr std::string_view symbol{"Pa*s"};
-    static constexpr std::wstring_view w_symbol{L"Pa*s"};
-    static constexpr std::u8string_view u8_symbol{u8"Pa*s"};
+    [[maybe_unused]] static constexpr std::string_view name{"pascal_second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Pa*s"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Pa*s"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Pa*s"};
 };
 
 // Kinematic viscosity units
@@ -25,10 +25,10 @@ struct square_meter_per_second_t final : public details::unit_t<double, std::rat
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, kinematic_viscosity_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"square_meter_per_second"};
-    static constexpr std::string_view symbol{"m^2/s"};
-    static constexpr std::wstring_view w_symbol{L"m^2/s"};
-    static constexpr std::u8string_view u8_symbol{u8"m^2/s"};
+    [[maybe_unused]] static constexpr std::string_view name{"square_meter_per_second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"m^2/s"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m^2/s"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m^2/s"};
 };
 
 template <>

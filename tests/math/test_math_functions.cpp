@@ -199,7 +199,6 @@ TEST_F(MathFunctionsTest, normalize_complex_operations)
     ASSERT_DOUBLE_EQ(normalized_energy.value(), 15000000.0);
 
     // Should have energy dimensions (M·L²·T⁻²)
-    using result_type = decltype(normalized_energy);
     // static_assert(result_type::dim.mass == 1, "Should have mass dimension");
     // static_assert(result_type::dim.length == 2, "Should have length² dimension");
     // static_assert(result_type::dim.time == -2, "Should have time⁻² dimension");
@@ -225,7 +224,6 @@ TEST_F(MathFunctionsTest, normalize_complex_operations_constexpr)
 
     // Check type is correct - at compile time, template resolution may differ
     // So we check that it has the right dimensions
-    using result_type = decltype(normalized_energy);
     // static_assert(result_type::dim.mass == 1, "Should have mass dimension");
     // static_assert(result_type::dim.length == 2, "Should have length² dimension");
     // static_assert(result_type::dim.time == -2, "Should have time⁻² dimension");

@@ -15,60 +15,60 @@ struct ohm_t final : public details::unit_t<double, std::ratio<1, 1>, electric_r
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"ohm"};
-    static constexpr std::string_view symbol{"ohm"};
-    static constexpr std::wstring_view w_symbol{L"\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"ohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u03a9"};
 };
 
 struct kiloohm_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kiloohm"};
-    static constexpr std::string_view symbol{"kohm"};
-    static constexpr std::wstring_view w_symbol{L"k\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"k\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"kiloohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"k\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"k\u03a9"};
 };
 
 struct megaohm_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megaohm"};
-    static constexpr std::string_view symbol{"Mohm"};
-    static constexpr std::wstring_view w_symbol{L"M\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"M\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"megaohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Mohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"M\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"M\u03a9"};
 };
 
 struct gigaohm_t final : public details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigaohm"};
-    static constexpr std::string_view symbol{"Gohm"};
-    static constexpr std::wstring_view w_symbol{L"G\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"G\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigaohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"G\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"G\u03a9"};
 };
 
 struct milliohm_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"milliohm"};
-    static constexpr std::string_view symbol{"mohm"};
-    static constexpr std::wstring_view w_symbol{L"m\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"m\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"milliohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m\u03a9"};
 };
 
 struct microohm_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_resistance_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microohm"};
-    static constexpr std::string_view symbol{"uohm"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5\u03a9"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5\u03a9"};
+    [[maybe_unused]] static constexpr std::string_view name{"microohm"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"uohm"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5\u03a9"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5\u03a9"};
 };
 
 // ============================================================================

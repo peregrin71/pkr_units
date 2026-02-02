@@ -15,60 +15,60 @@ struct coulomb_t final : public details::unit_t<double, std::ratio<1, 1>, electr
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"coulomb"};
-    static constexpr std::string_view symbol{"C"};
-    static constexpr std::wstring_view w_symbol{L"C"};
-    static constexpr std::u8string_view u8_symbol{u8"C"};
+    [[maybe_unused]] static constexpr std::string_view name{"coulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"C"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"C"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"C"};
 };
 
 struct kilocoulomb_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilocoulomb"};
-    static constexpr std::string_view symbol{"kC"};
-    static constexpr std::wstring_view w_symbol{L"kC"};
-    static constexpr std::u8string_view u8_symbol{u8"kC"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilocoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kC"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kC"};
 };
 
 struct millicoulomb_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millicoulomb"};
-    static constexpr std::string_view symbol{"mC"};
-    static constexpr std::wstring_view w_symbol{L"mC"};
-    static constexpr std::u8string_view u8_symbol{u8"mC"};
+    [[maybe_unused]] static constexpr std::string_view name{"millicoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mC"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mC"};
 };
 
 struct microcoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microcoulomb"};
-    static constexpr std::string_view symbol{"uC"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5C"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5C"};
+    [[maybe_unused]] static constexpr std::string_view name{"microcoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"uC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5C"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5C"};
 };
 
 struct nanocoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"nanocoulomb"};
-    static constexpr std::string_view symbol{"nC"};
-    static constexpr std::wstring_view w_symbol{L"nC"};
-    static constexpr std::u8string_view u8_symbol{u8"nC"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanocoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"nC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nC"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nC"};
 };
 
 struct picocoulomb_t final : public details::unit_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000000>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"picocoulomb"};
-    static constexpr std::string_view symbol{"pC"};
-    static constexpr std::wstring_view w_symbol{L"pC"};
-    static constexpr std::u8string_view u8_symbol{u8"pC"};
+    [[maybe_unused]] static constexpr std::string_view name{"picocoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"pC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"pC"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"pC"};
 };
 
 // ============================================================================

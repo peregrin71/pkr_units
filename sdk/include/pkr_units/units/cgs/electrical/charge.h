@@ -13,10 +13,10 @@ struct statcoulomb_t final : public details::unit_t<double, std::ratio<1, 299792
 {
     using _base = details::unit_t<double, std::ratio<1, 2997924580>, electric_charge_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"statcoulomb"};
-    static constexpr std::string_view symbol{"statC"};
-    static constexpr std::wstring_view w_symbol{L"statC"};
-    static constexpr std::u8string_view u8_symbol{u8"statC"};
+    [[maybe_unused]] static constexpr std::string_view name{"statcoulomb"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"statC"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"statC"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"statC"};
 };
 
 template <>
