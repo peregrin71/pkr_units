@@ -60,6 +60,20 @@ TEST_F(AstronomicalAngleFormattingTest, hms_angle_from_second_rounddown)
     EXPECT_EQ(result, "0h 0m 0s");
 }
 
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_roundup_to_minute)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{59.6});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "0h 1m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_angle_roundup_to_hour)
+{
+    auto ra = unit_cast<hms_angle_t>(hms_arcsecond_t{3599.6});
+    std::string result = std::format("{}", ra);
+    EXPECT_EQ(result, "1h 0m 0s");
+}
+
 TEST_F(AstronomicalAngleFormattingTest, hms_angle_wide_formatting)
 {
     auto ra = unit_cast<hms_angle_t>(hms_archour_t{12.5});
@@ -74,11 +88,25 @@ TEST_F(AstronomicalAngleFormattingTest, hms_archour_formatting)
     EXPECT_EQ(result, "2h");
 }
 
+TEST_F(AstronomicalAngleFormattingTest, hms_archour_wide_formatting)
+{
+    hms_archour_t ha{2.0};
+    std::wstring result = std::format(L"{}", ha);
+    EXPECT_NE(result.find(hms_archour_t::w_symbol), std::wstring::npos);
+}
+
 TEST_F(AstronomicalAngleFormattingTest, hms_arcminute_formatting)
 {
     hms_arcminute_t am{30.0};
     std::string result = std::format("{}", am);
     EXPECT_EQ(result, "30m");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, hms_arcminute_wide_formatting)
+{
+    hms_arcminute_t am{30.0};
+    std::wstring result = std::format(L"{}", am);
+    EXPECT_NE(result.find(hms_arcminute_t::w_symbol), std::wstring::npos);
 }
 
 TEST_F(AstronomicalAngleFormattingTest, hms_arcsecond_formatting)
@@ -88,11 +116,46 @@ TEST_F(AstronomicalAngleFormattingTest, hms_arcsecond_formatting)
     EXPECT_EQ(result, "15s");
 }
 
+TEST_F(AstronomicalAngleFormattingTest, hms_arcsecond_wide_formatting)
+{
+    hms_arcsecond_t as{15.0};
+    std::wstring result = std::format(L"{}", as);
+    EXPECT_NE(result.find(hms_arcsecond_t::w_symbol), std::wstring::npos);
+}
+
 TEST_F(AstronomicalAngleFormattingTest, dms_angle_formatting)
 {
     auto dec = unit_cast<dms_angle_t>(degree_t{12.5});
     std::string result = std::format("{}", dec);
     EXPECT_EQ(result, "12deg 30m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_degree_wide_formatting)
+{
+    dms_degree_t deg{12.0};
+    std::wstring result = std::format(L"{}", deg);
+    EXPECT_NE(result.find(dms_degree_t::w_symbol), std::wstring::npos);
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_arcminute_wide_formatting)
+{
+    dms_arcminute_t am{30.0};
+    std::wstring result = std::format(L"{}", am);
+    EXPECT_NE(result.find(dms_arcminute_t::w_symbol), std::wstring::npos);
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_arcsecond_wide_formatting)
+{
+    dms_arcsecond_t as{15.0};
+    std::wstring result = std::format(L"{}", as);
+    EXPECT_NE(result.find(dms_arcsecond_t::w_symbol), std::wstring::npos);
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_negative_formatting)
+{
+    auto dec = unit_cast<dms_angle_t>(degree_t{-12.5});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "-12deg 30m 0s");
 }
 
 TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second)
@@ -121,6 +184,13 @@ TEST_F(AstronomicalAngleFormattingTest, dms_angle_from_second_rounddown)
     auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{0.4});
     std::string result = std::format("{}", dec);
     EXPECT_EQ(result, "0deg 0m 0s");
+}
+
+TEST_F(AstronomicalAngleFormattingTest, dms_angle_roundup_to_degree)
+{
+    auto dec = unit_cast<dms_angle_t>(dms_arcsecond_t{3599.6});
+    std::string result = std::format("{}", dec);
+    EXPECT_EQ(result, "1deg 0m 0s");
 }
 
 TEST_F(AstronomicalAngleFormattingTest, dms_angle_wide_formatting)

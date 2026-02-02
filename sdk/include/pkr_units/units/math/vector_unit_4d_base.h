@@ -27,11 +27,11 @@ struct vec_4d_t<T>
     {
     }
 
-    vec_4d_t(T x, T y, T z, T w = 1)
-        : x{x}
-        , y{y}
-        , z{z}
-        , w{w}
+    vec_4d_t(T x_value, T y_value, T z_value, T w_value = 1)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+        , w{w_value}
     {
     }
 

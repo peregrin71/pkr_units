@@ -99,4 +99,30 @@ TEST_F(SiLengthCastTest, unit_cast_zero_ratio_overhead)
     ASSERT_DOUBLE_EQ(m.value(), 100.0);
 }
 
+TEST_F(SiLengthCastTest, unit_cast_same_derived_type)
+{
+    pkr::units::meter_t m{12.0};
+    auto same = pkr::units::unit_cast<pkr::units::meter_t>(m);
+    static_assert(std::is_same_v<decltype(same), pkr::units::meter_t>);
+    ASSERT_DOUBLE_EQ(same.value(), 12.0);
+}
+
+TEST_F(SiLengthCastTest, unit_cast_unit_t_same_ratio_no_conversion)
+{
+    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    length_unit_t length{42.0};
+
+    auto same = pkr::units::unit_cast<double, std::ratio<1, 1>, pkr::units::length_dimension>(length);
+    ASSERT_DOUBLE_EQ(same.value(), 42.0);
+}
+
+TEST_F(SiLengthCastTest, unit_cast_unit_t_ratio_conversion)
+{
+    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    length_unit_t length{2.0};
+
+    auto millimeters = pkr::units::unit_cast<double, std::milli, pkr::units::length_dimension>(length);
+    ASSERT_DOUBLE_EQ(millimeters.value(), 2000.0);
+}
+
 } // namespace test

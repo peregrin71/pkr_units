@@ -26,22 +26,22 @@ struct vec_4d_units_t
     {
     }
 
-    constexpr vec_4d_units_t(T x, T y, T z, T w = 1)
-        : x{x}
-        , y{y}
-        , z{z}
-        , w{w}
+    constexpr vec_4d_units_t(T x_value, T y_value, T z_value, T w_value = 1)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+        , w{w_value}
     {
     }
 
     // Template constructor: accept any pkr_unit type and construct from its value
     template <typename U>
         requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
-    constexpr vec_4d_units_t(U x, U y, U z, U w = U{1})
-        : x{T{x.value()}}
-        , y{T{y.value()}}
-        , z{T{z.value()}}
-        , w{T{w.value()}}
+    constexpr vec_4d_units_t(U x_value, U y_value, U z_value, U w_value = U{1})
+        : x{T{x_value.value()}}
+        , y{T{y_value.value()}}
+        , z{T{z_value.value()}}
+        , w{T{w_value.value()}}
     {
     }
 

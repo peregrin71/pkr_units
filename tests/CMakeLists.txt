@@ -67,6 +67,7 @@ set(TEST_SOURCES
   measurements/test_measurement_linear.cpp
   measurements/test_measurement_rss.cpp
   measurements/test_rk4_calculation_patterns_rss.cpp
+  impl/test_unit_pow.cpp
   multi_cast/test_multi_unit_cast.cpp
   power/test_imperial_power_formatting.cpp
   power/test_si_power_formatting.cpp

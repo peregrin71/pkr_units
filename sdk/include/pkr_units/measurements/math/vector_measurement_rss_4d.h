@@ -25,14 +25,14 @@ struct vec_measurement_rss_4d_t
     }
 
     vec_measurement_rss_4d_t(
-        pkr::units::measurement_rss_t<T> x,
-        pkr::units::measurement_rss_t<T> y,
-        pkr::units::measurement_rss_t<T> z,
-        pkr::units::measurement_rss_t<T> w = pkr::units::measurement_rss_t<T>{1.0, 0.0})
-        : x{x}
-        , y{y}
-        , z{z}
-        , w{w}
+        pkr::units::measurement_rss_t<T> x_value,
+        pkr::units::measurement_rss_t<T> y_value,
+        pkr::units::measurement_rss_t<T> z_value,
+        pkr::units::measurement_rss_t<T> w_value = pkr::units::measurement_rss_t<T>{1.0, 0.0})
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+        , w{w_value}
     {
     }
 

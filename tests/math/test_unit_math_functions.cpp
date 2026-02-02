@@ -61,6 +61,21 @@ TEST_F(UnitMathTest, pow_integer_exponent)
     static_assert(p_neg2_dim::value.length == -2, "pow -2 dims");
 }
 
+TEST_F(UnitMathTest, pow_integer_exponent_non_unit_ratio)
+{
+    pkr::units::kilometer_t km{3.0};
+
+    auto p0 = pkr::units::pow<0>(km);
+    ASSERT_DOUBLE_EQ(p0.value(), 1.0);
+    using p0_dim = decltype(p0)::dimension;
+    static_assert(p0_dim::value.length == 0, "pow 0 dims");
+
+    auto p2 = pkr::units::pow<2>(km);
+    ASSERT_DOUBLE_EQ(p2.value(), 9.0);
+    using p2_dim = decltype(p2)::dimension;
+    static_assert(p2_dim::value.length == 2, "pow 2 dims");
+}
+
 TEST_F(UnitMathTest, sqrt_of_area)
 {
     auto length = pkr::units::meter_t{4.0};
@@ -69,6 +84,23 @@ TEST_F(UnitMathTest, sqrt_of_area)
     ASSERT_DOUBLE_EQ(root.value(), 4.0);
     using r_dim = decltype(root)::dimension;
     static_assert(r_dim::value.length == 1, "sqrt dims");
+}
+
+TEST_F(UnitMathTest, sqrt_throws_on_negative_value)
+{
+    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    base_length_t length{-4.0};
+    EXPECT_THROW(pkr::units::sqrt(length), std::invalid_argument);
+}
+
+TEST_F(UnitMathTest, log_and_exp_dimensionless)
+{
+    pkr::units::scalar_t value{2.0};
+    auto logged = pkr::units::log(value);
+    auto exponent = pkr::units::exp(value);
+
+    ASSERT_NEAR(logged.value(), std::log(2.0), 1e-12);
+    ASSERT_NEAR(exponent.value(), std::exp(2.0), 1e-12);
 }
 
 TEST_F(UnitMathTest, trigonometric_functions)
