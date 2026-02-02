@@ -15,7 +15,8 @@ namespace details
 template <typename type_t>
 constexpr type_t compute_conversion_factor(long long source_num, long long source_den, long long target_num, long long target_den) noexcept
 {
-    return (static_cast<type_t>(source_num) * target_den) / (static_cast<type_t>(source_den) * target_num);
+    return (static_cast<type_t>(source_num) * static_cast<type_t>(target_den)) /
+           (static_cast<type_t>(source_den) * static_cast<type_t>(target_num));
 }
 
 // Internal cast function (preserves dimension, converts ratio)
@@ -60,7 +61,6 @@ template <typename target_unit_t, typename source_unit_t>
              (details::is_pkr_unit<target_unit_t>::value_dimension == details::is_pkr_unit<source_unit_t>::value_dimension)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 {
-    using target_base = typename target_unit_t::_base;
     using target_ratio = typename details::is_pkr_unit<target_unit_t>::ratio_type;
 
     // Convert to base unit_t first, then construct the derived type

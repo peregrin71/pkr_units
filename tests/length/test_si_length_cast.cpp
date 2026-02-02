@@ -50,7 +50,7 @@ TEST_F(SiLengthCastTest, cast_meter_to_millimeter)
 
 TEST_F(SiLengthCastTest, cast_kilometer_to_millimeter)
 {
-    pkr::units::kilometer_t km{1.0};
+    [[maybe_unused]] pkr::units::kilometer_t km{1.0};
     auto mm = pkr::units::unit_cast<pkr::units::millimeter_t>(km);
     static_assert(std::is_same_v<decltype(mm), pkr::units::millimeter_t>);
     ASSERT_DOUBLE_EQ(mm.value(), 1000000.0);
@@ -58,7 +58,7 @@ TEST_F(SiLengthCastTest, cast_kilometer_to_millimeter)
 
 TEST_F(SiLengthCastTest, cast_kilometer_to_ratio_must_not_compile)
 {
-    pkr::units::kilometer_t km{1.0};
+    [[maybe_unused]] pkr::units::kilometer_t km{1.0};
     // MUST_NOT_COMPILE(pkr::units::unit_cast<std::milli>(km)); // Note std::milli is a ratio, not a unit type
     // Commented out because MUST_NOT_COMPILE doesn't work with template deduction failures
 }
@@ -97,6 +97,32 @@ TEST_F(SiLengthCastTest, unit_cast_zero_ratio_overhead)
     pkr::units::meter_t m{100.0};
     // This will be evaluated at compile-time to just return the value unchanged
     ASSERT_DOUBLE_EQ(m.value(), 100.0);
+}
+
+TEST_F(SiLengthCastTest, unit_cast_same_derived_type)
+{
+    pkr::units::meter_t m{12.0};
+    auto same = pkr::units::unit_cast<pkr::units::meter_t>(m);
+    static_assert(std::is_same_v<decltype(same), pkr::units::meter_t>);
+    ASSERT_DOUBLE_EQ(same.value(), 12.0);
+}
+
+TEST_F(SiLengthCastTest, unit_cast_unit_t_same_ratio_no_conversion)
+{
+    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    length_unit_t length{42.0};
+
+    auto same = pkr::units::unit_cast<double, std::ratio<1, 1>, pkr::units::length_dimension>(length);
+    ASSERT_DOUBLE_EQ(same.value(), 42.0);
+}
+
+TEST_F(SiLengthCastTest, unit_cast_unit_t_ratio_conversion)
+{
+    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    length_unit_t length{2.0};
+
+    auto millimeters = pkr::units::unit_cast<double, std::milli, pkr::units::length_dimension>(length);
+    ASSERT_DOUBLE_EQ(millimeters.value(), 2000.0);
 }
 
 } // namespace test

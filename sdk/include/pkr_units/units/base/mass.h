@@ -13,10 +13,10 @@ struct kilogram_t final : public details::unit_t<double, std::ratio<1, 1>, mass_
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilogram"};
-    static constexpr std::string_view symbol{"kg"};
-    static constexpr std::wstring_view w_symbol{L"kg"};
-    static constexpr std::u8string_view u8_symbol{u8"kg"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilogram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kg"};
 };
 
 // Metric mass prefixes (applied relative to kilogram)
@@ -28,60 +28,60 @@ struct picogram_t final : public details::unit_t<double, std::femto, mass_dimens
 {
     using _base = details::unit_t<double, std::femto, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"picogram"};
-    static constexpr std::string_view symbol{"pg"};
-    static constexpr std::wstring_view w_symbol{L"pg"};
-    static constexpr std::u8string_view u8_symbol{u8"pg"};
+    [[maybe_unused]] static constexpr std::string_view name{"picogram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"pg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"pg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"pg"};
 };
 
 struct nanogram_t final : public details::unit_t<double, std::pico, mass_dimension>
 {
     using _base = details::unit_t<double, std::pico, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"nanogram"};
-    static constexpr std::string_view symbol{"ng"};
-    static constexpr std::wstring_view w_symbol{L"ng"};
-    static constexpr std::u8string_view u8_symbol{u8"ng"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanogram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ng"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ng"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ng"};
 };
 
 struct microgram_t final : public details::unit_t<double, std::nano, mass_dimension>
 {
     using _base = details::unit_t<double, std::nano, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microgram"};
-    static constexpr std::string_view symbol{"ug"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5g"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5g"};
+    [[maybe_unused]] static constexpr std::string_view name{"microgram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ug"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5g"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5g"};
 };
 
 struct milligram_t final : public details::unit_t<double, std::micro, mass_dimension>
 {
     using _base = details::unit_t<double, std::micro, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"milligram"};
-    static constexpr std::string_view symbol{"mg"};
-    static constexpr std::wstring_view w_symbol{L"mg"};
-    static constexpr std::u8string_view u8_symbol{u8"mg"};
+    [[maybe_unused]] static constexpr std::string_view name{"milligram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mg"};
 };
 
 struct centigram_t final : public details::unit_t<double, std::ratio<1, 100000>, mass_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 100000>, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"centigram"};
-    static constexpr std::string_view symbol{"cg"};
-    static constexpr std::wstring_view w_symbol{L"cg"};
-    static constexpr std::u8string_view u8_symbol{u8"cg"};
+    [[maybe_unused]] static constexpr std::string_view name{"centigram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cg"};
 };
 
 struct decigram_t final : public details::unit_t<double, std::ratio<1, 10000>, mass_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 10000>, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decigram"};
-    static constexpr std::string_view symbol{"dg"};
-    static constexpr std::wstring_view w_symbol{L"dg"};
-    static constexpr std::u8string_view u8_symbol{u8"dg"};
+    [[maybe_unused]] static constexpr std::string_view name{"decigram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"dg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dg"};
 };
 
 // gram is 1/1000 of kilogram
@@ -89,30 +89,30 @@ struct gram_t final : public details::unit_t<double, std::milli, mass_dimension>
 {
     using _base = details::unit_t<double, std::milli, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gram"};
-    static constexpr std::string_view symbol{"g"};
-    static constexpr std::wstring_view w_symbol{L"g"};
-    static constexpr std::u8string_view u8_symbol{u8"g"};
+    [[maybe_unused]] static constexpr std::string_view name{"gram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"g"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"g"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"g"};
 };
 
 struct decagram_t final : public details::unit_t<double, std::centi, mass_dimension>
 {
     using _base = details::unit_t<double, std::centi, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decagram"};
-    static constexpr std::string_view symbol{"dag"};
-    static constexpr std::wstring_view w_symbol{L"dag"};
-    static constexpr std::u8string_view u8_symbol{u8"dag"};
+    [[maybe_unused]] static constexpr std::string_view name{"decagram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"dag"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dag"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dag"};
 };
 
 struct hectogram_t final : public details::unit_t<double, std::deci, mass_dimension>
 {
     using _base = details::unit_t<double, std::deci, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hectogram"};
-    static constexpr std::string_view symbol{"hg"};
-    static constexpr std::wstring_view w_symbol{L"hg"};
-    static constexpr std::u8string_view u8_symbol{u8"hg"};
+    [[maybe_unused]] static constexpr std::string_view name{"hectogram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"hg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hg"};
 };
 
 // Larger mass units
@@ -120,40 +120,40 @@ struct gigagram_t final : public details::unit_t<double, std::mega, mass_dimensi
 {
     using _base = details::unit_t<double, std::mega, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigagram"};
-    static constexpr std::string_view symbol{"Gg"};
-    static constexpr std::wstring_view w_symbol{L"Gg"};
-    static constexpr std::u8string_view u8_symbol{u8"Gg"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigagram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gg"};
 };
 
 struct teragram_t final : public details::unit_t<double, std::giga, mass_dimension>
 {
     using _base = details::unit_t<double, std::giga, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"teragram"};
-    static constexpr std::string_view symbol{"Tg"};
-    static constexpr std::wstring_view w_symbol{L"Tg"};
-    static constexpr std::u8string_view u8_symbol{u8"Tg"};
+    [[maybe_unused]] static constexpr std::string_view name{"teragram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Tg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Tg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Tg"};
 };
 
 struct petagram_t final : public details::unit_t<double, std::tera, mass_dimension>
 {
     using _base = details::unit_t<double, std::tera, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"petagram"};
-    static constexpr std::string_view symbol{"Pg"};
-    static constexpr std::wstring_view w_symbol{L"Pg"};
-    static constexpr std::u8string_view u8_symbol{u8"Pg"};
+    [[maybe_unused]] static constexpr std::string_view name{"petagram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Pg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Pg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Pg"};
 };
 
 struct exagram_t final : public details::unit_t<double, std::peta, mass_dimension>
 {
     using _base = details::unit_t<double, std::peta, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"exagram"};
-    static constexpr std::string_view symbol{"Eg"};
-    static constexpr std::wstring_view w_symbol{L"Eg"};
-    static constexpr std::u8string_view u8_symbol{u8"Eg"};
+    [[maybe_unused]] static constexpr std::string_view name{"exagram"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Eg"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Eg"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Eg"};
 };
 
 // Common mass units
@@ -161,10 +161,10 @@ struct metric_ton_t final : public details::unit_t<double, std::kilo, mass_dimen
 {
     using _base = details::unit_t<double, std::kilo, mass_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"metric ton"};
-    static constexpr std::string_view symbol{"t"};
-    static constexpr std::wstring_view w_symbol{L"t"};
-    static constexpr std::u8string_view u8_symbol{u8"t"};
+    [[maybe_unused]] static constexpr std::string_view name{"metric ton"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"t"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"t"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"t"};
 };
 
 // ============================================================================

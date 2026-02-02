@@ -17,110 +17,110 @@ struct joule_t final : public details::unit_t<double, std::ratio<1, 1>, energy_d
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"joule"};
-    static constexpr std::string_view symbol{"J"};
-    static constexpr std::wstring_view w_symbol{L"J"};
-    static constexpr std::u8string_view u8_symbol{u8"J"};
+    [[maybe_unused]] static constexpr std::string_view name{"joule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"J"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"J"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"J"};
 };
 
 struct kilojoule_t final : public details::unit_t<double, std::ratio<1000, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilojoule"};
-    static constexpr std::string_view symbol{"kJ"};
-    static constexpr std::wstring_view w_symbol{L"kJ"};
-    static constexpr std::u8string_view u8_symbol{u8"kJ"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilojoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kJ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kJ"};
 };
 
 struct megajoule_t final : public details::unit_t<double, std::ratio<1000000, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megajoule"};
-    static constexpr std::string_view symbol{"MJ"};
-    static constexpr std::wstring_view w_symbol{L"MJ"};
-    static constexpr std::u8string_view u8_symbol{u8"MJ"};
+    [[maybe_unused]] static constexpr std::string_view name{"megajoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MJ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MJ"};
 };
 
 struct gigajoule_t final : public details::unit_t<double, std::ratio<1000000000, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigajoule"};
-    static constexpr std::string_view symbol{"GJ"};
-    static constexpr std::wstring_view w_symbol{L"GJ"};
-    static constexpr std::u8string_view u8_symbol{u8"GJ"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigajoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"GJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GJ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GJ"};
 };
 
 struct microjoule_t final : public details::unit_t<double, std::ratio<1, 1000000>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microjoule"};
-    static constexpr std::string_view symbol{"uJ"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5J"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5J"};
+    [[maybe_unused]] static constexpr std::string_view name{"microjoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"uJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5J"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5J"};
 };
 
 struct millijoule_t final : public details::unit_t<double, std::ratio<1, 1000>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millijoule"};
-    static constexpr std::string_view symbol{"mJ"};
-    static constexpr std::wstring_view w_symbol{L"mJ"};
-    static constexpr std::u8string_view u8_symbol{u8"mJ"};
+    [[maybe_unused]] static constexpr std::string_view name{"millijoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mJ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mJ"};
 };
 
 struct nanojoule_t final : public details::unit_t<double, std::ratio<1, 1000000000>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"nanojoule"};
-    static constexpr std::string_view symbol{"nJ"};
-    static constexpr std::wstring_view w_symbol{L"nJ"};
-    static constexpr std::u8string_view u8_symbol{u8"nJ"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanojoule"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"nJ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nJ"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nJ"};
 };
 
 struct calorie_t final : public details::unit_t<double, std::ratio<4184, 1000>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<4184, 1000>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"calorie"};
-    static constexpr std::string_view symbol{"cal"};
-    static constexpr std::wstring_view w_symbol{L"cal"};
-    static constexpr std::u8string_view u8_symbol{u8"cal"};
+    [[maybe_unused]] static constexpr std::string_view name{"calorie"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cal"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cal"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cal"};
 };
 
 struct kilocalorie_t final : public details::unit_t<double, std::ratio<4184, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<4184, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilocalorie"};
-    static constexpr std::string_view symbol{"kcal"};
-    static constexpr std::wstring_view w_symbol{L"kcal"};
-    static constexpr std::u8string_view u8_symbol{u8"kcal"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilocalorie"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kcal"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kcal"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kcal"};
 };
 
 struct watt_hour_t final : public details::unit_t<double, std::ratio<3600, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<3600, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"watt_hour"};
-    static constexpr std::string_view symbol{"Wh"};
-    static constexpr std::wstring_view w_symbol{L"Wh"};
-    static constexpr std::u8string_view u8_symbol{u8"Wh"};
+    [[maybe_unused]] static constexpr std::string_view name{"watt_hour"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Wh"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Wh"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Wh"};
 };
 
 struct kilowatt_hour_t final : public details::unit_t<double, std::ratio<3600000, 1>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<3600000, 1>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilowatt_hour"};
-    static constexpr std::string_view symbol{"kWh"};
-    static constexpr std::wstring_view w_symbol{L"kWh"};
-    static constexpr std::u8string_view u8_symbol{u8"kWh"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilowatt_hour"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kWh"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kWh"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kWh"};
 };
 
 // Electronvolt-based units
@@ -129,40 +129,40 @@ struct electronvolt_t final : public details::unit_t<double, std::ratio<1, 62415
 {
     using _base = details::unit_t<double, std::ratio<1, 6241509074460762607>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"electronvolt"};
-    static constexpr std::string_view symbol{"eV"};
-    static constexpr std::wstring_view w_symbol{L"eV"};
-    static constexpr std::u8string_view u8_symbol{u8"eV"};
+    [[maybe_unused]] static constexpr std::string_view name{"electronvolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"eV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"eV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"eV"};
 };
 
 struct kiloelectronvolt_t final : public details::unit_t<double, std::ratio<1000, 6241509074460762607>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kiloelectronvolt"};
-    static constexpr std::string_view symbol{"keV"};
-    static constexpr std::wstring_view w_symbol{L"keV"};
-    static constexpr std::u8string_view u8_symbol{u8"keV"};
+    [[maybe_unused]] static constexpr std::string_view name{"kiloelectronvolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"keV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"keV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"keV"};
 };
 
 struct megaelectronvolt_t final : public details::unit_t<double, std::ratio<1000000, 6241509074460762607>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megaelectronvolt"};
-    static constexpr std::string_view symbol{"MeV"};
-    static constexpr std::wstring_view w_symbol{L"MeV"};
-    static constexpr std::u8string_view u8_symbol{u8"MeV"};
+    [[maybe_unused]] static constexpr std::string_view name{"megaelectronvolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MeV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MeV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MeV"};
 };
 
 struct gigaelectronvolt_t final : public details::unit_t<double, std::ratio<1000000000, 6241509074460762607>, energy_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigaelectronvolt"};
-    static constexpr std::string_view symbol{"GeV"};
-    static constexpr std::wstring_view w_symbol{L"GeV"};
-    static constexpr std::u8string_view u8_symbol{u8"GeV"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigaelectronvolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"GeV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GeV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GeV"};
 };
 
 // Energy units

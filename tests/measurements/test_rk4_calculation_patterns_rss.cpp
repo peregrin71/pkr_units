@@ -1,7 +1,7 @@
 #include <cmath>
 #include <gtest/gtest.h>
-#include <pkr_units/math/measurements/vector_of_measurements_rss_4d.h>
-#include <pkr_units/measurements/measurement_rss_t.h>
+#include <pkr_units/measurements/measurement_rss_4d.h>
+#include <pkr_units/measurements/decl/measurement_rss_decl.h>
 #include <pkr_units/si_units.h>
 
 namespace test
@@ -170,3 +170,4 @@ TEST_F(RK4CalculationPatternsTest, ForceMagnitudePattern)
     EXPECT_DOUBLE_EQ(distance_sq.value(), 100.0);
 }
 } // namespace test
+

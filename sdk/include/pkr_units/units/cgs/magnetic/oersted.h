@@ -16,10 +16,10 @@ struct oersted_t final : public details::unit_t<double, std::ratio<7957747154594
 {
     using _base = details::unit_t<double, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"oersted"};
-    static constexpr std::string_view symbol{"Oe"};
-    static constexpr std::wstring_view w_symbol{L"Oe"};
-    static constexpr std::u8string_view u8_symbol{u8"Oe"};
+    [[maybe_unused]] static constexpr std::string_view name{"oersted"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Oe"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Oe"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Oe"};
 };
 
 template <>

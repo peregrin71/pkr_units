@@ -291,7 +291,6 @@ template <is_base_pkr_unit_c S, is_base_pkr_unit_c T>
 constexpr auto operator/(const S& lhs, const T& rhs) noexcept
 {
     using value_type = typename details::is_pkr_unit<S>::value_type;
-    using lhs_ratio = typename details::is_pkr_unit<S>::ratio_type;
     using rhs_ratio = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim1 = details::is_pkr_unit<S>::value_dimension;
     constexpr auto dim2 = details::is_pkr_unit<T>::value_dimension;
@@ -382,7 +381,6 @@ template <typename ScalarType, typename T>
 constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
 {
     using base_type = typename T::_base;
-    using value_type = typename details::is_pkr_unit<T>::value_type;
     // Delegate to base type operation, then convert result back to derived if needed
     auto base_result = scalar * static_cast<const base_type&>(unit);
     return T{base_result.value()};
@@ -402,7 +400,6 @@ template <typename ScalarType, typename T>
 constexpr auto operator/(const ScalarType& scalar, const T& unit) noexcept
 {
     using base_type = typename T::_base;
-    using value_type = typename details::is_pkr_unit<T>::value_type;
     // Delegate to base type operation
     auto base_result = scalar / static_cast<const base_type&>(unit);
     // Result type may differ (e.g., scalar/meter -> 1/meter), so return as-is

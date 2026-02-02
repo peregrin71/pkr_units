@@ -13,10 +13,10 @@ struct maxwell_t final : public details::unit_t<double, std::ratio<1, 100000000>
 {
     using _base = details::unit_t<double, std::ratio<1, 100000000>, magnetic_flux_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"maxwell"};
-    static constexpr std::string_view symbol{"Mx"};
-    static constexpr std::wstring_view w_symbol{L"Mx"};
-    static constexpr std::u8string_view u8_symbol{u8"Mx"};
+    [[maybe_unused]] static constexpr std::string_view name{"maxwell"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Mx"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Mx"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Mx"};
 };
 
 template <>

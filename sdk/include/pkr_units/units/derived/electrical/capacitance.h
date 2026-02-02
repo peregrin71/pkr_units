@@ -15,50 +15,50 @@ struct farad_t final : public details::unit_t<double, std::ratio<1, 1>, capacita
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, capacitance_v>;
     using _base::_base;
-    static constexpr std::string_view name{"farad"};
-    static constexpr std::string_view symbol{"F"};
-    static constexpr std::wstring_view w_symbol{L"F"};
-    static constexpr std::u8string_view u8_symbol{u8"F"};
+    [[maybe_unused]] static constexpr std::string_view name{"farad"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"F"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"F"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"F"};
 };
 
 struct millifarad_t final : public details::unit_t<double, std::ratio<1, 1000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, capacitance_v>;
     using _base::_base;
-    static constexpr std::string_view name{"millifarad"};
-    static constexpr std::string_view symbol{"mF"};
-    static constexpr std::wstring_view w_symbol{L"mF"};
-    static constexpr std::u8string_view u8_symbol{u8"mF"};
+    [[maybe_unused]] static constexpr std::string_view name{"millifarad"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mF"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mF"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mF"};
 };
 
 struct microfarad_t final : public details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, capacitance_v>;
     using _base::_base;
-    static constexpr std::string_view name{"microfarad"};
-    static constexpr std::string_view symbol{"uF"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5F"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5F"};
+    [[maybe_unused]] static constexpr std::string_view name{"microfarad"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"uF"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5F"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5F"};
 };
 
 struct nanofarad_t final : public details::unit_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000>, capacitance_v>;
     using _base::_base;
-    static constexpr std::string_view name{"nanofarad"};
-    static constexpr std::string_view symbol{"nF"};
-    static constexpr std::wstring_view w_symbol{L"nF"};
-    static constexpr std::u8string_view u8_symbol{u8"nF"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanofarad"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"nF"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nF"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nF"};
 };
 
 struct picofarad_t final : public details::unit_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000000000>, capacitance_v>;
     using _base::_base;
-    static constexpr std::string_view name{"picofarad"};
-    static constexpr std::string_view symbol{"pF"};
-    static constexpr std::wstring_view w_symbol{L"pF"};
-    static constexpr std::u8string_view u8_symbol{u8"pF"};
+    [[maybe_unused]] static constexpr std::string_view name{"picofarad"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"pF"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"pF"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"pF"};
 };
 
 // ============================================================================

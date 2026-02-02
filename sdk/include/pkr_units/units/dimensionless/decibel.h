@@ -15,10 +15,10 @@ namespace PKR_UNITS_NAMESPACE
 struct decibel_power_t final : public details::unit_t<double, std::ratio<1, 1>, scalar_dimension>
 {
     using decibel_power_t::unit_t::unit_t;
-    static constexpr std::string_view name{"decibel_power"};
-    static constexpr std::string_view symbol{"dB"};
-    static constexpr std::wstring_view w_symbol{L"dB"};
-    static constexpr std::u8string_view u8_symbol{u8"dB"};
+    [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
 // Decibel (amplitude ratio, 20 * log10)
@@ -26,10 +26,10 @@ struct decibel_power_t final : public details::unit_t<double, std::ratio<1, 1>, 
 struct decibel_amplitude_t final : public details::unit_t<double, std::ratio<1, 1>, scalar_dimension>
 {
     using decibel_amplitude_t::unit_t::unit_t;
-    static constexpr std::string_view name{"decibel_amplitude"};
-    static constexpr std::string_view symbol{"dB"};
-    static constexpr std::wstring_view w_symbol{L"dB"};
-    static constexpr std::u8string_view u8_symbol{u8"dB"};
+    [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
 } // namespace PKR_UNITS_NAMESPACE
@@ -58,15 +58,18 @@ struct formatter<PKR_UNITS_NAMESPACE::decibel_power_t, CharT>
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
         }
-        if constexpr (std::is_same_v<CharT, wchar_t>)
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::w_symbol.end(), out);
         }
-        if constexpr (std::is_same_v<CharT, char8_t>)
+        else if constexpr (std::is_same_v<CharT, char8_t>)
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::u8_symbol.end(), out);
         }
-        return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
+        else
+        {
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_power_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_power_t::symbol.end(), out);
+        }
     }
 };
 
@@ -91,15 +94,18 @@ struct formatter<PKR_UNITS_NAMESPACE::decibel_amplitude_t, CharT>
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
         }
-        if constexpr (std::is_same_v<CharT, wchar_t>)
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::w_symbol.end(), out);
         }
-        if constexpr (std::is_same_v<CharT, char8_t>)
+        else if constexpr (std::is_same_v<CharT, char8_t>)
         {
             return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::u8_symbol.end(), out);
         }
-        return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
+        else
+        {
+            return std::copy(PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.begin(), PKR_UNITS_NAMESPACE::decibel_amplitude_t::symbol.end(), out);
+        }
     }
 };
 

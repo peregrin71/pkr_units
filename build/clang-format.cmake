@@ -35,7 +35,12 @@ if (LOCAL_CLANG_FORMAT_EXE)
     file(GLOB_RECURSE CLANG_FORMAT_FILES 
         "${dir}/*.cc" 
         "${dir}/*.cpp" 
+        "${dir}/*.cxx"
         "${dir}/*.h"
+        "${dir}/*.hh"
+        "${dir}/*.hpp"
+        "${dir}/*.hxx"
+        "${dir}/*.inl"
     )
 
     # Exclude files in any "gen" folder

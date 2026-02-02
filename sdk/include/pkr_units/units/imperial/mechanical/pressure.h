@@ -13,10 +13,10 @@ struct psi_t final : public details::unit_t<double, std::ratio<6894757, 1000>, p
 {
     using _base = details::unit_t<double, std::ratio<6894757, 1000>, pressure_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"psi"};
-    static constexpr std::string_view symbol{"psi"};
-    static constexpr std::wstring_view w_symbol{L"psi"};
-    static constexpr std::u8string_view u8_symbol{u8"psi"};
+    [[maybe_unused]] static constexpr std::string_view name{"psi"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"psi"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"psi"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"psi"};
 };
 
 // ============================================================================

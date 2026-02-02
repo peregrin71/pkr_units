@@ -179,6 +179,50 @@ TEST_F(MultiCastTest, cast_kilometer_to_meter_per_second)
     ASSERT_DOUBLE_EQ(mps.value(), 36000.0);
 }
 
+TEST_F(MultiCastTest, cast_with_two_denominator_units)
+{
+    // Use two denominators to exercise multi-denominator processing
+    pkr::units::meter_per_second_t mps{2.0};
+
+    auto per_second_meter =
+        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, pkr::units::meter_t>>(mps);
+
+    using traits = pkr::units::details::is_pkr_unit<decltype(per_second_meter)>;
+    static_assert(traits::value_dimension.length == 0);
+    static_assert(traits::value_dimension.time == -1);
+    ASSERT_DOUBLE_EQ(per_second_meter.value(), 2.0);
+}
+
+TEST_F(MultiCastTest, cast_with_integral_constant_power_denominator)
+{
+    // Use explicit integral_constant power to exercise power handling
+    pkr::units::meter_per_second_t mps{3.0};
+
+    auto per_second_squared =
+        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, 2>, pkr::units::meter_t>>(
+            mps);
+
+    using traits = pkr::units::details::is_pkr_unit<decltype(per_second_squared)>;
+    static_assert(traits::value_dimension.length == 0);
+    static_assert(traits::value_dimension.time == -2);
+    ASSERT_DOUBLE_EQ(per_second_squared.value(), 3.0);
+}
+
+TEST_F(MultiCastTest, cast_with_integral_constant_negative_power_denominator)
+{
+    // Negative power in denominator should add positive dimensions
+    pkr::units::meter_per_second_t mps{4.0};
+
+    auto times_second_squared =
+        pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per<pkr::units::second_t, std::integral_constant<int, -2>, pkr::units::meter_t>>(
+            mps);
+
+    using traits = pkr::units::details::is_pkr_unit<decltype(times_second_squared)>;
+    static_assert(traits::value_dimension.length == 0);
+    static_assert(traits::value_dimension.time == 2);
+    ASSERT_DOUBLE_EQ(times_second_squared.value(), 4.0);
+}
+
 // ============================================================================
 // Specialized Per Templates Tests
 // ============================================================================
@@ -203,6 +247,16 @@ TEST_F(MultiCastTest, specialized_template_per_unit_cubed)
     ASSERT_GT(m_per_s3.value(), 0.0);
 }
 
+TEST_F(MultiCastTest, specialized_template_per_unit_quartic)
+{
+    // Using per_unit_quartic specialized template
+    pkr::units::meter_per_second_t mps{10.0};
+
+    auto m_per_s4 = pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per_unit_quartic<pkr::units::second_t>>(mps);
+
+    ASSERT_GT(m_per_s4.value(), 0.0);
+}
+
 TEST_F(MultiCastTest, specialized_template_per_unit_inverse)
 {
     // Using per_unit_inverse (negative power)
@@ -212,6 +266,16 @@ TEST_F(MultiCastTest, specialized_template_per_unit_inverse)
 
     // m/s with per_unit_inverse should give m*s
     ASSERT_GT(m_times_s.value(), 0.0);
+}
+
+TEST_F(MultiCastTest, specialized_template_per_unit_inverse_squared)
+{
+    // Using per_unit_inverse_squared (negative power)
+    pkr::units::meter_per_second_t mps{10.0};
+
+    auto m_times_s2 = pkr::units::multi_unit_cast<pkr::units::meter_t, pkr::units::per_unit_inverse_squared<pkr::units::second_t>>(mps);
+
+    ASSERT_GT(m_times_s2.value(), 0.0);
 }
 
 // ============================================================================

@@ -15,50 +15,50 @@ struct volt_t final : public details::unit_t<double, std::ratio<1, 1>, electric_
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, electric_potential_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"volt"};
-    static constexpr std::string_view symbol{"V"};
-    static constexpr std::wstring_view w_symbol{L"V"};
-    static constexpr std::u8string_view u8_symbol{u8"V"};
+    [[maybe_unused]] static constexpr std::string_view name{"volt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"V"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"V"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"V"};
 };
 
 struct kilovolt_t final : public details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000, 1>, electric_potential_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilovolt"};
-    static constexpr std::string_view symbol{"kV"};
-    static constexpr std::wstring_view w_symbol{L"kV"};
-    static constexpr std::u8string_view u8_symbol{u8"kV"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilovolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kV"};
 };
 
 struct megavolt_t final : public details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1000000, 1>, electric_potential_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megavolt"};
-    static constexpr std::string_view symbol{"MV"};
-    static constexpr std::wstring_view w_symbol{L"MV"};
-    static constexpr std::u8string_view u8_symbol{u8"MV"};
+    [[maybe_unused]] static constexpr std::string_view name{"megavolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MV"};
 };
 
 struct millivolt_t final : public details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000>, electric_potential_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millivolt"};
-    static constexpr std::string_view symbol{"mV"};
-    static constexpr std::wstring_view w_symbol{L"mV"};
-    static constexpr std::u8string_view u8_symbol{u8"mV"};
+    [[maybe_unused]] static constexpr std::string_view name{"millivolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mV"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mV"};
 };
 
 struct microvolt_t final : public details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using _base = details::unit_t<double, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microvolt"};
-    static constexpr std::string_view symbol{"uV"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5V"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5V"};
+    [[maybe_unused]] static constexpr std::string_view name{"microvolt"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"uV"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5V"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5V"};
 };
 
 // ============================================================================

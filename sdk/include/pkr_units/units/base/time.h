@@ -12,10 +12,10 @@ struct second_t final : public details::unit_t<double, std::ratio<1, 1>, time_di
 {
     using _base = details::unit_t<double, std::ratio<1, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"second"};
-    static constexpr std::string_view symbol{"s"};
-    static constexpr std::wstring_view w_symbol{L"s"};
-    static constexpr std::u8string_view u8_symbol{u8"s"};
+    [[maybe_unused]] static constexpr std::string_view name{"second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"s"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"s"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"s"};
 };
 
 // Metric time prefixes (strong types)
@@ -23,200 +23,200 @@ struct attosecond_t final : public details::unit_t<double, std::atto, time_dimen
 {
     using _base = details::unit_t<double, std::atto, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"attosecond"};
-    static constexpr std::string_view symbol{"as"};
-    static constexpr std::wstring_view w_symbol{L"as"};
-    static constexpr std::u8string_view u8_symbol{u8"as"};
+    [[maybe_unused]] static constexpr std::string_view name{"attosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"as"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"as"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"as"};
 };
 
 struct femtosecond_t final : public details::unit_t<double, std::femto, time_dimension>
 {
     using _base = details::unit_t<double, std::femto, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"femtosecond"};
-    static constexpr std::string_view symbol{"fs"};
-    static constexpr std::wstring_view w_symbol{L"fs"};
-    static constexpr std::u8string_view u8_symbol{u8"fs"};
+    [[maybe_unused]] static constexpr std::string_view name{"femtosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"fs"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"fs"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"fs"};
 };
 
 struct picosecond_t final : public details::unit_t<double, std::pico, time_dimension>
 {
     using _base = details::unit_t<double, std::pico, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"picosecond"};
-    static constexpr std::string_view symbol{"ps"};
-    static constexpr std::wstring_view w_symbol{L"ps"};
-    static constexpr std::u8string_view u8_symbol{u8"ps"};
+    [[maybe_unused]] static constexpr std::string_view name{"picosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ps"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ps"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ps"};
 };
 
 struct nanosecond_t final : public details::unit_t<double, std::nano, time_dimension>
 {
     using _base = details::unit_t<double, std::nano, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"nanosecond"};
-    static constexpr std::string_view symbol{"ns"};
-    static constexpr std::wstring_view w_symbol{L"ns"};
-    static constexpr std::u8string_view u8_symbol{u8"ns"};
+    [[maybe_unused]] static constexpr std::string_view name{"nanosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ns"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ns"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ns"};
 };
 
 struct microsecond_t final : public details::unit_t<double, std::micro, time_dimension>
 {
     using _base = details::unit_t<double, std::micro, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"microsecond"};
-    static constexpr std::string_view symbol{"us"};
-    static constexpr std::wstring_view w_symbol{L"\u00b5s"};
-    static constexpr std::u8string_view u8_symbol{u8"\u00b5s"};
+    [[maybe_unused]] static constexpr std::string_view name{"microsecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"us"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5s"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5s"};
 };
 
 struct millisecond_t final : public details::unit_t<double, std::milli, time_dimension>
 {
     using _base = details::unit_t<double, std::milli, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"millisecond"};
-    static constexpr std::string_view symbol{"ms"};
-    static constexpr std::wstring_view w_symbol{L"ms"};
-    static constexpr std::u8string_view u8_symbol{u8"ms"};
+    [[maybe_unused]] static constexpr std::string_view name{"millisecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ms"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ms"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ms"};
 };
 
 struct centisecond_t final : public details::unit_t<double, std::centi, time_dimension>
 {
     using _base = details::unit_t<double, std::centi, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"centisecond"};
-    static constexpr std::string_view symbol{"cs"};
-    static constexpr std::wstring_view w_symbol{L"cs"};
-    static constexpr std::u8string_view u8_symbol{u8"cs"};
+    [[maybe_unused]] static constexpr std::string_view name{"centisecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cs"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cs"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cs"};
 };
 
 struct decisecond_t final : public details::unit_t<double, std::deci, time_dimension>
 {
     using _base = details::unit_t<double, std::deci, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decisecond"};
-    static constexpr std::string_view symbol{"ds"};
-    static constexpr std::wstring_view w_symbol{L"ds"};
-    static constexpr std::u8string_view u8_symbol{u8"ds"};
+    [[maybe_unused]] static constexpr std::string_view name{"decisecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ds"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ds"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ds"};
 };
 
 struct decasecond_t final : public details::unit_t<double, std::deca, time_dimension>
 {
     using _base = details::unit_t<double, std::deca, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"decasecond"};
-    static constexpr std::string_view symbol{"das"};
-    static constexpr std::wstring_view w_symbol{L"das"};
-    static constexpr std::u8string_view u8_symbol{u8"das"};
+    [[maybe_unused]] static constexpr std::string_view name{"decasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"das"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"das"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"das"};
 };
 
 struct hectosecond_t final : public details::unit_t<double, std::hecto, time_dimension>
 {
     using _base = details::unit_t<double, std::hecto, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hectosecond"};
-    static constexpr std::string_view symbol{"hs"};
-    static constexpr std::wstring_view w_symbol{L"hs"};
-    static constexpr std::u8string_view u8_symbol{u8"hs"};
+    [[maybe_unused]] static constexpr std::string_view name{"hectosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"hs"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hs"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hs"};
 };
 
 struct kilosecond_t final : public details::unit_t<double, std::kilo, time_dimension>
 {
     using _base = details::unit_t<double, std::kilo, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"kilosecond"};
-    static constexpr std::string_view symbol{"ks"};
-    static constexpr std::wstring_view w_symbol{L"ks"};
-    static constexpr std::u8string_view u8_symbol{u8"ks"};
+    [[maybe_unused]] static constexpr std::string_view name{"kilosecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"ks"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ks"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ks"};
 };
 
 struct megasecond_t final : public details::unit_t<double, std::mega, time_dimension>
 {
     using _base = details::unit_t<double, std::mega, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"megasecond"};
-    static constexpr std::string_view symbol{"Ms"};
-    static constexpr std::wstring_view w_symbol{L"Ms"};
-    static constexpr std::u8string_view u8_symbol{u8"Ms"};
+    [[maybe_unused]] static constexpr std::string_view name{"megasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Ms"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Ms"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Ms"};
 };
 
 struct gigasecond_t final : public details::unit_t<double, std::giga, time_dimension>
 {
     using _base = details::unit_t<double, std::giga, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"gigasecond"};
-    static constexpr std::string_view symbol{"Gs"};
-    static constexpr std::wstring_view w_symbol{L"Gs"};
-    static constexpr std::u8string_view u8_symbol{u8"Gs"};
+    [[maybe_unused]] static constexpr std::string_view name{"gigasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gs"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gs"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gs"};
 };
 
 struct terasecond_t final : public details::unit_t<double, std::tera, time_dimension>
 {
     using _base = details::unit_t<double, std::tera, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"terasecond"};
-    static constexpr std::string_view symbol{"Ts"};
-    static constexpr std::wstring_view w_symbol{L"Ts"};
-    static constexpr std::u8string_view u8_symbol{u8"Ts"};
+    [[maybe_unused]] static constexpr std::string_view name{"terasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Ts"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Ts"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Ts"};
 };
 
 struct petasecond_t final : public details::unit_t<double, std::peta, time_dimension>
 {
     using _base = details::unit_t<double, std::peta, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"petasecond"};
-    static constexpr std::string_view symbol{"Ps"};
-    static constexpr std::wstring_view w_symbol{L"Ps"};
-    static constexpr std::u8string_view u8_symbol{u8"Ps"};
+    [[maybe_unused]] static constexpr std::string_view name{"petasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Ps"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Ps"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Ps"};
 };
 
 struct exasecond_t final : public details::unit_t<double, std::exa, time_dimension>
 {
     using _base = details::unit_t<double, std::exa, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"exasecond"};
-    static constexpr std::string_view symbol{"Es"};
-    static constexpr std::wstring_view w_symbol{L"Es"};
-    static constexpr std::u8string_view u8_symbol{u8"Es"};
+    [[maybe_unused]] static constexpr std::string_view name{"exasecond"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Es"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Es"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Es"};
 };
 
 struct minute_t final : public details::unit_t<double, std::ratio<60, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<60, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"minute"};
-    static constexpr std::string_view symbol{"min"};
-    static constexpr std::wstring_view w_symbol{L"min"};
-    static constexpr std::u8string_view u8_symbol{u8"min"};
+    [[maybe_unused]] static constexpr std::string_view name{"minute"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"min"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"min"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"min"};
 };
 
 struct hour_t final : public details::unit_t<double, std::ratio<3600, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<3600, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"hour"};
-    static constexpr std::string_view symbol{"h"};
-    static constexpr std::wstring_view w_symbol{L"h"};
-    static constexpr std::u8string_view u8_symbol{u8"h"};
+    [[maybe_unused]] static constexpr std::string_view name{"hour"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"h"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"h"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"h"};
 };
 
 struct day_t final : public details::unit_t<double, std::ratio<86400, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<86400, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"day"};
-    static constexpr std::string_view symbol{"d"};
-    static constexpr std::wstring_view w_symbol{L"d"};
-    static constexpr std::u8string_view u8_symbol{u8"d"};
+    [[maybe_unused]] static constexpr std::string_view name{"day"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"d"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"d"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"d"};
 };
 
 struct week_t final : public details::unit_t<double, std::ratio<604800, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<604800, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"week"};
-    static constexpr std::string_view symbol{"wk"};
-    static constexpr std::wstring_view w_symbol{L"wk"};
-    static constexpr std::u8string_view u8_symbol{u8"wk"};
+    [[maybe_unused]] static constexpr std::string_view name{"week"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"wk"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"wk"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"wk"};
 };
 
 // Month and year use the Julian year: 365.25 days.
@@ -224,20 +224,20 @@ struct month_t final : public details::unit_t<double, std::ratio<2629800, 1>, ti
 {
     using _base = details::unit_t<double, std::ratio<2629800, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"month"};
-    static constexpr std::string_view symbol{"mo"};
-    static constexpr std::wstring_view w_symbol{L"mo"};
-    static constexpr std::u8string_view u8_symbol{u8"mo"};
+    [[maybe_unused]] static constexpr std::string_view name{"month"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mo"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mo"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mo"};
 };
 
 struct year_t final : public details::unit_t<double, std::ratio<31557600, 1>, time_dimension>
 {
     using _base = details::unit_t<double, std::ratio<31557600, 1>, time_dimension>;
     using _base::_base;
-    static constexpr std::string_view name{"year"};
-    static constexpr std::string_view symbol{"yr"};
-    static constexpr std::wstring_view w_symbol{L"yr"};
-    static constexpr std::u8string_view u8_symbol{u8"yr"};
+    [[maybe_unused]] static constexpr std::string_view name{"year"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"yr"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"yr"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"yr"};
 };
 
 // ============================================================================

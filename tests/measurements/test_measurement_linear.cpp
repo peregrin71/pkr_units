@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <numbers>
-#include <pkr_units/measurements/measurement_lin_t.h>
+#include <pkr_units/measurements/decl/measurement_lin_decl.h>
 #include <pkr_units/si_units.h>
 
 // Define test types
@@ -417,3 +417,4 @@ TEST_F(MeasurementTest, multiplication_with_zero_value_has_zero_uncertainty)
 }
 
 } // namespace test
+

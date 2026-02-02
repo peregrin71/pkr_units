@@ -1,29 +1,27 @@
 cmake_minimum_required(VERSION 3.20)
 project(si_units CXX)
 
-# Include clang-format setup
+# Include clang-format and clang-tidy setup
 include(${CMAKE_CURRENT_SOURCE_DIR}/build/clang-format.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/build/clang-tidy.cmake)
 
-# Set C++ standard
+# Common compiler-agnostic settings
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Coverage (clang + Linux + Debug only)
-option(ENABLE_COVERAGE "Enable coverage reporting" OFF)
-if(ENABLE_COVERAGE)
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options(-fprofile-instr-generate -fcoverage-mapping)
-        add_link_options(-fprofile-instr-generate -fcoverage-mapping)
-    else()
-        message(WARNING "ENABLE_COVERAGE is only supported for Clang Debug builds")
-    endif()
-endif()
+# Ensure C++ language is enabled
+enable_language(CXX)
 
-# Treat warnings as errors
-if(MSVC)
-    add_compile_options(/WX /permissive-)
+message (STATUS "Setting compiler settings for compiler : ${CMAKE_CXX_COMPILER_ID}")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build/clang_settings.cmake)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build/msvc_settings.cmake)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    include(${CMAKE_CURRENT_SOURCE_DIR}/build/gcc_settings.cmake)
 else()
-    add_compile_options(-Werror)
+    message (FATAL_ERROR "Unsupported compiler: '${CMAKE_CXX_COMPILER_ID}'")
 endif()
 
 # Enable testing
@@ -34,12 +32,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
 
 find_package(GTest REQUIRED CONFIG)
 
-# Add the tests subdirectory
-add_subdirectory(tests)
-
 # Run clang-format on SDK and tests directories (local builds only, not in CI)
 if(NOT DEFINED ENV{GITHUB_ACTIONS} AND NOT DEFINED ENV{CI})
     clang_format(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
     clang_format(${CMAKE_CURRENT_SOURCE_DIR}/tests)
+    #clang_tidy(${CMAKE_CURRENT_SOURCE_DIR}/sdk/include)
+    #clang_tidy(${CMAKE_CURRENT_SOURCE_DIR}/tests)
 endif()
 
+# Add the tests subdirectory
+add_subdirectory(tests)

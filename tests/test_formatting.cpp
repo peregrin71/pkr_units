@@ -1,7 +1,12 @@
 #include <gtest/gtest.h>
 #include <format>
+#include <ratio>
+#include <string>
 #include <pkr_units/si_units.h>
 #include <pkr_units/si_formatting.h>
+#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/dimension.h>
+#include <pkr_units/impl/unit_formatting_traits.h>
 
 // Test basic length unit formatting
 TEST(FormattingTest, BasicLengthUnit)
@@ -109,4 +114,103 @@ TEST(FormattingTest, ValuePreservation)
     pkr::units::meter_t length{123.456};
     auto formatted = std::format("{}", length);
     EXPECT_EQ(formatted, "123.456 m");
+}
+
+TEST(FormattingTest, WideLengthUnit)
+{
+    pkr::units::meter_t length{5.0};
+    auto formatted = std::format(L"{}", length);
+    EXPECT_EQ(formatted, L"5 m");
+}
+
+TEST(FormattingTest, BaseUnitFormatting)
+{
+    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    base_length_t length{7.0};
+    auto formatted = std::format("{}", length);
+    EXPECT_EQ(formatted, "7 m");
+}
+
+TEST(FormattingTest, BaseUnitFormattingWide)
+{
+    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    base_length_t length{7.0};
+    auto formatted = std::format(L"{}", length);
+    EXPECT_EQ(formatted, L"7 m");
+}
+
+TEST(FormattingTraitsTest, SuperscriptExponentPositive)
+{
+    auto exp = pkr::units::superscript_exponent<char>(2);
+    ASSERT_FALSE(exp.empty());
+    EXPECT_EQ(exp.front(), '^');
+}
+
+TEST(FormattingTraitsTest, SuperscriptExponentZero)
+{
+    auto exp = pkr::units::superscript_exponent<char>(0);
+    EXPECT_TRUE(exp.empty());
+}
+
+TEST(FormattingTraitsTest, SuperscriptExponentNegative)
+{
+    auto exp = pkr::units::superscript_exponent<char>(-2);
+    ASSERT_FALSE(exp.empty());
+    EXPECT_NE(exp.front(), '^');
+}
+
+TEST(FormattingTraitsTest, SuperscriptDigitLookupDefault)
+{
+    auto valid = pkr::units::impl::superscript_digit_lookup<char>(2);
+    EXPECT_FALSE(valid.empty());
+
+    auto invalid = pkr::units::impl::superscript_digit_lookup<char>(10);
+    EXPECT_TRUE(invalid.empty());
+}
+
+TEST(FormattingTraitsTest, CharTraitsDispatchChar)
+{
+    auto plus_minus = pkr::units::impl::char_traits_dispatch<char>::plus_minus();
+    EXPECT_NE(plus_minus.find('+'), std::string_view::npos);
+    EXPECT_NE(plus_minus.find('-'), std::string_view::npos);
+    EXPECT_NE(plus_minus.find('/'), std::string_view::npos);
+    EXPECT_FALSE(pkr::units::impl::char_traits_dispatch<char>::superscript_caret().empty());
+}
+
+TEST(FormattingTraitsTest, CharTraitsDispatchWchar)
+{
+    auto plus_minus = pkr::units::impl::char_traits_dispatch<wchar_t>::plus_minus();
+    ASSERT_FALSE(plus_minus.empty());
+    EXPECT_EQ(plus_minus.front(), L' ');
+    EXPECT_EQ(plus_minus.back(), L' ');
+}
+
+TEST(FormattingTraitsTest, CharTraitsDispatchChar8)
+{
+    auto plus_minus = pkr::units::impl::char_traits_dispatch<char8_t>::plus_minus();
+    ASSERT_FALSE(plus_minus.empty());
+    EXPECT_EQ(plus_minus.front(), u8' ');
+    EXPECT_EQ(plus_minus.back(), u8' ');
+}
+
+TEST(FormattingTraitsTest, BuildDimensionSymbolCharAndChar8)
+{
+    pkr::units::dimension_t dim{1, 1, -2, 0, 0, 0, 0, 0};
+    auto symbol = pkr::units::build_dimension_symbol<char>(dim);
+    EXPECT_NE(symbol.find("kg"), std::string::npos);
+    EXPECT_NE(symbol.find("m"), std::string::npos);
+    EXPECT_NE(symbol.find("s"), std::string::npos);
+
+    auto symbol_u8 = pkr::units::build_dimension_symbol<char8_t>(dim);
+    EXPECT_GT(symbol_u8.size(), 0U);
+    EXPECT_NE(symbol_u8.find(u8"kg"), std::u8string::npos);
+}
+
+TEST(FormattingTraitsTest, BuildDimensionSymbolScalarIsEmpty)
+{
+    auto symbol = pkr::units::build_dimension_symbol<char>(pkr::units::scalar_dimension);
+    EXPECT_TRUE(symbol.empty());
+
+    auto w_symbol = pkr::units::build_dimension_symbol<wchar_t>(pkr::units::scalar_dimension);
+    EXPECT_TRUE(w_symbol.empty());
 }

@@ -154,9 +154,11 @@ TEST_F(ConstantsTest, CompileTimeUsage)
 
     // These should compile and work
     constexpr double hc = h * c;
+    constexpr double ec = e * c;
     constexpr double alpha = pkr::units::fine_structure_constant;
 
     EXPECT_GT(hc, 0.0);
+    EXPECT_GT(ec, 0.0);
     EXPECT_GT(alpha, 0.0);
 }
 

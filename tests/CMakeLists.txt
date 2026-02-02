@@ -53,17 +53,21 @@ set(TEST_SOURCES
   mass/test_si_mass_formatting.cpp
   mass/test_si_mass_operators.cpp
   mass/test_si_mass.cpp
-  math/test_arithmetic_optimizations.cpp
-  math/test_math_functions.cpp
-  math/test_measurement_math_rss.cpp
-  math/test_unit_math.cpp
-  math/test_vector_4d_measurements_rss.cpp
-  math/test_vector_4d_units.cpp
-  math/test_vector_4d.cpp
+  math/test_measurement_rss_math.cpp
+  math/test_unit_math_arithmetic.cpp
+  math/test_unit_math_functions.cpp
+  math/test_unit_math_optimizations.cpp
+  math/test_vector_generic_3d.cpp
+  math/test_vector_generic_4d.cpp
+  math/test_vector_measurement_rss_3d.cpp
+  math/test_vector_measurement_rss_4d.cpp
+  math/test_vector_unit_3d.cpp
+  math/test_vector_unit_4d.cpp
   measurements/test_measurement_edge_cases.cpp
   measurements/test_measurement_linear.cpp
   measurements/test_measurement_rss.cpp
   measurements/test_rk4_calculation_patterns_rss.cpp
+  impl/test_unit_pow.cpp
   multi_cast/test_multi_unit_cast.cpp
   power/test_imperial_power_formatting.cpp
   power/test_si_power_formatting.cpp
@@ -88,7 +92,7 @@ set(TEST_SOURCES
   velocity/test_si_velocity.cpp
   viscosity/test_viscosity.cpp
   volume/test_si_volume_formatting.cpp
-  # integration/test_three_body_problem.cpp
+  integration/test_three_body_problem.cpp
 )
 
 # Create the test executable
