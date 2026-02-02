@@ -26,15 +26,20 @@ namespace PKR_UNITS_NAMESPACE
 // - Multiplication/Division: relative uncertainties add linearly
 // - Powers: relative uncertainties scale by the power factor (fully correlated)
 
+namespace details
+{
+
 struct is_measurement_lin_t_tag
 {
 };
 
+} // namespace details
+
 template <typename T>
-concept is_measurement_lin_c = std::is_base_of_v<is_measurement_lin_t_tag, T>;
+concept is_measurement_lin_c = std::is_base_of_v<details::is_measurement_lin_t_tag, T>;
 
 template <is_pkr_unit_c UnitT>
-class measurement_lin_t : public is_measurement_lin_t_tag
+class measurement_lin_t : public details::is_measurement_lin_t_tag
 {
 private:
     UnitT m_value;       // The measured value with units

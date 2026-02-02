@@ -24,12 +24,12 @@ struct vec_measurement_rss_3d_t
     }
 
     vec_measurement_rss_3d_t(
-        pkr::units::measurement_rss_t<T> x,
-        pkr::units::measurement_rss_t<T> y,
-        pkr::units::measurement_rss_t<T> z)
-        : x{x}
-        , y{y}
-        , z{z}
+        pkr::units::measurement_rss_t<T> x_measurement,
+        pkr::units::measurement_rss_t<T> y_measurement,
+        pkr::units::measurement_rss_t<T> z_measurement)
+        : x{x_measurement}
+        , y{y_measurement}
+        , z{z_measurement}
     {
     }
 

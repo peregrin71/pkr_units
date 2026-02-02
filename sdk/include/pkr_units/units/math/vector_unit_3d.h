@@ -25,10 +25,10 @@ struct vec_3d_t<T>
     {
     }
 
-    vec_3d_t(T x, T y, T z)
-        : x{x}
-        , y{y}
-        , z{z}
+    vec_3d_t(T x_value, T y_value, T z_value)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
     {
     }
 

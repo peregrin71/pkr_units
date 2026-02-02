@@ -63,6 +63,60 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
 - Inheriting constructors (`using _base::_base`) provides clean initialization
 - Allows derived unit specializations while maintaining a common base
 
+**Class Hierarchy (example)**
+
+```mermaid
+classDiagram
+    direction TB
+    class unit_t~type_t, ratio_t, dimension_t~
+    class meter_t
+    unit_t~type_t, ratio_t, dimension_t~ <|-- meter_t
+
+    class measurement_lin_t~UnitT~
+    class measurement_rss_t~UnitT~
+    measurement_lin_t~UnitT~ ..> unit_t~type_t, ratio_t, dimension_t~ : wraps UnitT
+    measurement_rss_t~UnitT~ ..> unit_t~type_t, ratio_t, dimension_t~ : wraps UnitT
+
+    class vec_3d_t~T~
+    class vec_4d_t~T~
+    class matrix_3d_t~T~
+    class matrix_4d_t~T~
+    matrix_3d_t~T~ ..> vec_3d_t~T~ : multiply
+    matrix_4d_t~T~ ..> vec_4d_t~T~ : multiply
+
+    class vec_4d_units_t~T~
+    class matrix_4d_units_t~T~
+    vec_4d_units_t~T~ ..> vec_4d_t~T~ : specialized for units
+    matrix_4d_units_t~T~ ..> matrix_4d_t~T~ : specialized for units
+    matrix_4d_units_t~T~ ..> vec_4d_t~T~ : multiply
+
+    class vec_measurement_lin_3d_t~T~
+    class vec_measurement_rss_3d_t~T~
+    class vec_measurement_lin_4d_t~T~
+    class vec_measurement_rss_4d_t~T~
+    vec_measurement_lin_3d_t~T~ ..> vec_3d_t~T~ : specialized for lin measurements
+    vec_measurement_rss_3d_t~T~ ..> vec_3d_t~T~ : specialized for rss measurements
+    vec_measurement_lin_4d_t~T~ ..> vec_4d_t~T~ : specialized for lin measurements
+    vec_measurement_rss_4d_t~T~ ..> vec_4d_t~T~ : specialized for rss measurements
+    vec_measurement_lin_3d_t~T~ ..> measurement_lin_t~UnitT~ : components
+    vec_measurement_rss_3d_t~T~ ..> measurement_rss_t~UnitT~ : components
+    vec_measurement_lin_4d_t~T~ ..> measurement_lin_t~UnitT~ : components
+    vec_measurement_rss_4d_t~T~ ..> measurement_rss_t~UnitT~ : components
+
+    class matrix_measurement_lin_3d_t~T~
+    class matrix_measurement_rss_3d_t~T~
+    class matrix_measurement_lin_4d_t~T~
+    class matrix_measurement_rss_4d_t~T~
+    matrix_measurement_lin_3d_t~T~ ..> matrix_3d_t~T~ : specialized for lin measurements
+    matrix_measurement_rss_3d_t~T~ ..> matrix_3d_t~T~ : specialized for rss measurements
+    matrix_measurement_lin_4d_t~T~ ..> matrix_4d_t~T~ : specialized for lin measurements
+    matrix_measurement_rss_4d_t~T~ ..> matrix_4d_t~T~ : specialized for rss measurements
+    matrix_measurement_lin_3d_t~T~ ..> vec_measurement_lin_3d_t~T~ : multiply
+    matrix_measurement_rss_3d_t~T~ ..> vec_measurement_rss_3d_t~T~ : multiply
+    matrix_measurement_lin_4d_t~T~ ..> vec_measurement_lin_4d_t~T~ : multiply
+    matrix_measurement_rss_4d_t~T~ ..> vec_measurement_rss_4d_t~T~ : multiply
+```
+
 ### 1.3 Type Naming Convention: The `_t` Postfix
 
 **Decision**: All strong type struct names use the `_t` postfix (e.g., `meter_t`, `kilogram_t`, `ampere_t`).
