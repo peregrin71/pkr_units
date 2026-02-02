@@ -9,6 +9,7 @@ add_compile_options(
     -Wconversion
     -Wsign-conversion
     -Wshadow
+    -Wshadow-all
     -Wnull-dereference
     -Wold-style-cast
     -Woverloaded-virtual

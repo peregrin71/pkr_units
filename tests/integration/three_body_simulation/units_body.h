@@ -48,8 +48,8 @@ struct Body
 class ThreeBodySystem
 {
 public:
-    ThreeBodySystem(const std::vector<Body>& bodies)
-        : bodies(bodies)
+    ThreeBodySystem(const std::vector<Body>& initial_bodies)
+        : bodies(initial_bodies)
     {
     }
 
