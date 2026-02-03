@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // CGS (Gaussian) magnetic units
@@ -24,5 +25,5 @@ gauss_t(T) -> gauss_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == magnetic_flux_density_dimension)
-gauss_t(const U&) -> gauss_t<typename details::is_pkr_unit<U>::value_type>; 
+gauss_t(const U&) -> gauss_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

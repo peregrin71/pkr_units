@@ -2,10 +2,12 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Capacitance dimension
 inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0, 0};
+
 // Capacitance units (Farad and derived)
 template <is_unit_value_type_c T>
 struct farad_t final : public details::unit_t<T, std::ratio<1, 1>, capacitance_v>

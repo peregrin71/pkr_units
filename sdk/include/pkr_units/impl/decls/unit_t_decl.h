@@ -16,14 +16,11 @@ namespace PKR_UNITS_NAMESPACE
 //   - __float128 if available (GCC/Clang extension)
 //   - Complex types (std::complex<float>, std::complex<double>)
 template <typename type_t>
-concept is_unit_value_type_c = 
-    (std::is_integral_v<type_t> && !std::same_as<type_t, bool> && std::is_signed_v<type_t>) ||
-    std::is_floating_point_v<type_t> ||
+concept is_unit_value_type_c = (std::is_integral_v<type_t> && !std::same_as<type_t, bool> && std::is_signed_v<type_t>) || std::is_floating_point_v<type_t> ||
 #if defined(__SIZEOF_FLOAT128__) && !defined(_MSC_VER)
-    std::same_as<type_t, __float128> ||
+                               std::same_as<type_t, __float128> ||
 #endif
-    std::same_as<type_t, std::complex<float>> ||
-    std::same_as<type_t, std::complex<double>>;
+                               std::same_as<type_t, std::complex<float>> || std::same_as<type_t, std::complex<double>>;
 
 // Verify fundamental types satisfy the concept
 static_assert(is_unit_value_type_c<float>);

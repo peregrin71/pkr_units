@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/time_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for second (SI base unit)
@@ -22,7 +23,7 @@ second_t(T) -> second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-second_t(const U&) -> second_t<typename details::is_pkr_unit<U>::value_type>; 
+second_t(const U&) -> second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct attosecond_t final : public details::unit_t<T, std::atto, time_dimension>
@@ -41,7 +42,7 @@ attosecond_t(T) -> attosecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-attosecond_t(const U&) -> attosecond_t<typename details::is_pkr_unit<U>::value_type>; 
+attosecond_t(const U&) -> attosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct femtosecond_t final : public details::unit_t<T, std::femto, time_dimension>
@@ -60,7 +61,7 @@ femtosecond_t(T) -> femtosecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-femtosecond_t(const U&) -> femtosecond_t<typename details::is_pkr_unit<U>::value_type>; 
+femtosecond_t(const U&) -> femtosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct picosecond_t final : public details::unit_t<T, std::pico, time_dimension>
@@ -79,7 +80,7 @@ picosecond_t(T) -> picosecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-picosecond_t(const U&) -> picosecond_t<typename details::is_pkr_unit<U>::value_type>; 
+picosecond_t(const U&) -> picosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct nanosecond_t final : public details::unit_t<T, std::nano, time_dimension>
@@ -98,7 +99,7 @@ nanosecond_t(T) -> nanosecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-nanosecond_t(const U&) -> nanosecond_t<typename details::is_pkr_unit<U>::value_type>; 
+nanosecond_t(const U&) -> nanosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct microsecond_t final : public details::unit_t<T, std::micro, time_dimension>
@@ -117,7 +118,7 @@ microsecond_t(T) -> microsecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-microsecond_t(const U&) -> microsecond_t<typename details::is_pkr_unit<U>::value_type>; 
+microsecond_t(const U&) -> microsecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct millisecond_t final : public details::unit_t<T, std::milli, time_dimension>
@@ -136,7 +137,7 @@ millisecond_t(T) -> millisecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-millisecond_t(const U&) -> millisecond_t<typename details::is_pkr_unit<U>::value_type>; 
+millisecond_t(const U&) -> millisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct centisecond_t final : public details::unit_t<T, std::centi, time_dimension>
@@ -155,7 +156,7 @@ centisecond_t(T) -> centisecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-centisecond_t(const U&) -> centisecond_t<typename details::is_pkr_unit<U>::value_type>; 
+centisecond_t(const U&) -> centisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct decisecond_t final : public details::unit_t<T, std::deci, time_dimension>
@@ -174,7 +175,7 @@ decisecond_t(T) -> decisecond_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == time_dimension)
-decisecond_t(const U&) -> decisecond_t<typename details::is_pkr_unit<U>::value_type>; 
+decisecond_t(const U&) -> decisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct decasecond_t final : public details::unit_t<T, std::deca, time_dimension>
@@ -227,7 +228,7 @@ struct kilosecond_t final : public details::unit_t<T, std::kilo, time_dimension>
 };
 
 template <is_unit_value_type_c T>
-kilosecond_t(T) -> kilosecond_t<T>; 
+kilosecond_t(T) -> kilosecond_t<T>;
 
 template <is_unit_value_type_c T>
 struct megasecond_t final : public details::unit_t<T, std::mega, time_dimension>

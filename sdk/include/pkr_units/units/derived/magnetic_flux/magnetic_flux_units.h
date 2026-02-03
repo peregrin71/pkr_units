@@ -2,6 +2,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹

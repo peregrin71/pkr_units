@@ -2,10 +2,12 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Inductance dimension
 inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
+
 // Inductance units (Henry and derived)
 template <is_unit_value_type_c T>
 struct henry_t final : public details::unit_t<T, std::ratio<1, 1>, inductance_dimension>

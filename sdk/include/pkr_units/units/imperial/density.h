@@ -3,6 +3,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/density_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial density units

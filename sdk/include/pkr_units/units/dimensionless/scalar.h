@@ -2,6 +2,7 @@
 #include <string_view>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 template <is_unit_value_type_c T>

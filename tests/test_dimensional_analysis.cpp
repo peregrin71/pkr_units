@@ -66,7 +66,7 @@ TEST_F(DimensionalAnalysisTest, acceleration_times_time_equals_velocity)
 TEST_F(DimensionalAnalysisTest, acceleration_times_time_squared_equals_distance)
 {
     // m/s² * s² = m
-    pkr::units::meter_per_second_squared_t<double> accel{9.8};                         // 9.8 m/s²
+    pkr::units::meter_per_second_squared_t<double> accel{9.8};                                 // 9.8 m/s²
     auto time_squared = pkr::units::second_t<double>{2.0} * pkr::units::second_t<double>{2.0}; // 4 s²
 
     auto distance = accel * time_squared; // Should be meters
@@ -96,7 +96,7 @@ TEST_F(DimensionalAnalysisTest, mass_times_acceleration_equals_force)
     static_assert(result_dimension::value.mass == 1, "Force should have mass dimension");
     static_assert(result_dimension::value.length == 1, "Force should have length dimension");
     static_assert(result_dimension::value.time == -2, "Force should have negative squared time dimension");
-} 
+}
 
 TEST_F(DimensionalAnalysisTest, force_times_distance_equals_energy)
 {
@@ -157,7 +157,7 @@ TEST_F(DimensionalAnalysisTest, power_times_time_equals_energy)
 TEST_F(DimensionalAnalysisTest, pressure_times_area_equals_force)
 {
     // Pa * m² = N (Newton)
-    pkr::units::pascal_t<double> pressure{1000.0};                           // 1000 Pa
+    pkr::units::pascal_t<double> pressure{1000.0};                                   // 1000 Pa
     auto area = pkr::units::meter_t<double>{2.0} * pkr::units::meter_t<double>{2.0}; // 4 m²
 
     auto force = pressure * area; // Should be Newtons
@@ -178,7 +178,7 @@ TEST_F(DimensionalAnalysisTest, pressure_times_time_squared)
 {
     // Pa * s² = (N/m²) * s² = (kg·m/s²/m²) * s² = kg/(m·s²) * s² = kg/m
     // This represents energy density (energy per unit volume)
-    pkr::units::pascal_t<double> pressure{1000.0};                                     // 1000 Pa = 1000 N/m²
+    pkr::units::pascal_t<double> pressure{1000.0};                                             // 1000 Pa = 1000 N/m²
     auto time_squared = pkr::units::second_t<double>{2.0} * pkr::units::second_t<double>{2.0}; // 4 s²
 
     auto energy_density = pressure * time_squared; // Should be kg/m (energy density)
@@ -207,7 +207,7 @@ TEST_F(DimensionalAnalysisTest, pressure_times_time_squared)
 TEST_F(DimensionalAnalysisTest, distance_from_acceleration_kinematic_equation)
 {
     // Distance = (1/2) * acceleration * time²
-    pkr::units::meter_per_second_squared_t<double> accel{2.0};                         // 2 m/s²
+    pkr::units::meter_per_second_squared_t<double> accel{2.0};                                 // 2 m/s²
     auto time_squared = pkr::units::second_t<double>{3.0} * pkr::units::second_t<double>{3.0}; // 9 s²
 
     auto distance = 0.5 * accel * time_squared; // Should be meters

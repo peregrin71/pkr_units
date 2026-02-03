@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/temperature_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for kelvin (SI base unit)
@@ -22,7 +23,7 @@ kelvin_t(T) -> kelvin_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == temperature_dimension)
-kelvin_t(const U&) -> kelvin_t<typename details::is_pkr_unit<U>::value_type>; 
+kelvin_t(const U&) -> kelvin_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric temperature prefixes (strong types)
 template <is_unit_value_type_c T>
@@ -38,7 +39,7 @@ struct attokelvin_t final : public details::unit_t<T, std::atto, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-attokelvin_t(T) -> attokelvin_t<T>; 
+attokelvin_t(T) -> attokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct femtokelvin_t final : public details::unit_t<T, std::femto, temperature_dimension>
@@ -53,7 +54,7 @@ struct femtokelvin_t final : public details::unit_t<T, std::femto, temperature_d
 };
 
 template <is_unit_value_type_c T>
-femtokelvin_t(T) -> femtokelvin_t<T>; 
+femtokelvin_t(T) -> femtokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct picokelvin_t final : public details::unit_t<T, std::pico, temperature_dimension>
@@ -68,7 +69,7 @@ struct picokelvin_t final : public details::unit_t<T, std::pico, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-picokelvin_t(T) -> picokelvin_t<T>; 
+picokelvin_t(T) -> picokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct nanokelvin_t final : public details::unit_t<T, std::nano, temperature_dimension>
@@ -83,7 +84,7 @@ struct nanokelvin_t final : public details::unit_t<T, std::nano, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-nanokelvin_t(T) -> nanokelvin_t<T>; 
+nanokelvin_t(T) -> nanokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct microkelvin_t final : public details::unit_t<T, std::micro, temperature_dimension>
@@ -98,7 +99,7 @@ struct microkelvin_t final : public details::unit_t<T, std::micro, temperature_d
 };
 
 template <is_unit_value_type_c T>
-microkelvin_t(T) -> microkelvin_t<T>; 
+microkelvin_t(T) -> microkelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct millikelvin_t final : public details::unit_t<T, std::milli, temperature_dimension>
@@ -113,7 +114,7 @@ struct millikelvin_t final : public details::unit_t<T, std::milli, temperature_d
 };
 
 template <is_unit_value_type_c T>
-millikelvin_t(T) -> millikelvin_t<T>; 
+millikelvin_t(T) -> millikelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct centikelvin_t final : public details::unit_t<T, std::centi, temperature_dimension>
@@ -128,7 +129,7 @@ struct centikelvin_t final : public details::unit_t<T, std::centi, temperature_d
 };
 
 template <is_unit_value_type_c T>
-centikelvin_t(T) -> centikelvin_t<T>; 
+centikelvin_t(T) -> centikelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct decikelvin_t final : public details::unit_t<T, std::deci, temperature_dimension>
@@ -143,7 +144,7 @@ struct decikelvin_t final : public details::unit_t<T, std::deci, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-decikelvin_t(T) -> decikelvin_t<T>; 
+decikelvin_t(T) -> decikelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct decakelvin_t final : public details::unit_t<T, std::deca, temperature_dimension>
@@ -158,7 +159,7 @@ struct decakelvin_t final : public details::unit_t<T, std::deca, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-decakelvin_t(T) -> decakelvin_t<T>; 
+decakelvin_t(T) -> decakelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct hectokelvin_t final : public details::unit_t<T, std::hecto, temperature_dimension>
@@ -173,7 +174,7 @@ struct hectokelvin_t final : public details::unit_t<T, std::hecto, temperature_d
 };
 
 template <is_unit_value_type_c T>
-hectokelvin_t(T) -> hectokelvin_t<T>; 
+hectokelvin_t(T) -> hectokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct kilokelvin_t final : public details::unit_t<T, std::kilo, temperature_dimension>
@@ -188,7 +189,7 @@ struct kilokelvin_t final : public details::unit_t<T, std::kilo, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-kilokelvin_t(T) -> kilokelvin_t<T>; 
+kilokelvin_t(T) -> kilokelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct megakelvin_t final : public details::unit_t<T, std::mega, temperature_dimension>
@@ -203,7 +204,7 @@ struct megakelvin_t final : public details::unit_t<T, std::mega, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-megakelvin_t(T) -> megakelvin_t<T>; 
+megakelvin_t(T) -> megakelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct gigakelvin_t final : public details::unit_t<T, std::giga, temperature_dimension>
@@ -218,7 +219,7 @@ struct gigakelvin_t final : public details::unit_t<T, std::giga, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-gigakelvin_t(T) -> gigakelvin_t<T>; 
+gigakelvin_t(T) -> gigakelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct terakelvin_t final : public details::unit_t<T, std::tera, temperature_dimension>
@@ -233,7 +234,7 @@ struct terakelvin_t final : public details::unit_t<T, std::tera, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-terakelvin_t(T) -> terakelvin_t<T>; 
+terakelvin_t(T) -> terakelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct petakelvin_t final : public details::unit_t<T, std::peta, temperature_dimension>
@@ -248,7 +249,7 @@ struct petakelvin_t final : public details::unit_t<T, std::peta, temperature_dim
 };
 
 template <is_unit_value_type_c T>
-petakelvin_t(T) -> petakelvin_t<T>; 
+petakelvin_t(T) -> petakelvin_t<T>;
 
 template <is_unit_value_type_c T>
 struct exakelvin_t final : public details::unit_t<T, std::exa, temperature_dimension>
@@ -263,7 +264,7 @@ struct exakelvin_t final : public details::unit_t<T, std::exa, temperature_dimen
 };
 
 template <is_unit_value_type_c T>
-exakelvin_t(T) -> exakelvin_t<T>; 
+exakelvin_t(T) -> exakelvin_t<T>;
 
 // ============================================================================
 // Most derived unit type specializations for temperature units

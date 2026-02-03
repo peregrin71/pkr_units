@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/acceleration_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // CGS acceleration unit (formatting-friendly, not a derived-unit mapping)
@@ -23,5 +24,5 @@ gal_t(T) -> gal_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == acceleration_v)
-gal_t(const U&) -> gal_t<typename details::is_pkr_unit<U>::value_type>; 
+gal_t(const U&) -> gal_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

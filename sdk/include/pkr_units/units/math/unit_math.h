@@ -6,6 +6,7 @@
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/dimensionless/scalar.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // ============================================================================
@@ -22,24 +23,28 @@ constexpr auto add(const details::unit_t<T, Ratio1, Dim>& a, const details::unit
 {
     return a + b;
 }
+
 // Subtraction with automatic ratio conversion
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
 constexpr auto subtract(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b)
 {
     return a - b;
 }
+
 // Multiplication (combines dimensions)
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
 constexpr auto multiply(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
 {
     return a * b;
 }
+
 // Division (combines dimensions)
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
 constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
 {
     return a / b;
 }
+
 // ============================================================================
 // Scalar Operations
 // ============================================================================
@@ -49,12 +54,14 @@ constexpr auto multiply_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar
 {
     return a * scalar;
 }
+
 // Divide unit_t by scalar
 template <typename T, typename Ratio, dimension_t Dim>
 constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a / scalar;
 }
+
 // ============================================================================
 // Mathematical Functions
 // ============================================================================
@@ -79,6 +86,7 @@ auto sqrt(const details::unit_t<T, Ratio, Dim>& a)
         Dim.angle / 2};
     return details::unit_t<T, result_ratio, result_dim>{std::sqrt(a.value())};
 }
+
 // Square function with dimensional analysis
 // square(unit_t) produces a unit_t with double the dimensional exponents
 template <typename T, typename Ratio, dimension_t Dim>
@@ -92,6 +100,7 @@ constexpr auto square(const details::unit_t<T, Ratio, Dim>& a)
         Dim.length * 2, Dim.mass * 2, Dim.time * 2, Dim.current * 2, Dim.temperature * 2, Dim.amount * 2, Dim.intensity * 2, Dim.angle * 2};
     return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
 }
+
 // Cube function with dimensional analysis
 // cube(unit_t) produces a unit_t with triple the dimensional exponents
 template <typename T, typename Ratio, dimension_t Dim>
@@ -102,6 +111,7 @@ constexpr auto cube(const details::unit_t<T, Ratio, Dim>& a)
         Dim.length * 3, Dim.mass * 3, Dim.time * 3, Dim.current * 3, Dim.temperature * 3, Dim.amount * 3, Dim.intensity * 3, Dim.angle * 3};
     return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
 }
+
 // Exponential function (result is dimensionless)
 template <typename T, typename Ratio, dimension_t Dim>
 auto exp(const details::unit_t<T, Ratio, Dim>& a)
@@ -112,6 +122,7 @@ auto exp(const details::unit_t<T, Ratio, Dim>& a)
         "exp() requires dimensionless input");
     return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::exp(a.value())};
 }
+
 // Natural logarithm (result is dimensionless)
 template <typename T, typename Ratio, dimension_t Dim>
 auto log(const details::unit_t<T, Ratio, Dim>& a)
@@ -122,6 +133,7 @@ auto log(const details::unit_t<T, Ratio, Dim>& a)
         "log() requires dimensionless input");
     return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::log(a.value())};
 }
+
 // Power function (exponent must be dimensionless)
 template <typename T, typename Ratio, dimension_t Dim, typename ExpT, typename ExpRatio>
 auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
@@ -130,6 +142,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT,
     // Simplified implementation for now
     return details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
 }
+
 // Compile-time power function with integer exponent (for measurement math)
 // Usage: pow<2>(meter) for squaring, pow<-1>(meter) for reciprocal, etc.
 // Returns the most specific derived unit type for the powered dimensions, or unit_t if no specialization exists
@@ -194,6 +207,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
         }
     }
 }
+
 // ============================================================================
 // Unit-aware transcendental functions (work with named units)
 // ============================================================================
@@ -208,6 +222,7 @@ auto exp(const T& x) noexcept
         "exp() only works on dimensionless units");
     return T{std::exp(x.value())};
 }
+
 // log() - returns dimensionless unit (log of dimensionless input)
 template <is_base_pkr_unit_c T>
 auto log(const T& x)
@@ -224,6 +239,7 @@ auto log(const T& x)
     // Return a dimensionless unit (all dimensions zero)
     return details::unit_t<typename details::is_pkr_unit<T>::value_type, std::ratio<1, 1>, dimension_t{}>{std::log(x.value())};
 }
+
 // sqrt() - returns unit with square root dimensions
 template <is_base_pkr_unit_c T>
 auto sqrt(const T& x)
@@ -249,12 +265,14 @@ auto sqrt(const T& x)
     }
     return details::unit_t<value_type, sqrt_ratio, sqrt_dim>{std::sqrt(x.value())};
 }
+
 // Normalize a unit_t to its canonical SI form (ratio 1/1)
 template <is_base_pkr_unit_c T>
 constexpr auto normalize(const T& unit) noexcept
 {
     return unit.in_base_si_units();
 }
+
 // ============================================================================
 // Trigonometric Functions (return dimensionless for angle inputs)
 // ============================================================================
@@ -264,12 +282,14 @@ auto sin(const T& angle) noexcept
 {
     return scalar_t{std::sin(angle.value())};
 }
+
 // Cosine function - only works on angle units
 template <is_angle_unit_c T>
 auto cos(const T& angle) noexcept
 {
     return scalar_t{std::cos(angle.value())};
 }
+
 // Tangent function - only works on angle units
 template <is_angle_unit_c T>
 auto tan(const T& angle) noexcept

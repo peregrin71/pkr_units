@@ -2,10 +2,12 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Thermal conductivity dimension: kg·m·s^-3·K^-1 (M·L·T^-3·Θ^-1)
 inline constexpr dimension_t thermal_conductivity_dimension{1, 1, -3, 0, -1, 0, 0, 0};
+
 // Thermal conductivity unit: W/(m*K)
 template <is_unit_value_type_c T>
 struct thermal_conductivity_t final : public details::unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>

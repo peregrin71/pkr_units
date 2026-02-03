@@ -102,7 +102,8 @@ TEST_F(SiConcentrationCastTest, cast_picomolar_to_nanomolar)
 TEST_F(SiConcentrationCastTest, cast_mole_per_liter_to_mole_per_cubic_centimeter)
 {
     pkr::units::mole_per_liter_concentration_t<double> conc(1.0);
-    pkr::units::mole_per_cubic_centimeter_concentration_t<double> result = pkr::units::unit_cast<pkr::units::mole_per_cubic_centimeter_concentration_t<double>>(conc);
+    pkr::units::mole_per_cubic_centimeter_concentration_t<double> result =
+        pkr::units::unit_cast<pkr::units::mole_per_cubic_centimeter_concentration_t<double>>(conc);
     EXPECT_DOUBLE_EQ(*result, 0.001);
 }
 
@@ -123,7 +124,8 @@ TEST_F(SiConcentrationCastTest, cast_mole_per_cubic_centimeter_to_mole_per_milli
 TEST_F(SiConcentrationCastTest, cast_mole_per_milliliter_to_mole_per_cubic_centimeter)
 {
     pkr::units::mole_per_milliliter_concentration_t<double> conc(1.0);
-    pkr::units::mole_per_cubic_centimeter_concentration_t<double> result = pkr::units::unit_cast<pkr::units::mole_per_cubic_centimeter_concentration_t<double>>(conc);
+    pkr::units::mole_per_cubic_centimeter_concentration_t<double> result =
+        pkr::units::unit_cast<pkr::units::mole_per_cubic_centimeter_concentration_t<double>>(conc);
     EXPECT_DOUBLE_EQ(*result, 1.0);
 }
 

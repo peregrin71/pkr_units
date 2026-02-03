@@ -18,6 +18,7 @@ struct meter_t final : public details::unit_t<T, std::ratio<1, 1>, length_dimens
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m"};
 };
+
 template <is_unit_value_type_c T>
 meter_t(T) -> meter_t<T>;
 
@@ -37,6 +38,7 @@ struct attometer_t final : public details::unit_t<T, std::atto, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"am"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"am"};
 };
+
 template <is_unit_value_type_c T>
 attometer_t(T) -> attometer_t<T>;
 
@@ -55,6 +57,7 @@ struct femtometer_t final : public details::unit_t<T, std::femto, length_dimensi
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"fm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"fm"};
 };
+
 template <is_unit_value_type_c T>
 femtometer_t(T) -> femtometer_t<T>;
 
@@ -73,6 +76,7 @@ struct picometer_t final : public details::unit_t<T, std::pico, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"pm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"pm"};
 };
+
 template <is_unit_value_type_c T>
 picometer_t(T) -> picometer_t<T>;
 
@@ -91,6 +95,7 @@ struct nanometer_t final : public details::unit_t<T, std::nano, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"nm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"nm"};
 };
+
 template <is_unit_value_type_c T>
 nanometer_t(T) -> nanometer_t<T>;
 
@@ -109,6 +114,7 @@ struct micrometer_t final : public details::unit_t<T, std::micro, length_dimensi
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b5m"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"\u00b5m"};
 };
+
 template <is_unit_value_type_c T>
 micrometer_t(T) -> micrometer_t<T>;
 
@@ -127,6 +133,7 @@ struct millimeter_t final : public details::unit_t<T, std::milli, length_dimensi
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm"};
 };
+
 template <is_unit_value_type_c T>
 millimeter_t(T) -> millimeter_t<T>;
 
@@ -145,6 +152,7 @@ struct centimeter_t final : public details::unit_t<T, std::centi, length_dimensi
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm"};
 };
+
 template <is_unit_value_type_c T>
 centimeter_t(T) -> centimeter_t<T>;
 
@@ -163,6 +171,7 @@ struct decimeter_t final : public details::unit_t<T, std::deci, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dm"};
 };
+
 template <is_unit_value_type_c T>
 decimeter_t(T) -> decimeter_t<T>;
 
@@ -181,6 +190,7 @@ struct decameter_t final : public details::unit_t<T, std::deca, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"dam"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dam"};
 };
+
 template <is_unit_value_type_c T>
 decameter_t(T) -> decameter_t<T>;
 
@@ -199,6 +209,7 @@ struct hectometer_t final : public details::unit_t<T, std::hecto, length_dimensi
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"hm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"hm"};
 };
+
 template <is_unit_value_type_c T>
 hectometer_t(T) -> hectometer_t<T>;
 
@@ -217,6 +228,7 @@ struct kilometer_t final : public details::unit_t<T, std::kilo, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km"};
 };
+
 template <is_unit_value_type_c T>
 kilometer_t(T) -> kilometer_t<T>;
 
@@ -235,6 +247,7 @@ struct megameter_t final : public details::unit_t<T, std::mega, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Mm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Mm"};
 };
+
 template <is_unit_value_type_c T>
 megameter_t(T) -> megameter_t<T>;
 
@@ -253,6 +266,7 @@ struct gigameter_t final : public details::unit_t<T, std::giga, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Gm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Gm"};
 };
+
 template <is_unit_value_type_c T>
 gigameter_t(T) -> gigameter_t<T>;
 
@@ -271,6 +285,7 @@ struct terameter_t final : public details::unit_t<T, std::tera, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Tm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Tm"};
 };
+
 template <is_unit_value_type_c T>
 terameter_t(T) -> terameter_t<T>;
 
@@ -289,6 +304,7 @@ struct petameter_t final : public details::unit_t<T, std::peta, length_dimension
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Pm"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Pm"};
 };
+
 template <is_unit_value_type_c T>
 petameter_t(T) -> petameter_t<T>;
 
@@ -307,6 +323,7 @@ struct exameter_t final : public details::unit_t<T, std::exa, length_dimension>
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"Em"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"Em"};
 };
+
 template <is_unit_value_type_c T>
 exameter_t(T) -> exameter_t<T>;
 
@@ -420,4 +437,3 @@ struct details::derived_unit_type_t<T, std::exa, length_dimension>
 };
 
 } // namespace PKR_UNITS_NAMESPACE
-

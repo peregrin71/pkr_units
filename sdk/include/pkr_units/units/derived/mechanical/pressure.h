@@ -2,10 +2,12 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Pressure dimension: kg·m⁻¹·s⁻² (M·L⁻¹·T⁻²)
 inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0, 0};
+
 // Pressure units (Pascal and derived)
 // Base unit: Pascal (Pa) = kg·m⁻¹·s⁻²
 template <is_unit_value_type_c T>
@@ -25,7 +27,7 @@ pascal_t(T) -> pascal_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == pressure_dimension)
-pascal_t(const U&) -> pascal_t<typename details::is_pkr_unit<U>::value_type>; 
+pascal_t(const U&) -> pascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct kilopascal_t final : public details::unit_t<T, std::ratio<1000, 1>, pressure_dimension>
@@ -63,7 +65,7 @@ hectopascal_t(T) -> hectopascal_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == pressure_dimension)
-hectopascal_t(const U&) -> hectopascal_t<typename details::is_pkr_unit<U>::value_type>; 
+hectopascal_t(const U&) -> hectopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct megapascal_t final : public details::unit_t<T, std::ratio<1000000, 1>, pressure_dimension>
@@ -229,6 +231,5 @@ struct details::derived_unit_type_t<T, std::ratio<101325, 1>, pressure_dimension
 {
     using type = atmosphere_t<T>;
 };
-
 
 } // namespace PKR_UNITS_NAMESPACE

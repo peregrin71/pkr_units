@@ -2,10 +2,12 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Magnetic field strength dimension: A·m^-1
 inline constexpr dimension_t magnetic_field_strength_dimension{-1, 0, 0, 1, 0, 0, 0, 0};
+
 // CGS magnetic field strength unit
 // Oersted = (1000 / (4*pi)) A/m (approximate ratio)
 template <is_unit_value_type_c T>
@@ -31,5 +33,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>
 {
     using type = oersted_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

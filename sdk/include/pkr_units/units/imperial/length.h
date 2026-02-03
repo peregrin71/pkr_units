@@ -2,6 +2,7 @@
 #include <string_view>
 #include <pkr_units/impl/decls/length_decl.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial length units
@@ -22,7 +23,7 @@ inch_t(T) -> inch_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-inch_t(const U&) -> inch_t<typename details::is_pkr_unit<U>::value_type>; 
+inch_t(const U&) -> inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct mil_t final : public details::unit_t<T, std::ratio<254, 10000000>, length_dimension>
@@ -41,7 +42,7 @@ mil_t(T) -> mil_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-mil_t(const U&) -> mil_t<typename details::is_pkr_unit<U>::value_type>; 
+mil_t(const U&) -> mil_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct foot_t final : public details::unit_t<T, std::ratio<3048, 10000>, length_dimension>
@@ -60,7 +61,7 @@ foot_t(T) -> foot_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-foot_t(const U&) -> foot_t<typename details::is_pkr_unit<U>::value_type>; 
+foot_t(const U&) -> foot_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct yard_t final : public details::unit_t<T, std::ratio<9144, 10000>, length_dimension>
@@ -79,7 +80,7 @@ yard_t(T) -> yard_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-yard_t(const U&) -> yard_t<typename details::is_pkr_unit<U>::value_type>; 
+yard_t(const U&) -> yard_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct fathom_t final : public details::unit_t<T, std::ratio<18288, 10000>, length_dimension>
@@ -98,7 +99,7 @@ fathom_t(T) -> fathom_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-fathom_t(const U&) -> fathom_t<typename details::is_pkr_unit<U>::value_type>; 
+fathom_t(const U&) -> fathom_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct rod_t final : public details::unit_t<T, std::ratio<50292, 10000>, length_dimension>
@@ -117,7 +118,7 @@ rod_t(T) -> rod_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-rod_t(const U&) -> rod_t<typename details::is_pkr_unit<U>::value_type>; 
+rod_t(const U&) -> rod_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct chain_t final : public details::unit_t<T, std::ratio<201168, 10000>, length_dimension>
@@ -136,7 +137,7 @@ chain_t(T) -> chain_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-chain_t(const U&) -> chain_t<typename details::is_pkr_unit<U>::value_type>; 
+chain_t(const U&) -> chain_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct furlong_t final : public details::unit_t<T, std::ratio<201168, 1000>, length_dimension>
@@ -155,7 +156,7 @@ furlong_t(T) -> furlong_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-furlong_t(const U&) -> furlong_t<typename details::is_pkr_unit<U>::value_type>; 
+furlong_t(const U&) -> furlong_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct mile_t final : public details::unit_t<T, std::ratio<1609344, 1000>, length_dimension>
@@ -174,7 +175,7 @@ mile_t(T) -> mile_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-mile_t(const U&) -> mile_t<typename details::is_pkr_unit<U>::value_type>; 
+mile_t(const U&) -> mile_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct nautical_mile_t final : public details::unit_t<T, std::ratio<1852, 1>, length_dimension>
@@ -193,5 +194,5 @@ nautical_mile_t(T) -> nautical_mile_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-nautical_mile_t(const U&) -> nautical_mile_t<typename details::is_pkr_unit<U>::value_type>; 
+nautical_mile_t(const U&) -> nautical_mile_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

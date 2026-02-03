@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/intensity_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for candela (SI base unit)
@@ -22,7 +23,7 @@ candela_t(T) -> candela_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == intensity_dimension)
-candela_t(const U&) -> candela_t<typename details::is_pkr_unit<U>::value_type>; 
+candela_t(const U&) -> candela_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric intensity prefixes (strong types)
 template <is_unit_value_type_c T>
@@ -42,7 +43,7 @@ attocandela_t(T) -> attocandela_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == intensity_dimension)
-attocandela_t(const U&) -> attocandela_t<typename details::is_pkr_unit<U>::value_type>; 
+attocandela_t(const U&) -> attocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct femtocandela_t final : public details::unit_t<T, std::femto, intensity_dimension>
@@ -271,6 +272,7 @@ gigacandela_t(T) -> gigacandela_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == intensity_dimension)
 gigacandela_t(const U&) -> gigacandela_t<typename details::is_pkr_unit<U>::value_type>;
+
 template <is_unit_value_type_c T>
 struct teracandela_t final : public details::unit_t<T, std::tera, intensity_dimension>
 {
@@ -326,7 +328,7 @@ exacandela_t(T) -> exacandela_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == intensity_dimension)
-exacandela_t(const U&) -> exacandela_t<typename details::is_pkr_unit<U>::value_type>; 
+exacandela_t(const U&) -> exacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 // ============================================================================
 // Most derived unit type specializations for intensity units

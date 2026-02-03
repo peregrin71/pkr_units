@@ -1,6 +1,7 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/length_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Astronomical units
@@ -97,5 +98,5 @@ parsec_t(T) -> parsec_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == length_dimension)
-parsec_t(const U&) -> parsec_t<typename details::is_pkr_unit<U>::value_type>; 
+parsec_t(const U&) -> parsec_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

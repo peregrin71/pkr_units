@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/solid_angle_decl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for steradian (SI base unit for solid angle)
@@ -33,6 +34,5 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, solid_angle_dimension>
 {
     using type = steradian_t<T>;
 };
-
 
 } // namespace PKR_UNITS_NAMESPACE

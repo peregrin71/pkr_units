@@ -3,6 +3,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/velocity_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial velocity units
@@ -23,7 +24,7 @@ miles_per_hour_t(T) -> miles_per_hour_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-miles_per_hour_t(const U&) -> miles_per_hour_t<typename details::is_pkr_unit<U>::value_type>; 
+miles_per_hour_t(const U&) -> miles_per_hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct feet_per_second_t final : public details::unit_t<T, std::ratio<3048, 10000>, velocity_dimension>
@@ -42,7 +43,7 @@ feet_per_second_t(T) -> feet_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-feet_per_second_t(const U&) -> feet_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+feet_per_second_t(const U&) -> feet_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct inches_per_second_t final : public details::unit_t<T, std::ratio<254, 10000>, velocity_dimension>
@@ -61,7 +62,7 @@ inches_per_second_t(T) -> inches_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-inches_per_second_t(const U&) -> inches_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+inches_per_second_t(const U&) -> inches_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct knots_t final : public details::unit_t<T, std::ratio<1852, 3600>, velocity_dimension>
@@ -80,7 +81,7 @@ knots_t(T) -> knots_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-knots_t(const U&) -> knots_t<typename details::is_pkr_unit<U>::value_type>; 
+knots_t(const U&) -> knots_t<typename details::is_pkr_unit<U>::value_type>;
 
 // ============================================================================
 // Most derived unit type specializations for imperial velocity units
@@ -107,5 +108,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<1852, 3600>, velocity_dimension>
 {
     using type = knots_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

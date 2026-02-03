@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/viscosity_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Dynamic viscosity units

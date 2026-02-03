@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/acceleration_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial acceleration units
@@ -23,5 +24,5 @@ feet_per_second_squared_t(T) -> feet_per_second_squared_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == acceleration_v)
-feet_per_second_squared_t(const U&) -> feet_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>; 
+feet_per_second_squared_t(const U&) -> feet_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

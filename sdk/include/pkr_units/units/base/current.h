@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/current_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for ampere (SI base unit)
@@ -22,7 +23,7 @@ ampere_t(T) -> ampere_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == current_dimension)
-ampere_t(const U&) -> ampere_t<typename details::is_pkr_unit<U>::value_type>; 
+ampere_t(const U&) -> ampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric current prefixes (strong types)
 template <is_unit_value_type_c T>
@@ -62,6 +63,7 @@ femtoampere_t(T) -> femtoampere_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == current_dimension)
 femtoampere_t(const U&) -> femtoampere_t<typename details::is_pkr_unit<U>::value_type>;
+
 template <is_unit_value_type_c T>
 struct deciampere_t final : public details::unit_t<T, std::deci, current_dimension>
 {
@@ -232,6 +234,7 @@ exaampere_t(T) -> exaampere_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == current_dimension)
 exaampere_t(const U&) -> exaampere_t<typename details::is_pkr_unit<U>::value_type>;
+
 template <is_unit_value_type_c T>
 struct picoampere_t final : public details::unit_t<T, std::pico, current_dimension>
 {

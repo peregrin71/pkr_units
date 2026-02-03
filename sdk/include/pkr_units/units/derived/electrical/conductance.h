@@ -2,10 +2,12 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Conductance dimension: S = A^2·s^3·kg^-1·m^-2
 inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
+
 // Conductance units (Siemens and derived)
 template <is_unit_value_type_c T>
 struct siemens_t final : public details::unit_t<T, std::ratio<1, 1>, conductance_dimension>

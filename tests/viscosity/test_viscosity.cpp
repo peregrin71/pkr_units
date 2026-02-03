@@ -20,7 +20,7 @@ TEST_F(ViscosityTest, dynamic_viscosity_dimension)
 TEST_F(ViscosityTest, kinematic_viscosity_dimension)
 {
     pkr::units::square_meter_per_second_t<double> nu{1.0};
-    using dimension = typename std::decay_t<decltype(nu)>::dimension_type; 
+    using dimension = typename std::decay_t<decltype(nu)>::dimension_type;
     static_assert(dimension::value == pkr::units::kinematic_viscosity_dimension);
     ASSERT_TRUE(true);
 }

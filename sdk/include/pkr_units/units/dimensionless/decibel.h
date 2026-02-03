@@ -5,6 +5,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Decibel (power ratio, 10 * log10)
@@ -12,7 +13,7 @@ namespace PKR_UNITS_NAMESPACE
 template <is_unit_value_type_c T>
 struct decibel_power_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1,1>, scalar_dimension>;
+    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -32,7 +33,7 @@ decibel_power_t(const U&) -> decibel_power_t<typename details::is_pkr_unit<U>::v
 template <is_unit_value_type_c T>
 struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1,1>, scalar_dimension>;
+    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -43,17 +44,20 @@ struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, s
 template <is_unit_value_type_c T>
 decibel_amplitude_t(T) -> decibel_amplitude_t<T>;
 } // namespace PKR_UNITS_NAMESPACE
+
 namespace std
 {
 template <PKR_UNITS_NAMESPACE::is_unit_value_type_c T, typename CharT>
 struct formatter<PKR_UNITS_NAMESPACE::decibel_power_t<T>, CharT>
 {
     std::formatter<double, CharT> value_formatter;
+
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         return value_formatter.parse(ctx);
     }
+
     template <typename FormatContext>
     auto format(const PKR_UNITS_NAMESPACE::decibel_power_t<T>& value, FormatContext& ctx) const
     {
@@ -83,11 +87,13 @@ template <PKR_UNITS_NAMESPACE::is_unit_value_type_c T, typename CharT>
 struct formatter<PKR_UNITS_NAMESPACE::decibel_amplitude_t<T>, CharT>
 {
     std::formatter<double, CharT> value_formatter;
+
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         return value_formatter.parse(ctx);
     }
+
     template <typename FormatContext>
     auto format(const PKR_UNITS_NAMESPACE::decibel_amplitude_t<T>& value, FormatContext& ctx) const
     {

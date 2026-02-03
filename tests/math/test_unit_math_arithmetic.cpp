@@ -166,7 +166,7 @@ TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 {
     // Create velocity squared by multiplying velocity by velocity
     auto velocity = pkr::units::meter_t<double>{3.0} / pkr::units::second_t<double>{1.0}; // 3 m/s
-    auto velocity_squared = velocity * velocity;                          // This creates a unit with (length/time)² dimension
+    auto velocity_squared = velocity * velocity;                                          // This creates a unit with (length/time)² dimension
 
     ASSERT_DOUBLE_EQ(velocity_squared.value(), 9.0);
     static_assert(decltype(velocity_squared)::dimension::value.length == 2, "Should have length² dimension");
@@ -188,9 +188,10 @@ TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 TEST_F(MathFunctionsTest, normalize_complex_operations)
 {
     // Test normalize after complex operations
-    auto force = pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} / (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
-    auto distance = pkr::units::kilometer_t<double>{3.0};                                                                                     // 3 km
-    auto energy = force * distance; // Complex operation: 5000 N * 3 km
+    auto force = pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} /
+                 (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
+    auto distance = pkr::units::kilometer_t<double>{3.0};                                 // 3 km
+    auto energy = force * distance;                                                       // Complex operation: 5000 N * 3 km
 
     // The result should be some compound unit; `in_base_si_units()` should return Joules
     auto normalized_energy = energy.in_base_si_units();
@@ -207,10 +208,10 @@ TEST_F(MathFunctionsTest, normalize_complex_operations)
 TEST_F(MathFunctionsTest, normalize_complex_operations_constexpr)
 {
     // Test normalize at compile time
-    constexpr auto force =
-        pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} / (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
-    constexpr auto distance = pkr::units::kilometer_t<double>{3.0};                                                                  // 3 km
-    constexpr auto energy = force * distance;                                                                                // Complex operation: 5000 N * 3 km
+    constexpr auto force = pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} /
+                           (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
+    constexpr auto distance = pkr::units::kilometer_t<double>{3.0};                                 // 3 km
+    constexpr auto energy = force * distance;                                                       // Complex operation: 5000 N * 3 km
     constexpr auto normalized_energy = energy.in_base_si_units();
 
     // Should be 15,000,000 Joules (5000 N * 3000 m = 15,000,000 J)

@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/area_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Area units (square meter and derived)
@@ -24,7 +25,7 @@ square_meter_t(T) -> square_meter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == area_dimension)
-square_meter_t(const U&) -> square_meter_t<typename details::is_pkr_unit<U>::value_type>; 
+square_meter_t(const U&) -> square_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct square_kilometer_t final : public details::unit_t<T, std::ratio<1000000, 1>, area_dimension>
@@ -77,4 +78,5 @@ struct square_millimeter_t final : public details::unit_t<T, std::ratio<1, 10000
 };
 
 template <is_unit_value_type_c T>
-square_millimeter_t(T) -> square_millimeter_t<T>; } // namespace PKR_UNITS_NAMESPACE
+square_millimeter_t(T) -> square_millimeter_t<T>;
+} // namespace PKR_UNITS_NAMESPACE

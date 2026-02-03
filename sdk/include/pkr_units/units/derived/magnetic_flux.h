@@ -2,6 +2,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
@@ -14,6 +15,7 @@ using magnetic_flux = details::unit_t<type_t, ratio_t, magnetic_flux_dimension>;
 // Magnetic flux density quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
+
 // Magnetic flux units (Weber and derived)
 // Base unit: Weber (Wb) = kg·m²·s⁻²·A⁻¹
 template <is_unit_value_type_c T>
@@ -289,6 +291,5 @@ struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, magnetic_flux_den
 {
     using type = megatesla_t<T>;
 };
-
 
 } // namespace PKR_UNITS_NAMESPACE

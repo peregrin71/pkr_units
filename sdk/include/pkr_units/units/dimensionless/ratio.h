@@ -4,6 +4,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Dimensionless ratio (1.0 == 1:1)
@@ -44,5 +45,5 @@ percentage_t(T) -> percentage_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == scalar_dimension)
-percentage_t(const U&) -> percentage_t<typename details::is_pkr_unit<U>::value_type>; 
+percentage_t(const U&) -> percentage_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

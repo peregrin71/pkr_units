@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/velocity_decl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for meter per second (SI base unit)
@@ -23,7 +24,7 @@ meter_per_second_t(T) -> meter_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-meter_per_second_t(const U&) -> meter_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+meter_per_second_t(const U&) -> meter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for kilometer per hour
 template <is_unit_value_type_c T>
@@ -43,7 +44,7 @@ kilometer_per_hour_t(T) -> kilometer_per_hour_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-kilometer_per_hour_t(const U&) -> kilometer_per_hour_t<typename details::is_pkr_unit<U>::value_type>; 
+kilometer_per_hour_t(const U&) -> kilometer_per_hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for centimeter per second
 template <is_unit_value_type_c T>
@@ -63,7 +64,7 @@ centimeter_per_second_t(T) -> centimeter_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-centimeter_per_second_t(const U&) -> centimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+centimeter_per_second_t(const U&) -> centimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for millimeter per second
 template <is_unit_value_type_c T>
@@ -83,7 +84,7 @@ millimeter_per_second_t(T) -> millimeter_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-millimeter_per_second_t(const U&) -> millimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+millimeter_per_second_t(const U&) -> millimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for kilometer per second
 template <is_unit_value_type_c T>
@@ -103,7 +104,7 @@ kilometer_per_second_t(T) -> kilometer_per_second_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == velocity_dimension)
-kilometer_per_second_t(const U&) -> kilometer_per_second_t<typename details::is_pkr_unit<U>::value_type>; 
+kilometer_per_second_t(const U&) -> kilometer_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 // ============================================================================
 // Most derived unit type specializations for velocity units

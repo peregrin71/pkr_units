@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/mechanical/force.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // CGS force unit
@@ -29,5 +30,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<1, 100000>, force_dimension>
 {
     using type = dyne_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

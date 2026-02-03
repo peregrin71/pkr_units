@@ -6,6 +6,7 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/units/base/time.h>
 #include <pkr_units/units/base/solid_angle.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // ============================================================================
@@ -67,8 +68,6 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0
 {
     using type = watt_per_steradian_t<T>;
 };
-
-
 
 // Explicit double instantiation
 template <>

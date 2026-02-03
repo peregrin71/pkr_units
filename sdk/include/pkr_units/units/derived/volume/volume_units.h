@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/volume_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Volume units (cubic meter and derived)
@@ -24,7 +25,7 @@ cubic_meter_t(T) -> cubic_meter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-cubic_meter_t(const U&) -> cubic_meter_t<typename details::is_pkr_unit<U>::value_type>; 
+cubic_meter_t(const U&) -> cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct cubic_kilometer_t final : public details::unit_t<T, std::ratio<1000000000, 1>, volume_dimension>
@@ -43,7 +44,7 @@ cubic_kilometer_t(T) -> cubic_kilometer_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-cubic_kilometer_t(const U&) -> cubic_kilometer_t<typename details::is_pkr_unit<U>::value_type>; 
+cubic_kilometer_t(const U&) -> cubic_kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct cubic_centimeter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
@@ -62,7 +63,7 @@ cubic_centimeter_t(T) -> cubic_centimeter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-cubic_centimeter_t(const U&) -> cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>; 
+cubic_centimeter_t(const U&) -> cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct cubic_millimeter_t final : public details::unit_t<T, std::ratio<1, 1000000000>, volume_dimension>
@@ -81,7 +82,7 @@ cubic_millimeter_t(T) -> cubic_millimeter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-cubic_millimeter_t(const U&) -> cubic_millimeter_t<typename details::is_pkr_unit<U>::value_type>; 
+cubic_millimeter_t(const U&) -> cubic_millimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct liter_t final : public details::unit_t<T, std::ratio<1, 1000>, volume_dimension>
@@ -100,7 +101,7 @@ liter_t(T) -> liter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-liter_t(const U&) -> liter_t<typename details::is_pkr_unit<U>::value_type>; 
+liter_t(const U&) -> liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct milliliter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
@@ -119,5 +120,5 @@ milliliter_t(T) -> milliliter_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == volume_dimension)
-milliliter_t(const U&) -> milliliter_t<typename details::is_pkr_unit<U>::value_type>; 
+milliliter_t(const U&) -> milliliter_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

@@ -1,6 +1,7 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/temperature_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Fahrenheit temperature

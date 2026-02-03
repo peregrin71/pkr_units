@@ -2,12 +2,14 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Force dimension: kg·m·s⁻² (M·L·T⁻²)
 inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
 // Base unit: Newton (N) = kg·m·s⁻²
 using namespace_force_units_detail = int; // Force namespace detail
+
 template <is_unit_value_type_c T>
 struct newton_t final : public details::unit_t<T, std::ratio<1, 1>, force_dimension>
 {
@@ -25,7 +27,7 @@ newton_t(T) -> newton_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == force_dimension)
-newton_t(const U&) -> newton_t<typename details::is_pkr_unit<U>::value_type>; 
+newton_t(const U&) -> newton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct kilonewton_t final : public details::unit_t<T, std::ratio<1000, 1>, force_dimension>
@@ -120,9 +122,7 @@ nanonewton_t(T) -> nanonewton_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == force_dimension)
-nanonewton_t(const U&) -> nanonewton_t<typename details::is_pkr_unit<U>::value_type>; 
-
-
+nanonewton_t(const U&) -> nanonewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Force units
 template <is_unit_value_type_c T>

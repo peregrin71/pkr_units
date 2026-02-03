@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/acceleration_decl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for meter per second squared (SI base unit)
@@ -23,7 +24,7 @@ meter_per_second_squared_t(T) -> meter_per_second_squared_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == acceleration_v)
-meter_per_second_squared_t(const U&) -> meter_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>; 
+meter_per_second_squared_t(const U&) -> meter_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for centimeter per second squared
 template <is_unit_value_type_c T>

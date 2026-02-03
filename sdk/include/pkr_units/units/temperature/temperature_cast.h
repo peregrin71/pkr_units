@@ -7,6 +7,7 @@
 #include <pkr_units/units/temperature/fahrenheit.h>
 #include <type_traits>
 #include <compare>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // unit_cast specializations: Converts between offset-based temperature scales.
@@ -16,6 +17,7 @@ namespace PKR_UNITS_NAMESPACE
 // unit_cast template because these scales have different zero points. Kelvin
 // conversions to other Kelvin-based units remain handled by the generic unit_cast.
 inline constexpr double KELVIN_OFFSET = 273.15;
+
 template <typename T>
 struct temperature_affine_traits
 {
@@ -27,10 +29,12 @@ struct temperature_affine_traits<celsius_t<T>>
 {
     static constexpr bool is_affine = true;
     using value_type = T;
+
     static constexpr value_type to_kelvin(value_type value) noexcept
     {
         return value + static_cast<value_type>(KELVIN_OFFSET);
     }
+
     static constexpr value_type from_kelvin(value_type value) noexcept
     {
         return value - static_cast<value_type>(KELVIN_OFFSET);
@@ -42,10 +46,12 @@ struct temperature_affine_traits<fahrenheit_t<T>>
 {
     static constexpr bool is_affine = true;
     using value_type = T;
+
     static constexpr value_type to_kelvin(value_type value) noexcept
     {
         return ((value - static_cast<value_type>(32.0)) * static_cast<value_type>(5.0) / static_cast<value_type>(9.0)) + static_cast<value_type>(KELVIN_OFFSET);
     }
+
     static constexpr value_type from_kelvin(value_type value) noexcept
     {
         return ((value - static_cast<value_type>(KELVIN_OFFSET)) * static_cast<value_type>(9.0) / static_cast<value_type>(5.0)) + static_cast<value_type>(32.0);
@@ -64,6 +70,7 @@ struct is_temperature_pkr_unit<T, std::enable_if_t<is_pkr_unit_c<T>>> : std::boo
 
 template <typename T>
 inline constexpr bool is_temperature_like_v = temperature_affine_traits<T>::is_affine || is_temperature_pkr_unit<T>::value;
+
 template <typename target_unit_t, typename source_unit_t>
     requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
              (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
@@ -92,6 +99,7 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
         return target_unit_t{converted.value()};
     }
 }
+
 // Special comparison operators for temperature units with affine transformations
 // Helper function to convert any temperature unit to Kelvin for comparison
 template <typename T>
@@ -108,6 +116,7 @@ constexpr double to_kelvin_for_comparison(const T& temp) noexcept
         return static_cast<double>(temp.value());
     }
 }
+
 // Three-way comparison for temperature units
 template <typename T1, typename T2>
     requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
@@ -117,6 +126,7 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
     double rhs_kelvin = to_kelvin_for_comparison(rhs);
     return lhs_kelvin <=> rhs_kelvin;
 }
+
 // Equality comparison for temperature units (needed for <=> to work properly)
 template <typename T1, typename T2>
     requires is_temperature_like_v<T1> && is_temperature_like_v<T2>

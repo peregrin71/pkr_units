@@ -2,10 +2,12 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Specific heat capacity dimension: m^2·s^-2·K^-1 (L^2·T^-2·Θ^-1)
 inline constexpr dimension_t specific_heat_capacity_dimension{2, 0, -2, 0, -1, 0, 0, 0};
+
 // Specific heat capacity unit: J/(kg*K)
 template <is_unit_value_type_c T>
 struct specific_heat_capacity_t final : public details::unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>

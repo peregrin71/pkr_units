@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/mechanical/energy.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // CGS energy unit
@@ -29,5 +30,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<1, 10000000>, energy_dimension>
 {
     using type = erg_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

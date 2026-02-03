@@ -4,6 +4,7 @@
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/math/unit_math.h>
 #include "vector_unit_3d.h"
+
 namespace PKR_UNITS_NAMESPACE
 {
 // ============================================================================
@@ -17,10 +18,12 @@ public:
     using array_type = std::array<std::array<T, 3>, 3>;
     array_type data;
     constexpr matrix_3d_units_t() = default;
+
     constexpr matrix_3d_units_t(const array_type& arr)
         : data(arr)
     {
     }
+
     constexpr matrix_3d_units_t(std::initializer_list<std::initializer_list<T>> list)
     {
         auto row_it = list.begin();
@@ -33,18 +36,22 @@ public:
             }
         }
     }
+
     constexpr T& operator()(size_t row, size_t col)
     {
         return data[row][col];
     }
+
     constexpr const T& operator()(size_t row, size_t col) const
     {
         return data[row][col];
     }
+
     constexpr std::array<T, 3>& operator[](size_t row)
     {
         return data[row];
     }
+
     constexpr const std::array<T, 3>& operator[](size_t row) const
     {
         return data[row];
@@ -59,6 +66,7 @@ constexpr matrix_3d_units_t<T> identity_3d()
         m[i][i] = T{1};
     return m;
 }
+
 template <is_base_pkr_unit_c T>
 constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
 {
@@ -67,6 +75,7 @@ constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, cons
         (m.data[1][0] * v.x) + (m.data[1][1] * v.y) + (m.data[1][2] * v.z),
         (m.data[2][0] * v.x) + (m.data[2][1] * v.y) + (m.data[2][2] * v.z)};
 }
+
 template <is_base_pkr_unit_c T>
 constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
 {

@@ -184,7 +184,8 @@ TEST_F(MultiCastTest, cast_with_two_denominator_units)
     // Use two denominators to exercise multi-denominator processing
     pkr::units::meter_per_second_t<double> mps{2.0};
 
-    auto per_second_meter = pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>, pkr::units::meter_t<double>>>(mps);
+    auto per_second_meter =
+        pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>, pkr::units::meter_t<double>>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(per_second_meter)>;
     static_assert(traits::value_dimension.length == 0);
@@ -197,8 +198,9 @@ TEST_F(MultiCastTest, cast_with_integral_constant_power_denominator)
     // Use explicit integral_constant power to exercise power handling
     pkr::units::meter_per_second_t<double> mps{3.0};
 
-    auto per_second_squared =
-        pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>, std::integral_constant<int, 2>, pkr::units::meter_t<double>>>(mps);
+    auto per_second_squared = pkr::units::multi_unit_cast<
+        pkr::units::meter_t<double>,
+        pkr::units::per<pkr::units::second_t<double>, std::integral_constant<int, 2>, pkr::units::meter_t<double>>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(per_second_squared)>;
     static_assert(traits::value_dimension.length == 0);
@@ -211,8 +213,9 @@ TEST_F(MultiCastTest, cast_with_integral_constant_negative_power_denominator)
     // Negative power in denominator should add positive dimensions
     pkr::units::meter_per_second_t<double> mps{4.0};
 
-    auto times_second_squared =
-        pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>, std::integral_constant<int, -2>, pkr::units::meter_t<double>>>(mps);
+    auto times_second_squared = pkr::units::multi_unit_cast<
+        pkr::units::meter_t<double>,
+        pkr::units::per<pkr::units::second_t<double>, std::integral_constant<int, -2>, pkr::units::meter_t<double>>>(mps);
 
     using traits = pkr::units::details::is_pkr_unit<decltype(times_second_squared)>;
     static_assert(traits::value_dimension.length == 0);
@@ -302,7 +305,9 @@ TEST_F(MultiCastTest, torque_kilogram_meter_squared_per_second_squared)
     // Start with a velocity unit and cast it to have both kg and m^2 in numerator
     pkr::units::meter_per_second_t<double> mps{10.0};
 
-    auto torque_like = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto torque_like =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
 
     // Value should be preserved with different dimensions
     ASSERT_GT(torque_like.value(), 0.0);
@@ -313,7 +318,9 @@ TEST_F(MultiCastTest, torque_gram_centimeter_squared_per_second_squared)
     // Convert to smaller torque unit scales
     pkr::units::meter_per_second_t<double> mps{5.0};
 
-    auto torque_gram_cm2 = pkr::units::multi_unit_cast<pkr::units::gram_t<double>, pkr::units::centimeter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto torque_gram_cm2 =
+        pkr::units::multi_unit_cast<pkr::units::gram_t<double>, pkr::units::centimeter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
 
     ASSERT_GT(torque_gram_cm2.value(), 0.0);
 }
@@ -324,7 +331,9 @@ TEST_F(MultiCastTest, torque_with_millisecond_cubed_denominator)
     // Testing three powers in denominator (unusual but testing template generality)
     pkr::units::meter_per_second_t<double> mps{100.0};
 
-    auto complex_unit = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_cubed<pkr::units::millisecond_t<double>>>(mps);
+    auto complex_unit =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_cubed<pkr::units::millisecond_t<double>>>(
+            mps);
 
     ASSERT_GT(complex_unit.value(), 0.0);
 }
@@ -338,7 +347,8 @@ TEST_F(MultiCastTest, two_numerators_meter_and_second)
     // Create a unit with two different numerators: m*s / s = m
     pkr::units::meter_per_second_t<double> mps{5.0};
 
-    auto meter_times_second = pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::second_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
+    auto meter_times_second =
+        pkr::units::multi_unit_cast<pkr::units::meter_t<double>, pkr::units::second_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
 
     // m/s * (m * s / s) = m^2
     ASSERT_GT(meter_times_second.value(), 0.0);
@@ -349,7 +359,8 @@ TEST_F(MultiCastTest, two_numerators_kilogram_meter)
     // Momentum-like unit: kg*m/s
     pkr::units::meter_per_second_t<double> mps{20.0};
 
-    auto kg_m_per_s = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
+    auto kg_m_per_s =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
 
     ASSERT_GT(kg_m_per_s.value(), 0.0);
 }
@@ -359,7 +370,8 @@ TEST_F(MultiCastTest, two_numerators_scaled_units)
     // Test with scaled units in both numerators: kg*mm/s
     pkr::units::meter_per_second_t<double> mps{10.0};
 
-    auto kg_mm_per_s = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::millimeter_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
+    auto kg_mm_per_s =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::millimeter_t<double>, pkr::units::per<pkr::units::second_t<double>>>(mps);
 
     // 10 m/s -> kg*mm/s: the meter becomes millimeter (1000x), so 10000
     ASSERT_GT(kg_mm_per_s.value(), 0.0);
@@ -374,8 +386,11 @@ TEST_F(MultiCastTest, three_numerators_complex_dimension)
     // Test with three numerators: kg*m*s/s^2 = kg*m/s
     pkr::units::meter_per_second_t<double> mps{15.0};
 
-    auto complex_three =
-        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::second_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto complex_three = pkr::units::multi_unit_cast<
+        pkr::units::kilogram_t<double>,
+        pkr::units::meter_t<double>,
+        pkr::units::second_t<double>,
+        pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
 
     ASSERT_GT(complex_three.value(), 0.0);
 }
@@ -385,7 +400,9 @@ TEST_F(MultiCastTest, energy_like_unit_kilogram_meter_squared_per_second_squared
     // Energy/Work dimension: kg*m^2/s^2 (Joule)
     pkr::units::meter_per_second_t<double> mps{50.0};
 
-    auto energy_unit = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto energy_unit =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
 
     ASSERT_GT(energy_unit.value(), 0.0);
 }
@@ -395,7 +412,8 @@ TEST_F(MultiCastTest, power_unit_kilogram_meter_squared_per_second_cubed)
     // Power dimension: kg*m^2/s^3 (Watt)
     pkr::units::meter_per_second_t<double> mps{100.0};
 
-    auto power_unit = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_cubed<pkr::units::second_t<double>>>(mps);
+    auto power_unit =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_cubed<pkr::units::second_t<double>>>(mps);
 
     ASSERT_GT(power_unit.value(), 0.0);
 }
@@ -405,10 +423,12 @@ TEST_F(MultiCastTest, force_like_unit_kilogram_meter_per_second_squared)
     // Force dimension: kg*m/s^2 (Newton)
     pkr::units::meter_per_second_t<double> mps{9.81};
 
-    auto base_units =
-        pkr::units::multi_unit_cast_to_base_units<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
-    auto force_unit =
-        pkr::units::multi_unit_cast_to_derived<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto base_units = pkr::units::
+        multi_unit_cast_to_base_units<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
+    auto force_unit = pkr::units::
+        multi_unit_cast_to_derived<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
 
     using base_traits = pkr::units::details::is_pkr_unit<decltype(base_units)>;
     static_assert(std::is_same_v<typename base_traits::ratio_type, std::ratio<1, 1>>);
@@ -434,7 +454,9 @@ TEST_F(MultiCastTest, torque_gram_millimeter_squared_per_second_squared)
     // Torque with smaller scales: g*mm^2/s^2
     pkr::units::meter_per_second_t<double> mps{5.0};
 
-    auto torque_small = pkr::units::multi_unit_cast<pkr::units::gram_t<double>, pkr::units::millimeter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(mps);
+    auto torque_small =
+        pkr::units::multi_unit_cast<pkr::units::gram_t<double>, pkr::units::millimeter_t<double>, pkr::units::per_unit_squared<pkr::units::second_t<double>>>(
+            mps);
 
     ASSERT_GT(torque_small.value(), 0.0);
 }
@@ -444,7 +466,8 @@ TEST_F(MultiCastTest, momentum_with_hour_denominator)
     // Unusual but valid: kg*m/h
     pkr::units::meter_per_second_t<double> mps{10.0};
 
-    auto kg_m_per_h = pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per<pkr::units::hour_t<double>>>(mps);
+    auto kg_m_per_h =
+        pkr::units::multi_unit_cast<pkr::units::kilogram_t<double>, pkr::units::meter_t<double>, pkr::units::per<pkr::units::hour_t<double>>>(mps);
 
     // 10 m/s = 36000 m/h, so 10 kg*m/s = 36000 kg*m/h
     ASSERT_DOUBLE_EQ(kg_m_per_h.value(), 36000.0);

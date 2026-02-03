@@ -3,6 +3,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/mechanical/force.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial force units
@@ -42,5 +43,5 @@ pound_force_t(T) -> pound_force_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == force_dimension)
-pound_force_t(const U&) -> pound_force_t<typename details::is_pkr_unit<U>::value_type>; 
+pound_force_t(const U&) -> pound_force_t<typename details::is_pkr_unit<U>::value_type>;
 } // namespace PKR_UNITS_NAMESPACE

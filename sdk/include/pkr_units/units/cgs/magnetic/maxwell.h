@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // CGS magnetic flux unit
@@ -29,5 +30,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
 {
     using type = maxwell_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

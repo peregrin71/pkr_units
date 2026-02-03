@@ -4,6 +4,7 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/units/base/intensity.h>
 #include <pkr_units/units/base/solid_angle.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // ============================================================================

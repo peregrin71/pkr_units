@@ -3,6 +3,7 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/decls/josephson_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Josephson constant unit

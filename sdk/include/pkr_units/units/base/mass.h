@@ -2,6 +2,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/decls/mass_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for kilogram (SI base unit for mass)
@@ -23,7 +24,7 @@ kilogram_t(T) -> kilogram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-kilogram_t(const U&) -> kilogram_t<typename details::is_pkr_unit<U>::value_type>; 
+kilogram_t(const U&) -> kilogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric mass prefixes (applied relative to kilogram)
 // All mass units are defined relative to kilogram (ratio 1/1) as the base
@@ -46,7 +47,7 @@ picogram_t(T) -> picogram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-picogram_t(const U&) -> picogram_t<typename details::is_pkr_unit<U>::value_type>; 
+picogram_t(const U&) -> picogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct nanogram_t final : public details::unit_t<T, std::pico, mass_dimension>
@@ -65,7 +66,7 @@ nanogram_t(T) -> nanogram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-nanogram_t(const U&) -> nanogram_t<typename details::is_pkr_unit<U>::value_type>; 
+nanogram_t(const U&) -> nanogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct microgram_t final : public details::unit_t<T, std::nano, mass_dimension>
@@ -84,7 +85,7 @@ microgram_t(T) -> microgram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-microgram_t(const U&) -> microgram_t<typename details::is_pkr_unit<U>::value_type>; 
+microgram_t(const U&) -> microgram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct milligram_t final : public details::unit_t<T, std::micro, mass_dimension>
@@ -103,7 +104,7 @@ milligram_t(T) -> milligram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-milligram_t(const U&) -> milligram_t<typename details::is_pkr_unit<U>::value_type>; 
+milligram_t(const U&) -> milligram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct centigram_t final : public details::unit_t<T, std::ratio<1, 100000>, mass_dimension>
@@ -122,7 +123,7 @@ centigram_t(T) -> centigram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-centigram_t(const U&) -> centigram_t<typename details::is_pkr_unit<U>::value_type>; 
+centigram_t(const U&) -> centigram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct decigram_t final : public details::unit_t<T, std::ratio<1, 10000>, mass_dimension>
@@ -141,7 +142,7 @@ decigram_t(T) -> decigram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-decigram_t(const U&) -> decigram_t<typename details::is_pkr_unit<U>::value_type>; 
+decigram_t(const U&) -> decigram_t<typename details::is_pkr_unit<U>::value_type>;
 
 // gram is 1/1000 of kilogram
 template <is_unit_value_type_c T>
@@ -161,7 +162,7 @@ gram_t(T) -> gram_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == mass_dimension)
-gram_t(const U&) -> gram_t<typename details::is_pkr_unit<U>::value_type>; 
+gram_t(const U&) -> gram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct decagram_t final : public details::unit_t<T, std::centi, mass_dimension>
@@ -176,7 +177,7 @@ struct decagram_t final : public details::unit_t<T, std::centi, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-decagram_t(T) -> decagram_t<T>; 
+decagram_t(T) -> decagram_t<T>;
 
 template <is_unit_value_type_c T>
 struct hectogram_t final : public details::unit_t<T, std::deci, mass_dimension>
@@ -191,7 +192,7 @@ struct hectogram_t final : public details::unit_t<T, std::deci, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-hectogram_t(T) -> hectogram_t<T>; 
+hectogram_t(T) -> hectogram_t<T>;
 
 // Larger mass units
 template <is_unit_value_type_c T>
@@ -207,7 +208,7 @@ struct gigagram_t final : public details::unit_t<T, std::mega, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-gigagram_t(T) -> gigagram_t<T>; 
+gigagram_t(T) -> gigagram_t<T>;
 
 template <is_unit_value_type_c T>
 struct teragram_t final : public details::unit_t<T, std::giga, mass_dimension>
@@ -222,7 +223,7 @@ struct teragram_t final : public details::unit_t<T, std::giga, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-teragram_t(T) -> teragram_t<T>; 
+teragram_t(T) -> teragram_t<T>;
 
 template <is_unit_value_type_c T>
 struct petagram_t final : public details::unit_t<T, std::tera, mass_dimension>
@@ -237,7 +238,7 @@ struct petagram_t final : public details::unit_t<T, std::tera, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-petagram_t(T) -> petagram_t<T>; 
+petagram_t(T) -> petagram_t<T>;
 
 template <is_unit_value_type_c T>
 struct exagram_t final : public details::unit_t<T, std::peta, mass_dimension>
@@ -252,7 +253,7 @@ struct exagram_t final : public details::unit_t<T, std::peta, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-exagram_t(T) -> exagram_t<T>; 
+exagram_t(T) -> exagram_t<T>;
 
 // Common mass units
 template <is_unit_value_type_c T>
@@ -268,7 +269,7 @@ struct metric_ton_t final : public details::unit_t<T, std::kilo, mass_dimension>
 };
 
 template <is_unit_value_type_c T>
-metric_ton_t(T) -> metric_ton_t<T>; 
+metric_ton_t(T) -> metric_ton_t<T>;
 
 // ============================================================================
 // Most derived unit type specializations for mass units

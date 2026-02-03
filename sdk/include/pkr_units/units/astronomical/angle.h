@@ -4,6 +4,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/angle_decl.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // HMS hour angle.
@@ -135,7 +136,6 @@ struct hms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dim
 {
     using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
-
 };
 
 template <is_unit_value_type_c T>
@@ -152,7 +152,6 @@ struct dms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dim
 {
     using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
-
 };
 
 template <is_unit_value_type_c T>

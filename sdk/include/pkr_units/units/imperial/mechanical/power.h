@@ -3,6 +3,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/units/derived/mechanical/power.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Imperial power units
@@ -32,5 +33,5 @@ template <is_unit_value_type_c T>
 struct details::derived_unit_type_t<T, std::ratio<745700, 1000>, power_dimension>
 {
     using type = horsepower_t<T>;
-}; 
+};
 } // namespace PKR_UNITS_NAMESPACE

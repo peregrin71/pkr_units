@@ -2,10 +2,12 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Energy dimension: kg·m²·s⁻² (M·L²·T⁻²)
 inline constexpr dimension_t energy_dimension{2, 1, -2, 0, 0, 0, 0, 0};
+
 // Energy units (Joule and derived)
 // Base unit: Joule (J) = kg·m²·s⁻²
 template <is_unit_value_type_c T>
@@ -25,7 +27,7 @@ joule_t(T) -> joule_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == energy_dimension)
-joule_t(const U&) -> joule_t<typename details::is_pkr_unit<U>::value_type>; 
+joule_t(const U&) -> joule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct kilojoule_t final : public details::unit_t<T, std::ratio<1000, 1>, energy_dimension>
@@ -82,7 +84,7 @@ gigajoule_t(T) -> gigajoule_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == energy_dimension)
-gigajoule_t(const U&) -> gigajoule_t<typename details::is_pkr_unit<U>::value_type>; 
+gigajoule_t(const U&) -> gigajoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
 struct microjoule_t final : public details::unit_t<T, std::ratio<1, 1000000>, energy_dimension>
@@ -211,7 +213,7 @@ struct kilowatt_hour_t final : public details::unit_t<T, std::ratio<3600000, 1>,
 };
 
 template <is_unit_value_type_c T>
-kilowatt_hour_t(T) -> kilowatt_hour_t<T>; 
+kilowatt_hour_t(T) -> kilowatt_hour_t<T>;
 
 // Electronvolt-based units
 // 1 eV = 1.602176634e-19 J (exact). Ratio chosen to fit std::ratio limits.
@@ -289,7 +291,7 @@ gigaelectronvolt_t(T) -> gigaelectronvolt_t<T>;
 
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == energy_dimension)
-gigaelectronvolt_t(const U&) -> gigaelectronvolt_t<typename details::is_pkr_unit<U>::value_type>; 
+gigaelectronvolt_t(const U&) -> gigaelectronvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Energy units
 template <is_unit_value_type_c T>

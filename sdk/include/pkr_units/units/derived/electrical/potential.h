@@ -2,10 +2,12 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Electric potential dimension
 inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
+
 template <is_unit_value_type_c T>
 struct volt_t final : public details::unit_t<T, std::ratio<1, 1>, electric_potential_dimension>
 {

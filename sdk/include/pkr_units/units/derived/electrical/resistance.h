@@ -2,10 +2,12 @@
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
+
 namespace PKR_UNITS_NAMESPACE
 {
 // Electric resistance dimension
 inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0};
+
 template <is_unit_value_type_c T>
 struct ohm_t final : public details::unit_t<T, std::ratio<1, 1>, electric_resistance_dimension>
 {

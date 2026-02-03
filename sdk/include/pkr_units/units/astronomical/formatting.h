@@ -6,17 +6,20 @@
 #include <type_traits>
 #include <pkr_units/units/astronomical/angle.h>
 #include <pkr_units/impl/unit_formatting_traits.h>
+
 namespace std
 {
 template <typename UnitT, typename CharT>
 struct hms_component_formatter
 {
     std::formatter<typename UnitT::value_type, CharT> value_formatter;
+
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         return value_formatter.parse(ctx);
     }
+
     template <typename FormatContext>
     auto format(const UnitT& value, FormatContext& ctx) const
     {
@@ -82,6 +85,7 @@ struct formatter<PKR_UNITS_NAMESPACE::hms_angle_t<T>, CharT>
         }
         return it;
     }
+
     template <typename FormatContext>
     auto format(const PKR_UNITS_NAMESPACE::hms_angle_t<T>& value, FormatContext& ctx) const
     {
@@ -154,6 +158,7 @@ struct formatter<PKR_UNITS_NAMESPACE::dms_angle_t<T>, CharT>
         }
         return it;
     }
+
     template <typename FormatContext>
     auto format(const PKR_UNITS_NAMESPACE::dms_angle_t<T>& value, FormatContext& ctx) const
     {
