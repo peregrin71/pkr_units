@@ -1,18 +1,15 @@
 #pragma once
-
 #include <type_traits>
 #include <utility>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 #include <pkr_units/units/math/unit_math.h>
 
 // ============================================================================
 // Specialized 3D Vector for Units (using stable math)
 // ============================================================================
-
 template <is_pkr_unit_c T>
 struct vec_3d_t<T>
 {
@@ -112,5 +109,4 @@ constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
 {
     return vec_3d_t<T>{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
 }
-
 } // namespace PKR_UNITS_NAMESPACE

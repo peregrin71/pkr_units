@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include <ratio>
 #include <stdexcept>
 #include <pkr_units/impl/dimension.h>
@@ -9,24 +10,25 @@ namespace PKR_UNITS_NAMESPACE
 {
 
 // Concept for types that can represent unit quantity values
-// Supports:
-//   - Arithmetic types (int, float, double, etc.)
-//   - Complex types (std::complex<float>, std::complex<double>, etc.)
+// Explicitly allows:
+//   - Signed integral types only (int, long, int64_t, etc.)
+//   - All floating point types (float, double, long double)
+//   - __float128 if available (GCC/Clang extension)
+//   - Complex types (std::complex<float>, std::complex<double>)
 template <typename type_t>
-concept is_unit_value_type_c = requires(type_t a, type_t b, double d) {
-    { a + b } -> std::convertible_to<type_t>;
-    { a - b } -> std::convertible_to<type_t>;
-    { a * b } -> std::convertible_to<type_t>;
-    { a / b } -> std::convertible_to<type_t>;
-    { a * d } -> std::convertible_to<type_t>;
-    { a / d } -> std::convertible_to<type_t>;
-    { static_cast<type_t>(d) };
-};
+concept is_unit_value_type_c = (std::is_integral_v<type_t> && !std::same_as<type_t, bool> && std::is_signed_v<type_t>) || std::is_floating_point_v<type_t> ||
+#if defined(__SIZEOF_FLOAT128__) && !defined(_MSC_VER)
+                               std::same_as<type_t, __float128> ||
+#endif
+                               std::same_as<type_t, std::complex<float>> || std::same_as<type_t, std::complex<double>>;
 
 // Verify fundamental types satisfy the concept
 static_assert(is_unit_value_type_c<float>);
 static_assert(is_unit_value_type_c<double>);
+static_assert(is_unit_value_type_c<std::complex<double>>);
 static_assert(is_unit_value_type_c<int>);
+static_assert(is_unit_value_type_c<long long>);
+static_assert(!is_unit_value_type_c<bool>);
 
 namespace details
 {

@@ -17,8 +17,8 @@ protected:
 TEST_F(PhotometryRadiometryDimensionTest, LuminousFluxVsIntensity)
 {
     // These should be different types (dimensional safety)
-    lumen_t luminous_flux(1700.0);       // Total light output
-    candela_t luminous_intensity(200.0); // Light in one direction
+    lumen_t<double> luminous_flux(1700.0); // Total light output
+    candela_t luminous_intensity(200.0);   // Light in one direction
 
     // Both should exist independently
     EXPECT_DOUBLE_EQ(luminous_flux.value(), 1700.0);

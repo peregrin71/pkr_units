@@ -1,23 +1,18 @@
 #pragma once
-
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Specialized 4x4 Matrix for Units (using stable math)
 // ============================================================================
-
 template <is_base_pkr_unit_c T>
 class matrix_4d_units_t
 {
 public:
     using value_type = T;
     using array_type = std::array<std::array<T, 4>, 4>;
-
     array_type data;
-
     constexpr matrix_4d_units_t() = default;
 
     constexpr matrix_4d_units_t(const array_type& arr)
@@ -70,5 +65,4 @@ constexpr vec_4d_t<T> operator*(const matrix_4d_units_t<T>& m, const vec_4d_t<T>
 {
     return matrix_vector_multiply(m, v);
 }
-
 } // namespace PKR_UNITS_NAMESPACE

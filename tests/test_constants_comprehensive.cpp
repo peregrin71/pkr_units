@@ -199,10 +199,10 @@ TEST_F(ConstantsComprehensiveTest, DifferentPrecisions)
 TEST_F(ConstantsComprehensiveTest, TypedConstants)
 {
     // Test that typed constants have correct units
-    pkr::units::meter_t c{pkr::units::details::speed_of_light<double>()};
+    pkr::units::meter_t<double> c{pkr::units::details::speed_of_light<double>()};
     EXPECT_DOUBLE_EQ(c.value(), 299792458.0);
 
-    pkr::units::joule_t h{pkr::units::details::planck_constant<double>()};
+    pkr::units::joule_t<double> h{pkr::units::details::planck_constant<double>()};
     EXPECT_DOUBLE_EQ(h.value(), 6.62607015e-34);
 }
 

@@ -14,7 +14,7 @@ class UnitMathTest : public Test
 
 TEST_F(UnitMathTest, square_and_cube)
 {
-    pkr::units::meter_t m{5.0};
+    pkr::units::meter_t<double> m{5.0};
     auto s = pkr::units::square(m);
     ASSERT_DOUBLE_EQ(s.value(), 25.0);
     using s_dim = decltype(s)::dimension;
@@ -28,7 +28,7 @@ TEST_F(UnitMathTest, square_and_cube)
 
 TEST_F(UnitMathTest, pow_integer_exponent)
 {
-    pkr::units::meter_t m{2.0};
+    pkr::units::meter_t<double> m{2.0};
 
     // Test positive exponents
     auto p0 = pkr::units::pow<0>(m);
@@ -63,7 +63,7 @@ TEST_F(UnitMathTest, pow_integer_exponent)
 
 TEST_F(UnitMathTest, pow_integer_exponent_non_unit_ratio)
 {
-    pkr::units::kilometer_t km{3.0};
+    pkr::units::kilometer_t<double> km{3.0};
 
     auto p0 = pkr::units::pow<0>(km);
     ASSERT_DOUBLE_EQ(p0.value(), 1.0);
@@ -78,7 +78,7 @@ TEST_F(UnitMathTest, pow_integer_exponent_non_unit_ratio)
 
 TEST_F(UnitMathTest, sqrt_of_area)
 {
-    auto length = pkr::units::meter_t{4.0};
+    auto length = pkr::units::meter_t<double>{4.0};
     auto area = length * length;
     auto root = pkr::units::sqrt(area);
     ASSERT_DOUBLE_EQ(root.value(), 4.0);
@@ -95,7 +95,7 @@ TEST_F(UnitMathTest, sqrt_throws_on_negative_value)
 
 TEST_F(UnitMathTest, log_and_exp_dimensionless)
 {
-    pkr::units::scalar_t value{2.0};
+    pkr::units::scalar_t<double> value{2.0};
     auto logged = pkr::units::log(value);
     auto exponent = pkr::units::exp(value);
 
@@ -105,26 +105,26 @@ TEST_F(UnitMathTest, log_and_exp_dimensionless)
 
 TEST_F(UnitMathTest, trigonometric_functions)
 {
-    pkr::units::radian_t angle{0.0};
+    pkr::units::radian_t<double> angle{0.0};
 
     // Test sin
     auto s = pkr::units::sin(angle);
     ASSERT_DOUBLE_EQ(s.value(), 0.0);
     // Should return a dimensionless scalar
-    static_assert(std::is_same_v<decltype(s), pkr::units::scalar_t>, "sin returns scalar");
+    static_assert(std::is_same_v<decltype(s), pkr::units::scalar_t<double>>, "sin returns scalar");
 
     // Test cos
     auto c = pkr::units::cos(angle);
     ASSERT_DOUBLE_EQ(c.value(), 1.0);
-    static_assert(std::is_same_v<decltype(c), pkr::units::scalar_t>, "cos returns scalar");
+    static_assert(std::is_same_v<decltype(c), pkr::units::scalar_t<double>>, "cos returns scalar");
 
     // Test tan
     auto t = pkr::units::tan(angle);
     ASSERT_DOUBLE_EQ(t.value(), 0.0);
-    static_assert(std::is_same_v<decltype(t), pkr::units::scalar_t>, "tan returns scalar");
+    static_assert(std::is_same_v<decltype(t), pkr::units::scalar_t<double>>, "tan returns scalar");
 
     // Test with pi/2 radians
-    pkr::units::radian_t angle_pi_2{std::numbers::pi / 2.0};
+    pkr::units::radian_t<double> angle_pi_2{std::numbers::pi / 2.0};
     auto sin_pi_2 = pkr::units::sin(angle_pi_2);
     ASSERT_NEAR(sin_pi_2.value(), 1.0, 1e-10);
 

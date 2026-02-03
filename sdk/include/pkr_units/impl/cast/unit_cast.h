@@ -44,7 +44,6 @@ concept same_dimension_si_units = details::is_pkr_unit<Target>::value_dimension 
 
 // Overload 1: For casting between direct unit_t types
 template <typename target_type_t, typename target_ratio_t, dimension_t target_dim_v, typename source_type_t, typename source_ratio_t, dimension_t source_dim_v>
-
     requires(target_dim_v == source_dim_v) // Same dimension
 constexpr details::unit_t<target_type_t, target_ratio_t, target_dim_v>
     unit_cast(const details::unit_t<source_type_t, source_ratio_t, source_dim_v>& source) noexcept
@@ -55,7 +54,6 @@ constexpr details::unit_t<target_type_t, target_ratio_t, target_dim_v>
 // Overload 2: For casting between derived types (e.g., meter_per_second_t -> kilometer_per_hour_t)
 // These are types that inherit from unit_t
 template <typename target_unit_t, typename source_unit_t>
-
     requires std::is_base_of_v<typename target_unit_t::_base, target_unit_t> && std::is_base_of_v<typename source_unit_t::_base, source_unit_t> &&
              (details::is_pkr_unit<target_unit_t>::value_dimension == details::is_pkr_unit<source_unit_t>::value_dimension)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept

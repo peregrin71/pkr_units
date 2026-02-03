@@ -18,7 +18,7 @@ protected:
 
 TEST_F(PhotometryTest, lumen_construction)
 {
-    lumen_t flux(1000.0);
+    lumen_t<double> flux(1000.0);
     EXPECT_EQ(flux.value(), 1000.0);
 }
 
@@ -127,7 +127,7 @@ TEST_F(PhotometryTest, lumen_greater_than)
 
 TEST_F(PhotometryTest, lux_construction)
 {
-    lux_t illuminance(500.0);
+    lux_t<double> illuminance(500.0);
     EXPECT_EQ(illuminance.value(), 500.0);
 }
 
@@ -230,13 +230,13 @@ TEST_F(PhotometryTest, lux_greater_than)
 TEST_F(PhotometryTest, lumen_distinct_from_watt)
 {
     // Luminous flux [cd·sr] should be distinct from radiant flux [M·L²·T⁻³]
-    static_assert(!std::is_same_v<lumen_t, watt_t>, "lumen_t and watt_t should be distinct types");
+    static_assert(!std::is_same_v<lumen_t<double>, watt_t<double>>, "lumen_t and watt_t should be distinct types");
 }
 
 TEST_F(PhotometryTest, lux_distinct_from_watt_per_square_meter)
 {
     // Illuminance [cd·sr·m⁻²] should be distinct from irradiance [M·L⁻²·T⁻³]
-    static_assert(!std::is_same_v<lux_t, watt_per_square_meter_t>, "lux_t and watt_per_square_meter_t should be distinct types");
+    static_assert(!std::is_same_v<lux_t<double>, watt_per_square_meter_t<double>>, "lux_t and watt_per_square_meter_t should be distinct types");
 }
 
 // ============================================================================

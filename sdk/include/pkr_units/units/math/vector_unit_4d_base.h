@@ -1,5 +1,4 @@
 #pragma once
-
 #include <type_traits>
 #include <utility>
 #include <pkr_units/impl/namespace_config.h>
@@ -9,11 +8,9 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Specialized 4D Vector for Units (using stable math)
 // ============================================================================
-
 template <is_base_pkr_unit_c T>
 struct vec_4d_t<T>
 {
@@ -74,7 +71,7 @@ struct vec_4d_t<T>
     }
 
     // scalar_t overloads
-    constexpr vec_4d_t& operator*=(const scalar_t& scalar) noexcept
+    constexpr vec_4d_t& operator*=(const typename T::value_type& scalar) noexcept
     {
         x = x * scalar;
         y = y * scalar;
@@ -83,7 +80,7 @@ struct vec_4d_t<T>
         return *this;
     }
 
-    constexpr vec_4d_t& operator/=(const scalar_t& scalar) noexcept
+    constexpr vec_4d_t& operator/=(const typename T::value_type& scalar) noexcept
     {
         x = x / scalar;
         y = y / scalar;
@@ -128,20 +125,20 @@ constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar)
 
 // scalar_t overloads
 template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const scalar_t& scalar, const vec_4d_t<T>& v) noexcept
+constexpr vec_4d_t<T> operator*(const typename T::value_type& scalar, const vec_4d_t<T>& v) noexcept
 {
     return vec_4d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept
+constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
 {
     return scalar * v;
 }
 
 // division by scalar_t
 template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const scalar_t& scalar) noexcept
+constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
 {
     return vec_4d_t<T>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
 }
@@ -159,5 +156,4 @@ constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
     // Use unit operators directly; addition combines units appropriately
     return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
 }
-
 } // namespace PKR_UNITS_NAMESPACE

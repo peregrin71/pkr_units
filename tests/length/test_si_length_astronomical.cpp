@@ -18,19 +18,19 @@ class SiLengthAstronomicalTest : public Test
 
 TEST_F(SiLengthAstronomicalTest, astronomical_unit_construction)
 {
-    pkr::units::au_t au_dist{1.0};
+    pkr::units::au_t<double> au_dist{1.0};
     ASSERT_DOUBLE_EQ(au_dist.value(), 1.0);
 }
 
 TEST_F(SiLengthAstronomicalTest, light_year_construction)
 {
-    pkr::units::light_year_t ly{2.0};
+    pkr::units::light_year_t<double> ly{2.0};
     ASSERT_DOUBLE_EQ(ly.value(), 2.0);
 }
 
 TEST_F(SiLengthAstronomicalTest, parsec_construction)
 {
-    pkr::units::parsec_t pc{10.0};
+    pkr::units::parsec_t<double> pc{10.0};
     ASSERT_DOUBLE_EQ(pc.value(), 10.0);
 }
 

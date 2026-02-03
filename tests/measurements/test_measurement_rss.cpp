@@ -26,16 +26,16 @@ TEST_F(MeasurementRssTest, drag_force_calculation_rss)
     // Using RSS for relative uncertainty propagation in multiply/divide.
 
     // Air density: 1.225 ± 0.005 kg/m^3
-    pkr::units::measurement_rss_t<pkr::units::kilogram_per_cubic_meter_t> density{1.225, 0.005};
+    pkr::units::measurement_rss_t<pkr::units::kilogram_per_cubic_meter_t<double>> density{1.225, 0.005};
 
     // Velocity: 30.0 ± 0.5 m/s
-    pkr::units::measurement_rss_t<pkr::units::meter_per_second_t> velocity{30.0, 0.5};
+    pkr::units::measurement_rss_t<pkr::units::meter_per_second_t<double>> velocity{30.0, 0.5};
 
     // Drag coefficient: 0.30 ± 0.02 (dimensionless)
-    pkr::units::measurement_rss_t<pkr::units::scalar_t> drag_coefficient{0.30, 0.02};
+    pkr::units::measurement_rss_t<pkr::units::scalar_t<double>> drag_coefficient{0.30, 0.02};
 
     // Cross-sectional area: 2.5 ± 0.1 m^2
-    pkr::units::measurement_rss_t<pkr::units::square_meter_t> area{2.5, 0.1};
+    pkr::units::measurement_rss_t<pkr::units::square_meter_t<double>> area{2.5, 0.1};
 
     // Same measurement used twice -> fully correlated, rel uncertainty = 2 * dv/v
     // For fully correlated values use square_rss NOT multiply_rss with the same values
@@ -62,7 +62,7 @@ TEST_F(MeasurementRssTest, pow_integer_exponent_rss)
 {
     // Test power function with fully correlated uncertainty
     // Measurement: x = 2.0 ± 0.1 m
-    pkr::units::measurement_rss_t<pkr::units::meter_t> measurement{2.0, 0.1};
+    pkr::units::measurement_rss_t<pkr::units::meter_t<double>> measurement{2.0, 0.1};
 
     // x^0 should equal 1 (dimensionless)
     auto power_zero = pow_rss<0>(measurement);
@@ -88,7 +88,7 @@ TEST_F(MeasurementRssTest, pow_integer_exponent_rss)
 TEST_F(MeasurementRssTest, sin_rss_measurement)
 {
     // Angle measurement in radians: 0 ± 0.1 rad
-    pkr::units::measurement_rss_t<pkr::units::radian_t> angle{0.0, 0.1};
+    pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{0.0, 0.1};
 
     auto result = sin_rss(angle);
 
@@ -101,7 +101,7 @@ TEST_F(MeasurementRssTest, sin_rss_measurement)
 TEST_F(MeasurementRssTest, cos_rss_measurement)
 {
     // Angle measurement in radians: 0 ± 0.1 rad
-    pkr::units::measurement_rss_t<pkr::units::radian_t> angle{0.0, 0.1};
+    pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{0.0, 0.1};
 
     auto result = cos_rss(angle);
 
@@ -114,7 +114,7 @@ TEST_F(MeasurementRssTest, cos_rss_measurement)
 TEST_F(MeasurementRssTest, tan_rss_measurement)
 {
     // Angle measurement in radians: pi/4 ± 0.05 rad
-    pkr::units::measurement_rss_t<pkr::units::radian_t> angle{std::numbers::pi / 4.0, 0.05};
+    pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{std::numbers::pi / 4.0, 0.05};
 
     auto result = tan_rss(angle);
 

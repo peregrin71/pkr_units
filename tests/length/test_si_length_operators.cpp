@@ -16,8 +16,8 @@ class SiLengthOperatorsTest : public Test
 
 TEST_F(SiLengthOperatorsTest, add_meters)
 {
-    pkr::units::meter_t m1{3.0};
-    pkr::units::meter_t m2{2.0};
+    pkr::units::meter_t<double> m1{3.0};
+    pkr::units::meter_t<double> m2{2.0};
     auto result = m1 + m2;
     using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     static_assert(std::ratio_equal_v<res_ratio, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
@@ -26,8 +26,8 @@ TEST_F(SiLengthOperatorsTest, add_meters)
 
 TEST_F(SiLengthOperatorsTest, add_kilometer_to_meter)
 {
-    pkr::units::kilometer_t km{1.0};
-    pkr::units::meter_t m{500.0};
+    pkr::units::kilometer_t<double> km{1.0};
+    pkr::units::meter_t<double> m{500.0};
     auto result = km + m; // preserves LHS (kilometer)
     using res_ratio = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
@@ -37,8 +37,8 @@ TEST_F(SiLengthOperatorsTest, add_kilometer_to_meter)
 
 TEST_F(SiLengthOperatorsTest, add_meter_to_kilometer)
 {
-    pkr::units::meter_t m{500.0};
-    pkr::units::kilometer_t km{1.0};
+    pkr::units::meter_t<double> m{500.0};
+    pkr::units::kilometer_t<double> km{1.0};
     auto result = m + km;
     using res_ratio2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     static_assert(std::ratio_equal_v<res_ratio2, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
@@ -48,8 +48,8 @@ TEST_F(SiLengthOperatorsTest, add_meter_to_kilometer)
 
 TEST_F(SiLengthOperatorsTest, subtract_meters)
 {
-    pkr::units::meter_t m1{5.0};
-    pkr::units::meter_t m2{2.0};
+    pkr::units::meter_t<double> m1{5.0};
+    pkr::units::meter_t<double> m2{2.0};
     auto result = m1 - m2;
 
     using res_ratio_sub = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
@@ -60,8 +60,8 @@ TEST_F(SiLengthOperatorsTest, subtract_meters)
 
 TEST_F(SiLengthOperatorsTest, subtract_kilometer_from_meter)
 {
-    pkr::units::meter_t m{1500.0};
-    pkr::units::kilometer_t km{1.0};
+    pkr::units::meter_t<double> m{1500.0};
+    pkr::units::kilometer_t<double> km{1.0};
     auto result = m - km;
     using res_ratio_sub2 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     static_assert(std::ratio_equal_v<res_ratio_sub2, std::ratio<1, 1>>, "operator- should return canonical ratio<1,1>");
@@ -71,8 +71,8 @@ TEST_F(SiLengthOperatorsTest, subtract_kilometer_from_meter)
 
 TEST_F(SiLengthOperatorsTest, subtract_meter_from_kilometer)
 {
-    pkr::units::kilometer_t km{2.0};
-    pkr::units::meter_t m{500.0};
+    pkr::units::kilometer_t<double> km{2.0};
+    pkr::units::meter_t<double> m{500.0};
     auto result = km - m; // preserves LHS (kilometer)
     using res_ratio_sub3 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     using km_ratio = typename pkr::units::details::is_pkr_unit<decltype(km)>::ratio_type;
@@ -83,8 +83,8 @@ TEST_F(SiLengthOperatorsTest, subtract_meter_from_kilometer)
 
 TEST_F(SiLengthOperatorsTest, add_millimeter_to_meter)
 {
-    pkr::units::meter_t m{1.0};
-    pkr::units::millimeter_t mm{500.0};
+    pkr::units::meter_t<double> m{1.0};
+    pkr::units::millimeter_t<double> mm{500.0};
     auto result = m + mm;
     using res_ratio_sub4 = typename pkr::units::details::is_pkr_unit<decltype(result)>::ratio_type;
     static_assert(std::ratio_equal_v<res_ratio_sub4, std::ratio<1, 1>>, "operator+ should return canonical ratio<1,1>");
@@ -98,7 +98,7 @@ TEST_F(SiLengthOperatorsTest, add_millimeter_to_meter)
 
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_scalar)
 {
-    pkr::units::meter_t m{5.0};
+    pkr::units::meter_t<double> m{5.0};
     auto result = m * 2.0;
     // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 10.0);
@@ -106,7 +106,7 @@ TEST_F(SiLengthOperatorsTest, multiply_meter_by_scalar)
 
 TEST_F(SiLengthOperatorsTest, divide_meter_by_scalar)
 {
-    pkr::units::meter_t m{10.0};
+    pkr::units::meter_t<double> m{10.0};
     auto result = m / 2.0;
     // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -114,7 +114,7 @@ TEST_F(SiLengthOperatorsTest, divide_meter_by_scalar)
 
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_zero)
 {
-    pkr::units::meter_t m{5.0};
+    pkr::units::meter_t<double> m{5.0};
     auto result = m * 0.0;
     // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 0.0);
@@ -122,7 +122,7 @@ TEST_F(SiLengthOperatorsTest, multiply_meter_by_zero)
 
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_fraction)
 {
-    pkr::units::meter_t m{10.0};
+    pkr::units::meter_t<double> m{10.0};
     auto result = m * 0.5;
     // Note: scalar operations on derived types return unit_t base, not the derived type
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -134,8 +134,8 @@ TEST_F(SiLengthOperatorsTest, multiply_meter_by_fraction)
 
 TEST_F(SiLengthOperatorsTest, multiply_length_by_length_produces_area)
 {
-    pkr::units::meter_t m1{2.0};
-    pkr::units::meter_t m2{3.0};
+    pkr::units::meter_t<double> m1{2.0};
+    pkr::units::meter_t<double> m2{3.0};
     auto area = m1 * m2;
     ASSERT_DOUBLE_EQ(area.value(), 6.0);
     // Verify dimension: length exponent should be 2
@@ -144,8 +144,8 @@ TEST_F(SiLengthOperatorsTest, multiply_length_by_length_produces_area)
 
 TEST_F(SiLengthOperatorsTest, multiply_kilometer_by_kilometer)
 {
-    pkr::units::kilometer_t km1{2.0};
-    pkr::units::kilometer_t km2{3.0};
+    pkr::units::kilometer_t<double> km1{2.0};
+    pkr::units::kilometer_t<double> km2{3.0};
     auto area = km1 * km2;
     ASSERT_DOUBLE_EQ(area.value(), 6.0);
     ASSERT_EQ(decltype(area)::dimension::value.length, 2);
@@ -153,8 +153,8 @@ TEST_F(SiLengthOperatorsTest, multiply_kilometer_by_kilometer)
 
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_kilometer_produces_area)
 {
-    pkr::units::meter_t m{1000.0};
-    pkr::units::kilometer_t km{1.0};
+    pkr::units::meter_t<double> m{1000.0};
+    pkr::units::kilometer_t<double> km{1.0};
     auto area = m * km;
     // Result has combined ratio: meter (1/1) * kilometer (1000/1) = 1000/1
     // Value: 1000 * 1 = 1000 with ratio 1000, so actual area = 1000 square-meters
@@ -164,8 +164,8 @@ TEST_F(SiLengthOperatorsTest, multiply_meter_by_kilometer_produces_area)
 
 TEST_F(SiLengthOperatorsTest, multiply_meter_by_millimeter_produces_area)
 {
-    pkr::units::meter_t m{5.0};
-    pkr::units::millimeter_t mm{2000.0}; // 2000mm = 2m
+    pkr::units::meter_t<double> m{5.0};
+    pkr::units::millimeter_t<double> mm{2000.0}; // 2000mm = 2m
     auto area = m * mm;
     // Ratio product: 1/1 * 1/1000 = 1/1000
     // Stored value: 5 * 2000 = 10000
@@ -182,8 +182,8 @@ TEST_F(SiLengthOperatorsTest, divide_length_by_time_produces_velocity)
 {
     // This test demonstrates the concept - actual time type would need time dimension
     // Just verify that length division works
-    pkr::units::meter_t m1{10.0};
-    pkr::units::meter_t m2{2.0};
+    pkr::units::meter_t<double> m1{10.0};
+    pkr::units::meter_t<double> m2{2.0};
     auto result = m1 / m2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
     // Result should be dimensionless when dividing same dimension
@@ -196,8 +196,8 @@ TEST_F(SiLengthOperatorsTest, divide_length_by_time_produces_velocity)
 
 TEST_F(SiLengthOperatorsTest, add_very_different_scales)
 {
-    pkr::units::meter_t m{1.0};
-    pkr::units::nanometer_t nm{1e9}; // 1e9 nm = 1 m
+    pkr::units::meter_t<double> m{1.0};
+    pkr::units::nanometer_t<double> nm{1e9}; // 1e9 nm = 1 m
     auto result = m + nm;
     // Result should be 1 + 1 = 2 meters
     ASSERT_NEAR(result.value(), 2.0, 1e-10);
@@ -205,8 +205,8 @@ TEST_F(SiLengthOperatorsTest, add_very_different_scales)
 
 TEST_F(SiLengthOperatorsTest, subtract_resulting_in_negative)
 {
-    pkr::units::meter_t m1{2.0};
-    pkr::units::meter_t m2{5.0};
+    pkr::units::meter_t<double> m1{2.0};
+    pkr::units::meter_t<double> m2{5.0};
     auto result = m1 - m2;
     ASSERT_DOUBLE_EQ(result.value(), -3.0);
 }
@@ -217,17 +217,17 @@ TEST_F(SiLengthOperatorsTest, subtract_resulting_in_negative)
 
 TEST_F(SiLengthOperatorsTest, constexpr_meter_addition)
 {
-    constexpr pkr::units::meter_t m1{3.0};
-    constexpr pkr::units::meter_t m2{2.0};
+    constexpr pkr::units::meter_t<double> m1{3.0};
+    constexpr pkr::units::meter_t<double> m2{2.0};
     constexpr auto result = m1 + m2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
 TEST_F(SiLengthOperatorsTest, constexpr_meter_multiplication_and_division)
 {
-    constexpr pkr::units::meter_t m1{2.0};
-    constexpr pkr::units::meter_t m2{3.0};
-    constexpr pkr::units::meter_t m3{4.0};
+    constexpr pkr::units::meter_t<double> m1{2.0};
+    constexpr pkr::units::meter_t<double> m2{3.0};
+    constexpr pkr::units::meter_t<double> m3{4.0};
 
     constexpr auto area = m1 * m2;
     constexpr auto volume = area * m3;
@@ -244,11 +244,11 @@ TEST_F(SiLengthOperatorsTest, constexpr_meter_multiplication_and_division)
 
 TEST_F(SiLengthOperatorsTest, add_to)
 {
-    pkr::units::decimeter_t m1{3.0}; // 3 decimeters = 0.3 meters
-    pkr::units::kilometer_t m2{2.0}; // 2 kilometers = 2000 meters
+    pkr::units::decimeter_t<double> m1{3.0}; // 3 decimeters = 0.3 meters
+    pkr::units::kilometer_t<double> m2{2.0}; // 2 kilometers = 2000 meters
     // Convert both to millimeters explicitly and add
-    auto a = pkr::units::unit_cast<pkr::units::millimeter_t>(m1);
-    auto b = pkr::units::unit_cast<pkr::units::millimeter_t>(m2);
+    auto a = pkr::units::unit_cast<pkr::units::millimeter_t<double>>(m1);
+    auto b = pkr::units::unit_cast<pkr::units::millimeter_t<double>>(m2);
     auto result = a + b;
     // 0.3 + 2000 = 2000.3 meters = 2000300 millimeters
     ASSERT_DOUBLE_EQ(result.value(), 2000300.0);
@@ -256,10 +256,10 @@ TEST_F(SiLengthOperatorsTest, add_to)
 
 TEST_F(SiLengthOperatorsTest, constexpr_add_to)
 {
-    constexpr pkr::units::meter_t m1{1.0};      // 1 meter
-    constexpr pkr::units::decimeter_t m2{30.0}; // 30 decimeters = 3 meters
-    constexpr auto a = pkr::units::unit_cast<pkr::units::millimeter_t>(m1);
-    constexpr auto b = pkr::units::unit_cast<pkr::units::millimeter_t>(m2);
+    constexpr pkr::units::meter_t<double> m1{1.0};      // 1 meter
+    constexpr pkr::units::decimeter_t<double> m2{30.0}; // 30 decimeters = 3 meters
+    constexpr auto a = pkr::units::unit_cast<pkr::units::millimeter_t<double>>(m1);
+    constexpr auto b = pkr::units::unit_cast<pkr::units::millimeter_t<double>>(m2);
     constexpr auto result = a + b;
     // 1 + 3 = 4 meters = 4000 millimeters (power of 2 in meters domain)
     static_assert(result.value() == 4000.0, "add should result in 4000 millimeters");
@@ -271,14 +271,14 @@ TEST_F(SiLengthOperatorsTest, constexpr_add_to)
 
 TEST_F(SiLengthOperatorsTest, scalar_rhs_multiply_meter)
 {
-    pkr::units::meter_t m{5.0};
+    pkr::units::meter_t<double> m{5.0};
     auto result = m * 3.0;
     ASSERT_DOUBLE_EQ(result.value(), 15.0);
 }
 
 TEST_F(SiLengthOperatorsTest, scalar_rhs_divide_meter)
 {
-    pkr::units::meter_t m{4.0};
+    pkr::units::meter_t<double> m{4.0};
     auto result = m / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 2.0);
 }

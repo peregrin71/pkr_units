@@ -13,49 +13,49 @@ class SiTimeTest : public Test
 
 TEST_F(SiTimeTest, second_construction)
 {
-    pkr::units::second_t s{5.0};
+    pkr::units::second_t<double> s{5.0};
     ASSERT_DOUBLE_EQ(s.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, second_dereference_operator)
 {
-    pkr::units::second_t s{5.0};
+    pkr::units::second_t<double> s{5.0};
     ASSERT_DOUBLE_EQ(*s, 5.0);
 }
 
 TEST_F(SiTimeTest, second_zero_value)
 {
-    pkr::units::second_t s{0.0};
+    pkr::units::second_t<double> s{0.0};
     ASSERT_DOUBLE_EQ(s.value(), 0.0);
 }
 
 TEST_F(SiTimeTest, second_negative_value)
 {
-    pkr::units::second_t s{-3.5};
+    pkr::units::second_t<double> s{-3.5};
     ASSERT_DOUBLE_EQ(s.value(), -3.5);
 }
 
 TEST_F(SiTimeTest, millisecond_construction)
 {
-    pkr::units::millisecond_t ms{250.0};
+    pkr::units::millisecond_t<double> ms{250.0};
     ASSERT_DOUBLE_EQ(ms.value(), 250.0);
 }
 
 TEST_F(SiTimeTest, microsecond_construction)
 {
-    pkr::units::microsecond_t us{1000.0};
+    pkr::units::microsecond_t<double> us{1000.0};
     ASSERT_DOUBLE_EQ(us.value(), 1000.0);
 }
 
 TEST_F(SiTimeTest, nanosecond_construction)
 {
-    pkr::units::nanosecond_t ns{100.0};
+    pkr::units::nanosecond_t<double> ns{100.0};
     ASSERT_DOUBLE_EQ(ns.value(), 100.0);
 }
 
 TEST_F(SiTimeTest, kilosecond_construction)
 {
-    pkr::units::kilosecond_t ks{2.5};
+    pkr::units::kilosecond_t<double> ks{2.5};
     ASSERT_DOUBLE_EQ(ks.value(), 2.5);
 }
 
@@ -65,30 +65,30 @@ TEST_F(SiTimeTest, kilosecond_construction)
 
 TEST_F(SiTimeTest, copy_constructor)
 {
-    pkr::units::second_t s1{5.0};
-    pkr::units::second_t s2 = s1;
+    pkr::units::second_t<double> s1{5.0};
+    pkr::units::second_t<double> s2 = s1;
     ASSERT_DOUBLE_EQ(s2.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, move_constructor)
 {
-    pkr::units::second_t s1{5.0};
-    pkr::units::second_t s2 = std::move(s1);
+    pkr::units::second_t<double> s1{5.0};
+    pkr::units::second_t<double> s2 = std::move(s1);
     ASSERT_DOUBLE_EQ(s2.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, copy_assignment)
 {
-    pkr::units::second_t s1{5.0};
-    pkr::units::second_t s2{0.0};
+    pkr::units::second_t<double> s1{5.0};
+    pkr::units::second_t<double> s2{0.0};
     s2 = s1;
     ASSERT_DOUBLE_EQ(s2.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, move_assignment)
 {
-    pkr::units::second_t s1{5.0};
-    pkr::units::second_t s2{0.0};
+    pkr::units::second_t<double> s1{5.0};
+    pkr::units::second_t<double> s2{0.0};
     s2 = std::move(s1);
     ASSERT_DOUBLE_EQ(s2.value(), 5.0);
 }
@@ -99,32 +99,32 @@ TEST_F(SiTimeTest, move_assignment)
 
 TEST_F(SiTimeTest, add_seconds)
 {
-    pkr::units::second_t s1{3.0};
-    pkr::units::second_t s2{2.0};
+    pkr::units::second_t<double> s1{3.0};
+    pkr::units::second_t<double> s2{2.0};
     auto result = s1 + s2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, subtract_seconds)
 {
-    pkr::units::second_t s1{5.0};
-    pkr::units::second_t s2{2.0};
+    pkr::units::second_t<double> s1{5.0};
+    pkr::units::second_t<double> s2{2.0};
     auto result = s1 - s2;
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
 TEST_F(SiTimeTest, add_milliseconds)
 {
-    pkr::units::millisecond_t ms1{500.0};
-    pkr::units::millisecond_t ms2{250.0};
+    pkr::units::millisecond_t<double> ms1{500.0};
+    pkr::units::millisecond_t<double> ms2{250.0};
     auto result = ms1 + ms2;
     ASSERT_DOUBLE_EQ(result.value(), 750.0);
 }
 
 TEST_F(SiTimeTest, subtract_milliseconds)
 {
-    pkr::units::millisecond_t ms1{750.0};
-    pkr::units::millisecond_t ms2{250.0};
+    pkr::units::millisecond_t<double> ms1{750.0};
+    pkr::units::millisecond_t<double> ms2{250.0};
     auto result = ms1 - ms2;
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
@@ -135,8 +135,8 @@ TEST_F(SiTimeTest, subtract_milliseconds)
 
 TEST_F(SiTimeTest, add_second_to_millisecond)
 {
-    pkr::units::second_t s{1.0};
-    pkr::units::millisecond_t ms{500.0};
+    pkr::units::second_t<double> s{1.0};
+    pkr::units::millisecond_t<double> ms{500.0};
     auto result = s + ms;
     // Result is in LHS type (second)
     // 1s + 0.5s = 1.5s
@@ -145,8 +145,8 @@ TEST_F(SiTimeTest, add_second_to_millisecond)
 
 TEST_F(SiTimeTest, add_millisecond_to_second)
 {
-    pkr::units::millisecond_t ms{500.0};
-    pkr::units::second_t s{1.0};
+    pkr::units::millisecond_t<double> ms{500.0};
+    pkr::units::second_t<double> s{1.0};
     auto result = ms + s;
     // Result is in LHS type (millisecond)
     // 500ms + 1000ms = 1500ms
@@ -155,8 +155,8 @@ TEST_F(SiTimeTest, add_millisecond_to_second)
 
 TEST_F(SiTimeTest, subtract_second_from_millisecond)
 {
-    pkr::units::millisecond_t ms{1500.0};
-    pkr::units::second_t s{1.0};
+    pkr::units::millisecond_t<double> ms{1500.0};
+    pkr::units::second_t<double> s{1.0};
     auto result = ms - s;
     // Result is in LHS type (millisecond)
     // 1500ms - 1000ms = 500ms
@@ -165,8 +165,8 @@ TEST_F(SiTimeTest, subtract_second_from_millisecond)
 
 TEST_F(SiTimeTest, subtract_millisecond_from_second)
 {
-    pkr::units::second_t s{2.0};
-    pkr::units::millisecond_t ms{500.0};
+    pkr::units::second_t<double> s{2.0};
+    pkr::units::millisecond_t<double> ms{500.0};
     auto result = s - ms;
     // Result is in LHS type (second)
     // 2s - 0.5s = 1.5s
@@ -179,28 +179,28 @@ TEST_F(SiTimeTest, subtract_millisecond_from_second)
 
 TEST_F(SiTimeTest, multiply_second_by_scalar)
 {
-    pkr::units::second_t s{2.0};
+    pkr::units::second_t<double> s{2.0};
     auto result = s * 3.0;
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
 }
 
 TEST_F(SiTimeTest, divide_second_by_scalar)
 {
-    pkr::units::second_t s{6.0};
+    pkr::units::second_t<double> s{6.0};
     auto result = s / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
 TEST_F(SiTimeTest, multiply_millisecond_by_scalar)
 {
-    pkr::units::millisecond_t ms{100.0};
+    pkr::units::millisecond_t<double> ms{100.0};
     auto result = ms * 5.0;
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
 TEST_F(SiTimeTest, divide_millisecond_by_scalar)
 {
-    pkr::units::millisecond_t ms{500.0};
+    pkr::units::millisecond_t<double> ms{500.0};
     auto result = ms / 5.0;
     ASSERT_DOUBLE_EQ(result.value(), 100.0);
 }
@@ -211,8 +211,8 @@ TEST_F(SiTimeTest, divide_millisecond_by_scalar)
 
 TEST_F(SiTimeTest, multiply_second_by_second)
 {
-    pkr::units::second_t s1{2.0};
-    pkr::units::second_t s2{3.0};
+    pkr::units::second_t<double> s1{2.0};
+    pkr::units::second_t<double> s2{3.0};
     auto result = s1 * s2;
     // Result has time dimension = 2 (s²)
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -225,8 +225,8 @@ TEST_F(SiTimeTest, multiply_second_by_second)
 
 TEST_F(SiTimeTest, divide_second_by_second)
 {
-    pkr::units::second_t s1{10.0};
-    pkr::units::second_t s2{2.0};
+    pkr::units::second_t<double> s1{10.0};
+    pkr::units::second_t<double> s2{2.0};
     auto result = s1 / s2;
     // Result is dimensionless (scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -235,8 +235,8 @@ TEST_F(SiTimeTest, divide_second_by_second)
 
 TEST_F(SiTimeTest, divide_millisecond_by_millisecond)
 {
-    pkr::units::millisecond_t ms1{500.0};
-    pkr::units::millisecond_t ms2{100.0};
+    pkr::units::millisecond_t<double> ms1{500.0};
+    pkr::units::millisecond_t<double> ms2{100.0};
     auto result = ms1 / ms2;
     // Result is dimensionless
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -249,15 +249,15 @@ TEST_F(SiTimeTest, divide_millisecond_by_millisecond)
 
 TEST_F(SiTimeTest, constexpr_second_addition)
 {
-    constexpr pkr::units::second_t s1{3.0};
-    constexpr pkr::units::second_t s2{2.0};
+    constexpr pkr::units::second_t<double> s1{3.0};
+    constexpr pkr::units::second_t<double> s2{2.0};
     constexpr auto result = s1 + s2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
 TEST_F(SiTimeTest, constexpr_second_multiplication)
 {
-    constexpr pkr::units::second_t s{2.0};
+    constexpr pkr::units::second_t<double> s{2.0};
     constexpr auto result = s * 3.0;
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
 }
@@ -268,20 +268,20 @@ TEST_F(SiTimeTest, constexpr_second_multiplication)
 
 TEST_F(SiTimeTest, very_small_time_values)
 {
-    pkr::units::nanosecond_t ns{0.001};
+    pkr::units::nanosecond_t<double> ns{0.001};
     ASSERT_DOUBLE_EQ(ns.value(), 0.001);
 }
 
 TEST_F(SiTimeTest, very_large_time_values)
 {
-    pkr::units::kilosecond_t ks{1000000.0};
+    pkr::units::kilosecond_t<double> ks{1000000.0};
     ASSERT_DOUBLE_EQ(ks.value(), 1000000.0);
 }
 
 TEST_F(SiTimeTest, add_very_different_scales)
 {
-    pkr::units::millisecond_t ms{1.0}; // 1 millisecond
-    pkr::units::second_t s{1.0};       // 1 second = 1000 ms
+    pkr::units::millisecond_t<double> ms{1.0}; // 1 millisecond
+    pkr::units::second_t<double> s{1.0};       // 1 second = 1000 ms
     auto result = ms + s;
     // Result is in LHS type (millisecond)
     // 1 ms + 1000 ms = 1001 ms
@@ -290,8 +290,8 @@ TEST_F(SiTimeTest, add_very_different_scales)
 
 TEST_F(SiTimeTest, subtract_resulting_in_negative)
 {
-    pkr::units::second_t s1{1.0};
-    pkr::units::second_t s2{3.0};
+    pkr::units::second_t<double> s1{1.0};
+    pkr::units::second_t<double> s2{3.0};
     auto result = s1 - s2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }

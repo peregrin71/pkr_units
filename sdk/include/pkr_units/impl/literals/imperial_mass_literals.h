@@ -9,34 +9,34 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Imperial mass literals
-constexpr grain_t operator""_gr(long double value) noexcept
+constexpr grain_t<double> operator""_gr(long double value) noexcept
 {
-    return grain_t{static_cast<double>(value)};
+    return grain_t<double>{static_cast<double>(value)};
 }
 
-constexpr ounce_t operator""_oz(long double value) noexcept
+constexpr ounce_t<double> operator""_oz(long double value) noexcept
 {
-    return ounce_t{static_cast<double>(value)};
+    return ounce_t<double>{static_cast<double>(value)};
 }
 
-constexpr pound_t operator""_lb(long double value) noexcept
+constexpr pound_t<double> operator""_lb(long double value) noexcept
 {
-    return pound_t{static_cast<double>(value)};
+    return pound_t<double>{static_cast<double>(value)};
 }
 
-constexpr stone_t operator""_st(long double value) noexcept
+constexpr stone_t<double> operator""_st(long double value) noexcept
 {
-    return stone_t{static_cast<double>(value)};
+    return stone_t<double>{static_cast<double>(value)};
 }
 
-constexpr us_ton_t operator""_short_ton(long double value) noexcept
+constexpr us_ton_t<double> operator""_short_ton(long double value) noexcept
 {
-    return us_ton_t{static_cast<double>(value)};
+    return us_ton_t<double>{static_cast<double>(value)};
 }
 
-constexpr long_ton_t operator""_long_ton(long double value) noexcept
+constexpr long_ton_t<double> operator""_long_ton(long double value) noexcept
 {
-    return long_ton_t{static_cast<double>(value)};
+    return long_ton_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals

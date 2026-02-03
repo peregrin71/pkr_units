@@ -1,5 +1,4 @@
 #pragma once
-
 #include <type_traits>
 #include <utility>
 #include <cmath>
@@ -8,11 +7,9 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Specialized 4D Vector for Units (using stable math)
 // ============================================================================
-
 template <is_pkr_unit_c T>
 struct vec_4d_units_t
 {
@@ -200,5 +197,4 @@ constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b
 {
     return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
 }
-
 } // namespace PKR_UNITS_NAMESPACE

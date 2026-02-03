@@ -31,7 +31,7 @@ class MeasurementTest : public Test
 TEST_F(MeasurementTest, construction_and_access)
 {
     // Create a measurement with value and uncertainty
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, 0.1};
 
     ASSERT_DOUBLE_EQ(length.value(), 5.0);
     ASSERT_DOUBLE_EQ(length.uncertainty(), 0.1);
@@ -41,7 +41,7 @@ TEST_F(MeasurementTest, construction_and_access)
 TEST_F(MeasurementTest, negative_uncertainty_becomes_zero)
 {
     // Negative uncertainty should be clamped to zero
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, -0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, -0.1};
 
     ASSERT_DOUBLE_EQ(length.uncertainty(), 0.0);
 }
@@ -52,8 +52,8 @@ TEST_F(MeasurementTest, negative_uncertainty_becomes_zero)
 
 TEST_F(MeasurementTest, addition_same_units)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len1{5.0, 0.1};
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len2{3.0, 0.2};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len1{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len2{3.0, 0.2};
 
     auto result = len1 + len2;
 
@@ -66,8 +66,8 @@ TEST_F(MeasurementTest, addition_same_units)
 
 TEST_F(MeasurementTest, addition_different_units)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len1{5.0, 0.1};
-    pkr::units::measurement_lin_t<pkr::units::centimeter_t> len2{300.0, 5.0}; // 3.0 m ± 0.05 m
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len1{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::centimeter_t<double>> len2{300.0, 5.0}; // 3.0 m ± 0.05 m
 
     auto result = len1 + len2;
 
@@ -81,8 +81,8 @@ TEST_F(MeasurementTest, addition_different_units)
 
 TEST_F(MeasurementTest, subtraction)
 {
-    pkr::units::measurement_lin_t<pkr::units::second_t> time1{10.0, 0.1};
-    pkr::units::measurement_lin_t<pkr::units::second_t> time2{3.0, 0.2};
+    pkr::units::measurement_lin_t<pkr::units::second_t<double>> time1{10.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::second_t<double>> time2{3.0, 0.2};
 
     auto result = time1 - time2;
 
@@ -95,8 +95,8 @@ TEST_F(MeasurementTest, subtraction)
 
 TEST_F(MeasurementTest, multiplication)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, 0.1}; // 2% relative uncertainty
-    pkr::units::measurement_lin_t<pkr::units::meter_t> width{3.0, 0.15}; // 5% relative uncertainty
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, 0.1}; // 2% relative uncertainty
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> width{3.0, 0.15}; // 5% relative uncertainty
 
     auto result = length * width;
 
@@ -110,8 +110,8 @@ TEST_F(MeasurementTest, multiplication)
 
 TEST_F(MeasurementTest, division)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> distance{10.0, 0.2}; // 2% relative uncertainty
-    pkr::units::measurement_lin_t<pkr::units::second_t> time{2.0, 0.1};     // 5% relative uncertainty
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> distance{10.0, 0.2}; // 2% relative uncertainty
+    pkr::units::measurement_lin_t<pkr::units::second_t<double>> time{2.0, 0.1};     // 5% relative uncertainty
 
     auto result = distance / time;
 
@@ -130,10 +130,10 @@ TEST_F(MeasurementTest, division)
 TEST_F(MeasurementTest, velocity_calculation)
 {
     // Distance measurement
-    pkr::units::measurement_lin_t<pkr::units::millimeter_t> distance{5000.0, 50.0};
+    pkr::units::measurement_lin_t<pkr::units::millimeter_t<double>> distance{5000.0, 50.0};
 
     // Time measurement
-    pkr::units::measurement_lin_t<pkr::units::second_t> time{2.5, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::second_t<double>> time{2.5, 0.1};
 
     // Calculate velocity
     auto velocity = distance / time;
@@ -152,7 +152,7 @@ TEST_F(MeasurementTest, velocity_calculation)
 
 TEST_F(MeasurementTest, relative_uncertainty)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{10.0, 0.5};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{10.0, 0.5};
 
     auto rel_uncertainty = length.relative_uncertainty();
 
@@ -166,9 +166,9 @@ TEST_F(MeasurementTest, relative_uncertainty)
 
 TEST_F(MeasurementTest, equality)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len1{5.0, 0.1};
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len2{5.0, 0.1};
-    pkr::units::measurement_lin_t<pkr::units::meter_t> len3{5.0, 0.2};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len1{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len2{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> len3{5.0, 0.2};
 
     ASSERT_EQ(len1, len2);
     ASSERT_NE(len1, len3);
@@ -176,7 +176,7 @@ TEST_F(MeasurementTest, equality)
 
 TEST_F(MeasurementTest, output_stream)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, 0.1};
 
     std::stringstream ss;
     ss << length;
@@ -186,7 +186,7 @@ TEST_F(MeasurementTest, output_stream)
 
 TEST_F(MeasurementTest, format_with_units)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, 0.1};
 
     // Test ASCII formatting with +/-
     std::string ascii_result = std::format("{}", length);
@@ -199,7 +199,7 @@ TEST_F(MeasurementTest, format_with_units)
 
 TEST_F(MeasurementTest, format_with_precision_specifier)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.123456, 0.123456};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.123456, 0.123456};
 
     // Test with 2 decimal places
     std::string result = std::format("{:.2f}", length);
@@ -208,7 +208,7 @@ TEST_F(MeasurementTest, format_with_precision_specifier)
 
 TEST_F(MeasurementTest, format_with_scientific_notation)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{1.234567e6, 1.234567e4};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{1.234567e6, 1.234567e4};
 
     // Test with scientific notation
     std::string result = std::format("{:e}", length);
@@ -217,7 +217,7 @@ TEST_F(MeasurementTest, format_with_scientific_notation)
 
 TEST_F(MeasurementTest, format_with_width_and_precision)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.123, 0.456};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.123, 0.456};
 
     // Test with width and precision
     std::string result = std::format("{:8.2f}", length);
@@ -246,7 +246,7 @@ TEST_F(MeasurementTest, pow_integer_exponent_lin)
 {
     // Test power function with fully correlated uncertainty
     // Measurement: x = 2.0 ± 0.1 m
-    pkr::units::measurement_lin_t<pkr::units::meter_t> measurement{2.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> measurement{2.0, 0.1};
 
     // x^0 should equal 1 (dimensionless)
     auto power_zero = pkr::units::pow_lin<0>(measurement);
@@ -272,7 +272,7 @@ TEST_F(MeasurementTest, pow_integer_exponent_lin)
 TEST_F(MeasurementTest, math_sin)
 {
     // Angle measurement in radians
-    pkr::units::measurement_lin_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
+    pkr::units::measurement_lin_t<pkr::units::radian_t<double>> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
     auto result = pkr::units::sin_lin(angle);
 
@@ -286,7 +286,7 @@ TEST_F(MeasurementTest, math_sin)
 TEST_F(MeasurementTest, math_cos)
 {
     // Angle measurement in radians
-    pkr::units::measurement_lin_t<pkr::units::radian_t> angle{0.0, 0.1}; // 0 ± 0.1 radians
+    pkr::units::measurement_lin_t<pkr::units::radian_t<double>> angle{0.0, 0.1}; // 0 ± 0.1 radians
 
     auto result = pkr::units::cos_lin(angle);
 
@@ -300,7 +300,7 @@ TEST_F(MeasurementTest, math_cos)
 TEST_F(MeasurementTest, math_tan)
 {
     // Angle measurement in radians: pi/4 ± 0.05 rad
-    pkr::units::measurement_lin_t<pkr::units::radian_t> angle{std::numbers::pi / 4.0, 0.05};
+    pkr::units::measurement_lin_t<pkr::units::radian_t<double>> angle{std::numbers::pi / 4.0, 0.05};
 
     auto result = pkr::units::tan_lin(angle);
 
@@ -313,7 +313,7 @@ TEST_F(MeasurementTest, math_tan)
 
 TEST_F(MeasurementTest, combined_uncertainty_method)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{5.0, 0.1};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{5.0, 0.1};
 
     // combined_uncertainty() should return the same as uncertainty()
     ASSERT_DOUBLE_EQ(length.combined_uncertainty().value(), 0.1);
@@ -322,7 +322,7 @@ TEST_F(MeasurementTest, combined_uncertainty_method)
 
 TEST_F(MeasurementTest, relative_uncertainty_percent)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{10.0, 0.5};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{10.0, 0.5};
 
     // 0.5 / 10.0 = 0.05 = 5%
     ASSERT_DOUBLE_EQ(pkr::units::relative_uncertainty_percent_lin(length), 5.0);
@@ -334,13 +334,13 @@ TEST_F(MeasurementTest, drag_force_calculation)
     // Using realistic values for a car moving through air
 
     // Air density: 1.225 ± 0.005 kg/m³
-    pkr::units::measurement_lin_t<pkr::units::kilogram_per_cubic_meter_t> density{1.225, 0.005};
+    pkr::units::measurement_lin_t<pkr::units::kilogram_per_cubic_meter_t<double>> density{1.225, 0.005};
 
     // Velocity: 30.0 ± 0.5 m/s
-    pkr::units::measurement_lin_t<pkr::units::meter_per_second_t> velocity{30.0, 0.5};
+    pkr::units::measurement_lin_t<pkr::units::meter_per_second_t<double>> velocity{30.0, 0.5};
 
     // Drag coefficient: 0.30 ± 0.02 (dimensionless)
-    pkr::units::measurement_lin_t<pkr::units::scalar_t> drag_coefficient{0.30, 0.02};
+    pkr::units::measurement_lin_t<pkr::units::scalar_t<double>> drag_coefficient{0.30, 0.02};
 
     // Cross-sectional area: 2.5 ± 0.1 m²
     pkr::units::measurement_lin_t<pkr::units::square_meter_t> area{2.5, 0.1};
@@ -367,7 +367,7 @@ TEST_F(MeasurementTest, drag_force_calculation)
     ASSERT_NEAR(temp3.value(), 826.875, 1e-3);
     ASSERT_NEAR(temp3.uncertainty(), 119.1, 1e-1);
 
-    auto drag_force = pkr::units::measurement_lin_t<pkr::units::scalar_t>{0.5, 0.0} * temp3;
+    auto drag_force = pkr::units::measurement_lin_t<pkr::units::scalar_t<double>>{0.5, 0.0} * temp3;
 
     // Expected calculation:
     // v² = 30² = 900 m²/s²
@@ -396,7 +396,7 @@ TEST_F(MeasurementTest, drag_force_calculation)
 
 TEST_F(MeasurementTest, relative_uncertainty_zero_value_is_zero)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{0.0, 0.5};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{0.0, 0.5};
 
     auto rel_uncertainty = length.relative_uncertainty();
 
@@ -406,8 +406,8 @@ TEST_F(MeasurementTest, relative_uncertainty_zero_value_is_zero)
 
 TEST_F(MeasurementTest, multiplication_with_zero_value_has_zero_uncertainty)
 {
-    pkr::units::measurement_lin_t<pkr::units::meter_t> length{0.0, 0.5};
-    pkr::units::measurement_lin_t<pkr::units::meter_t> width{3.0, 0.15};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> length{0.0, 0.5};
+    pkr::units::measurement_lin_t<pkr::units::meter_t<double>> width{3.0, 0.15};
 
     auto result = length * width;
 

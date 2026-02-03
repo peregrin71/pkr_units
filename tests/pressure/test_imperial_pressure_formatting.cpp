@@ -17,7 +17,7 @@ class ImperialPressureFormattingTest : public Test
 
 TEST_F(ImperialPressureFormattingTest, psi_ascii_formatting)
 {
-    pkr::units::psi_t psi{14.7};
+    pkr::units::psi_t<double> psi{14.7};
     std::string result = std::format("{}", psi);
     ASSERT_EQ(result, "14.7 psi");
 }

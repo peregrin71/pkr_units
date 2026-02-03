@@ -1,5 +1,4 @@
 #pragma once
-
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
@@ -9,7 +8,6 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Irradiance (Watts per Square Meter)
 // ============================================================================
@@ -53,43 +51,52 @@ namespace PKR_UNITS_NAMESPACE
 // SPECTRAL IRRADIANCE:
 // Spectral irradiance is irradiance per unit wavelength [W/(m³)]
 // or per unit frequency [W/(m²·Hz)], used in detailed spectroscopy.
-
 // Strong type for watt_per_square_meter (irradiance)
-struct watt_per_square_meter_t final : public details::unit_t<double, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+template <is_unit_value_type_c T>
+struct watt_per_square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<double, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
+
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter"};
-
     [[maybe_unused]] static constexpr std::string_view symbol{"W/m2"};
-
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2"};
-
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2"};
 };
+
+template <is_unit_value_type_c T>
+watt_per_square_meter_t(T) -> watt_per_square_meter_t<T>;
+
+template <is_pkr_unit_c U>
+    requires(details::is_pkr_unit<U>::value_dimension == dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0})
+watt_per_square_meter_t(const U&) -> watt_per_square_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Shorter alias for irradiance
-struct irradiance_t final : public details::unit_t<double, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+template <is_unit_value_type_c T>
+struct irradiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<double, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
+
     [[maybe_unused]] static constexpr std::string_view name{"irradiance"};
-
     [[maybe_unused]] static constexpr std::string_view symbol{"W/m2"};
-
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2"};
-
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2"};
 };
+
+template <is_unit_value_type_c T>
+irradiance_t(T) -> irradiance_t<T>;
+
+template <is_pkr_unit_c U>
+    requires(details::is_pkr_unit<U>::value_dimension == dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0})
+irradiance_t(const U&) -> irradiance_t<typename details::is_pkr_unit<U>::value_type>;
 
 // ============================================================================
 // Derived unit type specializations
 // ============================================================================
-
-template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+template <is_unit_value_type_c T>
+struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using type = irradiance_t;
+    using type = irradiance_t<T>;
 };
-
 } // namespace PKR_UNITS_NAMESPACE

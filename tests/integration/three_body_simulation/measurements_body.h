@@ -13,7 +13,7 @@ namespace three_body_measurements
 // Gravitational constant (in km^3 / (kg * s^2))
 constexpr double G = 6.67430e-20;
 
-using measurement_vec_t = pkr::units::vec_measurement_rss_4d_t<pkr::units::kilometer_t>;
+using measurement_vec_t = pkr::units::vec_measurement_rss_4d_t<pkr::units::kilometer_t<double>>;
 
 // Helper to create position vector (w=1)
 inline pkr::units::vec_4d_t<double> make_position(double x, double y, double z)
@@ -34,8 +34,8 @@ struct Body
     double mass;                // mass in kg
 
     Body(pkr::units::vec_4d_t<double> pos, pkr::units::vec_4d_t<double> vel, double m)
-        : position{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.x, std::abs(pos.x * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.y, std::abs(pos.y * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.z, std::abs(pos.z * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{pos.w, 0.0}}
-        , velocity{pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.x, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.y, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.z, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t>{vel.w, 0.0}}
+        : position{pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{pos.x, std::abs(pos.x * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{pos.y, std::abs(pos.y * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{pos.z, std::abs(pos.z * 0.001)}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{pos.w, 0.0}}
+        , velocity{pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{vel.x, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{vel.y, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{vel.z, 0.0}, pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{vel.w, 0.0}}
         , mass(m)
     {
     }
@@ -71,10 +71,10 @@ public:
             }
         }
         return measurement_vec_t{
-            pkr::units::measurement_rss_t<pkr::units::kilometer_t>{acc.x, 0.0},
-            pkr::units::measurement_rss_t<pkr::units::kilometer_t>{acc.y, 0.0},
-            pkr::units::measurement_rss_t<pkr::units::kilometer_t>{acc.z, 0.0},
-            pkr::units::measurement_rss_t<pkr::units::kilometer_t>{0.0, 0.0}};
+            pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{acc.x, 0.0},
+            pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{acc.y, 0.0},
+            pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{acc.z, 0.0},
+            pkr::units::measurement_rss_t<pkr::units::kilometer_t<double>>{0.0, 0.0}};
     }
 
     // 4th order Runge-Kutta integration step

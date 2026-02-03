@@ -17,7 +17,7 @@ class MeasurementMathRSSTest : public Test
 
 TEST_F(MeasurementMathRSSTest, add_rss)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m1{5.0, 0.1};
     meter_meas m2{3.0, 0.2};
     auto result = m1 + m2;
@@ -28,7 +28,7 @@ TEST_F(MeasurementMathRSSTest, add_rss)
 
 TEST_F(MeasurementMathRSSTest, subtract_rss)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m1{5.0, 0.1};
     meter_meas m2{3.0, 0.2};
     auto result = m1 - m2;
@@ -39,8 +39,8 @@ TEST_F(MeasurementMathRSSTest, subtract_rss)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
-    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
+    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t<double>>;
     meter_meas m{5.0, 0.1};
     second_meas s{3.0, 0.2};
     auto result = m * s;
@@ -53,8 +53,8 @@ TEST_F(MeasurementMathRSSTest, multiply_rss)
 
 TEST_F(MeasurementMathRSSTest, divide_rss)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
-    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
+    using second_meas = pkr::units::measurement_rss_t<pkr::units::second_t<double>>;
     meter_meas m{6.0, 0.1};
     second_meas s{3.0, 0.2};
     auto result = m / s;
@@ -80,7 +80,7 @@ TEST_F(MeasurementMathRSSTest, divide_rss)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss_measurement_scalar)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m{5.0, 0.1};
     auto result = m * 2.0;
 
@@ -90,7 +90,7 @@ TEST_F(MeasurementMathRSSTest, multiply_rss_measurement_scalar)
 
 TEST_F(MeasurementMathRSSTest, multiply_rss_scalar_measurement)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m{5.0, 0.1};
     auto result = 2.0 * m;
 
@@ -100,7 +100,7 @@ TEST_F(MeasurementMathRSSTest, multiply_rss_scalar_measurement)
 
 TEST_F(MeasurementMathRSSTest, divide_rss_measurement_scalar)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m{6.0, 0.1};
     auto result = m / 2.0;
 
@@ -110,7 +110,7 @@ TEST_F(MeasurementMathRSSTest, divide_rss_measurement_scalar)
 
 TEST_F(MeasurementMathRSSTest, divide_rss_scalar_measurement)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
     meter_meas m{2.0, 0.1};
     auto result = 6.0 / m;
 
@@ -121,7 +121,7 @@ TEST_F(MeasurementMathRSSTest, divide_rss_scalar_measurement)
 
 TEST_F(MeasurementMathRSSTest, SumOfSquaresRSS)
 {
-    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
+    using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;
 
     meter_meas x{1.0, 0.1};
     meter_meas y{2.0, 0.2};

@@ -1,10 +1,8 @@
 #pragma once
-
 // ============================================================================
 // Master header that includes unit operators and all unit definitions
 // ============================================================================
 #include <pkr_units/impl/unit_impl.h>
-
 // ============================================================================
 // Canonical SI Base Units (7 fundamental units)
 // ============================================================================
@@ -15,7 +13,6 @@
 #include <pkr_units/units/base/temperature.h> // kelvin (K) - thermodynamic temperature
 #include <pkr_units/units/base/amount.h>      // mole (mol) - amount of substance
 #include <pkr_units/units/base/intensity.h>   // candela (cd) - luminous intensity
-
 // ============================================================================
 // Derived SI Units (common compound units)
 // ============================================================================
@@ -30,7 +27,6 @@
 #include <pkr_units/units/derived/concentration.h>
 #include <pkr_units/units/derived/electrical.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
-
 // ============================================================================
 // Unit Casting and Conversion
 // ============================================================================

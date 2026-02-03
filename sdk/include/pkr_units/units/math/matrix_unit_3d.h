@@ -1,5 +1,4 @@
 #pragma once
-
 #include <array>
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
@@ -8,20 +7,16 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Specialized 3x3 Matrix for Units (using stable math)
 // ============================================================================
-
 template <is_base_pkr_unit_c T>
 class matrix_3d_units_t
 {
 public:
     using value_type = T;
     using array_type = std::array<std::array<T, 3>, 3>;
-
     array_type data;
-
     constexpr matrix_3d_units_t() = default;
 
     constexpr matrix_3d_units_t(const array_type& arr)
@@ -86,5 +81,4 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>
 {
     return matrix_vector_multiply(m, v);
 }
-
 } // namespace PKR_UNITS_NAMESPACE

@@ -16,8 +16,8 @@ class ArithmeticOptimizationsTest : public Test
 TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_kilometers)
 {
     // k m * k m -> ratio multiplication: 1000/1 * 1000/1 = 1000000/1
-    pkr::units::kilometer_t km1{2.0};
-    pkr::units::kilometer_t km2{3.0};
+    pkr::units::kilometer_t<double> km1{2.0};
+    pkr::units::kilometer_t<double> km2{3.0};
     auto result = km1 * km2;
 
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -29,8 +29,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_kilometers)
 TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_millimeter_kilometer)
 {
     // mm * km -> 1/1000 * 1000/1 = 1/1 (identity)
-    pkr::units::millimeter_t mm{1000.0};
-    pkr::units::kilometer_t km{1.0};
+    pkr::units::millimeter_t<double> mm{1000.0};
+    pkr::units::kilometer_t<double> km{1.0};
     auto result = mm * km;
 
     ASSERT_DOUBLE_EQ(result.value(), 1000.0);
@@ -42,8 +42,8 @@ TEST_F(ArithmeticOptimizationsTest, multiply_non_unit_ratios_millimeter_kilomete
 TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_meter_by_kilometer)
 {
     // m / km -> 1/1 / 1000/1 = 1/1000
-    pkr::units::meter_t m{1000.0};
-    pkr::units::kilometer_t km{1.0};
+    pkr::units::meter_t<double> m{1000.0};
+    pkr::units::kilometer_t<double> km{1.0};
     auto result = m / km;
 
     ASSERT_DOUBLE_EQ(result.value(), 1000.0);
@@ -55,8 +55,8 @@ TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_meter_by_kilometer)
 TEST_F(ArithmeticOptimizationsTest, divide_different_ratio_kilometer_by_millimeter)
 {
     // km / mm -> 1000/1 / 1/1000 = 1000000/1
-    pkr::units::kilometer_t km{1.0};
-    pkr::units::millimeter_t mm{1.0};
+    pkr::units::kilometer_t<double> km{1.0};
+    pkr::units::millimeter_t<double> mm{1.0};
     auto result = km / mm;
 
     ASSERT_DOUBLE_EQ(result.value(), 1.0);
