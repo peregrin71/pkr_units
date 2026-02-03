@@ -13,55 +13,55 @@ class SiMassTest : public Test
 
 TEST_F(SiMassTest, kilogram_construction)
 {
-    pkr::units::kilogram_t kg{5.0};
+    pkr::units::kilogram_t<double> kg{5.0};
     ASSERT_DOUBLE_EQ(kg.value(), 5.0);
 }
 
 TEST_F(SiMassTest, kilogram_dereference_operator)
 {
-    pkr::units::kilogram_t kg{5.0};
+    pkr::units::kilogram_t<double> kg{5.0};
     ASSERT_DOUBLE_EQ(*kg, 5.0);
 }
 
 TEST_F(SiMassTest, kilogram_zero_value)
 {
-    pkr::units::kilogram_t kg{0.0};
+    pkr::units::kilogram_t<double> kg{0.0};
     ASSERT_DOUBLE_EQ(kg.value(), 0.0);
 }
 
 TEST_F(SiMassTest, kilogram_negative_value)
 {
-    pkr::units::kilogram_t kg{-3.5};
+    pkr::units::kilogram_t<double> kg{-3.5};
     ASSERT_DOUBLE_EQ(kg.value(), -3.5);
 }
 
 TEST_F(SiMassTest, gram_construction)
 {
-    pkr::units::gram_t g{250.0};
+    pkr::units::gram_t<double> g{250.0};
     ASSERT_DOUBLE_EQ(g.value(), 250.0);
 }
 
 TEST_F(SiMassTest, milligram_construction)
 {
-    pkr::units::milligram_t mg{500.0};
+    pkr::units::milligram_t<double> mg{500.0};
     ASSERT_DOUBLE_EQ(mg.value(), 500.0);
 }
 
 TEST_F(SiMassTest, microgram_construction)
 {
-    pkr::units::microgram_t ug{1000.0};
+    pkr::units::microgram_t<double> ug{1000.0};
     ASSERT_DOUBLE_EQ(ug.value(), 1000.0);
 }
 
 TEST_F(SiMassTest, nanogram_construction)
 {
-    pkr::units::nanogram_t ng{100.0};
+    pkr::units::nanogram_t<double> ng{100.0};
     ASSERT_DOUBLE_EQ(ng.value(), 100.0);
 }
 
 TEST_F(SiMassTest, metric_ton_construction)
 {
-    pkr::units::metric_ton_t mt{2.5};
+    pkr::units::metric_ton_t<double> mt{2.5};
     ASSERT_DOUBLE_EQ(mt.value(), 2.5);
 }
 
@@ -71,30 +71,30 @@ TEST_F(SiMassTest, metric_ton_construction)
 
 TEST_F(SiMassTest, copy_constructor)
 {
-    pkr::units::kilogram_t kg1{5.0};
-    pkr::units::kilogram_t kg2 = kg1;
+    pkr::units::kilogram_t<double> kg1{5.0};
+    pkr::units::kilogram_t<double> kg2 = kg1;
     ASSERT_DOUBLE_EQ(kg2.value(), 5.0);
 }
 
 TEST_F(SiMassTest, move_constructor)
 {
-    pkr::units::kilogram_t kg1{5.0};
-    pkr::units::kilogram_t kg2 = std::move(kg1);
+    pkr::units::kilogram_t<double> kg1{5.0};
+    pkr::units::kilogram_t<double> kg2 = std::move(kg1);
     ASSERT_DOUBLE_EQ(kg2.value(), 5.0);
 }
 
 TEST_F(SiMassTest, copy_assignment)
 {
-    pkr::units::kilogram_t kg1{5.0};
-    pkr::units::kilogram_t kg2{0.0};
+    pkr::units::kilogram_t<double> kg1{5.0};
+    pkr::units::kilogram_t<double> kg2{0.0};
     kg2 = kg1;
     ASSERT_DOUBLE_EQ(kg2.value(), 5.0);
 }
 
 TEST_F(SiMassTest, move_assignment)
 {
-    pkr::units::kilogram_t kg1{5.0};
-    pkr::units::kilogram_t kg2{0.0};
+    pkr::units::kilogram_t<double> kg1{5.0};
+    pkr::units::kilogram_t<double> kg2{0.0};
     kg2 = std::move(kg1);
     ASSERT_DOUBLE_EQ(kg2.value(), 5.0);
 }
@@ -105,32 +105,32 @@ TEST_F(SiMassTest, move_assignment)
 
 TEST_F(SiMassTest, add_kilograms)
 {
-    pkr::units::kilogram_t kg1{3.0};
-    pkr::units::kilogram_t kg2{2.0};
+    pkr::units::kilogram_t<double> kg1{3.0};
+    pkr::units::kilogram_t<double> kg2{2.0};
     auto result = kg1 + kg2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
 TEST_F(SiMassTest, subtract_kilograms)
 {
-    pkr::units::kilogram_t kg1{5.0};
-    pkr::units::kilogram_t kg2{2.0};
+    pkr::units::kilogram_t<double> kg1{5.0};
+    pkr::units::kilogram_t<double> kg2{2.0};
     auto result = kg1 - kg2;
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
 TEST_F(SiMassTest, add_grams)
 {
-    pkr::units::gram_t g1{500.0};
-    pkr::units::gram_t g2{250.0};
+    pkr::units::gram_t<double> g1{500.0};
+    pkr::units::gram_t<double> g2{250.0};
     auto result = g1 + g2;
     ASSERT_DOUBLE_EQ(result.value(), 750.0);
 }
 
 TEST_F(SiMassTest, subtract_grams)
 {
-    pkr::units::gram_t g1{750.0};
-    pkr::units::gram_t g2{250.0};
+    pkr::units::gram_t<double> g1{750.0};
+    pkr::units::gram_t<double> g2{250.0};
     auto result = g1 - g2;
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
@@ -141,8 +141,8 @@ TEST_F(SiMassTest, subtract_grams)
 
 TEST_F(SiMassTest, add_kilogram_to_gram)
 {
-    pkr::units::kilogram_t kg{1.0};
-    pkr::units::gram_t g{500.0};
+    pkr::units::kilogram_t<double> kg{1.0};
+    pkr::units::gram_t<double> g{500.0};
     auto result = kg + g;
     // Result is in LHS type (kilogram)
     // 1kg + 0.5kg = 1.5kg
@@ -151,8 +151,8 @@ TEST_F(SiMassTest, add_kilogram_to_gram)
 
 TEST_F(SiMassTest, add_gram_to_kilogram)
 {
-    pkr::units::gram_t g{500.0};
-    pkr::units::kilogram_t kg{1.0};
+    pkr::units::gram_t<double> g{500.0};
+    pkr::units::kilogram_t<double> kg{1.0};
     auto result = g + kg;
     // Result is in LHS type (gram)
     // 500g + 1000g = 1500g
@@ -161,8 +161,8 @@ TEST_F(SiMassTest, add_gram_to_kilogram)
 
 TEST_F(SiMassTest, subtract_kilogram_from_gram)
 {
-    pkr::units::gram_t g{1500.0};
-    pkr::units::kilogram_t kg{1.0};
+    pkr::units::gram_t<double> g{1500.0};
+    pkr::units::kilogram_t<double> kg{1.0};
     auto result = g - kg;
     // Result is in LHS type (gram)
     // 1500g - 1000g = 500g
@@ -171,8 +171,8 @@ TEST_F(SiMassTest, subtract_kilogram_from_gram)
 
 TEST_F(SiMassTest, subtract_gram_from_kilogram)
 {
-    pkr::units::kilogram_t kg{2.0};
-    pkr::units::gram_t g{500.0};
+    pkr::units::kilogram_t<double> kg{2.0};
+    pkr::units::gram_t<double> g{500.0};
     auto result = kg - g;
     // Result is in LHS type (kilogram)
     // 2kg - 0.5kg = 1.5kg
@@ -185,28 +185,28 @@ TEST_F(SiMassTest, subtract_gram_from_kilogram)
 
 TEST_F(SiMassTest, multiply_kilogram_by_scalar)
 {
-    pkr::units::kilogram_t kg{2.0};
+    pkr::units::kilogram_t<double> kg{2.0};
     auto result = kg * 3.0;
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
 }
 
 TEST_F(SiMassTest, divide_kilogram_by_scalar)
 {
-    pkr::units::kilogram_t kg{6.0};
+    pkr::units::kilogram_t<double> kg{6.0};
     auto result = kg / 2.0;
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
 }
 
 TEST_F(SiMassTest, multiply_gram_by_scalar)
 {
-    pkr::units::gram_t g{100.0};
+    pkr::units::gram_t<double> g{100.0};
     auto result = g * 5.0;
     ASSERT_DOUBLE_EQ(result.value(), 500.0);
 }
 
 TEST_F(SiMassTest, divide_gram_by_scalar)
 {
-    pkr::units::gram_t g{500.0};
+    pkr::units::gram_t<double> g{500.0};
     auto result = g / 5.0;
     ASSERT_DOUBLE_EQ(result.value(), 100.0);
 }
@@ -217,8 +217,8 @@ TEST_F(SiMassTest, divide_gram_by_scalar)
 
 TEST_F(SiMassTest, multiply_kilogram_by_kilogram)
 {
-    pkr::units::kilogram_t kg1{2.0};
-    pkr::units::kilogram_t kg2{3.0};
+    pkr::units::kilogram_t<double> kg1{2.0};
+    pkr::units::kilogram_t<double> kg2{3.0};
     auto result = kg1 * kg2;
     // Result has mass dimension = 2 (kg²)
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
@@ -231,8 +231,8 @@ TEST_F(SiMassTest, multiply_kilogram_by_kilogram)
 
 TEST_F(SiMassTest, divide_kilogram_by_kilogram)
 {
-    pkr::units::kilogram_t kg1{10.0};
-    pkr::units::kilogram_t kg2{2.0};
+    pkr::units::kilogram_t<double> kg1{10.0};
+    pkr::units::kilogram_t<double> kg2{2.0};
     auto result = kg1 / kg2;
     // Result is dimensionless (scalar)
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -241,8 +241,8 @@ TEST_F(SiMassTest, divide_kilogram_by_kilogram)
 
 TEST_F(SiMassTest, divide_gram_by_gram)
 {
-    pkr::units::gram_t g1{500.0};
-    pkr::units::gram_t g2{100.0};
+    pkr::units::gram_t<double> g1{500.0};
+    pkr::units::gram_t<double> g2{100.0};
     auto result = g1 / g2;
     // Result is dimensionless
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -255,15 +255,15 @@ TEST_F(SiMassTest, divide_gram_by_gram)
 
 TEST_F(SiMassTest, constexpr_kilogram_addition)
 {
-    constexpr pkr::units::kilogram_t kg1{3.0};
-    constexpr pkr::units::kilogram_t kg2{2.0};
+    constexpr pkr::units::kilogram_t<double> kg1{3.0};
+    constexpr pkr::units::kilogram_t<double> kg2{2.0};
     constexpr auto result = kg1 + kg2;
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
 }
 
 TEST_F(SiMassTest, constexpr_kilogram_multiplication)
 {
-    constexpr pkr::units::kilogram_t kg{2.0};
+    constexpr pkr::units::kilogram_t<double> kg{2.0};
     constexpr auto result = kg * 3.0;
     ASSERT_DOUBLE_EQ(result.value(), 6.0);
 }
@@ -274,20 +274,20 @@ TEST_F(SiMassTest, constexpr_kilogram_multiplication)
 
 TEST_F(SiMassTest, very_small_mass_values)
 {
-    pkr::units::nanogram_t ng{0.001};
+    pkr::units::nanogram_t<double> ng{0.001};
     ASSERT_DOUBLE_EQ(ng.value(), 0.001);
 }
 
 TEST_F(SiMassTest, very_large_mass_values)
 {
-    pkr::units::metric_ton_t mt{1000000.0};
+    pkr::units::metric_ton_t<double> mt{1000000.0};
     ASSERT_DOUBLE_EQ(mt.value(), 1000000.0);
 }
 
 TEST_F(SiMassTest, add_very_different_scales)
 {
-    pkr::units::kilogram_t kg1{1.0};   // 1 kilogram
-    pkr::units::kilogram_t kg2{0.001}; // 1 gram = 0.001 kg
+    pkr::units::kilogram_t<double> kg1{1.0};   // 1 kilogram
+    pkr::units::kilogram_t<double> kg2{0.001}; // 1 gram = 0.001 kg
     auto result = kg1 + kg2;
     // Result in kilogram
     // 1 kg + 0.001 kg = 1.001 kg
@@ -296,8 +296,8 @@ TEST_F(SiMassTest, add_very_different_scales)
 
 TEST_F(SiMassTest, subtract_resulting_in_negative)
 {
-    pkr::units::kilogram_t kg1{1.0};
-    pkr::units::kilogram_t kg2{3.0};
+    pkr::units::kilogram_t<double> kg1{1.0};
+    pkr::units::kilogram_t<double> kg2{3.0};
     auto result = kg1 - kg2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
 }

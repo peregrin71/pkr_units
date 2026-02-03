@@ -18,7 +18,7 @@ class Vector3DMeasurementsRSSTest : public Test
 
 TEST_F(Vector3DMeasurementsRSSTest, construction)
 {
-    pkr::units::vec_measurement_rss_3d_t<pkr::units::meter_t> v{{1.0, 0.1}, {2.0, 0.2}, {3.0, 0.3}};
+    pkr::units::vec_measurement_rss_3d_t<pkr::units::meter_t<double>> v{{1.0, 0.1}, {2.0, 0.2}, {3.0, 0.3}};
     EXPECT_DOUBLE_EQ(v.x.value(), 1.0);
     EXPECT_DOUBLE_EQ(v.x.uncertainty(), 0.1);
     EXPECT_DOUBLE_EQ(v.y.value(), 2.0);

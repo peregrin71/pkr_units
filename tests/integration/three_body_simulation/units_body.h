@@ -28,9 +28,9 @@ struct Body
 {
     struct Position
     {
-        pkr::units::kilometer_t x;
-        pkr::units::kilometer_t y;
-        pkr::units::kilometer_t z;
+        pkr::units::kilometer_t<double> x;
+        pkr::units::kilometer_t<double> y;
+        pkr::units::kilometer_t<double> z;
     };
 
     Position position;                     // position in km
@@ -38,7 +38,7 @@ struct Body
     double mass;                           // mass in kg
 
     Body(pkr::units::vec_4d_t<double> pos, pkr::units::vec_4d_t<double> vel, double m)
-        : position{pkr::units::kilometer_t{pos.x}, pkr::units::kilometer_t{pos.y}, pkr::units::kilometer_t{pos.z}}
+        : position{pkr::units::kilometer_t<double>{pos.x}, pkr::units::kilometer_t<double>{pos.y}, pkr::units::kilometer_t<double>{pos.z}}
         , velocity(vel)
         , mass(m)
     {
@@ -100,7 +100,7 @@ public:
         for (size_t i = 0; i < n; ++i)
         {
             auto new_pos = make_position(bodies[i].position.x.value(), bodies[i].position.y.value(), bodies[i].position.z.value()) + k1_vel[i] * (dt_val / 2.0);
-            temp_bodies[i].position = {pkr::units::kilometer_t{new_pos.x}, pkr::units::kilometer_t{new_pos.y}, pkr::units::kilometer_t{new_pos.z}};
+            temp_bodies[i].position = {pkr::units::kilometer_t<double>{new_pos.x}, pkr::units::kilometer_t<double>{new_pos.y}, pkr::units::kilometer_t<double>{new_pos.z}};
             temp_bodies[i].velocity = bodies[i].velocity + k1_acc[i] * (dt_val / 2.0);
         }
         std::swap(bodies, temp_bodies);
@@ -115,7 +115,7 @@ public:
         for (size_t i = 0; i < n; ++i)
         {
             auto new_pos = make_position(bodies[i].position.x.value(), bodies[i].position.y.value(), bodies[i].position.z.value()) + k2_vel[i] * (dt_val / 2.0);
-            temp_bodies[i].position = {pkr::units::kilometer_t{new_pos.x}, pkr::units::kilometer_t{new_pos.y}, pkr::units::kilometer_t{new_pos.z}};
+            temp_bodies[i].position = {pkr::units::kilometer_t<double>{new_pos.x}, pkr::units::kilometer_t<double>{new_pos.y}, pkr::units::kilometer_t<double>{new_pos.z}};
             temp_bodies[i].velocity = bodies[i].velocity + k2_acc[i] * (dt_val / 2.0);
         }
         std::swap(bodies, temp_bodies);
@@ -130,7 +130,7 @@ public:
         for (size_t i = 0; i < n; ++i)
         {
             auto new_pos = make_position(bodies[i].position.x.value(), bodies[i].position.y.value(), bodies[i].position.z.value()) + k3_vel[i] * dt_val;
-            temp_bodies[i].position = {pkr::units::kilometer_t{new_pos.x}, pkr::units::kilometer_t{new_pos.y}, pkr::units::kilometer_t{new_pos.z}};
+            temp_bodies[i].position = {pkr::units::kilometer_t<double>{new_pos.x}, pkr::units::kilometer_t<double>{new_pos.y}, pkr::units::kilometer_t<double>{new_pos.z}};
             temp_bodies[i].velocity = bodies[i].velocity + k3_acc[i] * dt_val;
         }
         std::swap(bodies, temp_bodies);
@@ -146,7 +146,7 @@ public:
         {
             auto final_pos = make_position(bodies[i].position.x.value(), bodies[i].position.y.value(), bodies[i].position.z.value()) +
                              (k1_vel[i] + k2_vel[i] * 2.0 + k3_vel[i] * 2.0 + k4_vel[i]) * (dt_val / 6.0);
-            bodies[i].position = {pkr::units::kilometer_t{final_pos.x}, pkr::units::kilometer_t{final_pos.y}, pkr::units::kilometer_t{final_pos.z}};
+            bodies[i].position = {pkr::units::kilometer_t<double>{final_pos.x}, pkr::units::kilometer_t<double>{final_pos.y}, pkr::units::kilometer_t<double>{final_pos.z}};
             bodies[i].velocity = bodies[i].velocity + (k1_acc[i] + k2_acc[i] * 2.0 + k3_acc[i] * 2.0 + k4_acc[i]) * (dt_val / 6.0);
         }
     }

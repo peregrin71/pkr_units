@@ -24,8 +24,8 @@ TEST_F(UnitPowTest, constexpr_pow_handles_zero_and_positive)
 
 TEST_F(UnitPowTest, power_of_ratio_and_dimension)
 {
-    using squared = pkr::units::power_of_t<pkr::units::kilometer_t, 2>;
-    using neg_squared = pkr::units::power_of_t<pkr::units::kilometer_t, -2>;
+    using squared = pkr::units::power_of_t<pkr::units::kilometer_t<double>, 2>;
+    using neg_squared = pkr::units::power_of_t<pkr::units::kilometer_t<double>, -2>;
     using squared_traits = pkr::units::details::is_pkr_unit<squared>;
     using neg_traits = pkr::units::details::is_pkr_unit<neg_squared>;
 
@@ -35,7 +35,7 @@ TEST_F(UnitPowTest, power_of_ratio_and_dimension)
     static_assert(neg_traits::value_dimension.length == -2);
     static_assert(squared_traits::value_dimension.time == 0);
 
-    EXPECT_TRUE((pkr::units::details::is_pkr_unit<pkr::units::power_of<pkr::units::second_t, 2>>::value));
+    EXPECT_TRUE((pkr::units::details::is_pkr_unit<pkr::units::power_of<pkr::units::second_t<double>, 2>>::value));
 }
 
 } // namespace test

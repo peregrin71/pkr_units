@@ -207,13 +207,13 @@ public:
     // Accessors
     // ============================================================================
 
-    // Get the measured value as raw double (convenience)
+    // Get the measured value as raw value (convenience)
     constexpr auto value() const
     {
         return m_value.value();
     }
 
-    // Get the uncertainty as raw double (convenience)
+    // Get the uncertainty as raw value (convenience)
     constexpr auto uncertainty() const
     {
         return m_uncertainty.value();
@@ -327,7 +327,7 @@ auto operator/(T lhs, const measurement_lin_t<UnitT>& rhs)
     using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
     constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
-    using inv_ratio = std::ratio_divide<std::ratio<1>, ratio_type>;
+    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
     using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_lin_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
@@ -399,7 +399,7 @@ constexpr auto pow_lin(const measurement_lin_t<UnitT>& measurement)
     auto result_value = pow<N>(measurement.unit_value());
 
     // For fully correlated uncertainty: relative_uncertainty(x^N) = |N| * relative_uncertainty(x)
-    auto relative_uncertainty = static_cast<double>(std::abs(N)) * measurement.relative_uncertainty().value();
+    auto relative_uncertainty = static_cast<typename UnitT::value_type>(std::abs(N)) * measurement.relative_uncertainty().value();
     auto result_uncertainty_value = result_value.value() * relative_uncertainty;
 
     using ResultUnitT = decltype(result_value);
@@ -417,7 +417,7 @@ auto sin_lin(const measurement_lin_t<UnitT>& measurement)
     auto cos_x = std::cos(measurement.value());
     auto result_uncertainty_value = std::abs(cos_x) * measurement.uncertainty();
 
-    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
 }
 
 // For f(x) = cos(x), the uncertainty df = |sin(x)| * dx
@@ -430,7 +430,7 @@ auto cos_lin(const measurement_lin_t<UnitT>& measurement)
     auto sin_x = std::sin(measurement.value());
     auto result_uncertainty_value = std::abs(sin_x) * measurement.uncertainty();
 
-    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
 }
 
 // For f(x) = tan(x), the uncertainty df = sec²(x) * dx
@@ -444,7 +444,7 @@ auto tan_lin(const measurement_lin_t<UnitT>& measurement)
     auto sec_squared = 1.0 / (cos_x * cos_x);
     auto result_uncertainty_value = sec_squared * measurement.uncertainty();
 
-    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
 }
 
 // ============================================================================
@@ -458,7 +458,7 @@ constexpr auto combined_uncertainty_lin(const measurement_lin_t<UnitT>& measurem
 }
 
 template <typename UnitT>
-constexpr double relative_uncertainty_percent_lin(const measurement_lin_t<UnitT>& measurement)
+constexpr typename UnitT::value_type relative_uncertainty_percent_lin(const measurement_lin_t<UnitT>& measurement)
 {
     return measurement.relative_uncertainty().value() * 100.0;
 }

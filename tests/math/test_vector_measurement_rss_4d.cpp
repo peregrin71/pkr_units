@@ -18,7 +18,7 @@ class Vector4DMeasurementsRSSTest : public Test
 
 TEST_F(Vector4DMeasurementsRSSTest, construction)
 {
-    pkr::units::vec_measurement_rss_4d_t<pkr::units::meter_t> v{{1.0, 0.1}, {2.0, 0.2}, {3.0, 0.3}, {4.0, 0.4}};
+    pkr::units::vec_measurement_rss_4d_t<pkr::units::meter_t<double>> v{{1.0, 0.1}, {2.0, 0.2}, {3.0, 0.3}, {4.0, 0.4}};
     EXPECT_DOUBLE_EQ(v.x.value(), 1.0);
     EXPECT_DOUBLE_EQ(v.x.uncertainty(), 0.1);
     EXPECT_DOUBLE_EQ(v.y.value(), 2.0);
@@ -83,7 +83,7 @@ TEST_F(Vector4DMeasurementsRSSTest, construction)
 // {
 //     using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t>;
 //     pkr::units::vec_measurement_rss_4d_t<meter_meas> v{meter_meas{1.0, 0.1}, meter_meas{2.0, 0.2}, meter_meas{3.0, 0.3}, meter_meas{4.0, 0.4}};
-//     auto scalar = pkr::units::measurement_rss_t<pkr::units::scalar_t>{2.0, 0.1};
+//     auto scalar = pkr::units::measurement_rss_t<pkr::units::scalar_t<double>>{2.0, 0.1};
 //     auto result = v * scalar;
 
 //     EXPECT_DOUBLE_EQ(result.x.value(), 2.0);

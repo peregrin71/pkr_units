@@ -9,9 +9,9 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Imperial acceleration literals
-constexpr feet_per_second_squared_t operator""_fts2(long double value) noexcept
+constexpr feet_per_second_squared_t<double> operator""_fts2(long double value) noexcept
 {
-    return feet_per_second_squared_t{static_cast<double>(value)};
+    return feet_per_second_squared_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals

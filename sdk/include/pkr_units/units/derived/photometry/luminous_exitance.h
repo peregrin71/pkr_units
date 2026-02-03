@@ -1,13 +1,10 @@
 #pragma once
-
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/units/base/length.h>
-
 namespace PKR_UNITS_NAMESPACE
 {
-
 // ============================================================================
 // Illuminance (Lux)
 // ============================================================================
@@ -42,29 +39,32 @@ namespace PKR_UNITS_NAMESPACE
 //
 // NOTE: In the type system, illuminance is [intensity·solid_angle / length²]
 // which reflects the full dimensional relationship.
-
 // Strong type for lux (illuminance)
-struct lux_t final : public details::unit_t<double, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+template <is_unit_value_type_c T>
+struct lux_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
-    using _base = details::unit_t<double, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
+    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
     using _base::_base;
+
     [[maybe_unused]] static constexpr std::string_view name{"lux"};
-
     [[maybe_unused]] static constexpr std::string_view symbol{"lx"};
-
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cd\u00b7sr\u00b7m\u207b\u00b2"};
-
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cd\u00b7sr\u00b7m\u207b\u00b2"};
 };
+
+template <is_unit_value_type_c T>
+lux_t(T) -> lux_t<T>;
+
+template <is_pkr_unit_c U>
+    requires(details::is_pkr_unit<U>::value_dimension == dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1})
+lux_t(const U&) -> lux_t<typename details::is_pkr_unit<U>::value_type>;
 
 // ============================================================================
 // Derived unit type specialization
 // ============================================================================
-
-template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+template <is_unit_value_type_c T>
+struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
-    using type = lux_t;
+    using type = lux_t<T>;
 };
-
 } // namespace PKR_UNITS_NAMESPACE

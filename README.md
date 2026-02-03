@@ -411,9 +411,9 @@ struct liter_per_second_t final
     using _base = pkr::units::details::unit_t<double, std::ratio<1, 1000>, flow_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"liter per second"};
-    static constexpr std::string_view symbol{"L/s"};
-    static constexpr std::wstring_view w_symbol{L"L/s"};
-    static constexpr std::u8string_view u8_symbol{u8"L/s"};
+    static constexpr std::string_view symbol{"L\u00B7s\u207B\u00B9"};
+    static constexpr std::wstring_view w_symbol{L"L\u00B7s\u207B\u00B9"};
+    static constexpr std::u8string_view u8_symbol{u8"L\u00B7s\u207B\u00B9"};
 };
 
 struct cubic_meter_per_second_t final
@@ -422,9 +422,9 @@ struct cubic_meter_per_second_t final
     using _base = pkr::units::details::unit_t<double, std::ratio<1, 1>, flow_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"cubic meter per second"};
-    static constexpr std::string_view symbol{"m^3/s"};
-    static constexpr std::wstring_view w_symbol{L"m^3/s"};
-    static constexpr std::u8string_view u8_symbol{u8"m^3/s"};
+    static constexpr std::string_view symbol{"m\u00b3\u00B7s\u207B\u00B9"};
+    static constexpr std::wstring_view w_symbol{L"m\u00b3\u00B7s\u207B\u00B9"};
+    static constexpr std::u8string_view u8_symbol{u8"m\u00b3\u00B7s\u207B\u00B9"};
 };
 
 template <>

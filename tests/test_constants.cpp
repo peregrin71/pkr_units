@@ -45,16 +45,16 @@ TEST_F(ConstantsTest, FundamentalConstantsAccessible)
 TEST_F(ConstantsTest, TypedConstantsWork)
 {
     // Test kilogram_t constants
-    pkr::units::kilogram_t electron_mass_const{pkr::units::details::electron_mass<double>()};
-    pkr::units::kilogram_t proton_mass_const{pkr::units::details::proton_mass<double>()};
+    pkr::units::kilogram_t<double> electron_mass_const{pkr::units::details::electron_mass<double>()};
+    pkr::units::kilogram_t<double> proton_mass_const{pkr::units::details::proton_mass<double>()};
 
     // Test that they can be used in calculations
-    pkr::units::kilogram_t total_mass = electron_mass_const + proton_mass_const;
+    pkr::units::kilogram_t<double> total_mass = electron_mass_const + proton_mass_const;
     EXPECT_GT(total_mass.value(), electron_mass_const.value());
     EXPECT_GT(total_mass.value(), proton_mass_const.value());
 
     // Test speed of light typed constant
-    pkr::units::meter_per_second_t c{pkr::units::speed_of_light};
+    pkr::units::meter_per_second_t<double> c{pkr::units::speed_of_light};
     EXPECT_DOUBLE_EQ(c.value(), 299792458.0);
 }
 
@@ -62,13 +62,13 @@ TEST_F(ConstantsTest, TypedConstantsWork)
 TEST_F(ConstantsTest, ConstantsInCalculations)
 {
     // Calculate energy using E = mc²
-    pkr::units::joule_t rest_energy_electron{(pkr::units::electron_mass * pkr::units::speed_of_light * pkr::units::speed_of_light).value()};
+    pkr::units::joule_t<double> rest_energy_electron{(pkr::units::electron_mass * pkr::units::speed_of_light * pkr::units::speed_of_light).value()};
     EXPECT_GT(rest_energy_electron.value(), 0.0);
 
     // Test with typed constants
-    pkr::units::kilogram_t m_e{pkr::units::details::electron_mass<double>()};
-    pkr::units::meter_per_second_t c{pkr::units::speed_of_light};
-    pkr::units::joule_t energy{(m_e * c * c).value()};
+    pkr::units::kilogram_t<double> m_e{pkr::units::details::electron_mass<double>()};
+    pkr::units::meter_per_second_t<double> c{pkr::units::speed_of_light};
+    pkr::units::joule_t<double> energy{(m_e * c * c).value()};
 
     EXPECT_GT(energy.value(), 0.0);
 }
@@ -77,7 +77,7 @@ TEST_F(ConstantsTest, ConstantsInCalculations)
 TEST_F(ConstantsTest, AtomicConstantsWork)
 {
     // Test Hartree energy
-    pkr::units::joule_t hartree_energy_const{pkr::units::details::hartree_energy<double>()};
+    pkr::units::joule_t<double> hartree_energy_const{pkr::units::details::hartree_energy<double>()};
     EXPECT_GT(hartree_energy_const.value(), 0.0);
 
     // Test that atomic constants are accessible
@@ -88,11 +88,11 @@ TEST_F(ConstantsTest, AtomicConstantsWork)
 TEST_F(ConstantsTest, ParticleConstantsWork)
 {
     // Test muon mass
-    pkr::units::kilogram_t muon_mass_const{pkr::units::details::muon_mass<double>()};
+    pkr::units::kilogram_t<double> muon_mass_const{pkr::units::details::muon_mass<double>()};
     EXPECT_GT(muon_mass_const.value(), 0.0);
 
     // Test deuteron mass
-    pkr::units::kilogram_t deuteron_mass_const{pkr::units::details::deuteron_mass<double>()};
+    pkr::units::kilogram_t<double> deuteron_mass_const{pkr::units::details::deuteron_mass<double>()};
     EXPECT_GT(deuteron_mass_const.value(), 0.0);
 }
 
@@ -113,11 +113,11 @@ TEST_F(ConstantsTest, ElectromagneticConstantsWork)
 TEST_F(ConstantsTest, NuclearConstantsWork)
 {
     // Test classical electron radius
-    pkr::units::meter_t electron_radius{pkr::units::details::classical_electron_radius<double>()};
+    pkr::units::meter_t<double> electron_radius{pkr::units::details::classical_electron_radius<double>()};
     EXPECT_GT(electron_radius.value(), 0.0);
 
     // Test Thomson cross section
-    pkr::units::square_meter_t thomson_cross_section_const{pkr::units::details::thomson_cross_section<double>()};
+    pkr::units::square_meter_t<double> thomson_cross_section_const{pkr::units::details::thomson_cross_section<double>()};
     EXPECT_GT(thomson_cross_section_const.value(), 0.0);
 }
 

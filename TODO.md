@@ -354,6 +354,7 @@
 ### From Code Comments
 - [ ] TODO: model if a value in a dimension can be negative or not (dimension.h)
 - [ ] TODO: move helper to separate formatting header (si_unit.h)
+- [ ] TODO: add template-aware unit_cast specializations for formatting-only units (e.g., `decibel_power_t<T>`, `decibel_amplitude_t<T>`) and update tests that currently rely on `unit_cast` behavior for these types (#decibel-unit-cast)
 
 ### Design Decisions to Revisit
 - [x] Comparison operators are supported

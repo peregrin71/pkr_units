@@ -17,7 +17,7 @@ class ImperialPowerFormattingTest : public Test
 
 TEST_F(ImperialPowerFormattingTest, horsepower_ascii_formatting)
 {
-    pkr::units::horsepower_t hp{1.0};
+    pkr::units::horsepower_t<double> hp{1.0};
     std::string result = std::format("{}", hp);
     ASSERT_EQ(result, "1 hp");
 }

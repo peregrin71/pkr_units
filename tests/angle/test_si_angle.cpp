@@ -219,7 +219,7 @@ TEST_F(SiAngleTest, scalar_multiply_radian_preserves_type)
 {
     radian_t angle(3.14159);
     auto result = angle * 2.0;
-    static_assert(std::is_same_v<decltype(result), radian_t>, "Scalar multiplication should preserve radian_t type");
+    static_assert(std::is_same_v<decltype(result), radian_t<double>>, "Scalar multiplication should preserve radian_t type");
     EXPECT_DOUBLE_EQ(result.value(), 6.28318);
 }
 
@@ -227,7 +227,7 @@ TEST_F(SiAngleTest, scalar_multiply_degree_preserves_type)
 {
     degree_t angle(180.0);
     auto result = angle * 2.0;
-    static_assert(std::is_same_v<decltype(result), degree_t>, "Scalar multiplication should preserve degree_t type");
+    static_assert(std::is_same_v<decltype(result), degree_t<double>>, "Scalar multiplication should preserve degree_t type");
     EXPECT_DOUBLE_EQ(result.value(), 360.0);
 }
 
@@ -235,6 +235,6 @@ TEST_F(SiAngleTest, scalar_multiply_gradian_preserves_type)
 {
     gradian_t angle(200.0);
     auto result = angle * 2.0;
-    static_assert(std::is_same_v<decltype(result), gradian_t>, "Scalar multiplication should preserve gradian_t type");
+    static_assert(std::is_same_v<decltype(result), gradian_t<double>>, "Scalar multiplication should preserve gradian_t type");
     EXPECT_DOUBLE_EQ(result.value(), 400.0);
 }

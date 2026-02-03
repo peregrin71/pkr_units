@@ -17,8 +17,8 @@ class MathFunctionsTest : public Test
 
 TEST_F(MathFunctionsTest, add_same_units)
 {
-    pkr::units::meter_t m1{5.0};
-    pkr::units::meter_t m2{3.0};
+    pkr::units::meter_t<double> m1{5.0};
+    pkr::units::meter_t<double> m2{3.0};
     auto result = m1 + m2;
 
     ASSERT_DOUBLE_EQ(result.value(), 8.0);
@@ -29,8 +29,8 @@ TEST_F(MathFunctionsTest, add_same_units)
 
 TEST_F(MathFunctionsTest, add_different_ratios)
 {
-    pkr::units::meter_t m{1.0};
-    pkr::units::meter_t m2{2.0}; // Same ratio, just different values
+    pkr::units::meter_t<double> m{1.0};
+    pkr::units::meter_t<double> m2{2.0}; // Same ratio, just different values
     auto result = m + m2;
 
     ASSERT_DOUBLE_EQ(result.value(), 3.0);
@@ -41,8 +41,8 @@ TEST_F(MathFunctionsTest, add_different_ratios)
 
 TEST_F(MathFunctionsTest, subtract_same_units)
 {
-    pkr::units::second_t s1{10.0};
-    pkr::units::second_t s2{3.0};
+    pkr::units::second_t<double> s1{10.0};
+    pkr::units::second_t<double> s2{3.0};
     auto result = s1 - s2;
 
     ASSERT_DOUBLE_EQ(result.value(), 7.0);
@@ -53,8 +53,8 @@ TEST_F(MathFunctionsTest, subtract_same_units)
 
 TEST_F(MathFunctionsTest, multiply_different_dimensions)
 {
-    pkr::units::meter_t m{5.0};
-    pkr::units::second_t s{2.0};
+    pkr::units::meter_t<double> m{5.0};
+    pkr::units::second_t<double> s{2.0};
     auto result = pkr::units::multiply(m, s);
 
     ASSERT_DOUBLE_EQ(result.value(), 10.0);
@@ -66,8 +66,8 @@ TEST_F(MathFunctionsTest, multiply_different_dimensions)
 
 TEST_F(MathFunctionsTest, divide_different_dimensions)
 {
-    pkr::units::meter_t m{10.0};
-    pkr::units::second_t s{2.0};
+    pkr::units::meter_t<double> m{10.0};
+    pkr::units::second_t<double> s{2.0};
     auto result = pkr::units::divide(m, s);
 
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -83,7 +83,7 @@ TEST_F(MathFunctionsTest, divide_different_dimensions)
 
 TEST_F(MathFunctionsTest, multiply_scalar)
 {
-    pkr::units::meter_t m{5.0};
+    pkr::units::meter_t<double> m{5.0};
     auto result = m * 3.0;
 
     ASSERT_DOUBLE_EQ(result.value(), 15.0);
@@ -94,7 +94,7 @@ TEST_F(MathFunctionsTest, multiply_scalar)
 
 TEST_F(MathFunctionsTest, divide_scalar)
 {
-    pkr::units::second_t s{10.0};
+    pkr::units::second_t<double> s{10.0};
     auto result = s / 2.0;
 
     ASSERT_DOUBLE_EQ(result.value(), 5.0);
@@ -110,7 +110,7 @@ TEST_F(MathFunctionsTest, divide_scalar)
 TEST_F(MathFunctionsTest, sqrt_length_squared)
 {
     // Create area by multiplying length by length
-    auto length = pkr::units::meter_t{4.0};
+    auto length = pkr::units::meter_t<double>{4.0};
     auto area = length * length; // This creates a unit with length² dimension
     auto result = pkr::units::sqrt(area);
 
@@ -124,7 +124,7 @@ TEST_F(MathFunctionsTest, sqrt_length_squared)
 TEST_F(MathFunctionsTest, exp_dimensionless_input)
 {
     // Create dimensionless value by dividing same units
-    auto dimensionless_value = pkr::units::meter_t{2.0} / pkr::units::meter_t{2.0}; // equals 1.0
+    auto dimensionless_value = pkr::units::meter_t<double>{2.0} / pkr::units::meter_t<double>{2.0}; // equals 1.0
     auto result = pkr::units::exp(dimensionless_value);
 
     ASSERT_DOUBLE_EQ(result.value(), std::exp(1.0));
@@ -138,7 +138,7 @@ TEST_F(MathFunctionsTest, exp_dimensionless_input)
 TEST_F(MathFunctionsTest, log_dimensionless_input)
 {
     // Create dimensionless value by dividing same units
-    auto dimensionless_value = pkr::units::meter_t{1.0} / pkr::units::meter_t{1.0}; // equals 1.0
+    auto dimensionless_value = pkr::units::meter_t<double>{1.0} / pkr::units::meter_t<double>{1.0}; // equals 1.0
     auto result = pkr::units::log(dimensionless_value);
 
     ASSERT_DOUBLE_EQ(result.value(), std::log(1.0)); // ln(1) = 0
@@ -151,9 +151,9 @@ TEST_F(MathFunctionsTest, log_dimensionless_input)
 
 TEST_F(MathFunctionsTest, pow_with_dimensionless_exponent)
 {
-    pkr::units::meter_t base{2.0};
+    pkr::units::meter_t<double> base{2.0};
     // Create dimensionless exponent by dividing same units
-    auto dimensionless_two = pkr::units::meter_t{4.0} / pkr::units::meter_t{2.0}; // equals 2.0
+    auto dimensionless_two = pkr::units::meter_t<double>{4.0} / pkr::units::meter_t<double>{2.0}; // equals 2.0
     auto result = pkr::units::pow(base, dimensionless_two);
 
     ASSERT_DOUBLE_EQ(result.value(), 4.0); // 2^2 = 4
@@ -165,7 +165,7 @@ TEST_F(MathFunctionsTest, pow_with_dimensionless_exponent)
 TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 {
     // Create velocity squared by multiplying velocity by velocity
-    auto velocity = pkr::units::meter_t{3.0} / pkr::units::second_t{1.0}; // 3 m/s
+    auto velocity = pkr::units::meter_t<double>{3.0} / pkr::units::second_t<double>{1.0}; // 3 m/s
     auto velocity_squared = velocity * velocity;                          // This creates a unit with (length/time)² dimension
 
     ASSERT_DOUBLE_EQ(velocity_squared.value(), 9.0);
@@ -188,8 +188,8 @@ TEST_F(MathFunctionsTest, sqrt_velocity_squared)
 TEST_F(MathFunctionsTest, normalize_complex_operations)
 {
     // Test normalize after complex operations
-    auto force = pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0}); // 5 kg·m/s² = 5 N
-    auto distance = pkr::units::kilometer_t{3.0};                                                                                     // 3 km
+    auto force = pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} / (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
+    auto distance = pkr::units::kilometer_t<double>{3.0};                                                                                     // 3 km
     auto energy = force * distance; // Complex operation: 5000 N * 3 km
 
     // The result should be some compound unit; `in_base_si_units()` should return Joules
@@ -208,8 +208,8 @@ TEST_F(MathFunctionsTest, normalize_complex_operations_constexpr)
 {
     // Test normalize at compile time
     constexpr auto force =
-        pkr::units::kilogram_t{5.0} * pkr::units::meter_t{1000.0} / (pkr::units::second_t{1.0} * pkr::units::second_t{1.0}); // 5 kg·m/s² = 5 N
-    constexpr auto distance = pkr::units::kilometer_t{3.0};                                                                  // 3 km
+        pkr::units::kilogram_t<double>{5.0} * pkr::units::meter_t<double>{1000.0} / (pkr::units::second_t<double>{1.0} * pkr::units::second_t<double>{1.0}); // 5 kg·m/s² = 5 N
+    constexpr auto distance = pkr::units::kilometer_t<double>{3.0};                                                                  // 3 km
     constexpr auto energy = force * distance;                                                                                // Complex operation: 5000 N * 3 km
     constexpr auto normalized_energy = energy.in_base_si_units();
 
@@ -236,8 +236,8 @@ TEST_F(MathFunctionsTest, normalize_complex_operations_constexpr)
 TEST_F(MathFunctionsTest, math_functions_work_with_existing_operations)
 {
     // Test that math functions produce results compatible with existing operations
-    pkr::units::meter_t m1{3.0};
-    pkr::units::meter_t m2{4.0};
+    pkr::units::meter_t<double> m1{3.0};
+    pkr::units::meter_t<double> m2{4.0};
 
     auto sum = m1 + m2;
     auto doubled = sum * 2.0;

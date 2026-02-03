@@ -36,9 +36,9 @@ struct radians_per_second_t final : public details::unit_t<double, std::ratio<1,
     using _base = details::unit_t<double, std::ratio<1, 1>, angular_velocity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"radians per second"};
-    static constexpr std::string_view symbol{"rad/s"};
-    static constexpr std::wstring_view w_symbol{L"rad/s"};
-    static constexpr std::u8string_view u8_symbol{u8"rad/s"};
+    static constexpr std::string_view symbol{"rad\u00B7s\u207B\u00B9"};
+    static constexpr std::wstring_view w_symbol{L"rad\u00B7s\u207B\u00B9"};
+    static constexpr std::u8string_view u8_symbol{u8"rad\u00B7s\u207B\u00B9"};
 };
 
 // Revolutions per minute
@@ -58,9 +58,9 @@ struct degrees_per_second_t final : public details::unit_t<double, std::ratio<17
     using _base = details::unit_t<double, std::ratio<1745329, 100000000>, angular_velocity_dimension>;
     using _base::_base;
     static constexpr std::string_view name{"degrees per second"};
-    static constexpr std::string_view symbol{"°/s"};
-    static constexpr std::wstring_view w_symbol{L"°/s"};
-    static constexpr std::u8string_view u8_symbol{u8"°/s"};
+    static constexpr std::string_view symbol{"\u00B0\u00B7s\u207B\u00B9"};
+    static constexpr std::wstring_view w_symbol{L"\u00B0\u00B7s\u207B\u00B9"};
+    static constexpr std::u8string_view u8_symbol{u8"\u00B0\u00B7s\u207B\u00B9"};
 };
 
 // ============================================================================
