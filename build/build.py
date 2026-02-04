@@ -317,6 +317,11 @@ def main():
         help="Skip Conda environment setup",
     )
     parser.add_argument(
+        "--skip-generate-ce-tree",
+        action="store_true",
+        help="Skip running tools/generate_ce_tree.py after a successful build",
+    )
+    parser.add_argument(
         "--coverage",
         action="store_true",
         help="Enable coverage reporting (clang Debug on Linux only)",
@@ -417,6 +422,20 @@ def main():
         all_passed = all("[PASSED]" in result for result in results.values())
         if all_passed:
             print_success("\nAll builds completed successfully!")
+
+            # Generate Compiler Explorer tree for local development
+            # Skip this step in CI environments or when explicitly requested
+            if not args.skip_generate_ce_tree and not (os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS')):
+                try:
+                    print_step("Generating Compiler Explorer tree (tools/generate_ce_tree.py)")
+                    script = project_root / 'tools' / 'generate_ce_tree.py'
+                    subprocess.run([sys.executable, str(script)], check=True)
+                    print_success("Compiler Explorer tree generated")
+                except subprocess.CalledProcessError as e:
+                    # Don't fail the entire build if CE tree generation fails; just print an error
+                    print_error(f"Compiler Explorer tree generation failed: {e}")
+            else:
+                print_info("Skipping Compiler Explorer tree generation (CI or skipped by flag)")
         else:
             print_error("\nSome builds failed!")
             sys.exit(1)
