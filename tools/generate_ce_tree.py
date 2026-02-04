@@ -17,10 +17,25 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1] / 'sdk' / 'include' / 'pkr_units'
 DEST_ROOT = Path(__file__).resolve().parents[1] / 'compiler_explorer' / 'pkr_units'
 REPO = 'peregrin71/pkr_units'
+# Default branch; the script will prefer an explicit PKR_CE_REF env var or the current commit SHA
 BRANCH = 'main'
-RAW_BASE = f'https://raw.githubusercontent.com/{REPO}/{BRANCH}/compiler_explorer/pkr_units'
 
 INCLUDE_RE = re.compile(r'(#\s*include\s*)(<|\")([^">]+)(>|\")')
+
+
+def get_ref():
+    """Return the git ref to use for raw.githubusercontent URLs.
+    Priority:
+      1. Environment variable PKR_CE_REF (if set)
+      2. Default to BRANCH ('main')
+
+    Note: We intentionally avoid using the local commit SHA so generated
+    includes use a stable, human-friendly branch (main) by default.
+    """
+    env_ref = os.environ.get('PKR_CE_REF')
+    if env_ref:
+        return env_ref
+    return BRANCH
 
 
 def resolve_include_path(inc, current_rel):
@@ -70,4 +85,49 @@ def copy_and_rewrite():
 
 
 if __name__ == '__main__':
+    # Determine ref (commit SHA or branch) and set RAW_BASE accordingly
+    ref = get_ref()
+    RAW_BASE = f'https://raw.githubusercontent.com/{REPO}/{ref}/compiler_explorer/pkr_units'
+
+    print(f'Using ref: {ref} for raw URLs')
+
+    # Clean the existing DEST_ROOT to ensure a fresh copy (avoid stale/partial files)
+    import shutil
+    if DEST_ROOT.exists():
+        print(f'Removing existing {DEST_ROOT} to ensure a clean copy')
+        shutil.rmtree(DEST_ROOT)
+
+    # Run copy and rewrite step
     copy_and_rewrite()
+
+    # Generate a top-level helper header (topologically sorted) pinned to the same ref
+    try:
+        import subprocess
+        import sys
+        helper_script = Path(__file__).resolve().parents[1] / 'tools' / 'generate_ce_helper.py'
+        helper_tmp = Path(__file__).resolve().parents[1] / 'compiler_explorer' / 'pkr_units_helper.tmp.h'
+        print('Generating top-level helper header (temporary) using generate_ce_helper.py')
+        subprocess.run([sys.executable, str(helper_script), '--branch', ref, '--out', str(helper_tmp)], check=True)
+
+        # Post-process the helper to refer to the CE path rather than sdk/include path
+        tmp_text = helper_tmp.read_text(encoding='utf-8')
+        sdk_prefix = f'https://raw.githubusercontent.com/{REPO}/{ref}/sdk/include/pkr_units'
+        ce_prefix = f'https://raw.githubusercontent.com/{REPO}/{ref}/compiler_explorer/pkr_units'
+        fixed = tmp_text.replace(sdk_prefix, ce_prefix)
+
+        final_helper = Path(__file__).resolve().parents[1] / 'compiler_explorer' / 'pkr_units.h'
+        final_helper.write_text(fixed, encoding='utf-8')
+        print(f'Wrote top-level helper: {final_helper}')
+
+        # Cleanup temp
+        try:
+            helper_tmp.unlink()
+        except Exception:
+            pass
+
+    except subprocess.CalledProcessError as e:
+        print(f'Failed to generate helper header: {e}')
+        # Don't fail the whole script: the CE tree itself is still useful
+    except Exception as e:
+        print(f'Unexpected error while generating helper header: {e}')
+
