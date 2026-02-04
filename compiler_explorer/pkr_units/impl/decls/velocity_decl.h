@@ -1,0 +1,15 @@
+#pragma once
+
+#include <ratio>
+#include "https://raw.githubusercontent.com/peregrin71/pkr_units/main/compiler_explorer/pkr_units/impl/dimension.h"
+#include "https://raw.githubusercontent.com/peregrin71/pkr_units/main/compiler_explorer/pkr_units/impl/decls/unit_t_decl.h"
+
+namespace PKR_UNITS_NAMESPACE
+{
+// Velocity dimension
+inline constexpr dimension_t velocity_dimension{.length = 1, .mass = 0, .time = -1, .current = 0, .temperature = 0, .amount = 0, .intensity = 0, .angle = 0};
+
+// Velocity quantity template
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using velocity_unit_t = details::unit_t<type_t, ratio_t, velocity_dimension>;
+} // namespace PKR_UNITS_NAMESPACE
