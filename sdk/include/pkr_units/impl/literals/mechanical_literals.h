@@ -12,172 +12,172 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Force unit literals
-constexpr newton_t operator""_N(long double value) noexcept
+constexpr newton_t<double> operator""_N(long double value) noexcept
 {
-    return newton_t{static_cast<double>(value)};
+    return newton_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilonewton_t operator""_kN(long double value) noexcept
+constexpr kilonewton_t<double> operator""_kN(long double value) noexcept
 {
-    return kilonewton_t{static_cast<double>(value)};
+    return kilonewton_t<double>{static_cast<double>(value)};
 }
 
-constexpr meganewton_t operator""_MN(long double value) noexcept
+constexpr meganewton_t<double> operator""_MN(long double value) noexcept
 {
-    return meganewton_t{static_cast<double>(value)};
+    return meganewton_t<double>{static_cast<double>(value)};
 }
 
-constexpr millinewton_t operator""_mN(long double value) noexcept
+constexpr millinewton_t<double> operator""_mN(long double value) noexcept
 {
-    return millinewton_t{static_cast<double>(value)};
+    return millinewton_t<double>{static_cast<double>(value)};
 }
 
-constexpr micronewton_t operator""_uN(long double value) noexcept
+constexpr micronewton_t<double> operator""_uN(long double value) noexcept
 {
-    return micronewton_t{static_cast<double>(value)};
+    return micronewton_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanonewton_t operator""_nN(long double value) noexcept
+constexpr nanonewton_t<double> operator""_nN(long double value) noexcept
 {
-    return nanonewton_t{static_cast<double>(value)};
+    return nanonewton_t<double>{static_cast<double>(value)};
 }
 
 // Pressure unit literals
-constexpr pascal_t operator""_Pa(long double value) noexcept
+constexpr pascal_t<double> operator""_Pa(long double value) noexcept
 {
-    return pascal_t{static_cast<double>(value)};
+    return pascal_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilopascal_t operator""_kPa(long double value) noexcept
+constexpr kilopascal_t<double> operator""_kPa(long double value) noexcept
 {
-    return kilopascal_t{static_cast<double>(value)};
+    return kilopascal_t<double>{static_cast<double>(value)};
 }
 
-constexpr megapascal_t operator""_MPa(long double value) noexcept
+constexpr megapascal_t<double> operator""_MPa(long double value) noexcept
 {
-    return megapascal_t{static_cast<double>(value)};
+    return megapascal_t<double>{static_cast<double>(value)};
 }
 
-constexpr hectopascal_t operator""_hPa(long double value) noexcept
+constexpr hectopascal_t<double> operator""_hPa(long double value) noexcept
 {
-    return hectopascal_t{static_cast<double>(value)};
+    return hectopascal_t<double>{static_cast<double>(value)};
 }
 
-constexpr bar_t operator""_bar(long double value) noexcept
+constexpr bar_t<double> operator""_bar(long double value) noexcept
 {
-    return bar_t{static_cast<double>(value)};
+    return bar_t<double>{static_cast<double>(value)};
 }
 
-constexpr atmosphere_t operator""_atm(long double value) noexcept
+constexpr atmosphere_t<double> operator""_atm(long double value) noexcept
 {
-    return atmosphere_t{static_cast<double>(value)};
+    return atmosphere_t<double>{static_cast<double>(value)};
 }
 
 // Energy unit literals
-constexpr joule_t operator""_J(long double value) noexcept
+constexpr joule_t<double> operator""_J(long double value) noexcept
 {
-    return joule_t{static_cast<double>(value)};
+    return joule_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilojoule_t operator""_kJ(long double value) noexcept
+constexpr kilojoule_t<double> operator""_kJ(long double value) noexcept
 {
-    return kilojoule_t{static_cast<double>(value)};
+    return kilojoule_t<double>{static_cast<double>(value)};
 }
 
-constexpr megajoule_t operator""_MJ(long double value) noexcept
+constexpr megajoule_t<double> operator""_MJ(long double value) noexcept
 {
-    return megajoule_t{static_cast<double>(value)};
+    return megajoule_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigajoule_t operator""_GJ(long double value) noexcept
+constexpr gigajoule_t<double> operator""_GJ(long double value) noexcept
 {
-    return gigajoule_t{static_cast<double>(value)};
+    return gigajoule_t<double>{static_cast<double>(value)};
 }
 
-constexpr millijoule_t operator""_mJ(long double value) noexcept
+constexpr millijoule_t<double> operator""_mJ(long double value) noexcept
 {
-    return millijoule_t{static_cast<double>(value)};
+    return millijoule_t<double>{static_cast<double>(value)};
 }
 
-constexpr microjoule_t operator""_uJ(long double value) noexcept
+constexpr microjoule_t<double> operator""_uJ(long double value) noexcept
 {
-    return microjoule_t{static_cast<double>(value)};
+    return microjoule_t<double>{static_cast<double>(value)};
 }
 
-constexpr calorie_t operator""_cal(long double value) noexcept
+constexpr calorie_t<double> operator""_cal(long double value) noexcept
 {
-    return calorie_t{static_cast<double>(value)};
+    return calorie_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilocalorie_t operator""_kcal(long double value) noexcept
+constexpr kilocalorie_t<double> operator""_kcal(long double value) noexcept
 {
-    return kilocalorie_t{static_cast<double>(value)};
+    return kilocalorie_t<double>{static_cast<double>(value)};
 }
 
-constexpr watt_hour_t operator""_Wh(long double value) noexcept
+constexpr watt_hour_t<double> operator""_Wh(long double value) noexcept
 {
-    return watt_hour_t{static_cast<double>(value)};
+    return watt_hour_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilowatt_hour_t operator""_kWh(long double value) noexcept
+constexpr kilowatt_hour_t<double> operator""_kWh(long double value) noexcept
 {
-    return kilowatt_hour_t{static_cast<double>(value)};
+    return kilowatt_hour_t<double>{static_cast<double>(value)};
 }
 
-constexpr electronvolt_t operator""_eV(long double value) noexcept
+constexpr electronvolt_t<double> operator""_eV(long double value) noexcept
 {
-    return electronvolt_t{static_cast<double>(value)};
+    return electronvolt_t<double>{static_cast<double>(value)};
 }
 
-constexpr kiloelectronvolt_t operator""_keV(long double value) noexcept
+constexpr kiloelectronvolt_t<double> operator""_keV(long double value) noexcept
 {
-    return kiloelectronvolt_t{static_cast<double>(value)};
+    return kiloelectronvolt_t<double>{static_cast<double>(value)};
 }
 
-constexpr megaelectronvolt_t operator""_MeV(long double value) noexcept
+constexpr megaelectronvolt_t<double> operator""_MeV(long double value) noexcept
 {
-    return megaelectronvolt_t{static_cast<double>(value)};
+    return megaelectronvolt_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigaelectronvolt_t operator""_GeV(long double value) noexcept
+constexpr gigaelectronvolt_t<double> operator""_GeV(long double value) noexcept
 {
-    return gigaelectronvolt_t{static_cast<double>(value)};
+    return gigaelectronvolt_t<double>{static_cast<double>(value)};
 }
 
 // Power unit literals
-constexpr watt_t operator""_W(long double value) noexcept
+constexpr watt_t<double> operator""_W(long double value) noexcept
 {
-    return watt_t{static_cast<double>(value)};
+    return watt_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilowatt_t operator""_kW(long double value) noexcept
+constexpr kilowatt_t<double> operator""_kW(long double value) noexcept
 {
-    return kilowatt_t{static_cast<double>(value)};
+    return kilowatt_t<double>{static_cast<double>(value)};
 }
 
-constexpr megawatt_t operator""_MW(long double value) noexcept
+constexpr megawatt_t<double> operator""_MW(long double value) noexcept
 {
-    return megawatt_t{static_cast<double>(value)};
+    return megawatt_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigawatt_t operator""_GW(long double value) noexcept
+constexpr gigawatt_t<double> operator""_GW(long double value) noexcept
 {
-    return gigawatt_t{static_cast<double>(value)};
+    return gigawatt_t<double>{static_cast<double>(value)};
 }
 
-constexpr milliwatt_t operator""_mW(long double value) noexcept
+constexpr milliwatt_t<double> operator""_mW(long double value) noexcept
 {
-    return milliwatt_t{static_cast<double>(value)};
+    return milliwatt_t<double>{static_cast<double>(value)};
 }
 
-constexpr microwatt_t operator""_uW(long double value) noexcept
+constexpr microwatt_t<double> operator""_uW(long double value) noexcept
 {
-    return microwatt_t{static_cast<double>(value)};
+    return microwatt_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanowatt_t operator""_nW(long double value) noexcept
+constexpr nanowatt_t<double> operator""_nW(long double value) noexcept
 {
-    return nanowatt_t{static_cast<double>(value)};
+    return nanowatt_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals

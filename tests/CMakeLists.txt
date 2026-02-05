@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.20)
 # Add SDK include directory
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../sdk/include)
 
+# Required to run the umbrella generator script
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 # Collect all test source files
 set(TEST_SOURCES
   main.cpp
@@ -104,5 +107,64 @@ target_link_libraries(si_units_test PRIVATE GTest::gtest GTest::gtest_main)
 # Register the test executable as a test that CTest will run
 # add_test(NAME si_units_test COMMAND si_units_test --gtest_filter=MultiCastTest.*)
 add_test(NAME si_units_test_all COMMAND si_units_test)
+
+# Option to generate a single preprocessed header from all SDK headers.
+option(GENERATE_SINGLE_HEADER "Generate a single preprocessed header" OFF)
+
+# Only enable generation on Linux + Clang to match local linux-clang profile.
+if(GENERATE_SINGLE_HEADER AND UNIX AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  message(STATUS "GENERATE_SINGLE_HEADER is ON: adding custom target to precompute single header")
+
+  # Output header in the build tree
+  set(SINGLE_HEADER_OUT ${CMAKE_BINARY_DIR}/compiler_explorer/pkr_units/single_header_test.h)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/compiler_explorer/pkr_units)
+
+  # Collect all SDK headers as dependencies so we regenerate when any header changes
+  file(GLOB_RECURSE PKR_UNITS_HEADERS
+    ${CMAKE_SOURCE_DIR}/sdk/include/pkr_units/*.h
+  )
+
+  # Umbrella generator script will write tests/tools/_all_sdk_headers.h
+  set(UMBRELLA_OUT ${CMAKE_SOURCE_DIR}/tests/tools/_all_sdk_headers.h)
+  add_custom_command(
+    OUTPUT ${UMBRELLA_OUT}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/generate_tests_umbrella.py --out ${UMBRELLA_OUT}
+    DEPENDS ${PKR_UNITS_HEADERS} ${CMAKE_SOURCE_DIR}/tools/generate_tests_umbrella.py
+    COMMENT "Generating umbrella header ${UMBRELLA_OUT}"
+    VERBATIM
+  )
+
+  add_custom_target(generate_umbrella DEPENDS ${UMBRELLA_OUT})
+
+  # Raw preprocessed output (keeps #line markers so we can determine origin files)
+  set(SINGLE_HEADER_RAW ${CMAKE_BINARY_DIR}/compiler_explorer/pkr_units/single_header_raw.h)
+  add_custom_command(
+    OUTPUT ${SINGLE_HEADER_RAW}
+    # Ensure output directory
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/compiler_explorer/pkr_units
+    COMMAND /bin/sh -lc "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} -E -x c++ -std=c++${CMAKE_CXX_STANDARD} ${CMAKE_SOURCE_DIR}/tests/tools/_all_sdk_tu.cpp -I ${CMAKE_SOURCE_DIR}/sdk/include -o ${SINGLE_HEADER_RAW}"
+    DEPENDS ${PKR_UNITS_HEADERS} ${CMAKE_SOURCE_DIR}/tests/tools/_all_sdk_tu.cpp ${UMBRELLA_OUT}
+    COMMENT "Generating raw preprocessed header: ${SINGLE_HEADER_RAW}"
+    VERBATIM
+  )
+
+  # Postprocess raw preprocessed output into cleaned CE header in source tree
+  set(CE_HEADER ${CMAKE_SOURCE_DIR}/ce/pkr_units.h)
+  add_custom_command(
+    OUTPUT ${CE_HEADER}
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/postprocess_preprocessed.py --input ${SINGLE_HEADER_RAW} --output ${CE_HEADER} --project-root ${CMAKE_SOURCE_DIR}/sdk/include/pkr_units
+    DEPENDS ${SINGLE_HEADER_RAW} ${CMAKE_SOURCE_DIR}/tools/postprocess_preprocessed.py
+    COMMENT "Postprocessing raw header into cleaned ${CE_HEADER}"
+    VERBATIM
+  )
+
+  add_custom_target(generate_ce_header DEPENDS ${CE_HEADER})
+  add_dependencies(generate_ce_header generate_umbrella)
+  add_dependencies(generate_ce_header generate_single_header)
+
+  add_custom_target(generate_single_header DEPENDS ${SINGLE_HEADER_RAW})
+  add_dependencies(generate_single_header generate_umbrella)
+  add_dependencies(si_units_test generate_single_header generate_ce_header)
+endif()
 
 

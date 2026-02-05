@@ -323,6 +323,13 @@ struct centiampere_t final : public details::unit_t<T, std::centi, current_dimen
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cA"};
 };
 
+template <is_unit_value_type_c T>
+centiampere_t(T) -> centiampere_t<T>;
+
+template <is_pkr_unit_c U>
+    requires(details::is_pkr_unit<U>::value_dimension == current_dimension)
+centiampere_t(const U&) -> centiampere_t<typename details::is_pkr_unit<U>::value_type>;
+
 // ============================================================================
 // Most derived unit type specializations for current units
 // ============================================================================

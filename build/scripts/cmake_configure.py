@@ -55,6 +55,10 @@ class CMakeConfig:
         if generator == "Ninja":
             cmd.append(f"-DCMAKE_BUILD_TYPE={configuration}")
 
+        # Enable single-header generation for clang builds (useful for Compiler Explorer)
+        if self.compiler == 'clang':
+            cmd.append("-DGENERATE_SINGLE_HEADER=ON")
+
         cmd.append(str(self.project_root))
 
         try:

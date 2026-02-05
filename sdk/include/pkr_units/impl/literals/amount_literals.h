@@ -9,89 +9,89 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Metric amount prefix literals
-constexpr attomole_t operator""_amol(long double value) noexcept
+constexpr attomole_t<double> operator""_amol(long double value) noexcept
 {
-    return attomole_t{static_cast<double>(value)};
+    return attomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr femtomole_t operator""_fmol(long double value) noexcept
+constexpr femtomole_t<double> operator""_fmol(long double value) noexcept
 {
-    return femtomole_t{static_cast<double>(value)};
+    return femtomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr picomole_t operator""_pmol(long double value) noexcept
+constexpr picomole_t<double> operator""_pmol(long double value) noexcept
 {
-    return picomole_t{static_cast<double>(value)};
+    return picomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanomole_t operator""_nmol(long double value) noexcept
+constexpr nanomole_t<double> operator""_nmol(long double value) noexcept
 {
-    return nanomole_t{static_cast<double>(value)};
+    return nanomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr micromole_t operator""_umol(long double value) noexcept
+constexpr micromole_t<double> operator""_umol(long double value) noexcept
 {
-    return micromole_t{static_cast<double>(value)};
+    return micromole_t<double>{static_cast<double>(value)};
 }
 
-constexpr millimole_t operator""_mmol(long double value) noexcept
+constexpr millimole_t<double> operator""_mmol(long double value) noexcept
 {
-    return millimole_t{static_cast<double>(value)};
+    return millimole_t<double>{static_cast<double>(value)};
 }
 
-constexpr centimole_t operator""_cmol(long double value) noexcept
+constexpr centimole_t<double> operator""_cmol(long double value) noexcept
 {
-    return centimole_t{static_cast<double>(value)};
+    return centimole_t<double>{static_cast<double>(value)};
 }
 
-constexpr decimole_t operator""_dmol(long double value) noexcept
+constexpr decimole_t<double> operator""_dmol(long double value) noexcept
 {
-    return decimole_t{static_cast<double>(value)};
+    return decimole_t<double>{static_cast<double>(value)};
 }
 
-constexpr mole_t operator""_mol(long double value) noexcept
+constexpr mole_t<double> operator""_mol(long double value) noexcept
 {
-    return mole_t{static_cast<double>(value)};
+    return mole_t<double>{static_cast<double>(value)};
 }
 
-constexpr decamole_t operator""_damol(long double value) noexcept
+constexpr decamole_t<double> operator""_damol(long double value) noexcept
 {
-    return decamole_t{static_cast<double>(value)};
+    return decamole_t<double>{static_cast<double>(value)};
 }
 
-constexpr hectomole_t operator""_hmol(long double value) noexcept
+constexpr hectomole_t<double> operator""_hmol(long double value) noexcept
 {
-    return hectomole_t{static_cast<double>(value)};
+    return hectomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilomole_t operator""_kmol(long double value) noexcept
+constexpr kilomole_t<double> operator""_kmol(long double value) noexcept
 {
-    return kilomole_t{static_cast<double>(value)};
+    return kilomole_t<double>{static_cast<double>(value)};
 }
 
-constexpr megamole_t operator""_Mmol(long double value) noexcept
+constexpr megamole_t<double> operator""_Mmol(long double value) noexcept
 {
-    return megamole_t{static_cast<double>(value)};
+    return megamole_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigamole_t operator""_Gmol(long double value) noexcept
+constexpr gigamole_t<double> operator""_Gmol(long double value) noexcept
 {
-    return gigamole_t{static_cast<double>(value)};
+    return gigamole_t<double>{static_cast<double>(value)};
 }
 
-constexpr teramole_t operator""_Tmol(long double value) noexcept
+constexpr teramole_t<double> operator""_Tmol(long double value) noexcept
 {
-    return teramole_t{static_cast<double>(value)};
+    return teramole_t<double>{static_cast<double>(value)};
 }
 
-constexpr petamole_t operator""_Pmol(long double value) noexcept
+constexpr petamole_t<double> operator""_Pmol(long double value) noexcept
 {
-    return petamole_t{static_cast<double>(value)};
+    return petamole_t<double>{static_cast<double>(value)};
 }
 
-constexpr examole_t operator""_Emol(long double value) noexcept
+constexpr examole_t<double> operator""_Emol(long double value) noexcept
 {
-    return examole_t{static_cast<double>(value)};
+    return examole_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals
