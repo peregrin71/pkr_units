@@ -38,8 +38,8 @@ TEST_F(MeasurementRssTest, drag_force_calculation_rss)
     pkr::units::measurement_rss_t<pkr::units::square_meter_t<double>> area{2.5, 0.1};
 
     // Same measurement used twice -> fully correlated, rel uncertainty = 2 * dv/v
-    // For fully correlated values use square_rss NOT multiply_rss with the same values
-    auto velocity_squared = square_rss(velocity);
+    // For fully correlated values use squared() NOT multiply_rss with the same values
+    auto velocity_squared = velocity.squared();
     ASSERT_NEAR(velocity_squared.value(), 900.0, 1e-10);
     ASSERT_NEAR(velocity_squared.uncertainty(), 30.0, 1e-6);
 
@@ -65,22 +65,32 @@ TEST_F(MeasurementRssTest, pow_integer_exponent_rss)
     pkr::units::measurement_rss_t<pkr::units::meter_t<double>> measurement{2.0, 0.1};
 
     // x^0 should equal 1 (dimensionless)
-    auto power_zero = pow_rss<0>(measurement);
+    auto power_zero = measurement.template pow<0>();
     ASSERT_DOUBLE_EQ(power_zero.value(), 1.0);
     ASSERT_DOUBLE_EQ(power_zero.uncertainty(), 0.0);
 
+    // runtime variant pow(0) replaced with template
+    auto power_zero_rt = measurement.template pow<0>();
+    ASSERT_DOUBLE_EQ(power_zero_rt.value(), 1.0);
+    ASSERT_DOUBLE_EQ(power_zero_rt.uncertainty(), 0.0);
+
     // x^2 = 4 m^2, relative uncertainty = 2 * 0.1/2.0 = 0.1, absolute = 0.4
-    auto power_two = pow_rss<2>(measurement);
+    auto power_two = measurement.template pow<2>();
     ASSERT_DOUBLE_EQ(power_two.value(), 4.0);
     ASSERT_NEAR(power_two.uncertainty(), 0.4, 1e-10);
 
+    // runtime variant pow(2) replaced with template
+    auto power_two_rt = measurement.template pow<2>();
+    ASSERT_DOUBLE_EQ(power_two_rt.value(), 4.0);
+    ASSERT_NEAR(power_two_rt.uncertainty(), 0.4, 1e-10);
+
     // x^3 = 8 m^3, relative uncertainty = 3 * 0.1/2.0 = 0.15, absolute = 1.2
-    auto power_three = pow_rss<3>(measurement);
+    auto power_three = measurement.template pow<3>();
     ASSERT_DOUBLE_EQ(power_three.value(), 8.0);
     ASSERT_NEAR(power_three.uncertainty(), 1.2, 1e-10);
 
-    // x^-1 = 0.5 m^-1, relative uncertainty = 1 * 0.1/2.0 = 0.05, absolute = 0.025
-    auto power_neg_one = pow_rss<-1>(measurement);
+    // x^-1 = 0.5 m^-1, compute as reciprocal of pow<1>()
+    auto power_neg_one = 1.0 / measurement.template pow<1>();
     ASSERT_DOUBLE_EQ(power_neg_one.value(), 0.5);
     ASSERT_NEAR(power_neg_one.uncertainty(), 0.025, 1e-10);
 }
@@ -90,7 +100,7 @@ TEST_F(MeasurementRssTest, sin_rss_measurement)
     // Angle measurement in radians: 0 ± 0.1 rad
     pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{0.0, 0.1};
 
-    auto result = sin_rss(angle);
+    auto result = angle.sin();
 
     // sin(0) = 0
     ASSERT_NEAR(result.value(), 0.0, 1e-10);
@@ -103,7 +113,7 @@ TEST_F(MeasurementRssTest, cos_rss_measurement)
     // Angle measurement in radians: 0 ± 0.1 rad
     pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{0.0, 0.1};
 
-    auto result = cos_rss(angle);
+    auto result = angle.cos();
 
     // cos(0) = 1
     ASSERT_NEAR(result.value(), 1.0, 1e-10);
@@ -116,7 +126,7 @@ TEST_F(MeasurementRssTest, tan_rss_measurement)
     // Angle measurement in radians: pi/4 ± 0.05 rad
     pkr::units::measurement_rss_t<pkr::units::radian_t<double>> angle{std::numbers::pi / 4.0, 0.05};
 
-    auto result = tan_rss(angle);
+    auto result = angle.tan();
 
     // tan(pi/4) = 1
     ASSERT_NEAR(result.value(), 1.0, 1e-10);

@@ -3,4 +3,3 @@
 // The actual definitions live in ../magnetic_flux.h to avoid duplicated symbols.
 
 #include <pkr_units/units/derived/magnetic_flux.h>
-
