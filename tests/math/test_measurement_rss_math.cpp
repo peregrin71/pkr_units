@@ -127,7 +127,7 @@ TEST_F(MeasurementMathRSSTest, SumOfSquaresRSS)
     meter_meas y{2.0, 0.2};
     meter_meas z{3.0, 0.3};
 
-    auto result = sum_of_squares_rss(x, y, z);
+    auto result = x.squared() + y.squared() + z.squared();
 
     // value should be x^2 + y^2 + z^2 = 1 + 4 + 9 = 14
     EXPECT_DOUBLE_EQ(result.value(), 14.0);

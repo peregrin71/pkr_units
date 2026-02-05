@@ -9,89 +9,89 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Metric intensity prefix literals
-constexpr attocandela_t operator""_acd(long double value) noexcept
+constexpr attocandela_t<double> operator""_acd(long double value) noexcept
 {
-    return attocandela_t{static_cast<double>(value)};
+    return attocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr femtocandela_t operator""_fcd(long double value) noexcept
+constexpr femtocandela_t<double> operator""_fcd(long double value) noexcept
 {
-    return femtocandela_t{static_cast<double>(value)};
+    return femtocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr picocandela_t operator""_pcd(long double value) noexcept
+constexpr picocandela_t<double> operator""_pcd(long double value) noexcept
 {
-    return picocandela_t{static_cast<double>(value)};
+    return picocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanocandela_t operator""_ncd(long double value) noexcept
+constexpr nanocandela_t<double> operator""_ncd(long double value) noexcept
 {
-    return nanocandela_t{static_cast<double>(value)};
+    return nanocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr microcandela_t operator""_ucd(long double value) noexcept
+constexpr microcandela_t<double> operator""_ucd(long double value) noexcept
 {
-    return microcandela_t{static_cast<double>(value)};
+    return microcandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr millicandela_t operator""_mcd(long double value) noexcept
+constexpr millicandela_t<double> operator""_mcd(long double value) noexcept
 {
-    return millicandela_t{static_cast<double>(value)};
+    return millicandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr centicandela_t operator""_ccd(long double value) noexcept
+constexpr centicandela_t<double> operator""_ccd(long double value) noexcept
 {
-    return centicandela_t{static_cast<double>(value)};
+    return centicandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr decicandela_t operator""_dcd(long double value) noexcept
+constexpr decicandela_t<double> operator""_dcd(long double value) noexcept
 {
-    return decicandela_t{static_cast<double>(value)};
+    return decicandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr candela_t operator""_cd(long double value) noexcept
+constexpr candela_t<double> operator""_cd(long double value) noexcept
 {
-    return candela_t{static_cast<double>(value)};
+    return candela_t<double>{static_cast<double>(value)};
 }
 
-constexpr decacandela_t operator""_dacd(long double value) noexcept
+constexpr decacandela_t<double> operator""_dacd(long double value) noexcept
 {
-    return decacandela_t{static_cast<double>(value)};
+    return decacandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr hectocandela_t operator""_hcd(long double value) noexcept
+constexpr hectocandela_t<double> operator""_hcd(long double value) noexcept
 {
-    return hectocandela_t{static_cast<double>(value)};
+    return hectocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilocandela_t operator""_kcd(long double value) noexcept
+constexpr kilocandela_t<double> operator""_kcd(long double value) noexcept
 {
-    return kilocandela_t{static_cast<double>(value)};
+    return kilocandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr megacandela_t operator""_Mcd(long double value) noexcept
+constexpr megacandela_t<double> operator""_Mcd(long double value) noexcept
 {
-    return megacandela_t{static_cast<double>(value)};
+    return megacandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigacandela_t operator""_Gcd(long double value) noexcept
+constexpr gigacandela_t<double> operator""_Gcd(long double value) noexcept
 {
-    return gigacandela_t{static_cast<double>(value)};
+    return gigacandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr teracandela_t operator""_Tcd(long double value) noexcept
+constexpr teracandela_t<double> operator""_Tcd(long double value) noexcept
 {
-    return teracandela_t{static_cast<double>(value)};
+    return teracandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr petacandela_t operator""_Pcd(long double value) noexcept
+constexpr petacandela_t<double> operator""_Pcd(long double value) noexcept
 {
-    return petacandela_t{static_cast<double>(value)};
+    return petacandela_t<double>{static_cast<double>(value)};
 }
 
-constexpr exacandela_t operator""_Ecd(long double value) noexcept
+constexpr exacandela_t<double> operator""_Ecd(long double value) noexcept
 {
-    return exacandela_t{static_cast<double>(value)};
+    return exacandela_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals

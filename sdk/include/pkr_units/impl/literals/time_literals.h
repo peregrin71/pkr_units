@@ -9,119 +9,119 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Metric time prefix literals
-constexpr attosecond_t operator""_as(long double value) noexcept
+constexpr attosecond_t<double> operator""_as(long double value) noexcept
 {
-    return attosecond_t{static_cast<double>(value)};
+    return attosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr femtosecond_t operator""_fs(long double value) noexcept
+constexpr femtosecond_t<double> operator""_fs(long double value) noexcept
 {
-    return femtosecond_t{static_cast<double>(value)};
+    return femtosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr picosecond_t operator""_ps(long double value) noexcept
+constexpr picosecond_t<double> operator""_ps(long double value) noexcept
 {
-    return picosecond_t{static_cast<double>(value)};
+    return picosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanosecond_t operator""_ns(long double value) noexcept
+constexpr nanosecond_t<double> operator""_ns(long double value) noexcept
 {
-    return nanosecond_t{static_cast<double>(value)};
+    return nanosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr microsecond_t operator""_us(long double value) noexcept
+constexpr microsecond_t<double> operator""_us(long double value) noexcept
 {
-    return microsecond_t{static_cast<double>(value)};
+    return microsecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr millisecond_t operator""_ms(long double value) noexcept
+constexpr millisecond_t<double> operator""_ms(long double value) noexcept
 {
-    return millisecond_t{static_cast<double>(value)};
+    return millisecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr centisecond_t operator""_cs(long double value) noexcept
+constexpr centisecond_t<double> operator""_cs(long double value) noexcept
 {
-    return centisecond_t{static_cast<double>(value)};
+    return centisecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr decisecond_t operator""_ds(long double value) noexcept
+constexpr decisecond_t<double> operator""_ds(long double value) noexcept
 {
-    return decisecond_t{static_cast<double>(value)};
+    return decisecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr second_t operator""_s(long double value) noexcept
+constexpr second_t<double> operator""_s(long double value) noexcept
 {
-    return second_t{static_cast<double>(value)};
+    return second_t<double>{static_cast<double>(value)};
 }
 
-constexpr decasecond_t operator""_das(long double value) noexcept
+constexpr decasecond_t<double> operator""_das(long double value) noexcept
 {
-    return decasecond_t{static_cast<double>(value)};
+    return decasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr hectosecond_t operator""_hs(long double value) noexcept
+constexpr hectosecond_t<double> operator""_hs(long double value) noexcept
 {
-    return hectosecond_t{static_cast<double>(value)};
+    return hectosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilosecond_t operator""_ks(long double value) noexcept
+constexpr kilosecond_t<double> operator""_ks(long double value) noexcept
 {
-    return kilosecond_t{static_cast<double>(value)};
+    return kilosecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr megasecond_t operator""_Ms(long double value) noexcept
+constexpr megasecond_t<double> operator""_Ms(long double value) noexcept
 {
-    return megasecond_t{static_cast<double>(value)};
+    return megasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigasecond_t operator""_Gs(long double value) noexcept
+constexpr gigasecond_t<double> operator""_Gs(long double value) noexcept
 {
-    return gigasecond_t{static_cast<double>(value)};
+    return gigasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr terasecond_t operator""_Ts(long double value) noexcept
+constexpr terasecond_t<double> operator""_Ts(long double value) noexcept
 {
-    return terasecond_t{static_cast<double>(value)};
+    return terasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr petasecond_t operator""_Ps(long double value) noexcept
+constexpr petasecond_t<double> operator""_Ps(long double value) noexcept
 {
-    return petasecond_t{static_cast<double>(value)};
+    return petasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr exasecond_t operator""_Es(long double value) noexcept
+constexpr exasecond_t<double> operator""_Es(long double value) noexcept
 {
-    return exasecond_t{static_cast<double>(value)};
+    return exasecond_t<double>{static_cast<double>(value)};
 }
 
-constexpr minute_t operator""_min(long double value) noexcept
+constexpr minute_t<double> operator""_min(long double value) noexcept
 {
-    return minute_t{static_cast<double>(value)};
+    return minute_t<double>{static_cast<double>(value)};
 }
 
-constexpr hour_t operator""_h(long double value) noexcept
+constexpr hour_t<double> operator""_h(long double value) noexcept
 {
-    return hour_t{static_cast<double>(value)};
+    return hour_t<double>{static_cast<double>(value)};
 }
 
-constexpr day_t operator""_d(long double value) noexcept
+constexpr day_t<double> operator""_d(long double value) noexcept
 {
-    return day_t{static_cast<double>(value)};
+    return day_t<double>{static_cast<double>(value)};
 }
 
-constexpr week_t operator""_wk(long double value) noexcept
+constexpr week_t<double> operator""_wk(long double value) noexcept
 {
-    return week_t{static_cast<double>(value)};
+    return week_t<double>{static_cast<double>(value)};
 }
 
-constexpr month_t operator""_mo(long double value) noexcept
+constexpr month_t<double> operator""_mo(long double value) noexcept
 {
-    return month_t{static_cast<double>(value)};
+    return month_t<double>{static_cast<double>(value)};
 }
 
-constexpr year_t operator""_yr(long double value) noexcept
+constexpr year_t<double> operator""_yr(long double value) noexcept
 {
-    return year_t{static_cast<double>(value)};
+    return year_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals

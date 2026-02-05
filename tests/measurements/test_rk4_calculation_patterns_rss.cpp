@@ -97,7 +97,7 @@ TEST_F(RK4CalculationPatternsTest, ErrorPropagationThroughCalculations)
     auto r = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>{1000.0, 10.0}; // Distance with 1% uncertainty
 
     // r² calculation (distance squared)
-    auto r_squared = pkr::units::square_rss(r);
+    auto r_squared = r.squared();
 
     // Basic check: if r = 1000 m, then r² = 1,000,000 m²
     EXPECT_DOUBLE_EQ(r_squared.value(), 1000000.0);
@@ -164,7 +164,7 @@ TEST_F(RK4CalculationPatternsTest, ForceMagnitudePattern)
     EXPECT_DOUBLE_EQ(distance.value(), 10.0);
 
     // Simulate force magnitude: F ∝ 1/r²
-    auto distance_sq = pkr::units::square_rss(distance);
+    auto distance_sq = distance.squared();
 
     // distance_sq should be 100 m²
     EXPECT_DOUBLE_EQ(distance_sq.value(), 100.0);

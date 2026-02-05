@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <type_traits>
+#include <cassert>
 #include <sstream>
 #include <iostream>
 #include <format>
@@ -141,7 +142,7 @@ public:
 
     // Multiplication: relative uncertainties combine in quadrature (RSS)
     // For uncorrelated variables: δ(a×b)/(a×b) = √((δa/a)² + (δb/b)²)
-    // Special case: if multiplying by self (m * m), use fully correlated approach (square_rss)
+    // Special case: if multiplying by self (m * m), use fully correlated approach (squared())
     template <typename OtherUnitT>
     constexpr auto operator*(const measurement_rss_t<OtherUnitT>& other) const
     {
@@ -254,8 +255,103 @@ public:
     }
 
     // ============================================================================
-    // Utility Functions
+    // Member API: RSS-specific math helpers
     // ============================================================================
+
+    // Squared (fully correlated): f(x) = x^2, relative uncertainty = 2 * dx/x
+    constexpr auto squared() const
+    {
+        auto x = unit_value();
+        auto result_value = x * x;
+
+        auto rel_unc = 2.0 * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    // Cube (fully correlated): f(x) = x^3, relative uncertainty = 3 * dx/x
+    constexpr auto cubed() const
+    {
+        auto x = unit_value();
+        auto result_value = x * x * x;
+
+        auto rel_unc = 3.0 * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    // Power with compile-time integer exponent N (fully correlated)
+    template <int N>
+    constexpr auto pow() const
+    {
+        static_assert(N >= 0, "measurement_rss_t::pow<N>: N must be non-negative (use reciprocal for negative powers)");
+
+        auto result_value = PKR_UNITS_NAMESPACE::pow<N>(unit_value());
+
+        auto rel_unc = static_cast<typename UnitT::value_type>(N) * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    // Square root: requires the unit type supports square root
+    template <typename U = UnitT>
+        requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<U>::value_dimension>
+    constexpr auto sqrt() const
+    {
+        auto result_value = PKR_UNITS_NAMESPACE::sqrt(unit_value());
+
+        auto rel_unc = relative_uncertainty().value() / 2.0;
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        return measurement_rss_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
+    }
+
+    // Trigonometric helpers (angle types only)
+    template <typename U = UnitT>
+        requires PKR_UNITS_NAMESPACE::is_angle_unit_c<U>
+    auto sin() const
+    {
+        auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::sin(value())};
+
+        auto cos_x = std::cos(value());
+        auto result_uncertainty_value = std::abs(cos_x) * uncertainty();
+
+        return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{
+            result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires PKR_UNITS_NAMESPACE::is_angle_unit_c<U>
+    auto cos() const
+    {
+        auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::cos(value())};
+
+        auto sin_x = std::sin(value());
+        auto result_uncertainty_value = std::abs(sin_x) * uncertainty();
+
+        return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{
+            result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires PKR_UNITS_NAMESPACE::is_angle_unit_c<U>
+    auto tan() const
+    {
+        auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::tan(value())};
+
+        auto cos_x = std::cos(value());
+        auto sec_squared = 1.0 / (cos_x * cos_x);
+        auto result_uncertainty_value = sec_squared * uncertainty();
+
+        return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{
+            result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
+    }
 
     // Check if measurement is valid (non-zero uncertainty)
     constexpr bool is_valid() const
@@ -334,121 +430,6 @@ auto operator/(T lhs, const measurement_rss_t<UnitT>& rhs)
     using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
     using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_rss_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
-}
-
-// ============================================================================
-// RSS-specific mathematical functions
-// ============================================================================
-
-// Square function with uncertainty propagation (fully correlated)
-// For f(x) = x^2, the relative uncertainty df/f = 2 * dx/x
-template <typename UnitT>
-constexpr auto square_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto x = measurement.unit_value();
-    auto result_value = x * x;
-
-    auto relative_uncertainty = 2.0 * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-// Sum of squares helper (x^2 + y^2 + z^2) for measurements of the same unit type
-template <typename UnitT>
-constexpr auto sum_of_squares_rss(const measurement_rss_t<UnitT>& x, const measurement_rss_t<UnitT>& y, const measurement_rss_t<UnitT>& z)
-{
-    auto x_sq = square_rss(x);
-    auto y_sq = square_rss(y);
-    auto z_sq = square_rss(z);
-    auto xy_sum = x_sq + y_sq;
-    return xy_sum + z_sq;
-}
-
-// Square root with uncertainty propagation
-// For f(x) = sqrt(x), the relative uncertainty df/f = (1/2) * dx/x
-template <typename UnitT>
-    requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<UnitT>::value_dimension>
-constexpr auto sqrt_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto result_value = sqrt(measurement.unit_value());
-
-    auto relative_uncertainty = measurement.relative_uncertainty().value() / 2.0;
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    return measurement_rss_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
-}
-
-// Cube function with uncertainty propagation (fully correlated)
-// For f(x) = x^3, the relative uncertainty df/f = 3 * dx/x
-template <typename UnitT>
-constexpr auto cube_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto x = measurement.unit_value();
-    auto result_value = x * x * x;
-
-    auto relative_uncertainty = 3.0 * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-// Power function with compile-time integer exponent (fully correlated)
-// For f(x) = x^N, the relative uncertainty df/f = |N| * dx/x
-template <int N, typename UnitT>
-constexpr auto pow_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto result_value = pow<N>(measurement.unit_value());
-
-    // For fully correlated uncertainty: relative_uncertainty(x^N) = |N| * relative_uncertainty(x)
-    auto relative_uncertainty = static_cast<typename UnitT::value_type>(std::abs(N)) * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-// Trigonometric functions with uncertainty propagation
-// For f(x) = sin(x), the uncertainty df = |cos(x)| * dx
-template <typename UnitT>
-    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
-auto sin_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::sin(measurement.value())};
-
-    auto cos_x = std::cos(measurement.value());
-    auto result_uncertainty_value = std::abs(cos_x) * measurement.uncertainty();
-
-    return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
-}
-
-// For f(x) = cos(x), the uncertainty df = |sin(x)| * dx
-template <typename UnitT>
-    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
-auto cos_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::cos(measurement.value())};
-
-    auto sin_x = std::sin(measurement.value());
-    auto result_uncertainty_value = std::abs(sin_x) * measurement.uncertainty();
-
-    return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
-}
-
-// For f(x) = tan(x), the uncertainty df = sec²(x) * dx
-template <typename UnitT>
-    requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
-auto tan_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    auto result_value = PKR_UNITS_NAMESPACE::scalar_t{std::tan(measurement.value())};
-
-    auto cos_x = std::cos(measurement.value());
-    auto sec_squared = 1.0 / (cos_x * cos_x);
-    auto result_uncertainty_value = sec_squared * measurement.uncertainty();
-
-    return measurement_rss_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
 }
 
 // ============================================================================

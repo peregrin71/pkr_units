@@ -9,80 +9,80 @@ namespace PKR_UNITS_NAMESPACE
 namespace literals
 {
 // Metric mass prefix literals
-constexpr picogram_t operator""_pg(long double value) noexcept
+constexpr picogram_t<double> operator""_pg(long double value) noexcept
 {
-    return picogram_t{static_cast<double>(value)};
+    return picogram_t<double>{static_cast<double>(value)};
 }
 
-constexpr nanogram_t operator""_ng(long double value) noexcept
+constexpr nanogram_t<double> operator""_ng(long double value) noexcept
 {
-    return nanogram_t{static_cast<double>(value)};
+    return nanogram_t<double>{static_cast<double>(value)};
 }
 
-constexpr microgram_t operator""_ug(long double value) noexcept
+constexpr microgram_t<double> operator""_ug(long double value) noexcept
 {
-    return microgram_t{static_cast<double>(value)};
+    return microgram_t<double>{static_cast<double>(value)};
 }
 
-constexpr milligram_t operator""_mg(long double value) noexcept
+constexpr milligram_t<double> operator""_mg(long double value) noexcept
 {
-    return milligram_t{static_cast<double>(value)};
+    return milligram_t<double>{static_cast<double>(value)};
 }
 
-constexpr centigram_t operator""_cg(long double value) noexcept
+constexpr centigram_t<double> operator""_cg(long double value) noexcept
 {
-    return centigram_t{static_cast<double>(value)};
+    return centigram_t<double>{static_cast<double>(value)};
 }
 
-constexpr decigram_t operator""_dg(long double value) noexcept
+constexpr decigram_t<double> operator""_dg(long double value) noexcept
 {
-    return decigram_t{static_cast<double>(value)};
+    return decigram_t<double>{static_cast<double>(value)};
 }
 
-constexpr gram_t operator""_g(long double value) noexcept
+constexpr gram_t<double> operator""_g(long double value) noexcept
 {
-    return gram_t{static_cast<double>(value)};
+    return gram_t<double>{static_cast<double>(value)};
 }
 
-constexpr decagram_t operator""_dag(long double value) noexcept
+constexpr decagram_t<double> operator""_dag(long double value) noexcept
 {
-    return decagram_t{static_cast<double>(value)};
+    return decagram_t<double>{static_cast<double>(value)};
 }
 
-constexpr hectogram_t operator""_hg(long double value) noexcept
+constexpr hectogram_t<double> operator""_hg(long double value) noexcept
 {
-    return hectogram_t{static_cast<double>(value)};
+    return hectogram_t<double>{static_cast<double>(value)};
 }
 
-constexpr kilogram_t operator""_kg(long double value) noexcept
+constexpr kilogram_t<double> operator""_kg(long double value) noexcept
 {
-    return kilogram_t{static_cast<double>(value)};
+    return kilogram_t<double>{static_cast<double>(value)};
 }
 
-constexpr gigagram_t operator""_Gg(long double value) noexcept
+constexpr gigagram_t<double> operator""_Gg(long double value) noexcept
 {
-    return gigagram_t{static_cast<double>(value)};
+    return gigagram_t<double>{static_cast<double>(value)};
 }
 
-constexpr teragram_t operator""_Tg(long double value) noexcept
+constexpr teragram_t<double> operator""_Tg(long double value) noexcept
 {
-    return teragram_t{static_cast<double>(value)};
+    return teragram_t<double>{static_cast<double>(value)};
 }
 
-constexpr petagram_t operator""_Pg(long double value) noexcept
+constexpr petagram_t<double> operator""_Pg(long double value) noexcept
 {
-    return petagram_t{static_cast<double>(value)};
+    return petagram_t<double>{static_cast<double>(value)};
 }
 
-constexpr exagram_t operator""_Eg(long double value) noexcept
+constexpr exagram_t<double> operator""_Eg(long double value) noexcept
 {
-    return exagram_t{static_cast<double>(value)};
+    return exagram_t<double>{static_cast<double>(value)};
 }
 
 // Common metric mass units
-constexpr metric_ton_t operator""_t(long double value) noexcept
+constexpr metric_ton_t<double> operator""_t(long double value) noexcept
 {
-    return metric_ton_t{static_cast<double>(value)};
+    return metric_ton_t<double>{static_cast<double>(value)};
 }
 
 } // namespace literals
