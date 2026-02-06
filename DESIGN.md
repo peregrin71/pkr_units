@@ -646,7 +646,7 @@ Arithmetic helpers automatically support new types (e.g., `float`, `long double`
 
 **Rationale**:
 - **SI as the standard**: The library enforces SI as the canonical system for scientific and engineering calculations
-- **Conscious choice required**: Using imperial units requires explicit inclusion (`#include <pkr_units/imperial.h>`) or (`#include <pkr_units/imperial_literals.h>`), making it a deliberate decision
+- **Conscious choice required**: Using imperial units requires explicit inclusion (`#include <pkr_units/imperial.h>`) or (`#include <pkr_units/literals/imperial_units.h>`), making it a deliberate decision
 - **Prevents accidental mixing**: Developers cannot accidentally mix SI and imperial units without conscious intent
 - **Promotes best practices**: Business logic and scientific calculations should use SI; imperial/custom units belong in UI/presentation layers only
 
@@ -689,7 +689,7 @@ auto time = distance_km / (speed_mph * 1.60934);  // Confusing and error-prone
 ```cpp
 #include <pkr_units/si.h>                    // SI units
 #include <pkr_units/imperial.h>              // Imperial units (conscious choice)
-#include <pkr_units/imperial_literals.h>     // Imperial literal operators
+#include <pkr_units/literals/imperial_units.h>     // Imperial literal operators
 ```
 
 **The barrier to entry** (explicit include requirement) serves as a visual reminder that you're leaving the SI standard and entering a domain that may have compatibility issues or ambiguity.

@@ -1,7 +1,8 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <type_traits>
-#include <pkr_units/cgs_units_formatting.h>
+#include <pkr_units/cgs_units.h>
+#include <pkr_units/format/cgs.h>
 #include <pkr_units/si_units.h>
 
 class CgsUnitsTest : public ::testing::Test

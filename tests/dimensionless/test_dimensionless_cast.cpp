@@ -24,36 +24,3 @@ TEST_F(DimensionlessCastTest, PercentageToRatio)
     auto ratio = pkr::units::unit_cast<pkr::units::ratio_t<double>>(percent);
     EXPECT_DOUBLE_EQ(ratio.value(), 0.25);
 }
-
-// Disabled: decibel conversions use formatting-only types and need dedicated
-// unit_cast specializations that accept templated decibel types (e.g. decibel_power_t<T>).
-// See TODO.md #decibel-unit-cast for next steps.
-TEST_F(DimensionlessCastTest, DISABLED_RatioToDecibelPower)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}
-
-TEST_F(DimensionlessCastTest, DISABLED_RatioToDecibelAmplitude)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}
-
-TEST_F(DimensionlessCastTest, DISABLED_DecibelPowerToRatio)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}
-
-TEST_F(DimensionlessCastTest, DISABLED_DecibelAmplitudeToRatio)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}
-
-TEST_F(DimensionlessCastTest, DISABLED_PercentageToDecibelPower)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}
-
-TEST_F(DimensionlessCastTest, DISABLED_DecibelRejectsNonPositive)
-{
-    // Conversion test temporarily disabled until decibel unit_cast specializations are implemented.
-}

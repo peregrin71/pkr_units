@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <pkr_units/si_units.h>
 #include <pkr_units/cgs_units.h>
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/format/si.h>
 
 class ViscosityTest : public ::testing::Test
 {

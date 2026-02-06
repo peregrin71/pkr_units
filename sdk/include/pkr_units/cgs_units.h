@@ -45,4 +45,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-// Use <pkr_units/cgs_units_literals.h> for user-defined literals.
+// Use <pkr_units/literals/cgs.h> for user-defined literals.

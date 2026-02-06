@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <pkr_units/units/derived/thermal/specific_heat_capacity.h>
-#include <pkr_units/si_formatting.h>
+#include <pkr_units/format/si.h>
 
 using namespace ::testing;
 

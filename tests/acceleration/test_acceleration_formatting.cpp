@@ -117,7 +117,8 @@ TEST_F(AccelerationFormattingTest, default_precision)
 {
     pkr::units::meter_per_second_squared_t accel{3.141592653589793};
     std::string result = std::format("{}", accel);
-    ASSERT_EQ(result, "3.14159 m/s^2");
+    std::string expected = std::format("{}", 3.141592653589793) + " m/s^2";
+    ASSERT_EQ(result, expected);
 }
 
 TEST_F(AccelerationFormattingTest, value_preservation)

@@ -48,4 +48,8 @@ concept pkr_unit_can_take_square_root_c = Dim.length >= 0 && Dim.length % 2 == 0
                                           Dim.current >= 0 && Dim.current % 2 == 0 && Dim.temperature >= 0 && Dim.temperature % 2 == 0 && Dim.amount >= 0 &&
                                           Dim.amount % 2 == 0 && Dim.intensity >= 0 && Dim.intensity % 2 == 0 && Dim.angle >= 0 && Dim.angle % 2 == 0;
 
+// Concept to check if a type is std::complex<T>
+template <typename T>
+concept is_std_complex_c = requires { typename T::value_type; } && std::same_as<T, std::complex<typename T::value_type>>;
+
 } // namespace PKR_UNITS_NAMESPACE

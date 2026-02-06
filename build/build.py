@@ -426,14 +426,17 @@ def main():
             # Generate Compiler Explorer tree for local development
             # Skip this step in CI environments or when explicitly requested
             if not args.skip_generate_ce_tree and not (os.environ.get('CI') or os.environ.get('GITHUB_ACTIONS')):
-                try:
-                    print_step("Generating Compiler Explorer tree (tools/generate_ce_tree.py)")
-                    script = project_root / 'tools' / 'generate_ce_tree.py'
-                    subprocess.run([sys.executable, str(script)], check=True)
-                    print_success("Compiler Explorer tree generated")
-                except subprocess.CalledProcessError as e:
-                    # Don't fail the entire build if CE tree generation fails; just print an error
-                    print_error(f"Compiler Explorer tree generation failed: {e}")
+                script = project_root / 'tools' / 'generate_ce_tree.py'
+                if script.exists():
+                    try:
+                        print_step("Generating Compiler Explorer tree (tools/generate_ce_tree.py)")
+                        subprocess.run([sys.executable, str(script)], check=True)
+                        print_success("Compiler Explorer tree generated")
+                    except subprocess.CalledProcessError as e:
+                        # Don't fail the entire build if CE tree generation fails; just print an error
+                        print_error(f"Compiler Explorer tree generation failed: {e}")
+                else:
+                    print_info(f"Skipping Compiler Explorer tree generation (script not found: {script})")
             else:
                 print_info("Skipping Compiler Explorer tree generation (CI or skipped by flag)")
         else:

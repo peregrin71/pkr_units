@@ -19,12 +19,12 @@ from pathlib import Path
 import re
 
 ROOT = Path(__file__).resolve().parents[1]
-LITERAL_GLOB = str(ROOT / 'sdk' / 'include' / 'pkr_units' / '**' / 'impl' / 'literals' / '*.h')
+LITERAL_GLOB = str(ROOT / 'sdk' / 'include' / 'pkr_units' / 'literals' / '*.h')
 
 udl_decl_re = re.compile(r'^(\s*)(constexpr\s+)([A-Za-z_:][A-Za-z0-9_:<>]*)\s+(operator""_\w+\s*\([^)]*\)\s*noexcept)', re.MULTILINE)
 ctor_re = re.compile(r'\b([A-Za-z_:][A-Za-z0-9_:]*)\s*\{\s*static_cast<\s*double\s*>\(value\)\s*\}')
 
-files = list(Path(ROOT).glob('sdk/include/pkr_units/**/impl/literals/*.h'))
+files = list(Path(ROOT).glob('sdk/include/pkr_units/literals/*.h'))
 modified = []
 for f in files:
     s = f.read_text(encoding='utf-8')

@@ -5,7 +5,7 @@
 #include <string>
 #include <type_traits>
 #include <pkr_units/units/astronomical/angle.h>
-#include <pkr_units/impl/unit_formatting_traits.h>
+#include <pkr_units/impl/formatting/unit_formatting_traits.h>
 
 namespace std
 {

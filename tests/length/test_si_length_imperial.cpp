@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/imperial_units.h>
-#include <pkr_units/impl/literals/imperial_length_literals.h>
+#include <pkr_units/literals/imperial_length.h>
 
 namespace test
 {

@@ -3,7 +3,7 @@
 #include <string>
 #include <pkr_units/units/base/angle.h>
 #include <pkr_units/astronomical_units.h>
-#include <pkr_units/astronomical_units_formatting.h>
+#include <pkr_units/format/astronomical.h>
 
 using namespace PKR_UNITS_NAMESPACE;
 

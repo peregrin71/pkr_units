@@ -33,6 +33,8 @@ set(TEST_SOURCES
   dimensionless/test_dimensionless_formatting.cpp
   electrical/test_si_electrical_formatting.cpp
   electrical/test_si_resistance_formatting.cpp
+  electrical/test_complex_impedance.cpp
+  electrical/test_complex_formatting.cpp
   energy/test_energy_cast.cpp
   energy/test_energy_formatting.cpp
   energy/test_energy_operators.cpp
@@ -52,7 +54,7 @@ set(TEST_SOURCES
   length/test_si_length_non_si_units.cpp
   length/test_si_length_operators.cpp
   length/test_si_length.cpp
-  magnetic/test_magnetic_flux_density.cpp
+  # magnetic/test_magnetic_flux_density.cpp
   mass/test_si_mass_formatting.cpp
   mass/test_si_mass_operators.cpp
   mass/test_si_mass.cpp

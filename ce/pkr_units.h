@@ -4,186 +4,14 @@
 #ifndef PKR_UNITS_CE_SINGLE_HEADER_H
 #define PKR_UNITS_CE_SINGLE_HEADER_H
 
-#include <format>
 #include <chrono>
+#include <complex>
+#include <cmath>
+#include <format>
+#include <ratio>
 #include <string_view>
 #include <string>
-#include <ratio>
-#include <cmath>
 
-
-namespace pkr::units::impl
-{
-
-template <typename CharT>
-struct char_traits_dispatch;
-
-template <>
-struct char_traits_dispatch<char>
-{
-    static constexpr std::string_view plus_minus()
-    {
-        return " +/- ";
-    }
-
-    static constexpr std::string_view superscript_minus()
-    {
-        return "⁻";
-    }
-
-    static constexpr std::string_view superscript_caret()
-    {
-        return "^";
-    }
-
-    static constexpr std::string_view separator()
-    {
-        return "·";
-    }
-};
-
-template <>
-struct char_traits_dispatch<char8_t>
-{
-    static constexpr std::u8string_view plus_minus()
-    {
-        return u8" \u00B1 ";
-    }
-
-    static constexpr std::u8string_view superscript_minus()
-    {
-        return u8"⁻";
-    }
-
-    static constexpr std::u8string_view superscript_caret()
-    {
-        return u8"^";
-    }
-
-    static constexpr std::u8string_view separator()
-    {
-        return u8"·";
-    }
-};
-
-template <>
-struct char_traits_dispatch<wchar_t>
-{
-    static constexpr std::wstring_view plus_minus()
-    {
-        return L" \u00B1 ";
-    }
-
-    static constexpr std::wstring_view superscript_minus()
-    {
-        return L"⁻";
-    }
-
-    static constexpr std::wstring_view superscript_caret()
-    {
-        return L"^";
-    }
-
-    static constexpr std::wstring_view separator()
-    {
-        return L"·";
-    }
-};
-
-template <typename CharT>
-constexpr std::basic_string_view<CharT> superscript_digit_lookup(int digit);
-
-template <>
-constexpr std::basic_string_view<char> superscript_digit_lookup<char>(int digit)
-{
-    switch (digit)
-    {
-        case 0:
-            return "⁰";
-        case 1:
-            return "¹";
-        case 2:
-            return "²";
-        case 3:
-            return "³";
-        case 4:
-            return "⁴";
-        case 5:
-            return "⁵";
-        case 6:
-            return "⁶";
-        case 7:
-            return "⁷";
-        case 8:
-            return "⁸";
-        case 9:
-            return "⁹";
-        default:
-            return "";
-    }
-}
-
-template <>
-constexpr std::basic_string_view<char8_t> superscript_digit_lookup<char8_t>(int digit)
-{
-    switch (digit)
-    {
-        case 0:
-            return u8"⁰";
-        case 1:
-            return u8"¹";
-        case 2:
-            return u8"²";
-        case 3:
-            return u8"³";
-        case 4:
-            return u8"⁴";
-        case 5:
-            return u8"⁵";
-        case 6:
-            return u8"⁶";
-        case 7:
-            return u8"⁷";
-        case 8:
-            return u8"⁸";
-        case 9:
-            return u8"⁹";
-        default:
-            return u8"";
-    }
-}
-
-template <>
-constexpr std::basic_string_view<wchar_t> superscript_digit_lookup<wchar_t>(int digit)
-{
-    switch (digit)
-    {
-        case 0:
-            return L"⁰";
-        case 1:
-            return L"¹";
-        case 2:
-            return L"²";
-        case 3:
-            return L"³";
-        case 4:
-            return L"⁴";
-        case 5:
-            return L"⁵";
-        case 6:
-            return L"⁶";
-        case 7:
-            return L"⁷";
-        case 8:
-            return L"⁸";
-        case 9:
-            return L"⁹";
-        default:
-            return L"";
-    }
-}
-
-}
 
 namespace pkr::units
 {
@@ -203,80 +31,6 @@ struct dimension_t
 };
 
 inline constexpr dimension_t scalar_dimension{0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-template <typename CharT>
-inline constexpr std::basic_string_view<CharT> base_unit_symbols[] = {
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{},
-    std::basic_string_view<CharT>{}
-};
-
-template <>
-inline constexpr std::basic_string_view<char> base_unit_symbols<char>[] = {"kg", "m", "s", "A", "K", "mol", "cd", "rad", "sr"};
-
-template <>
-inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = {L"kg", L"m", L"s", L"A", L"K", L"mol", L"cd", L"rad", L"sr"};
-
-template <>
-inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
-
-template <typename CharT>
-std::basic_string<CharT> superscript_exponent(int exp)
-{
-    if (exp == 0)
-        return std::basic_string<CharT>{};
-
-    bool negative = exp < 0;
-    int abs_exp = negative ? -exp : exp;
-    std::basic_string<CharT> s;
-
-    if (negative)
-        s += impl::char_traits_dispatch<CharT>::superscript_minus();
-    else
-        s += impl::char_traits_dispatch<CharT>::superscript_caret();
-
-    std::string digit_str = std::to_string(abs_exp);
-    for (char c : digit_str)
-    {
-        int digit_idx = c - '0';
-        s += impl::superscript_digit_lookup<CharT>(digit_idx);
-    }
-
-    return s;
-}
-
-template <typename CharT>
-std::basic_string<CharT> build_dimension_symbol(const dimension_t& dim)
-{
-    std::basic_string<CharT> result;
-
-    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
-    const auto& symbols = base_unit_symbols<CharT>;
-
-    for (int i = 0; i < 9; ++i)
-    {
-        if (dims[i] != 0)
-        {
-            if (!result.empty())
-                result += impl::char_traits_dispatch<CharT>::separator();
-
-            result += symbols[i];
-            if (dims[i] != 1)
-                result += superscript_exponent<CharT>(dims[i]);
-        }
-    }
-
-    if (result.empty())
-        return std::basic_string<CharT>{};
-
-    return result;
-}
 
 }
 
@@ -377,9 +131,21 @@ public:
 
         if (!std::is_constant_evaluated())
         {
-            if ((other.value() < static_cast<type_t>(0) ? -other.value() : other.value()) == static_cast<type_t>(0))
+            if constexpr (std::is_arithmetic_v<type_t>)
             {
-                throw std::invalid_argument("Division by zero in si_unit::operator/");
+                if ((other.value() < static_cast<type_t>(0) ? -other.value() : other.value()) == static_cast<type_t>(0))
+                {
+                    throw std::invalid_argument("Division by zero in si_unit::operator/");
+                }
+            }
+            else
+            {
+
+                using magnitude_type = decltype(std::abs(other.value()));
+                if (std::abs(other.value()) == static_cast<magnitude_type>(0))
+                {
+                    throw std::invalid_argument("Division by zero in si_unit::operator/");
+                }
             }
         }
 
@@ -401,13 +167,13 @@ public:
 
     constexpr auto operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value * scalar};
     }
 
     constexpr auto operator/(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value / scalar};
     }
 
@@ -447,18 +213,14 @@ public:
 
     constexpr auto to_si() const noexcept
     {
-
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-
         using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
         return canonical_unit{canonical_value};
     }
 
     constexpr auto in_base_si_units() const noexcept
     {
-
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
 
@@ -551,6 +313,9 @@ template <dimension_t Dim>
 concept pkr_unit_can_take_square_root_c = Dim.length >= 0 && Dim.length % 2 == 0 && Dim.mass >= 0 && Dim.mass % 2 == 0 && Dim.time >= 0 && Dim.time % 2 == 0 &&
                                           Dim.current >= 0 && Dim.current % 2 == 0 && Dim.temperature >= 0 && Dim.temperature % 2 == 0 && Dim.amount >= 0 &&
                                           Dim.amount % 2 == 0 && Dim.intensity >= 0 && Dim.intensity % 2 == 0 && Dim.angle >= 0 && Dim.angle % 2 == 0;
+
+template <typename T>
+concept is_std_complex_c = requires { typename T::value_type; } && std::same_as<T, std::complex<typename T::value_type>>;
 
 }
 
@@ -1348,217 +1113,6 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
     return target_unit_t(converted.value());
 }
 
-}
-
-namespace std
-{
-template <typename UnitT, typename CharT>
-struct hms_component_formatter
-{
-    std::formatter<typename UnitT::value_type, CharT> value_formatter;
-
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        return value_formatter.parse(ctx);
-    }
-
-    template <typename FormatContext>
-    auto format(const UnitT& value, FormatContext& ctx) const
-    {
-        auto out = ctx.out();
-        out = value_formatter.format(value.value(), ctx);
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            return std::copy(UnitT::symbol.begin(), UnitT::symbol.end(), out);
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            return std::copy(UnitT::w_symbol.begin(), UnitT::w_symbol.end(), out);
-        }
-        else
-        {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
-            return out;
-        }
-    }
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::hms_archour_t<T>, CharT> : hms_component_formatter<pkr::units::hms_archour_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::hms_arcminute_t<T>, CharT> : hms_component_formatter<pkr::units::hms_arcminute_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::hms_arcsecond_t<T>, CharT> : hms_component_formatter<pkr::units::hms_arcsecond_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::dms_degree_t<T>, CharT> : hms_component_formatter<pkr::units::dms_degree_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::dms_arcminute_t<T>, CharT> : hms_component_formatter<pkr::units::dms_arcminute_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::dms_arcsecond_t<T>, CharT> : hms_component_formatter<pkr::units::dms_arcsecond_t<T>, CharT>
-{
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::hms_angle_t<T>, CharT>
-{
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        auto it = ctx.begin();
-        auto end = ctx.end();
-        while (it != end && *it != static_cast<CharT>('}'))
-        {
-            ++it;
-        }
-        return it;
-    }
-
-    template <typename FormatContext>
-    auto format(const pkr::units::hms_angle_t<T>& value, FormatContext& ctx) const
-    {
-        using archour_ratio = typename pkr::units::details::is_pkr_unit<pkr::units::hms_archour_t<T>>::ratio_type;
-        T hours_value = pkr::units::details::convert_ratio_to<double, std::ratio<1, 1>, archour_ratio>(value.value());
-        bool negative = hours_value < 0.0;
-        T total_seconds = std::abs(hours_value) * T{3600.0};
-        int hours = static_cast<int>(total_seconds / T{3600.0});
-        T remainder = total_seconds - static_cast<T>(hours) * T{3600.0};
-        int minutes = static_cast<int>(remainder / T{60.0});
-        T seconds = remainder - static_cast<T>(minutes) * T{60.0};
-        long long seconds_rounded = std::llround(seconds);
-        if (seconds_rounded >= 60)
-        {
-            seconds_rounded = 0;
-            ++minutes;
-            if (minutes >= 60)
-            {
-                minutes = 0;
-                ++hours;
-            }
-        }
-        auto out = ctx.out();
-        if (negative)
-        {
-            *out++ = static_cast<CharT>('-');
-        }
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            out = std::format_to(out, "{}", pkr::units::hms_archour_t<T>{static_cast<T>(hours)});
-            *out++ = ' ';
-            out = std::format_to(out, "{}", pkr::units::hms_arcminute_t<T>{static_cast<T>(minutes)});
-            *out++ = ' ';
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            out = std::format_to(out, L"{}", pkr::units::hms_archour_t<T>{static_cast<T>(hours)});
-            out = std::format_to(out, L"{}", pkr::units::hms_arcminute_t<T>{static_cast<T>(minutes)});
-        }
-        else
-        {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
-        }
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            return std::format_to(out, "{}", pkr::units::hms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            return std::format_to(out, L"{}", pkr::units::hms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
-        }
-        else
-        {
-            return out;
-        }
-    }
-};
-
-template <pkr::units::is_unit_value_type_c T, typename CharT>
-struct formatter<pkr::units::dms_angle_t<T>, CharT>
-{
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        auto it = ctx.begin();
-        auto end = ctx.end();
-        while (it != end && *it != static_cast<CharT>('}'))
-        {
-            ++it;
-        }
-        return it;
-    }
-
-    template <typename FormatContext>
-    auto format(const pkr::units::dms_angle_t<T>& value, FormatContext& ctx) const
-    {
-        using degree_ratio = typename pkr::units::details::is_pkr_unit<pkr::units::dms_degree_t<T>>::ratio_type;
-        double degrees_value = pkr::units::details::convert_ratio_to<T, std::ratio<1, 1>, degree_ratio>(value.value());
-        bool negative = degrees_value < T{0.0};
-        double total_seconds = std::abs(degrees_value) * T{3600.0};
-        int degrees = static_cast<int>(total_seconds / T{3600.0});
-        double remainder = total_seconds - static_cast<T>(degrees) * T{3600.0};
-        int minutes = static_cast<int>(remainder / T{60.0});
-        double seconds = remainder - static_cast<T>(minutes) * T{60.0};
-        long long seconds_rounded = std::llround(seconds);
-        if (seconds_rounded >= 60)
-        {
-            seconds_rounded = 0;
-            ++minutes;
-            if (minutes >= 60)
-            {
-                minutes = 0;
-                ++degrees;
-            }
-        }
-        auto out = ctx.out();
-        if (negative)
-        {
-            *out++ = static_cast<CharT>('-');
-        }
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            out = std::format_to(out, "{}", pkr::units::dms_degree_t<T>{static_cast<T>(degrees)});
-            *out++ = ' ';
-            out = std::format_to(out, "{}", pkr::units::dms_arcminute_t<T>{static_cast<T>(minutes)});
-            *out++ = ' ';
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            out = std::format_to(out, L"{}", pkr::units::dms_degree_t<T>{static_cast<T>(degrees)});
-            out = std::format_to(out, L"{}", pkr::units::dms_arcminute_t<T>{static_cast<T>(minutes)});
-        }
-        else
-        {
-            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
-        }
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            return std::format_to(out, "{}", pkr::units::dms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            return std::format_to(out, L"{}", pkr::units::dms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
-        }
-        else
-        {
-            return out;
-        }
-    }
-};
 }
 
 namespace pkr::units
@@ -3060,69 +2614,6 @@ struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_d
 {
     using type = maxwell_t<T>;
 };
-}
-
-namespace std
-{
-
-template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
-struct formatter<pkr::units::details::unit_t<type_t, ratio_t, dim_v>, CharT>
-{
-    std::formatter<type_t, CharT> value_formatter;
-
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        return value_formatter.parse(ctx);
-    }
-
-    template <typename FormatContext>
-    auto format(const pkr::units::details::unit_t<type_t, ratio_t, dim_v>& unit, FormatContext& ctx) const
-    {
-        auto out = ctx.out();
-        out = value_formatter.format(unit.value(), ctx);
-
-        static std::basic_string<CharT> built = pkr::units::build_dimension_symbol<CharT>(dim_v);
-        std::basic_string_view<CharT> sym = built;
-
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(sym.begin(), sym.end(), out);
-    }
-};
-
-template <typename T, typename CharT>
-    requires pkr::units::is_derived_pkr_unit_c<T>
-struct formatter<T, CharT>
-{
-    std::formatter<typename pkr::units::details::is_pkr_unit<T>::value_type, CharT> value_formatter;
-
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        return value_formatter.parse(ctx);
-    }
-
-    template <typename FormatContext>
-    auto format(const T& unit, FormatContext& ctx) const
-    {
-        auto out = ctx.out();
-        out = value_formatter.format(unit.value(), ctx);
-
-        std::basic_string_view<CharT> sym;
-        if constexpr (std::is_same_v<CharT, char>)
-            sym = T::symbol;
-        else if constexpr (std::is_same_v<CharT, char8_t>)
-            sym = T::u8_symbol;
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-            sym = T::w_symbol;
-        else
-            sym = T::symbol;
-
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(sym.begin(), sym.end(), out);
-    }
-};
-
 }
 
 namespace pkr::units
@@ -8968,6 +8459,960 @@ constexpr kilogram_t alpha_particle_mass{details::alpha_particle_mass<double>()}
 namespace pkr::units
 {
 
+struct dimension_t;
+}
+
+namespace pkr::units::impl
+{
+
+struct format_buffer_storage
+{
+    static constexpr std::size_t buffer_size = 4096;
+
+    static std::array<std::byte, buffer_size>& get_data()
+    {
+        static std::array<std::byte, buffer_size> s_data{};
+        return s_data;
+    }
+};
+
+template <typename CharT>
+struct format_buffer
+{
+    static constexpr std::size_t buffer_size = format_buffer_storage::buffer_size;
+    static constexpr std::size_t max_chars = buffer_size / sizeof(CharT);
+
+    std::size_t byte_length = 0;
+
+    constexpr CharT* begin()
+    {
+        return reinterpret_cast<CharT*>(format_buffer_storage::get_data().data());
+    }
+
+    constexpr CharT* end()
+    {
+        return reinterpret_cast<CharT*>(format_buffer_storage::get_data().data()) + (byte_length / sizeof(CharT));
+    }
+
+    constexpr const CharT* begin() const
+    {
+        return reinterpret_cast<const CharT*>(format_buffer_storage::get_data().data());
+    }
+
+    constexpr const CharT* end() const
+    {
+        return reinterpret_cast<const CharT*>(format_buffer_storage::get_data().data()) + (byte_length / sizeof(CharT));
+    }
+
+    constexpr void clear()
+    {
+        byte_length = 0;
+    }
+
+    constexpr void push_back(CharT c)
+    {
+        if (byte_length + sizeof(CharT) <= buffer_size)
+        {
+            *reinterpret_cast<CharT*>(format_buffer_storage::get_data().data() + byte_length) = c;
+            byte_length += sizeof(CharT);
+        }
+    }
+
+    constexpr void append(std::basic_string_view<CharT> sv)
+    {
+        for (CharT c : sv)
+            push_back(c);
+    }
+
+    constexpr std::basic_string_view<CharT> view() const
+    {
+        return std::basic_string_view<CharT>(reinterpret_cast<const CharT*>(format_buffer_storage::get_data().data()), byte_length / sizeof(CharT));
+    }
+};
+
+template <typename CharT>
+struct char_traits_dispatch;
+
+template <>
+struct char_traits_dispatch<char>
+{
+    static constexpr std::string_view plus_minus()
+    {
+        return " +/- ";
+    }
+
+    static constexpr std::string_view superscript_minus()
+    {
+        return "-";
+    }
+
+    static constexpr std::string_view superscript_caret()
+    {
+        return "^";
+    }
+
+    static constexpr std::string_view separator()
+    {
+        return "*";
+    }
+
+    static constexpr std::string_view multiply_sign()
+    {
+        return "x";
+    }
+};
+
+template <>
+struct char_traits_dispatch<char8_t>
+{
+    static constexpr std::u8string_view plus_minus()
+    {
+        return u8" \u00B1 ";
+    }
+
+    static constexpr std::u8string_view superscript_minus()
+    {
+        return u8"\u207B";
+    }
+
+    static constexpr std::u8string_view superscript_caret()
+    {
+        return u8"";
+    }
+
+    static constexpr std::u8string_view separator()
+    {
+        return u8"\u00B7";
+    }
+
+    static constexpr std::u8string_view multiply_sign()
+    {
+        return u8"\u00D7";
+    }
+};
+
+template <>
+struct char_traits_dispatch<wchar_t>
+{
+    static constexpr std::wstring_view plus_minus()
+    {
+        return L" \u00B1 ";
+    }
+
+    static constexpr std::wstring_view superscript_minus()
+    {
+        return L"\u207B";
+    }
+
+    static constexpr std::wstring_view superscript_caret()
+    {
+        return L"";
+    }
+
+    static constexpr std::wstring_view separator()
+    {
+        return L"\u00B7";
+    }
+
+    static constexpr std::wstring_view multiply_sign()
+    {
+        return L"\u00D7";
+    }
+};
+
+template <typename CharT>
+constexpr std::basic_string_view<CharT> superscript_digit_lookup(int digit);
+
+template <>
+constexpr std::basic_string_view<char> superscript_digit_lookup<char>(int digit)
+{
+    switch (digit)
+    {
+        case 0:
+            return "0";
+        case 1:
+            return "1";
+        case 2:
+            return "2";
+        case 3:
+            return "3";
+        case 4:
+            return "4";
+        case 5:
+            return "5";
+        case 6:
+            return "6";
+        case 7:
+            return "7";
+        case 8:
+            return "8";
+        case 9:
+            return "9";
+        default:
+            return "";
+    }
+}
+
+template <>
+constexpr std::basic_string_view<char8_t> superscript_digit_lookup<char8_t>(int digit)
+{
+    switch (digit)
+    {
+        case 0:
+            return u8"\u2070";
+        case 1:
+            return u8"\u00B9";
+        case 2:
+            return u8"\u00B2";
+        case 3:
+            return u8"\u00B3";
+        case 4:
+            return u8"\u2074";
+        case 5:
+            return u8"\u2075";
+        case 6:
+            return u8"\u2076";
+        case 7:
+            return u8"\u2077";
+        case 8:
+            return u8"\u2078";
+        case 9:
+            return u8"\u2079";
+        default:
+            return u8"";
+    }
+}
+
+template <>
+constexpr std::basic_string_view<wchar_t> superscript_digit_lookup<wchar_t>(int digit)
+{
+    switch (digit)
+    {
+        case 0:
+            return L"\u2070";
+        case 1:
+            return L"\u00B9";
+        case 2:
+            return L"\u00B2";
+        case 3:
+            return L"\u00B3";
+        case 4:
+            return L"\u2074";
+        case 5:
+            return L"\u2075";
+        case 6:
+            return L"\u2076";
+        case 7:
+            return L"\u2077";
+        case 8:
+            return L"\u2078";
+        case 9:
+            return L"\u2079";
+        default:
+            return L"";
+    }
+}
+
+template <typename CharT>
+inline constexpr std::basic_string_view<CharT> base_unit_symbols[] = {
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{},
+    std::basic_string_view<CharT>{}
+};
+
+template <>
+inline constexpr std::basic_string_view<char> base_unit_symbols<char>[] = {"kg", "m", "s", "A", "K", "mol", "cd", "rad", "sr"};
+
+template <>
+inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = {L"kg", L"m", L"s", L"A", L"K", L"mol", L"cd", L"rad", L"sr"};
+
+template <>
+inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
+
+template <typename CharT>
+std::basic_string<CharT> superscript_exponent(int exp)
+{
+    if (exp == 0)
+        return std::basic_string<CharT>{};
+
+    bool negative = exp < 0;
+    int abs_exp = negative ? -exp : exp;
+    std::basic_string<CharT> s;
+
+    s += char_traits_dispatch<CharT>::superscript_caret();
+
+    if (negative)
+        s += char_traits_dispatch<CharT>::superscript_minus();
+
+    std::string digit_str = std::to_string(abs_exp);
+    for (char c : digit_str)
+    {
+        int digit_idx = c - '0';
+        s += superscript_digit_lookup<CharT>(digit_idx);
+    }
+
+    return s;
+}
+
+template <typename CharT>
+inline std::basic_string<CharT> build_dimension_symbol(const pkr::units::dimension_t& dim)
+{
+    std::basic_string<CharT> result;
+
+    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
+    const auto& symbols = base_unit_symbols<CharT>;
+
+    for (int i = 0; i < 9; ++i)
+    {
+        if (dims[i] != 0)
+        {
+            if (!result.empty())
+                result += char_traits_dispatch<CharT>::separator();
+
+            result += symbols[i];
+            if (dims[i] != 1)
+                result += superscript_exponent<CharT>(dims[i]);
+        }
+    }
+
+    if (result.empty())
+        return std::basic_string<CharT>{};
+
+    return result;
+}
+
+}
+
+namespace std
+{
+template <typename UnitT, typename CharT>
+struct hms_component_formatter
+{
+    std::formatter<typename UnitT::value_type, CharT> value_formatter;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const UnitT& value, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+        out = value_formatter.format(value.value(), ctx);
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::copy(UnitT::symbol.begin(), UnitT::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(UnitT::w_symbol.begin(), UnitT::w_symbol.end(), out);
+        }
+        else
+        {
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
+            return out;
+        }
+    }
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::hms_archour_t<T>, CharT> : hms_component_formatter<pkr::units::hms_archour_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::hms_arcminute_t<T>, CharT> : hms_component_formatter<pkr::units::hms_arcminute_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::hms_arcsecond_t<T>, CharT> : hms_component_formatter<pkr::units::hms_arcsecond_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::dms_degree_t<T>, CharT> : hms_component_formatter<pkr::units::dms_degree_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::dms_arcminute_t<T>, CharT> : hms_component_formatter<pkr::units::dms_arcminute_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::dms_arcsecond_t<T>, CharT> : hms_component_formatter<pkr::units::dms_arcsecond_t<T>, CharT>
+{
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::hms_angle_t<T>, CharT>
+{
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+        while (it != end && *it != static_cast<CharT>('}'))
+        {
+            ++it;
+        }
+        return it;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::hms_angle_t<T>& value, FormatContext& ctx) const
+    {
+        using archour_ratio = typename pkr::units::details::is_pkr_unit<pkr::units::hms_archour_t<T>>::ratio_type;
+        T hours_value = pkr::units::details::convert_ratio_to<double, std::ratio<1, 1>, archour_ratio>(value.value());
+        bool negative = hours_value < 0.0;
+        T total_seconds = std::abs(hours_value) * T{3600.0};
+        int hours = static_cast<int>(total_seconds / T{3600.0});
+        T remainder = total_seconds - static_cast<T>(hours) * T{3600.0};
+        int minutes = static_cast<int>(remainder / T{60.0});
+        T seconds = remainder - static_cast<T>(minutes) * T{60.0};
+        long long seconds_rounded = std::llround(seconds);
+        if (seconds_rounded >= 60)
+        {
+            seconds_rounded = 0;
+            ++minutes;
+            if (minutes >= 60)
+            {
+                minutes = 0;
+                ++hours;
+            }
+        }
+        auto out = ctx.out();
+        if (negative)
+        {
+            *out++ = static_cast<CharT>('-');
+        }
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            out = std::format_to(out, "{}", pkr::units::hms_archour_t<T>{static_cast<T>(hours)});
+            *out++ = ' ';
+            out = std::format_to(out, "{}", pkr::units::hms_arcminute_t<T>{static_cast<T>(minutes)});
+            *out++ = ' ';
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            out = std::format_to(out, L"{}", pkr::units::hms_archour_t<T>{static_cast<T>(hours)});
+            out = std::format_to(out, L"{}", pkr::units::hms_arcminute_t<T>{static_cast<T>(minutes)});
+        }
+        else
+        {
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
+        }
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::format_to(out, "{}", pkr::units::hms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::format_to(out, L"{}", pkr::units::hms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
+        }
+        else
+        {
+            return out;
+        }
+    }
+};
+
+template <pkr::units::is_unit_value_type_c T, typename CharT>
+struct formatter<pkr::units::dms_angle_t<T>, CharT>
+{
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+        while (it != end && *it != static_cast<CharT>('}'))
+        {
+            ++it;
+        }
+        return it;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::dms_angle_t<T>& value, FormatContext& ctx) const
+    {
+        using degree_ratio = typename pkr::units::details::is_pkr_unit<pkr::units::dms_degree_t<T>>::ratio_type;
+        double degrees_value = pkr::units::details::convert_ratio_to<T, std::ratio<1, 1>, degree_ratio>(value.value());
+        bool negative = degrees_value < T{0.0};
+        double total_seconds = std::abs(degrees_value) * T{3600.0};
+        int degrees = static_cast<int>(total_seconds / T{3600.0});
+        double remainder = total_seconds - static_cast<T>(degrees) * T{3600.0};
+        int minutes = static_cast<int>(remainder / T{60.0});
+        double seconds = remainder - static_cast<T>(minutes) * T{60.0};
+        long long seconds_rounded = std::llround(seconds);
+        if (seconds_rounded >= 60)
+        {
+            seconds_rounded = 0;
+            ++minutes;
+            if (minutes >= 60)
+            {
+                minutes = 0;
+                ++degrees;
+            }
+        }
+        auto out = ctx.out();
+        if (negative)
+        {
+            *out++ = static_cast<CharT>('-');
+        }
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            out = std::format_to(out, "{}", pkr::units::dms_degree_t<T>{static_cast<T>(degrees)});
+            *out++ = ' ';
+            out = std::format_to(out, "{}", pkr::units::dms_arcminute_t<T>{static_cast<T>(minutes)});
+            *out++ = ' ';
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            out = std::format_to(out, L"{}", pkr::units::dms_degree_t<T>{static_cast<T>(degrees)});
+            out = std::format_to(out, L"{}", pkr::units::dms_arcminute_t<T>{static_cast<T>(minutes)});
+        }
+        else
+        {
+            static_assert(std::is_same_v<CharT, char> || std::is_same_v<CharT, wchar_t>, "UTF-8 formatting is not supported for astronomical angle units");
+        }
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::format_to(out, "{}", pkr::units::dms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::format_to(out, L"{}", pkr::units::dms_arcsecond_t<T>{static_cast<T>(seconds_rounded)});
+        }
+        else
+        {
+            return out;
+        }
+    }
+};
+}
+
+namespace std
+{
+
+template <pkr::units::is_base_pkr_unit_c T, typename CharT>
+struct formatter<T, CharT>
+{
+    std::formatter<typename T::value_type, CharT> value_formatter;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const T& unit, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+        out = value_formatter.format(unit.value(), ctx);
+        constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
+        static const std::basic_string<CharT> symbol = pkr::units::impl::build_dimension_symbol<CharT>(dim);
+
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(symbol.begin(), symbol.end(), out);
+    }
+};
+
+template <pkr::units::is_derived_pkr_unit_c T, typename CharT>
+struct formatter<T, CharT>
+{
+    std::formatter<typename T::value_type, CharT> value_formatter;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const T& unit, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+        out = value_formatter.format(unit.value(), ctx);
+
+        std::basic_string_view<CharT> sym;
+        if constexpr (std::is_same_v<CharT, char>)
+            sym = T::symbol;
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+            sym = T::u8_symbol;
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+            sym = T::w_symbol;
+        else
+            sym = T::symbol;
+
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(sym.begin(), sym.end(), out);
+    }
+};
+
+}
+namespace std
+{
+
+template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
+struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
+{
+    std::formatter<Real, CharT> value_formatter;
+    mutable std::basic_string<CharT> saved_format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto ret = value_formatter.parse(ctx);
+        saved_format_spec = std::basic_string<CharT>(it, ret);
+        return ret;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>& unit, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+        const auto v = unit.value();
+        const Real real = std::real(v);
+        const Real imag = std::imag(v);
+
+        bool has_e = false;
+        for (CharT c : saved_format_spec)
+        {
+            if (c == static_cast<CharT>('e') || c == static_cast<CharT>('E'))
+            {
+                has_e = true;
+                break;
+            }
+        }
+        if (has_e && real != static_cast<Real>(0) && imag != static_cast<Real>(0))
+        {
+            auto compute_exp = [](Real x) -> int { return static_cast<int>(std::floor(std::log10(std::abs(static_cast<double>(x))))); };
+            int exp_r = compute_exp(real);
+            int exp_i = compute_exp(imag);
+            if (exp_r == exp_i)
+            {
+                int exp = exp_r;
+                Real mant_r = real / std::pow(10.0, exp);
+                Real mant_i = imag / std::pow(10.0, exp);
+
+                std::basic_string<CharT> mantissa_spec = saved_format_spec;
+                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
+                if (pos == std::basic_string<CharT>::npos)
+                    pos = mantissa_spec.find(static_cast<CharT>('E'));
+                if (pos != std::basic_string<CharT>::npos)
+                    mantissa_spec.erase(pos);
+
+                int precision = 6;
+                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
+                if (dotpos != std::basic_string<CharT>::npos)
+                {
+                    size_t p = dotpos + 1;
+                    int val = 0;
+                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
+                    {
+                        val = val * 10 + (mantissa_spec[p] - '0');
+                        ++p;
+                    }
+                    if (val > 0)
+                        precision = val;
+                }
+
+                std::ostringstream oss_r;
+                oss_r.setf(std::ios::fixed);
+                oss_r << std::setprecision(precision) << mant_r;
+                std::string fmt_r = oss_r.str();
+
+                std::ostringstream oss_i;
+                oss_i.setf(std::ios::fixed);
+                oss_i << std::setprecision(precision) << std::abs(mant_i);
+                std::string fmt_i = oss_i.str();
+
+                std::basic_string<CharT> exp_sup;
+                int e = exp;
+                if (e < 0)
+                {
+                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    e = -e;
+                }
+                if (e == 0)
+                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                else
+                {
+                    std::vector<std::basic_string_view<CharT>> digits;
+                    while (e > 0)
+                    {
+                        int d = e % 10;
+                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        e /= 10;
+                    }
+
+                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
+                        exp_sup += *it;
+                }
+
+                std::basic_string<CharT> composed;
+                for (char c : fmt_r)
+                    composed += static_cast<CharT>(c);
+                if (mant_i >= static_cast<Real>(0))
+                {
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('+');
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('j');
+                }
+                else
+                {
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('-');
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('j');
+                }
+                for (char c : fmt_i)
+                    composed += static_cast<CharT>(c);
+                composed += static_cast<CharT>(')');
+                composed += static_cast<CharT>(' ');
+
+                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
+                composed += static_cast<CharT>('1');
+                composed += static_cast<CharT>('0');
+                composed += exp_sup;
+                composed += static_cast<CharT>(' ');
+
+                auto dim_sym = pkr::units::impl::build_dimension_symbol<CharT>(dim_v);
+                if (!dim_sym.empty())
+                {
+                    composed += dim_sym;
+                }
+
+                return std::copy(composed.begin(), composed.end(), out);
+            }
+        }
+
+        *out++ = static_cast<CharT>('(');
+        out = value_formatter.format(real, ctx);
+
+        if (imag >= static_cast<Real>(0))
+        {
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('+');
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('j');
+            out = value_formatter.format(imag, ctx);
+        }
+        else
+        {
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('-');
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('j');
+            out = value_formatter.format(-imag, ctx);
+        }
+
+        *out++ = static_cast<CharT>(')');
+
+        static const std::basic_string<CharT> built = []() { return pkr::units::impl::build_dimension_symbol<CharT>(dim_v); }();
+        std::basic_string_view<CharT> sym = built;
+
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(sym.begin(), sym.end(), out);
+    }
+};
+
+template <typename T, typename CharT>
+    requires(
+        pkr::units::is_derived_pkr_unit_c<T> &&
+        pkr::units::is_std_complex_c<typename pkr::units::details::is_pkr_unit<T>::value_type>)
+struct formatter<T, CharT>
+{
+    using complex_t = typename pkr::units::details::is_pkr_unit<T>::value_type;
+    using real_t = typename complex_t::value_type;
+
+    std::formatter<real_t, CharT> value_formatter;
+    mutable std::basic_string<CharT> saved_format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto ret = value_formatter.parse(ctx);
+        saved_format_spec = std::basic_string<CharT>(it, ret);
+        return ret;
+    }
+
+    template <typename FormatContext>
+    auto format(const T& unit, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+        const complex_t v = unit.value();
+        const real_t real = std::real(v);
+        const real_t imag = std::imag(v);
+
+        auto get_symbol = []() -> std::basic_string_view<CharT>
+        {
+            if constexpr (std::is_same_v<CharT, char>)
+                return T::symbol;
+            else if constexpr (std::is_same_v<CharT, char8_t>)
+                return T::u8_symbol;
+            else if constexpr (std::is_same_v<CharT, wchar_t>)
+                return T::w_symbol;
+            else
+                return T::symbol;
+        };
+
+        bool has_e = false;
+        for (CharT c : saved_format_spec)
+        {
+            if (c == static_cast<CharT>('e') || c == static_cast<CharT>('E'))
+            {
+                has_e = true;
+                break;
+            }
+        }
+        if (has_e && (real != static_cast<real_t>(0) && imag != static_cast<real_t>(0)))
+        {
+            auto compute_exp = [](real_t x) -> int { return static_cast<int>(std::floor(std::log10(std::abs(static_cast<double>(x))))); };
+            int exp_r = compute_exp(real);
+            int exp_i = compute_exp(imag);
+            if (exp_r == exp_i)
+            {
+                int exp = exp_r;
+                real_t mant_r = real / std::pow(10.0, exp);
+                real_t mant_i = imag / std::pow(10.0, exp);
+
+                std::basic_string<CharT> mantissa_spec = saved_format_spec;
+                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
+                if (pos == std::basic_string<CharT>::npos)
+                    pos = mantissa_spec.find(static_cast<CharT>('E'));
+                if (pos != std::basic_string<CharT>::npos)
+                    mantissa_spec.erase(pos);
+
+                int precision = 6;
+                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
+                if (dotpos != std::basic_string<CharT>::npos)
+                {
+                    size_t p = dotpos + 1;
+                    int val = 0;
+                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
+                    {
+                        val = val * 10 + (mantissa_spec[p] - '0');
+                        ++p;
+                    }
+                    if (val > 0)
+                        precision = val;
+                }
+
+                std::ostringstream oss_r;
+                oss_r.setf(std::ios::fixed);
+                oss_r << std::setprecision(precision) << mant_r;
+                std::string fmt_r = oss_r.str();
+
+                std::ostringstream oss_i;
+                oss_i.setf(std::ios::fixed);
+                oss_i << std::setprecision(precision) << std::abs(mant_i);
+                std::string fmt_i = oss_i.str();
+
+                std::basic_string<CharT> exp_sup;
+                int e = exp;
+                if (e < 0)
+                {
+                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    e = -e;
+                }
+                if (e == 0)
+                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                else
+                {
+                    std::vector<std::basic_string_view<CharT>> digits;
+                    while (e > 0)
+                    {
+                        int d = e % 10;
+                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        e /= 10;
+                    }
+
+                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
+                        exp_sup += *it;
+                }
+
+                std::basic_string<CharT> composed;
+                composed += static_cast<CharT>('(');
+                for (char c : fmt_r)
+                    composed += static_cast<CharT>(c);
+                if (mant_i >= static_cast<real_t>(0))
+                {
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('+');
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('j');
+                }
+                else
+                {
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('-');
+                    composed += static_cast<CharT>(' ');
+                    composed += static_cast<CharT>('j');
+                }
+                for (char c : fmt_i)
+                    composed += static_cast<CharT>(c);
+                composed += static_cast<CharT>(')');
+                composed += static_cast<CharT>(' ');
+
+                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
+                composed += static_cast<CharT>('1');
+                composed += static_cast<CharT>('0');
+                composed += static_cast<CharT>('^');
+                composed += exp_sup;
+                composed += static_cast<CharT>(' ');
+
+                composed += get_symbol();
+
+                return std::copy(composed.begin(), composed.end(), out);
+            }
+        }
+
+        *out++ = static_cast<CharT>('(');
+        out = value_formatter.format(real, ctx);
+
+        if (imag >= static_cast<real_t>(0))
+        {
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('+');
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('j');
+            out = value_formatter.format(imag, ctx);
+        }
+        else
+        {
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('-');
+            *out++ = static_cast<CharT>(' ');
+            *out++ = static_cast<CharT>('j');
+            out = value_formatter.format(-imag, ctx);
+        }
+
+        *out++ = static_cast<CharT>(')');
+
+        *out++ = static_cast<CharT>(' ');
+        return std::copy(get_symbol().begin(), get_symbol().end(), out);
+    }
+};
+
+}
+
+namespace pkr::units
+{
+
 template <is_unit_value_type_c T>
 struct inch_t final : public details::unit_t<T, std::ratio<254, 10000>, length_dimension>
 {
@@ -9669,141 +10114,6 @@ struct details::derived_unit_type_t<T, std::ratio<33814, 1000>, density_dimensio
 {
     using type = ounce_per_fluid_ounce_t<T>;
 };
-}
-
-namespace pkr::units
-{
-
-namespace literals
-{
-
-constexpr inch_t<double> operator""_in(long double value) noexcept
-{
-    return inch_t<double>{static_cast<double>(value)};
-}
-
-constexpr foot_t<double> operator""_ft(long double value) noexcept
-{
-    return foot_t<double>{static_cast<double>(value)};
-}
-
-constexpr yard_t<double> operator""_yd(long double value) noexcept
-{
-    return yard_t<double>{static_cast<double>(value)};
-}
-
-constexpr mile_t<double> operator""_mi(long double value) noexcept
-{
-    return mile_t<double>{static_cast<double>(value)};
-}
-
-constexpr nautical_mile_t<double> operator""_nmi(long double value) noexcept
-{
-    return nautical_mile_t<double>{static_cast<double>(value)};
-}
-
-}
-
-}
-
-namespace pkr::units
-{
-
-namespace literals
-{
-
-constexpr grain_t<double> operator""_gr(long double value) noexcept
-{
-    return grain_t<double>{static_cast<double>(value)};
-}
-
-constexpr ounce_t<double> operator""_oz(long double value) noexcept
-{
-    return ounce_t<double>{static_cast<double>(value)};
-}
-
-constexpr pound_t<double> operator""_lb(long double value) noexcept
-{
-    return pound_t<double>{static_cast<double>(value)};
-}
-
-constexpr stone_t<double> operator""_st(long double value) noexcept
-{
-    return stone_t<double>{static_cast<double>(value)};
-}
-
-constexpr us_ton_t<double> operator""_short_ton(long double value) noexcept
-{
-    return us_ton_t<double>{static_cast<double>(value)};
-}
-
-constexpr long_ton_t<double> operator""_long_ton(long double value) noexcept
-{
-    return long_ton_t<double>{static_cast<double>(value)};
-}
-
-}
-
-}
-
-namespace pkr::units
-{
-
-namespace literals
-{
-
-constexpr feet_per_second_squared_t<double> operator""_fts2(long double value) noexcept
-{
-    return feet_per_second_squared_t<double>{static_cast<double>(value)};
-}
-
-}
-
-}
-
-namespace pkr::units
-{
-
-namespace literals
-{
-
-constexpr miles_per_hour_t<double> operator""_mph(long double value) noexcept
-{
-    return miles_per_hour_t<double>{static_cast<double>(value)};
-}
-
-constexpr knots_t<double> operator""_kt(long double value) noexcept
-{
-    return knots_t<double>{static_cast<double>(value)};
-}
-
-constexpr feet_per_second_t<double> operator""_fps(long double value) noexcept
-{
-    return feet_per_second_t<double>{static_cast<double>(value)};
-}
-
-}
-
-}
-
-namespace pkr::units
-{
-
-namespace literals
-{
-
-constexpr psi_t<double> operator""_psi(long double value) noexcept
-{
-    return psi_t<double>{static_cast<double>(value)};
-}
-
-constexpr horsepower_t<double> operator""_hp(long double value) noexcept
-{
-    return horsepower_t<double>{static_cast<double>(value)};
-}
-
-}
-
 }
 
 namespace pkr::units
@@ -10632,6 +10942,141 @@ constexpr millisiemens_t<double> operator""_mS(long double value) noexcept
 constexpr microsiemens_t<double> operator""_uS(long double value) noexcept
 {
     return microsiemens_t<double>{static_cast<double>(value)};
+}
+
+}
+
+}
+
+namespace pkr::units
+{
+
+namespace literals
+{
+
+constexpr feet_per_second_squared_t<double> operator""_fts2(long double value) noexcept
+{
+    return feet_per_second_squared_t<double>{static_cast<double>(value)};
+}
+
+}
+
+}
+
+namespace pkr::units
+{
+
+namespace literals
+{
+
+constexpr inch_t<double> operator""_in(long double value) noexcept
+{
+    return inch_t<double>{static_cast<double>(value)};
+}
+
+constexpr foot_t<double> operator""_ft(long double value) noexcept
+{
+    return foot_t<double>{static_cast<double>(value)};
+}
+
+constexpr yard_t<double> operator""_yd(long double value) noexcept
+{
+    return yard_t<double>{static_cast<double>(value)};
+}
+
+constexpr mile_t<double> operator""_mi(long double value) noexcept
+{
+    return mile_t<double>{static_cast<double>(value)};
+}
+
+constexpr nautical_mile_t<double> operator""_nmi(long double value) noexcept
+{
+    return nautical_mile_t<double>{static_cast<double>(value)};
+}
+
+}
+
+}
+
+namespace pkr::units
+{
+
+namespace literals
+{
+
+constexpr grain_t<double> operator""_gr(long double value) noexcept
+{
+    return grain_t<double>{static_cast<double>(value)};
+}
+
+constexpr ounce_t<double> operator""_oz(long double value) noexcept
+{
+    return ounce_t<double>{static_cast<double>(value)};
+}
+
+constexpr pound_t<double> operator""_lb(long double value) noexcept
+{
+    return pound_t<double>{static_cast<double>(value)};
+}
+
+constexpr stone_t<double> operator""_st(long double value) noexcept
+{
+    return stone_t<double>{static_cast<double>(value)};
+}
+
+constexpr us_ton_t<double> operator""_short_ton(long double value) noexcept
+{
+    return us_ton_t<double>{static_cast<double>(value)};
+}
+
+constexpr long_ton_t<double> operator""_long_ton(long double value) noexcept
+{
+    return long_ton_t<double>{static_cast<double>(value)};
+}
+
+}
+
+}
+
+namespace pkr::units
+{
+
+namespace literals
+{
+
+constexpr psi_t<double> operator""_psi(long double value) noexcept
+{
+    return psi_t<double>{static_cast<double>(value)};
+}
+
+constexpr horsepower_t<double> operator""_hp(long double value) noexcept
+{
+    return horsepower_t<double>{static_cast<double>(value)};
+}
+
+}
+
+}
+
+namespace pkr::units
+{
+
+namespace literals
+{
+
+constexpr miles_per_hour_t<double> operator""_mph(long double value) noexcept
+{
+    return miles_per_hour_t<double>{static_cast<double>(value)};
+}
+
+constexpr knots_t<double> operator""_kt(long double value) noexcept
+{
+    return knots_t<double>{static_cast<double>(value)};
+}
+
+constexpr feet_per_second_t<double> operator""_fps(long double value) noexcept
+{
+    return feet_per_second_t<double>{static_cast<double>(value)};
 }
 
 }
@@ -11776,7 +12221,8 @@ public:
         auto cos_x = std::cos(value());
         auto result_uncertainty_value = std::abs(cos_x) * uncertainty();
 
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
     }
 
     template <typename U = UnitT>
@@ -11788,7 +12234,8 @@ public:
         auto sin_x = std::sin(value());
         auto result_uncertainty_value = std::abs(sin_x) * uncertainty();
 
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
     }
 
     template <typename U = UnitT>
@@ -11801,7 +12248,8 @@ public:
         auto sec_squared = 1.0 / (cos_x * cos_x);
         auto result_uncertainty_value = sec_squared * uncertainty();
 
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
     }
 
     constexpr bool is_valid() const
