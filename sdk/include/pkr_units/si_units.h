@@ -79,4 +79,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-// Use <pkr_units/si_units_literals.h> for user-defined literals.
+// Use <pkr_units/literals/si.h> for user-defined literals.

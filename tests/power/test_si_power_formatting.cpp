@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/format/si.h>
 #include <format>
 #include <sstream>
 #include <pkr_units/units/derived/mechanical/power.h>
@@ -10,7 +10,6 @@ class SiPowerFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -56,5 +55,3 @@ TEST_F(SiPowerFormattingTest, microwatt_ascii_formatting)
     std::string result = std::format("{}", uW);
     ASSERT_EQ(result, "0.5 uW");
 }
-
-*/

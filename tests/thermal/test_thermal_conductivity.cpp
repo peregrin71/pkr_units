@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <pkr_units/units/derived/thermal/thermal_conductivity.h>
-#include <pkr_units/si_formatting.h>
+#include <pkr_units/format/si.h>
 
 using namespace ::testing;
 
@@ -34,5 +34,5 @@ TEST_F(ThermalConductivityTest, thermal_conductivity_wide_formatting)
 {
     pkr::units::thermal_conductivity_t<double> k{3.0};
     std::wstring result = std::format(L"{}", k);
-    EXPECT_EQ(result, L"3 W·m⁻¹·K⁻¹");
+    EXPECT_EQ(result, L"3 W\xB7m\u207B\xB9\xB7K\u207B\xB9");
 }

@@ -9,75 +9,210 @@ class VelocityFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
-// Velocity Formatting Tests
+// Basic Formatting Tests - char (ASCII) - double
 // ============================================================================
 
-TEST_F(VelocityFormattingTest, meter_per_second_formatting)
+TEST_F(VelocityFormattingTest, meter_per_second_ascii_formatting_double)
 {
     pkr::units::meter_per_second_t<double> v{1.0};
     std::string result = std::format("{}", v);
     ASSERT_EQ(result, "1 m/s");
 }
 
-TEST_F(VelocityFormattingTest, kilometer_per_hour_formatting)
+TEST_F(VelocityFormattingTest, meter_per_second_ascii_formatting_float)
 {
-    // km/h has ratio 5/18 (1 km/h = 5/18 m/s)
-    pkr::units::kilometer_per_hour_t<double> v{36.0};
+    pkr::units::meter_per_second_t<float> v{1.0f};
     std::string result = std::format("{}", v);
-    ASSERT_EQ(result, "36 km/h");
+    ASSERT_EQ(result, "1 m/s");
 }
 
-TEST_F(VelocityFormattingTest, centimeter_per_second_formatting)
-{
-    // 100 cm/s at ratio 1/100
-    pkr::units::centimeter_per_second_t<double> v{100.0};
-    std::string result = std::format("{}", v);
-    ASSERT_EQ(result, "100 cm/s");
-}
-
-TEST_F(VelocityFormattingTest, centimeter_per_hour_should_fallback_to_m_per_s_formatting)
-{
-    // 100 cm/h is not a defined unit, should fallback to m/s formatting
-    pkr::units::unit_t<double, std::ratio<1, 360000>, pkr::units::velocity_dimension> v{100.0}; // 100 cm/h = 100/360000 m/s
-    std::string result = std::format("{:.6g}", v);                                              // Use general format with 6 significant digits
-    ASSERT_EQ(result, "0.000277778 m/s");
-}
-
-TEST_F(VelocityFormattingTest, meter_per_second_with_precision_formatting)
+TEST_F(VelocityFormattingTest, meter_per_second_ascii_precision_double)
 {
     pkr::units::meter_per_second_t<double> v{3.14159};
     std::string result = std::format("{:.2f}", v);
     ASSERT_EQ(result, "3.14 m/s");
 }
 
-TEST_F(VelocityFormattingTest, kilometer_per_hour_with_precision_formatting)
+TEST_F(VelocityFormattingTest, meter_per_second_ascii_precision_float)
 {
-    pkr::units::kilometer_per_hour_t<double> v{100.0};
+    pkr::units::meter_per_second_t<float> v{3.14159f};
+    std::string result = std::format("{:.2f}", v);
+    ASSERT_EQ(result, "3.14 m/s");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_ascii_formatting_double)
+{
+    pkr::units::kilometer_per_hour_t<double> v{36.0};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "36 km/h");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_ascii_formatting_float)
+{
+    pkr::units::kilometer_per_hour_t<float> v{36.0f};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "36 km/h");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_ascii_precision_double)
+{
+    pkr::units::kilometer_per_hour_t<double> v{100.12345};
     std::string result = std::format("{:.1f}", v);
-    ASSERT_EQ(result, "100.0 km/h");
+    ASSERT_EQ(result, "100.1 km/h");
 }
 
-TEST_F(VelocityFormattingTest, velocity_table_alignment)
+TEST_F(VelocityFormattingTest, kilometer_per_hour_ascii_precision_float)
 {
-    // Test alignment for table output
-    pkr::units::meter_per_second_t<double> v1{1.5};
-    pkr::units::meter_per_second_t<double> v2{25.3};
-    pkr::units::meter_per_second_t<double> v3{0.8};
-
-    // Right align with width 10
-    std::string result1 = std::format("{:>10.1f}", v1);
-    std::string result2 = std::format("{:>10.1f}", v2);
-    std::string result3 = std::format("{:>10.1f}", v3);
-
-    // Values should be right-aligned, units follow
-    ASSERT_EQ(result1, "       1.5 m/s");
-    ASSERT_EQ(result2, "      25.3 m/s");
-    ASSERT_EQ(result3, "       0.8 m/s");
+    pkr::units::kilometer_per_hour_t<float> v{100.12345f};
+    std::string result = std::format("{:.1f}", v);
+    ASSERT_EQ(result, "100.1 km/h");
 }
 
-TEST_F(VelocityFormattingTest, kilometer_per_hour_cast_to_meter_per_second_formatting)
+TEST_F(VelocityFormattingTest, centimeter_per_second_ascii_formatting_double)
+{
+    pkr::units::centimeter_per_second_t<double> v{100.0};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "100 cm/s");
+}
+
+TEST_F(VelocityFormattingTest, centimeter_per_second_ascii_formatting_float)
+{
+    pkr::units::centimeter_per_second_t<float> v{100.0f};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "100 cm/s");
+}
+
+TEST_F(VelocityFormattingTest, millimeter_per_second_ascii_formatting_double)
+{
+    pkr::units::millimeter_per_second_t<double> v{500.0};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "500 mm/s");
+}
+
+TEST_F(VelocityFormattingTest, millimeter_per_second_ascii_formatting_float)
+{
+    pkr::units::millimeter_per_second_t<float> v{500.0f};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "500 mm/s");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_second_ascii_formatting_double)
+{
+    pkr::units::kilometer_per_second_t<double> v{10.0};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "10 km/s");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_second_ascii_formatting_float)
+{
+    pkr::units::kilometer_per_second_t<float> v{10.0f};
+    std::string result = std::format("{}", v);
+    ASSERT_EQ(result, "10 km/s");
+}
+
+// ============================================================================
+// Wide Character Formatting Tests - wchar_t - double
+// ============================================================================
+
+TEST_F(VelocityFormattingTest, meter_per_second_wide_formatting_double)
+{
+    pkr::units::meter_per_second_t<double> v{1.0};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"1 m\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, meter_per_second_wide_formatting_float)
+{
+    pkr::units::meter_per_second_t<float> v{1.0f};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"1 m\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, meter_per_second_wide_precision_double)
+{
+    pkr::units::meter_per_second_t<double> v{3.14159};
+    std::wstring result = std::format(L"{:.2f}", v);
+    ASSERT_EQ(result, L"3.14 m\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, meter_per_second_wide_precision_float)
+{
+    pkr::units::meter_per_second_t<float> v{3.14159f};
+    std::wstring result = std::format(L"{:.2f}", v);
+    ASSERT_EQ(result, L"3.14 m\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_wide_formatting_double)
+{
+    pkr::units::kilometer_per_hour_t<double> v{36.0};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"36 km\u00B7h\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_wide_formatting_float)
+{
+    pkr::units::kilometer_per_hour_t<float> v{36.0f};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"36 km\u00B7h\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_wide_precision_double)
+{
+    pkr::units::kilometer_per_hour_t<double> v{100.12345};
+    std::wstring result = std::format(L"{:.1f}", v);
+    ASSERT_EQ(result, L"100.1 km\u00B7h\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_hour_wide_precision_float)
+{
+    pkr::units::kilometer_per_hour_t<float> v{100.12345f};
+    std::wstring result = std::format(L"{:.1f}", v);
+    ASSERT_EQ(result, L"100.1 km\u00B7h\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, centimeter_per_second_wide_formatting_double)
+{
+    pkr::units::centimeter_per_second_t<double> v{100.0};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"100 cm\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, centimeter_per_second_wide_formatting_float)
+{
+    pkr::units::centimeter_per_second_t<float> v{100.0f};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"100 cm\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, millimeter_per_second_wide_formatting_double)
+{
+    pkr::units::millimeter_per_second_t<double> v{500.0};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"500 mm\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, millimeter_per_second_wide_formatting_float)
+{
+    pkr::units::millimeter_per_second_t<float> v{500.0f};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"500 mm\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_second_wide_formatting_double)
+{
+    pkr::units::kilometer_per_second_t<double> v{10.0};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"10 km\u00B7s\u207B\u00B9");
+}
+
+TEST_F(VelocityFormattingTest, kilometer_per_second_wide_formatting_float)
+{
+    pkr::units::kilometer_per_second_t<float> v{10.0f};
+    std::wstring result = std::format(L"{}", v);
+    ASSERT_EQ(result, L"10 km\u00B7s\u207B\u00B9");
+}
+
 {
     // Start with 36 km/h, which should be 10 m/s
     pkr::units::kilometer_per_hour_t<double> kmh{36.0};
@@ -89,4 +224,3 @@ TEST_F(VelocityFormattingTest, kilometer_per_hour_cast_to_meter_per_second_forma
     std::string result = std::format("{}", mps);
     ASSERT_EQ(result, "10 m/s");
 }
-*/

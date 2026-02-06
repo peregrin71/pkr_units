@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <format>
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/format/si.h>
 #include <pkr_units/units/dimensionless/ratio.h>
 #include <pkr_units/units/dimensionless/decibel.h>
 

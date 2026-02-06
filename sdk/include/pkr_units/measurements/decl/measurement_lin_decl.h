@@ -9,6 +9,7 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
+#include <pkr_units/impl/formatting/unit_formatting_traits.h>
 #include <pkr_units/units/math/unit_math.h>
 
 namespace PKR_UNITS_NAMESPACE

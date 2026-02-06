@@ -2,9 +2,8 @@
 #include <pkr_units/si_units.h>
 #include <pkr_units/imperial_units.h>
 #include <pkr_units/astronomical_units.h>
-#include <pkr_units/impl/literals/literals.h>
-#include <pkr_units/impl/literals/length_literals.h>
-#include <pkr_units/impl/literals/imperial_length_literals.h>
+#include <pkr_units/literals/length.h>
+#include <pkr_units/literals/imperial_length.h>
 
 class SiLengthLiteralsTest : public ::testing::Test
 {

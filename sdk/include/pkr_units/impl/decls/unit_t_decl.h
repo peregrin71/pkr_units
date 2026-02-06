@@ -122,9 +122,21 @@ public:
         // Division by zero check: at runtime throw, at compile-time assert
         if (!std::is_constant_evaluated())
         {
-            if ((other.value() < static_cast<type_t>(0) ? -other.value() : other.value()) == static_cast<type_t>(0))
+            if constexpr (std::is_arithmetic_v<type_t>)
             {
-                throw std::invalid_argument("Division by zero in si_unit::operator/");
+                if ((other.value() < static_cast<type_t>(0) ? -other.value() : other.value()) == static_cast<type_t>(0))
+                {
+                    throw std::invalid_argument("Division by zero in si_unit::operator/");
+                }
+            }
+            else
+            {
+                // For complex value types, check magnitude instead of direct comparison
+                using magnitude_type = decltype(std::abs(other.value()));
+                if (std::abs(other.value()) == static_cast<magnitude_type>(0))
+                {
+                    throw std::invalid_argument("Division by zero in si_unit::operator/");
+                }
             }
         }
 
@@ -146,21 +158,21 @@ public:
         return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
     }
 
-    // Multiply by scalar - returns the most derived unit type
+    // ============================================================================
+    // Additional member utilities
+
     constexpr auto operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value * scalar};
     }
 
-    // Divide by scalar - returns the most derived unit type
     constexpr auto operator/(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
         return result_type{m_value / scalar};
     }
 
-    // Compound assignment operators
     constexpr unit_t& operator+=(const unit_t& other) noexcept
     {
         m_value += other.m_value;
@@ -185,37 +197,26 @@ public:
         return *this;
     }
 
-    // Get raw value
     constexpr type_t value() const noexcept
     {
         return m_value;
     }
 
-    // Dereference operator to get the value (pointer-like interface)
     constexpr type_t operator*() const noexcept
     {
         return m_value;
     }
 
-    // Convert to SI base units with canonical ratio (1/1)
-    // Returns the most derived unit type in canonical SI form
     constexpr auto to_si() const noexcept
     {
-        // Convert value from current ratio to canonical ratio (1/1)
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-
-        // Return most derived unit type with canonical ratio and same dimensions
         using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
         return canonical_unit{canonical_value};
     }
 
-    // Return a normalized unit_t with canonical ratio (1/1) for dimensional analysis
     constexpr auto in_base_si_units() const noexcept
     {
-        // Convert value from current ratio to canonical ratio (1/1)
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-
-        // Return raw unit_t with canonical ratio and same dimensions
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
 

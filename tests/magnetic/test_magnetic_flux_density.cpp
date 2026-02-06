@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include <format>
 #include <type_traits>
+#include <pkr_units/cgs_units.h>
 #include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/units/derived/magnetic_flux.h>
-#include <pkr_units/cgs_units_formatting.h>
+#include <pkr_units/format/cgs.h>
 
 using namespace ::testing;
 

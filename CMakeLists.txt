@@ -42,3 +42,6 @@ endif()
 
 # Add the tests subdirectory
 add_subdirectory(tests)
+
+# Add the examples subdirectory (builds example applications that use the header-only SDK)
+add_subdirectory(examples)

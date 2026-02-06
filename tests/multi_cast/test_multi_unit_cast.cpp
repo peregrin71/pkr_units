@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <pkr_units/si_units.h>
 #include <pkr_units/imperial_units.h>
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/format/si.h>
 #include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/impl/cast/multi_unit_cast.h>
 #include <pkr_units/units/derived/velocity.h>

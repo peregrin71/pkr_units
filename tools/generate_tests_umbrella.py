@@ -28,6 +28,9 @@ def generate(out_path: Path):
     lines.append('#ifndef PKR_UNITS_ALL_SDK_HEADERS_H')
     lines.append('#define PKR_UNITS_ALL_SDK_HEADERS_H')
     lines.append('')
+    lines.append('// Standard library includes')
+    lines.append('#include <complex>')
+    lines.append('')
     lines.append('// Individual headers follow in deterministic sorted order')
     for rel in entries:
         lines.append(f'#include <pkr_units/{rel}>')

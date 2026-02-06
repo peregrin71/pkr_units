@@ -73,12 +73,12 @@ Common headers:
 - `sdk/include/pkr_units/chrono.h` - std::chrono conversion overloads for time units
 - `sdk/include/pkr_units/math/unit_math.h` - stable operations, Newton-Raphson, Runge-Kutta, math functions
 - `sdk/include/pkr_units/constants.h` - physical constants (typed and raw values)
-- `sdk/include/pkr_units/si_units_formatting.h` - std::format support for units
-- `sdk/include/pkr_units/cgs_units_formatting.h` - std::format support for CGS units
-- `sdk/include/pkr_units/si_units_literals.h` - SI literal operators
-- `sdk/include/pkr_units/imperial_units_literals.h` - imperial literal operators
-- `sdk/include/pkr_units/cgs_units_literals.h` - CGS literal operators (none yet)
-- `sdk/include/pkr_units/astronomical_units_literals.h` - astronomical literal operators (none yet)
+- `sdk/include/pkr_units/format/si.h` - std::format support for SI units
+- `sdk/include/pkr_units/format/cgs.h` - std::format support for CGS units
+- `sdk/include/pkr_units/literals/si.h` - SI literal operators
+- `sdk/include/pkr_units/literals/imperial_units.h` - imperial literal operators
+- `sdk/include/pkr_units/literals/cgs.h` - CGS literal operators (none yet)
+- `sdk/include/pkr_units/literals/astronomical.h` - astronomical literal operators (none yet)
 
 Some unit groups live in narrower headers, for example:
 
@@ -149,6 +149,58 @@ auto d_m = unit_cast<meter_t>(d);
 
 meter_per_second_t v{10.0};
 auto v_kmh = unit_cast<kilometer_per_hour_t>(v);
+```
+
+## Automatic conversion when passing units with the same dimensions
+
+You can have different parts of the software that uses different units of
+measurement "talk" safely with each other.
+
+```cpp
+#include <iostream>
+#include <pkr_units/si_units.h>
+#include <pkr_units/imperial_units.h>
+
+void set_distance_in_meters(const pkr::units::meter_t<double>& distance)
+{
+    std::cout << "Distance in meters: " << distance.value() << " m\n";
+}
+
+
+
+int main()
+{
+    // So you can define a distance in feet
+    pkr::units::foot_t<double> distance_in_feet{10.0};
+    
+    // and then pass it to a function the internally 
+    // uses meters. Adn the conversion will happen automatically
+    set_distance_in_meters(distance_in_feet);
+
+return 0;
+}
+```
+
+## Using Complex (imaginary) units
+
+```cpp
+void complex_units()
+{
+    // === Electrical example: complex impedance ===
+    // Impedance Z = R + jX (ohms), current I (amperes) may be complex.
+    // Use complex-valued units (std::complex<double>) and take the real part when needed.
+    using cplx = std::complex<double>;
+    pkr::units::ohm_t<cplx> Z{cplx{50.0, 30.0}};   // 50 + j30 ohm
+    pkr::units::ampere_t<cplx> I{cplx{2.0, -1.0}}; // 2 - j1 A
+
+    auto V = Z * I; // volt_t<cplx>
+
+    std::cout << "Impedance Z: (" << std::real(Z.value()) << ") + j(" << std::imag(Z.value()) << ") ohm\n";
+    std::cout << "Voltage V = Z * I: (" << std::real(V.value()) << ") + j(" << std::imag(V.value()) << ") V\n";
+
+    // If you only want the resistive (real) part, extract it and use a real-valued unit
+    pkr::units::ohm_t<double> resistance{std::real(Z.value())};
+    std::cout << "Resistance (real part of Z): " << resistance.value() << " ohm\n"
 ```
 
 ## Temperature and Affine Units
@@ -300,14 +352,14 @@ meter_per_second_squared_t accel = (speed / time).to_si();
 
 Unit formatting uses `std::format` via per-system formatting headers:
 
-- `sdk/include/pkr_units/si_units_formatting.h`
-- `sdk/include/pkr_units/imperial_units_formatting.h`
-- `sdk/include/pkr_units/cgs_units_formatting.h`
-- `sdk/include/pkr_units/astronomical_units_formatting.h`
+- `sdk/include/pkr_units/format/si.h`
+- `sdk/include/pkr_units/format/imperial_formatting.h`
+- `sdk/include/pkr_units/format/cgs.h`
+- `sdk/include/pkr_units/format/astronomical.h`
 `measurement_t` provides `operator<<` and a `std::formatter` specialization.
 
 ```cpp
-#include <pkr_units/si_units_formatting.h>
+#include <pkr_units/format/si.h>
 #include <format>
 
 using namespace pkr::units;
@@ -347,7 +399,7 @@ Literal operators are provided via per-system headers and are **not** pulled in 
 Example:
 
 ```cpp
-#include <pkr_units/si_units_literals.h>
+#include <pkr_units/literals/si.h>
 
 using namespace pkr::units::literals;
 

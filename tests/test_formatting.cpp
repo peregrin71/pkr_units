@@ -3,10 +3,10 @@
 #include <ratio>
 #include <string>
 #include <pkr_units/si_units.h>
-#include <pkr_units/si_formatting.h>
+#include <pkr_units/format/si.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
 #include <pkr_units/impl/dimension.h>
-#include <pkr_units/impl/unit_formatting_traits.h>
+#include <pkr_units/impl/formatting/unit_formatting_traits.h>
 
 // Test basic length unit formatting
 TEST(FormattingTest, BasicLengthUnit)
@@ -44,7 +44,6 @@ TEST(FormattingTest, DimensionlessQuantity)
     EXPECT_EQ(formatted, "5 ");
 }
 
-// Test complex derived unit (Force: kg·m·s⁻²)
 TEST(FormattingTest, ComplexDerivedUnit)
 {
     pkr::units::kilogram_t<double> mass{5.0};
@@ -57,7 +56,7 @@ TEST(FormattingTest, ComplexDerivedUnit)
 
     auto normalized_force = force.in_base_si_units();
     auto formatted_normalized = std::format("{}", normalized_force);
-    EXPECT_EQ(formatted_normalized, "10 kg·m·s⁻²");
+    EXPECT_EQ(formatted_normalized, "10 kg*m*s^-2");
 }
 
 // Test different scales of same unit
@@ -113,6 +112,7 @@ TEST(FormattingTest, ValuePreservation)
 {
     pkr::units::meter_t<double> length{123.456};
     auto formatted = std::format("{}", length);
+    // std::format outputs full double precision by default
     EXPECT_EQ(formatted, "123.456 m");
 }
 
@@ -141,22 +141,23 @@ TEST(FormattingTest, BaseUnitFormattingWide)
 
 TEST(FormattingTraitsTest, SuperscriptExponentPositive)
 {
-    auto exp = pkr::units::superscript_exponent<char>(2);
+    auto exp = pkr::units::impl::superscript_exponent<char>(2);
     ASSERT_FALSE(exp.empty());
     EXPECT_EQ(exp.front(), '^');
+    EXPECT_GT(exp.size(), 1U); // Should have caret + digit
 }
 
 TEST(FormattingTraitsTest, SuperscriptExponentZero)
 {
-    auto exp = pkr::units::superscript_exponent<char>(0);
+    auto exp = pkr::units::impl::superscript_exponent<char>(0);
     EXPECT_TRUE(exp.empty());
 }
 
 TEST(FormattingTraitsTest, SuperscriptExponentNegative)
 {
-    auto exp = pkr::units::superscript_exponent<char>(-2);
+    auto exp = pkr::units::impl::superscript_exponent<char>(-2);
     ASSERT_FALSE(exp.empty());
-    EXPECT_NE(exp.front(), '^');
+    EXPECT_EQ(exp.front(), '^');
 }
 
 TEST(FormattingTraitsTest, SuperscriptDigitLookupDefault)
@@ -196,21 +197,21 @@ TEST(FormattingTraitsTest, CharTraitsDispatchChar8)
 TEST(FormattingTraitsTest, BuildDimensionSymbolCharAndChar8)
 {
     pkr::units::dimension_t dim{1, 1, -2, 0, 0, 0, 0, 0};
-    auto symbol = pkr::units::build_dimension_symbol<char>(dim);
+    auto symbol = pkr::units::impl::build_dimension_symbol<char>(dim);
     EXPECT_NE(symbol.find("kg"), std::string::npos);
     EXPECT_NE(symbol.find("m"), std::string::npos);
     EXPECT_NE(symbol.find("s"), std::string::npos);
 
-    auto symbol_u8 = pkr::units::build_dimension_symbol<char8_t>(dim);
+    auto symbol_u8 = pkr::units::impl::build_dimension_symbol<char8_t>(dim);
     EXPECT_GT(symbol_u8.size(), 0U);
     EXPECT_NE(symbol_u8.find(u8"kg"), std::u8string::npos);
 }
 
 TEST(FormattingTraitsTest, BuildDimensionSymbolScalarIsEmpty)
 {
-    auto symbol = pkr::units::build_dimension_symbol<char>(pkr::units::scalar_dimension);
+    auto symbol = pkr::units::impl::build_dimension_symbol<char>(pkr::units::scalar_dimension);
     EXPECT_TRUE(symbol.empty());
 
-    auto w_symbol = pkr::units::build_dimension_symbol<wchar_t>(pkr::units::scalar_dimension);
+    auto w_symbol = pkr::units::impl::build_dimension_symbol<wchar_t>(pkr::units::scalar_dimension);
     EXPECT_TRUE(w_symbol.empty());
 }

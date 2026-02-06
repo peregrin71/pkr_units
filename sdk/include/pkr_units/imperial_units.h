@@ -48,4 +48,4 @@
 // ============================================================================
 // Unit Literals
 // ============================================================================
-// Use <pkr_units/imperial_units_literals.h> for user-defined literals.
+// Use <pkr_units/literals/imperial_units.h> for user-defined literals.
