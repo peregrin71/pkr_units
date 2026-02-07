@@ -1,11 +1,11 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Thermal conductivity dimension: kg·m·s^-3·K^-1 (M·L·T^-3·Θ^-1)
+// Thermal conductivity dimension: kgÂ·mÂ·s^-3Â·K^-1 (MÂ·LÂ·T^-3Â·Î˜^-1)
 inline constexpr dimension_t thermal_conductivity_dimension{1, 1, -3, 0, -1, 0, 0, 0};
 
 // Thermal conductivity unit: W/(m*K)

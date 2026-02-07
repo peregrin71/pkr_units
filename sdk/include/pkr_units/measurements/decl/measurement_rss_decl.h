@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include <iostream>
 #include <format>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
 #include <pkr_units/units/math/unit_math.h>
@@ -24,7 +24,7 @@ namespace PKR_UNITS_NAMESPACE
 // uncertainties from independent sources.
 //
 // Uncertainty Combination Strategy (RSS):
-// - Addition/Subtraction: σ_total = √(σ₁² + σ₂²)
+// - Addition/Subtraction: Ïƒ_total = âˆš(Ïƒâ‚Â² + Ïƒâ‚‚Â²)
 // - Multiplication/Division: relative uncertainties combine as RSS
 // - Powers: relative uncertainties scale by the power factor (fully correlated)
 
@@ -92,7 +92,7 @@ public:
     // ============================================================================
 
     // Addition: uncertainties combine in quadrature (RSS)
-    // σ_total = √(σ₁² + σ₂²)
+    // Ïƒ_total = âˆš(Ïƒâ‚Â² + Ïƒâ‚‚Â²)
     // Requires: OtherUnitT must be a PKR unit with same dimensions as UnitT
     // Result type: UnitT (LHS type, consistent with unit math convention)
     template <typename OtherUnitT>
@@ -103,7 +103,7 @@ public:
         // unit_t addition returns LHS type: UnitT + OtherUnitT -> UnitT
         auto result_value = m_value + other.unit_value();
 
-        // Uncertainties combine in quadrature: σ_total = √(σ₁² + σ₂²)
+        // Uncertainties combine in quadrature: Ïƒ_total = âˆš(Ïƒâ‚Â² + Ïƒâ‚‚Â²)
         // Convert other's uncertainty to LHS unit type for comparison
         auto uncertainty1_value = m_uncertainty.value();
         auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
@@ -117,7 +117,7 @@ public:
     }
 
     // Subtraction: uncertainties combine in quadrature (RSS)
-    // σ_total = √(σ₁² + σ₂²)
+    // Ïƒ_total = âˆš(Ïƒâ‚Â² + Ïƒâ‚‚Â²)
     // Requires: OtherUnitT must be a PKR unit with same dimensions as UnitT
     // Result type: UnitT (LHS type, consistent with unit math convention)
     template <typename OtherUnitT>
@@ -128,7 +128,7 @@ public:
         // unit_t subtraction returns LHS type: UnitT - OtherUnitT -> UnitT
         auto result_value = m_value - other.unit_value();
 
-        // Uncertainties combine in quadrature: σ_total = √(σ₁² + σ₂²)
+        // Uncertainties combine in quadrature: Ïƒ_total = âˆš(Ïƒâ‚Â² + Ïƒâ‚‚Â²)
         // Convert other's uncertainty to LHS unit type for comparison
         auto uncertainty1_value = m_uncertainty.value();
         auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
@@ -142,7 +142,7 @@ public:
     }
 
     // Multiplication: relative uncertainties combine in quadrature (RSS)
-    // For uncorrelated variables: δ(a×b)/(a×b) = √((δa/a)² + (δb/b)²)
+    // For uncorrelated variables: Î´(aÃ—b)/(aÃ—b) = âˆš((Î´a/a)Â² + (Î´b/b)Â²)
     // Special case: if multiplying by self (m * m), use fully correlated approach (squared())
     template <typename OtherUnitT>
     constexpr auto operator*(const measurement_rss_t<OtherUnitT>& other) const
@@ -174,7 +174,7 @@ public:
     }
 
     // Division: relative uncertainties combine in quadrature (RSS)
-    // For uncorrelated variables: δ(a/b)/(a/b) = √((δa/a)² + (δb/b)²)
+    // For uncorrelated variables: Î´(a/b)/(a/b) = âˆš((Î´a/a)Â² + (Î´b/b)Â²)
     // Special case: if dividing by self (m / m), result is 1 with zero uncertainty
     template <typename OtherUnitT>
     constexpr auto operator/(const measurement_rss_t<OtherUnitT>& other) const
@@ -477,7 +477,7 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_rss_t<UnitT>, CharT>
         // Format the value part using the value formatter (which handles format specifiers)
         out = value_formatter.format(measurement.value(), ctx);
 
-        // Add uncertainty with appropriate ± symbol using dispatch traits
+        // Add uncertainty with appropriate Â± symbol using dispatch traits
         auto pm_symbol = PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::plus_minus();
         out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
         out = value_formatter.format(measurement.uncertainty(), ctx);

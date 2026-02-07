@@ -1,6 +1,6 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/units/base/mass.h>
 #include <pkr_units/units/base/length.h>
@@ -13,8 +13,8 @@ namespace PKR_UNITS_NAMESPACE
 // ============================================================================
 //
 // Irradiance is the radiant flux incident on a surface per unit area.
-// Unit: watt per square meter (W/m²)
-// Dimension: [M·T⁻³]
+// Unit: watt per square meter (W/mÂ²)
+// Dimension: [MÂ·Tâ»Â³]
 //
 // CHARACTERISTICS:
 // - Measures electromagnetic radiation power received per unit area
@@ -23,17 +23,17 @@ namespace PKR_UNITS_NAMESPACE
 // - Depends on distance from source and surface orientation
 //
 // RELATIONSHIPS:
-// - Irradiance = Radiant flux / Area [W / m²]
-// - Irradiance = Radiance × Solid angle [W/m²] (for point source)
-// - Radiant flux = Irradiance × Area [W]
+// - Irradiance = Radiant flux / Area [W / mÂ²]
+// - Irradiance = Radiance Ã— Solid angle [W/mÂ²] (for point source)
+// - Radiant flux = Irradiance Ã— Area [W]
 //
 // TYPICAL VALUES:
-// - Solar constant (at Earth orbit): ~1361 W/m²
-// - Bright sunlight (sea level, normal incidence): ~1000 W/m²
-// - Cloudy day (sea level): ~100 W/m²
-// - Office lighting: ~400 W/m² (visible only)
-// - Thermal radiation from human body on surface: ~1 W/m² at 2m distance
-// - Laser beam (1W laser, 1mm spot): ~10⁹ W/m²
+// - Solar constant (at Earth orbit): ~1361 W/mÂ²
+// - Bright sunlight (sea level, normal incidence): ~1000 W/mÂ²
+// - Cloudy day (sea level): ~100 W/mÂ²
+// - Office lighting: ~400 W/mÂ² (visible only)
+// - Thermal radiation from human body on surface: ~1 W/mÂ² at 2m distance
+// - Laser beam (1W laser, 1mm spot): ~10â¹ W/mÂ²
 //
 // APPLICATIONS:
 // - Solar energy systems and panel specifications
@@ -46,11 +46,11 @@ namespace PKR_UNITS_NAMESPACE
 //
 // NOTE: Irradiance is the radiometric equivalent of illuminance (lux).
 // Where photometry weights by human eye sensitivity (illuminance in lux),
-// radiometry treats all electromagnetic wavelengths equally (irradiance in W/m²).
+// radiometry treats all electromagnetic wavelengths equally (irradiance in W/mÂ²).
 //
 // SPECTRAL IRRADIANCE:
-// Spectral irradiance is irradiance per unit wavelength [W/(m³)]
-// or per unit frequency [W/(m²·Hz)], used in detailed spectroscopy.
+// Spectral irradiance is irradiance per unit wavelength [W/(mÂ³)]
+// or per unit frequency [W/(mÂ²Â·Hz)], used in detailed spectroscopy.
 // Strong type for watt_per_square_meter (irradiance)
 template <is_unit_value_type_c T>
 struct watt_per_square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>

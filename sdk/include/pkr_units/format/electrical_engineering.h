@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // This header contains formatting specializations and helpers
 // for electrical / complex-valued unit types.
@@ -15,7 +15,7 @@
 #include <array>
 
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
@@ -169,15 +169,16 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
                 }
                 else
                 {
-                    std::vector<int> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        digits.push_back(e % 10);
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
-                    // digits are collected least-significant-first; append in reverse
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(*it));
+                    // digits are collected least-significant-first; iterate backwards
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
                 buf.push_back(static_cast<CharT>(' '));
@@ -187,7 +188,7 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
                     dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
                 const auto& symbols = PKR_UNITS_NAMESPACE::impl::base_unit_symbols<CharT>;
                 bool first_dim = true;
-                for (int i = 0; i < 9; ++i)
+                for (std::size_t i = 0; i < 9; ++i)
                 {
                     if (dims[i] != 0)
                     {
@@ -205,12 +206,20 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
                             if (negative_exp)
                                 buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
 
-                            std::string digit_str = std::to_string(abs_exp);
-                            for (char c : digit_str)
+                            // Extract digits without heap allocation
+                            std::array<int, 10> temp_digits{};
+                            std::size_t temp_count = 0;
+                            int temp_val = abs_exp;
+                            while (temp_val > 0 && temp_count < 10)
                             {
-                                int digit_idx = c - '0';
-                                buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digit_idx));
+                                temp_digits[temp_count++] = temp_val % 10;
+                                temp_val /= 10;
                             }
+                            if (temp_count == 0)
+                                temp_digits[temp_count++] = 0;
+                            // Output digits in correct order (reverse of collected)
+                            for (std::size_t idx = temp_count; idx > 0; --idx)
+                                buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
                         }
                     }
                 }
@@ -255,7 +264,7 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
             dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
         const auto& symbols = PKR_UNITS_NAMESPACE::impl::base_unit_symbols<CharT>;
         bool first_dim = true;
-        for (int i = 0; i < 9; ++i)
+        for (std::size_t i = 0; i < 9; ++i)
         {
             if (dims[i] != 0)
             {
@@ -273,12 +282,20 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
                     if (negative_exp)
                         buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
 
-                    std::string digit_str = std::to_string(abs_exp);
-                    for (char c : digit_str)
+                    // Extract digits without heap allocation
+                    std::array<int, 10> temp_digits{};
+                    std::size_t temp_count = 0;
+                    int temp_val = abs_exp;
+                    while (temp_val > 0 && temp_count < 10)
                     {
-                        int digit_idx = c - '0';
-                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digit_idx));
+                        temp_digits[temp_count++] = temp_val % 10;
+                        temp_val /= 10;
                     }
+                    if (temp_count == 0)
+                        temp_digits[temp_count++] = 0;
+                    // Output digits in correct order (reverse of collected)
+                    for (std::size_t idx = temp_count; idx > 0; --idx)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
                 }
             }
         }
@@ -394,15 +411,16 @@ struct formatter<T, CharT>
                 }
                 else
                 {
-                    std::vector<int> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        digits.push_back(e % 10);
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
-                    // digits are collected least-significant-first; append in reverse
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(*it));
+                    // digits are collected least-significant-first; iterate backwards
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
                 buf.push_back(static_cast<CharT>(' '));

@@ -1,13 +1,9 @@
 #pragma once
 
 #include <string_view>
-#include <pkr_units/impl/namespace_config.h>
-
-// Include unit_t class definition at global scope before opening any namespaces
-// This breaks the circular dependency between unit_impl.h and _decl.h files
-#include <pkr_units/impl/decls/unit_t_decl.h>
-#include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
+#include <pkr_units/impl/unit_t_core.h>
+#include <pkr_units/impl/concepts/unit_concepts.h>
 
 // ============================================================================
 // Operators in main si namespace
@@ -523,12 +519,5 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
     };
     return to_canonical(lhs) <=> to_canonical(rhs);
 }
-
-// Equality operator for derived types (now handled by unified operator== above)
-// template <is_derived_pkr_unit_c T>
-// constexpr bool operator==(const T& lhs, const T& rhs) noexcept
-// {
-//     return lhs.value() == rhs.value();
-// }
 
 } // namespace PKR_UNITS_NAMESPACE

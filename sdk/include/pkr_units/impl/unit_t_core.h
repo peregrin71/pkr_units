@@ -60,13 +60,35 @@ constexpr type_t divide_values(type_t val1, type_t val2) noexcept
     return val1 / val2;
 }
 
+// ============================================================================
+// Helper utilities for complex number support
+
+// Concept: type is std::complex<float> or std::complex<double>
+template <typename T>
+concept complex_type_c = (std::same_as<T, std::complex<float>> || std::same_as<T, std::complex<double>>);
+
+// Helper to extract the underlying real type from std::complex<T>
+template <typename T>
+struct complex_underlying_type
+{
+};
+
+template <typename T>
+struct complex_underlying_type<std::complex<T>>
+{
+    using type = T;
+};
+
+template <typename T>
+using complex_underlying_type_t = typename complex_underlying_type<T>::type;
+
 template <PKR_UNITS_NAMESPACE::is_unit_value_type_c type_t, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v>
 class unit_t
 {
 public:
     using value_type = type_t;
     using ratio_type = ratio_t;
-    using dimension_type = std::integral_constant<PKR_UNITS_NAMESPACE::dimension_t, dim_v>; // Add this typedef
+    using dimension_type = std::integral_constant<PKR_UNITS_NAMESPACE::dimension_t, dim_v>;
 
     // Expose dimension type and value for compile-time access
     struct dimension
@@ -220,6 +242,29 @@ public:
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
 
+    // Member function to get magnitude (only available for complex value types)
+    // Returns the same unit type but with real-valued magnitude
+    constexpr auto magnitude() const noexcept
+        requires complex_type_c<type_t>
+    {
+        using real_type = complex_underlying_type_t<type_t>;
+        real_type mag_value = static_cast<real_type>(std::abs(m_value));
+        using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v>::type;
+        return result_unit{mag_value};
+    }
+
+    // Member function to get phase angle in radians (only available for complex value types)
+    // Returns a unit with angle dimension, which resolves to radian_t<real_type>
+    // Result is in range [-π, π] radians
+    constexpr auto phase() const noexcept
+        requires complex_type_c<type_t>
+    {
+        using real_type = complex_underlying_type_t<type_t>;
+        real_type phase_value = static_cast<real_type>(std::arg(m_value));
+        using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension>::type;
+        return result_unit{phase_value};
+    }
+
 private:
     type_t m_value;
 };
@@ -232,14 +277,6 @@ struct derived_unit_type_t
 {
     using type = details::unit_t<type_t, ratio_t, dim_v>;
 };
-
-// and now we can specialize for derived types everywhere like this
-// and we must place these specializations close to the derived unit type definitions.
-// template<>
-// struct derived_unit_type_t<double, std::ratio<1, 1000>, PKR_UNITS_NAMESPACE::dimension_t{0, 1, 0, 0, 0, 0, 0}>
-// {
-//     using type = PKR_UNITS_NAMESPACE::gram_t;
-// };
 
 // ============================================================================
 // Type Traits for Unit Detection
@@ -295,5 +332,70 @@ struct is_pkr_unit<const T> : is_pkr_unit<T>
 };
 
 } // namespace details
+
+// ============================================================================
+// Unit Type Aliases for Common Dimensions
+// ============================================================================
+
+// SI Base Units
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using length_unit_t = details::unit_t<type_t, ratio_t, length_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using mass_unit_t = details::unit_t<type_t, ratio_t, mass_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using time_unit_t = details::unit_t<type_t, ratio_t, time_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using current_unit_t = details::unit_t<type_t, ratio_t, current_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using temperature_unit_t = details::unit_t<type_t, ratio_t, temperature_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using amount_unit_t = details::unit_t<type_t, ratio_t, amount_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using intensity_unit_t = details::unit_t<type_t, ratio_t, intensity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using angle_unit_t = details::unit_t<type_t, ratio_t, angle_dimension>;
+
+// Derived Quantities (Common)
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using area_unit_t = details::unit_t<type_t, ratio_t, area_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using volume_unit_t = details::unit_t<type_t, ratio_t, volume_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using acceleration_unit_t = details::unit_t<type_t, ratio_t, acceleration_v>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using velocity_unit_t = details::unit_t<type_t, ratio_t, velocity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using dynamic_viscosity_unit_t = details::unit_t<type_t, ratio_t, dynamic_viscosity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using kinematic_viscosity_unit_t = details::unit_t<type_t, ratio_t, kinematic_viscosity_dimension>;
+
+// Concentration Types
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using mass_concentration_unit_t = details::unit_t<type_t, ratio_t, mass_concentration_v>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using molar_concentration_unit_t = details::unit_t<type_t, ratio_t, molar_concentration_v>;
+
+// Other Derived Quantities
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using josephson_unit_t = details::unit_t<type_t, ratio_t, josephson_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using solid_angle_unit_t = details::unit_t<type_t, ratio_t, solid_angle_dimension>;
 
 } // namespace PKR_UNITS_NAMESPACE

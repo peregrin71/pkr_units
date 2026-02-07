@@ -1,11 +1,11 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Magnetic field strength dimension: A·m^-1
+// Magnetic field strength dimension: AÂ·m^-1
 inline constexpr dimension_t magnetic_field_strength_dimension{-1, 0, 0, 1, 0, 0, 0, 0};
 
 // CGS magnetic field strength unit

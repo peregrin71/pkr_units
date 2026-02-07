@@ -1,15 +1,15 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Energy dimension: kg·m²·s⁻² (M·L²·T⁻²)
+// Energy dimension: kgÂ·mÂ²Â·sâ»Â² (MÂ·LÂ²Â·Tâ»Â²)
 inline constexpr dimension_t energy_dimension{2, 1, -2, 0, 0, 0, 0, 0};
 
 // Energy units (Joule and derived)
-// Base unit: Joule (J) = kg·m²·s⁻²
+// Base unit: Joule (J) = kgÂ·mÂ²Â·sâ»Â²
 template <is_unit_value_type_c T>
 struct joule_t final : public details::unit_t<T, std::ratio<1, 1>, energy_dimension>
 {

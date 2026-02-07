@@ -1,12 +1,12 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
-#include <pkr_units/impl/decls/viscosity_decl.h>
+#include <pkr_units/impl/unit_t.h>
+#include <pkr_units/impl/unit_t.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
 // Dynamic viscosity units
-// Base unit: pascal second (Pa*s) = kg·m^-1·s^-1
+// Base unit: pascal second (Pa*s) = kgÂ·m^-1Â·s^-1
 template <is_unit_value_type_c T>
 struct pascal_second_t final : public details::unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
 {
@@ -27,7 +27,7 @@ template <is_pkr_unit_c U>
 pascal_second_t(const U&) -> pascal_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Kinematic viscosity units
-// Base unit: square meter per second (m^2/s) = m^2·s^-1
+// Base unit: square meter per second (m^2/s) = m^2Â·s^-1
 template <is_unit_value_type_c T>
 struct square_meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
 {

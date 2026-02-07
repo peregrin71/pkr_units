@@ -1,13 +1,13 @@
 #pragma once
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Magnetic flux dimension: kg·m²·s⁻²·A⁻¹
+// Magnetic flux dimension: kgÂ·mÂ²Â·sâ»Â²Â·Aâ»Â¹
 inline constexpr dimension_t magnetic_flux_dimension{2, 1, -2, -1, 0, 0, 0, 0};
-// Magnetic flux density dimension: kg·s⁻²·A⁻¹
+// Magnetic flux density dimension: kgÂ·sâ»Â²Â·Aâ»Â¹
 inline constexpr dimension_t magnetic_flux_density_dimension{0, 1, -2, -1, 0, 0, 0, 0};
 // Magnetic flux quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
@@ -17,7 +17,7 @@ template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
 
 // Magnetic flux units (Weber and derived)
-// Base unit: Weber (Wb) = kg·m²·s⁻²·A⁻¹
+// Base unit: Weber (Wb) = kgÂ·mÂ²Â·sâ»Â²Â·Aâ»Â¹
 template <is_unit_value_type_c T>
 struct weber_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
 {
@@ -114,7 +114,7 @@ template <is_pkr_unit_c U>
 kiloweber_t(const U&) -> kiloweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Magnetic flux density units (Tesla and derived)
-// Base unit: Tesla (T) = kg·s⁻²·A⁻¹
+// Base unit: Tesla (T) = kgÂ·sâ»Â²Â·Aâ»Â¹
 template <is_unit_value_type_c T>
 struct tesla_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {

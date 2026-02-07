@@ -4,7 +4,7 @@
 #include <string>
 #include <pkr_units/si_units.h>
 #include <pkr_units/format/si.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
 

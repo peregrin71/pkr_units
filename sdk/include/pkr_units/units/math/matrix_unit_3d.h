@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <array>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/math/unit_math.h>
 #include "vector_unit_3d.h"

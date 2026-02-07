@@ -1,15 +1,15 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Power dimension: kg·m²·s⁻³ (M·L²·T⁻³)
+// Power dimension: kgÂ·mÂ²Â·sâ»Â³ (MÂ·LÂ²Â·Tâ»Â³)
 inline constexpr dimension_t power_dimension{2, 1, -3, 0, 0, 0, 0, 0};
 
 // Power units (Watt and derived)
-// Base unit: Watt (W) = kg·m²·s⁻³
+// Base unit: Watt (W) = kgÂ·mÂ²Â·sâ»Â³
 template <is_unit_value_type_c T>
 struct watt_t final : public details::unit_t<T, std::ratio<1, 1>, power_dimension>
 {

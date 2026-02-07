@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <format>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
 #include <pkr_units/units/math/unit_math.h>
@@ -23,7 +23,7 @@ namespace PKR_UNITS_NAMESPACE
 // for conservative error estimates.
 //
 // Uncertainty Combination Strategy (Linear/Worst-Case):
-// - Addition/Subtraction: σ_total = σ₁ + σ₂
+// - Addition/Subtraction: Ïƒ_total = Ïƒâ‚ + Ïƒâ‚‚
 // - Multiplication/Division: relative uncertainties add linearly
 // - Powers: relative uncertainties scale by the power factor (fully correlated)
 
@@ -91,7 +91,7 @@ public:
     // ============================================================================
 
     // Addition: uncertainties add linearly (worst-case)
-    // σ_total = σ₁ + σ₂
+    // Ïƒ_total = Ïƒâ‚ + Ïƒâ‚‚
     // Requires: OtherUnitT must be a PKR unit with same dimensions as UnitT
     // Result type: UnitT (LHS type, consistent with unit math convention)
     template <typename OtherUnitT>
@@ -114,7 +114,7 @@ public:
     }
 
     // Subtraction: uncertainties add linearly (worst-case)
-    // σ_total = σ₁ + σ₂
+    // Ïƒ_total = Ïƒâ‚ + Ïƒâ‚‚
     // Requires: OtherUnitT must be a PKR unit with same dimensions as UnitT
     // Result type: UnitT (LHS type, consistent with unit math convention)
     template <typename OtherUnitT>
@@ -137,7 +137,7 @@ public:
     }
 
     // Multiplication: relative uncertainties add linearly (worst-case)
-    // δ(a×b)/(a×b) = δa/a + δb/b
+    // Î´(aÃ—b)/(aÃ—b) = Î´a/a + Î´b/b
     // Special case: if multiplying by self (m * m), use fully correlated approach (doubled relative uncertainty)
     template <typename OtherUnitT>
     constexpr auto operator*(const measurement_lin_t<OtherUnitT>& other) const
@@ -169,7 +169,7 @@ public:
     }
 
     // Division: relative uncertainties add linearly (worst-case)
-    // δ(a/b)/(a/b) = δa/a + δb/b
+    // Î´(a/b)/(a/b) = Î´a/a + Î´b/b
     // Special case: if dividing by self (m / m), result is 1 with zero uncertainty
     template <typename OtherUnitT>
     constexpr auto operator/(const measurement_lin_t<OtherUnitT>& other) const
@@ -434,7 +434,7 @@ auto cos_lin(const measurement_lin_t<UnitT>& measurement)
     return measurement_lin_t<PKR_UNITS_NAMESPACE::scalar_t<typename UnitT::value_type>>{result_value, PKR_UNITS_NAMESPACE::scalar_t{result_uncertainty_value}};
 }
 
-// For f(x) = tan(x), the uncertainty df = sec²(x) * dx
+// For f(x) = tan(x), the uncertainty df = secÂ²(x) * dx
 template <typename UnitT>
     requires PKR_UNITS_NAMESPACE::is_angle_unit_c<UnitT>
 auto tan_lin(const measurement_lin_t<UnitT>& measurement)
@@ -492,7 +492,7 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_lin_t<UnitT>, CharT>
         // Format the value part using the value formatter (which handles format specifiers)
         out = value_formatter.format(measurement.value(), ctx);
 
-        // Add uncertainty with appropriate ± symbol using dispatch traits
+        // Add uncertainty with appropriate Â± symbol using dispatch traits
         auto pm_symbol = PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::plus_minus();
         out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
         out = value_formatter.format(measurement.uncertainty(), ctx);

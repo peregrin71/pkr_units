@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
 
 #include <chrono>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/time_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/cast/unit_cast.h>
 
 namespace PKR_UNITS_NAMESPACE

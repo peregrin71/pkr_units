@@ -1,7 +1,7 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
-#include <pkr_units/impl/decls/acceleration_decl.h>
+#include <pkr_units/impl/unit_t.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
@@ -14,7 +14,7 @@ struct meter_per_second_squared_t final : public details::unit_t<T, std::ratio<1
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"m/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"m/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m\u00B7s\u207B\u00B2"};
 };
@@ -34,7 +34,7 @@ struct centimeter_per_second_squared_t final : public details::unit_t<T, std::ra
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"cm/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cm/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm\u00B7s\u207B\u00B2"};
 };
@@ -54,7 +54,7 @@ struct millimeter_per_second_squared_t final : public details::unit_t<T, std::ra
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mm/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mm/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm\u00B7s\u207B\u00B2"};
 };
@@ -74,7 +74,7 @@ struct kilometer_per_second_squared_t final : public details::unit_t<T, std::rat
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"km/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"km/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km\u00B7s\u207B\u00B2"};
 };
@@ -87,7 +87,7 @@ template <is_pkr_unit_c U>
 kilometer_per_second_squared_t(const U&) -> kilometer_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Standard gravity (g) - Strong type
-// 1 g = 9.80665 m/s² (exact definition)
+// 1 g = 9.80665 m/sÂ² (exact definition)
 // Simplified ratio: ratio<980665, 100000> for practical use
 template <is_unit_value_type_c T>
 struct standard_gravity_t final : public details::unit_t<T, std::ratio<980665, 100000>, acceleration_v>

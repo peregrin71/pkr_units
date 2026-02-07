@@ -1,7 +1,6 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
-#include <pkr_units/impl/decls/angle_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
@@ -26,9 +25,7 @@ template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == angle_dimension)
 radian_t(const U&) -> radian_t<typename details::is_pkr_unit<U>::value_type>;
 
-// Strong type for degree
-// 1 degree = π/180 radians ≈ 0.0174533 radians
-// Ratio: 1745329/100000000 (scaled to avoid floating point)
+// Strong type for degree (plane angle)
 template <is_unit_value_type_c T>
 struct degree_t final : public details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
@@ -48,9 +45,7 @@ template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == angle_dimension)
 degree_t(const U&) -> degree_t<typename details::is_pkr_unit<U>::value_type>;
 
-// Strong type for gradian (also called gon)
-// 1 gradian = π/200 radians ≈ 0.0157080 radians
-// Ratio: 1570796/100000000 (scaled to avoid floating point)
+// Strong type for gradian (plane angle unit, also called gon)
 template <is_unit_value_type_c T>
 struct gradian_t final : public details::unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>
 {

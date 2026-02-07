@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 #include <concepts>
 #include <complex>
 #include <type_traits>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t_core.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -19,6 +19,10 @@ concept is_angle_unit_c = requires { typename UnitT::dimension; } && UnitT::dime
 // Explicitly excludes boolean and integer types
 template <typename ScalarT>
 concept scalar_value_c = std::same_as<std::remove_cvref_t<ScalarT>, float> || std::same_as<std::remove_cvref_t<ScalarT>, double>;
+
+// Concept: type is std::complex<float> or std::complex<double>
+template <typename T>
+concept complex_type_c = (std::same_as<T, std::complex<float>> || std::same_as<T, std::complex<double>>);
 
 static_assert(scalar_value_c<float>);
 static_assert(scalar_value_c<double>);

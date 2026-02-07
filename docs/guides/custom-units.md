@@ -95,11 +95,9 @@ struct details::derived_unit_type_t<double, std::ratio<1745329, 100000000>, angu
 
 int main()
 {
-    using namespace pkr::units;
-    
     // Create custom units
-    auto motor_speed = rpm_t(3000.0);           // 3000 RPM
-    auto converted = radians_per_second_t(motor_speed.count() * 2 * M_PI / 60);
+    auto motor_speed = pkr::units::rpm_t(3000.0);           // 3000 RPM
+    auto converted = pkr::units::radians_per_second_t(motor_speed.count() * 2 * M_PI / 60);
     
     // Use with operators - returns correct derived type!
     auto doubled = motor_speed * 2.0;           // Still rpm_t, not base unit_t
@@ -229,14 +227,12 @@ struct details::derived_unit_type_t<float, std::ratio<628318530, 60000000000>, a
 
 int main()
 {
-    using namespace pkr::units;
-    
     // Test type preservation
-    auto x = rpm_t(3000.0);
+    auto x = pkr::units::rpm_t(3000.0);
     auto result = x * 2.0;
     
     // Verify the type is preserved
-    static_assert(std::is_same_v<decltype(result), rpm_t>, 
+    static_assert(std::is_same_v<decltype(result), pkr::units::rpm_t>, 
                   "Scalar multiplication should preserve type");
     
     assert(result.count() == 6000.0);
@@ -247,21 +243,21 @@ int main()
 
 ## Common Pitfalls
 
-**❌ Forgetting the derived_unit_type_t specialization**
+**Forgetting the derived_unit_type_t specialization**
 - Scalar operations will return base `unit_t` type
 - Type information is lost
 - Can't compose operations effectively
 
-**❌ Using incorrect ratio**
+**Using incorrect ratio**
 - If ratio is wrong, conversions will be wrong
 - Hard to debug because types still match
 - Always verify with known conversions
 
-**❌ Misaligned dimensions**
+**Misaligned dimensions**
 - Check that your dimension vector matches what the unit represents
 - `length = 0, time = -1` is velocity (NO!) - should be `length = 1, time = -1`
 
-**❌ Not including full unit_t constructor**
+**Not including full unit_t constructor**
 - `using _base::_base;` is essential - it delegates to the base constructor
 - Without it, your type won't construct
 

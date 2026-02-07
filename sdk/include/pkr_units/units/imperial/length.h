@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <string_view>
-#include <pkr_units/impl/decls/length_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
