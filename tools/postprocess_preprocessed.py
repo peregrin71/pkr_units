@@ -151,6 +151,7 @@ def postprocess(input_path: Path, output_path: Path, project_root: str):
     # Detect usage of common std identifiers to add necessary includes
     # Ordered list so headers appear deterministic and only once
     std_candidates = [
+        (r'\bbitset\b', '<bitset>'),
         (r'\bchrono\b', '<chrono>'),
         (r'\bcomplex\b', '<complex>'),
         (r'\bcos\b', '<cmath>'),
@@ -162,6 +163,7 @@ def postprocess(input_path: Path, output_path: Path, project_root: str):
         (r'\bsin\b', '<cmath>'),
         (r'\bspan\b', '<span>'),
         (r'\bsqrt\b', '<cmath>'),
+        (r'\bstd::bitset\b', '<bitset>'),
         (r'\bstd::chrono\b', '<chrono>'),
         (r'\bstd::complex\b', '<complex>'),
         (r'\bstd::cos\b', '<cmath>'),

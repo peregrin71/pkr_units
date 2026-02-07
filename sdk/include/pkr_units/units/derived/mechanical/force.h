@@ -1,14 +1,14 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Force dimension: kg·m·s⁻² (M·L·T⁻²)
+// Force dimension: kgÂ·mÂ·sâ»Â² (MÂ·LÂ·Tâ»Â²)
 inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
-// Base unit: Newton (N) = kg·m·s⁻²
-using namespace_force_units_detail = int; // Force namespace detail
+
+// Base unit: Newton (N) = kgÂ·mÂ·sâ»Â²
 
 template <is_unit_value_type_c T>
 struct newton_t final : public details::unit_t<T, std::ratio<1, 1>, force_dimension>

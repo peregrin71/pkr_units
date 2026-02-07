@@ -1,13 +1,13 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
-#include <pkr_units/impl/decls/density_decl.h>
+#include <pkr_units/impl/unit_t.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
 // Density units (mass per volume)
-// Base unit: kilogram per cubic meter (kg/m³)
+// Base unit: kilogram per cubic meter (kg/mÂ³)
 template <is_unit_value_type_c T>
 struct kilogram_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1>, density_dimension>
 {

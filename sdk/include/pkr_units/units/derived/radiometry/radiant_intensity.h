@@ -1,6 +1,6 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/units/base/mass.h>
 #include <pkr_units/units/base/length.h>
@@ -15,7 +15,7 @@ namespace PKR_UNITS_NAMESPACE
 //
 // Radiant intensity is the radiant flux emitted per unit solid angle.
 // Unit: watt per steradian (W/sr)
-// Dimension: [M·L²·T⁻³] / [sr] = [M·L²·T⁻³·sr⁻¹]
+// Dimension: [MÂ·LÂ²Â·Tâ»Â³] / [sr] = [MÂ·LÂ²Â·Tâ»Â³Â·srâ»Â¹]
 //
 // CHARACTERISTICS:
 // - Measures electromagnetic radiation power per solid angle
@@ -25,8 +25,8 @@ namespace PKR_UNITS_NAMESPACE
 //
 // RELATIONSHIPS:
 // - Radiant intensity = Radiant flux / Solid angle [W / sr]
-// - Radiant flux = Radiant intensity × Solid angle [W]
-// - Radiance = Radiant intensity / Projected area [W / (m² · sr)]
+// - Radiant flux = Radiant intensity Ã— Solid angle [W]
+// - Radiance = Radiant intensity / Projected area [W / (mÂ² Â· sr)]
 //
 // APPLICATIONS:
 // - Thermal radiation characterization

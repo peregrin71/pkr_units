@@ -77,11 +77,11 @@ classDiagram
     measurement_lin_t~UnitT~ ..> unit_t~type_t, ratio_t, dimension_t~ : wraps UnitT
     measurement_rss_t~UnitT~ ..> unit_t~type_t, ratio_t, dimension_t~ : wraps UnitT
 
-    class vec_3d_t~T~
+    class vec_3d_units_t~T~
     class vec_4d_t~T~
     class matrix_3d_t~T~
     class matrix_4d_t~T~
-    matrix_3d_t~T~ ..> vec_3d_t~T~ : multiply
+    matrix_3d_t~T~ ..> vec_3d_units_t~T~ : multiply
     matrix_4d_t~T~ ..> vec_4d_t~T~ : multiply
 
     class vec_4d_units_t~T~
@@ -94,8 +94,8 @@ classDiagram
     class vec_measurement_rss_3d_t~T~
     class vec_measurement_lin_4d_t~T~
     class vec_measurement_rss_4d_t~T~
-    vec_measurement_lin_3d_t~T~ ..> vec_3d_t~T~ : specialized for lin measurements
-    vec_measurement_rss_3d_t~T~ ..> vec_3d_t~T~ : specialized for rss measurements
+    vec_measurement_lin_3d_t~T~ ..> vec_3d_units_t~T~ : specialized for lin measurements
+    vec_measurement_rss_3d_t~T~ ..> vec_3d_units_t~T~ : specialized for rss measurements
     vec_measurement_lin_4d_t~T~ ..> vec_4d_t~T~ : specialized for lin measurements
     vec_measurement_rss_4d_t~T~ ..> vec_4d_t~T~ : specialized for rss measurements
     vec_measurement_lin_3d_t~T~ ..> measurement_lin_t~UnitT~ : components

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
@@ -21,14 +21,14 @@ constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
 
 // power_of<Unit, Power> - Represents a unit raised to a power
 // Usage:
-//   power_of<seconds, 2>     → seconds squared (m/s²)
-//   power_of<seconds, -1>    → 1/second (frequency)
-//   power_of<seconds, -2>    → 1/second squared (jerk denominator)
+//   power_of<seconds, 2>     â†’ seconds squared (m/sÂ²)
+//   power_of<seconds, -1>    â†’ 1/second (frequency)
+//   power_of<seconds, -2>    â†’ 1/second squared (jerk denominator)
 //
 // Examples:
-//   si_cast<meters, per<power_of<seconds, 2>>>(value)     // m/s²
-//   si_cast<meters, per<power_of<seconds, -1>>>(value)    // m⋅s
-//   si_cast<kilograms, per<power_of<meters, 3>>>(value)   // kg/m³
+//   si_cast<meters, per<power_of<seconds, 2>>>(value)     // m/sÂ²
+//   si_cast<meters, per<power_of<seconds, -1>>>(value)    // mâ‹…s
+//   si_cast<kilograms, per<power_of<meters, 3>>>(value)   // kg/mÂ³
 template <typename unit_type, int power_v>
 struct power_of
 {

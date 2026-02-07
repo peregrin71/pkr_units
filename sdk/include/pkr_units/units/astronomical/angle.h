@@ -1,9 +1,8 @@
-#pragma once
+﻿#pragma once
 #include <ratio>
 #include <string_view>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/angle_decl.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -18,7 +17,7 @@ struct hms_archour_t final : public details::unit_t<T, std::ratio<26179935, 1000
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_archour"};
     [[maybe_unused]] static constexpr std::string_view symbol{"h"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ʰ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02B0"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"h"};
 };
 
@@ -38,8 +37,8 @@ struct hms_arcminute_t final : public details::unit_t<T, std::ratio<26179935, 60
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcminute"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u1D50"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m"};
 };
 
 template <is_unit_value_type_c T>
@@ -58,8 +57,8 @@ struct hms_arcsecond_t final : public details::unit_t<T, std::ratio<26179935, 36
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcsecond"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02E2"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"s"};
 };
 
 template <is_unit_value_type_c T>
@@ -78,7 +77,7 @@ struct dms_degree_t final : public details::unit_t<T, std::ratio<1745329, 100000
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_degree"};
     [[maybe_unused]] static constexpr std::string_view symbol{"deg"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00B0"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"deg"};
 };
 
@@ -98,8 +97,8 @@ struct dms_arcminute_t final : public details::unit_t<T, std::ratio<1745329, 600
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcminute"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u1D50"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m"};
 };
 
 template <is_unit_value_type_c T>
@@ -118,8 +117,8 @@ struct dms_arcsecond_t final : public details::unit_t<T, std::ratio<1745329, 360
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcsecond"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02E2"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"s"};
 };
 
 template <is_unit_value_type_c T>

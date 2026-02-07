@@ -1,11 +1,11 @@
 #pragma once
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Conductance dimension: S = A^2·s^3·kg^-1·m^-2
+// Conductance dimension: S = A^2Â·s^3Â·kg^-1Â·m^-2
 inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
 // Conductance units (Siemens and derived)

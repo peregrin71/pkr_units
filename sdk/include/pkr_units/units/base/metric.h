@@ -2,7 +2,7 @@
 // ============================================================================
 // Master header that includes unit operators and all unit definitions
 // ============================================================================
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 // ============================================================================
 // Canonical SI Base Units (7 fundamental units)
 // ============================================================================
@@ -16,7 +16,6 @@
 // ============================================================================
 // Derived SI Units (common compound units)
 // ============================================================================
-// NOTE: Derived units are temporarily disabled due to incomplete definitions
 #include <pkr_units/units/derived/velocity.h>
 #include <pkr_units/units/derived/acceleration.h>
 #include <pkr_units/units/derived/mechanical/force.h>

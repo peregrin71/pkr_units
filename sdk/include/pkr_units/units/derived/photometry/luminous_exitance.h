@@ -1,6 +1,6 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/units/base/length.h>
 
@@ -11,7 +11,7 @@ namespace PKR_UNITS_NAMESPACE
 // ============================================================================
 //
 // Illuminance is the luminous flux incident on a surface per unit area.
-// Unit: lux (lx) = lumen / meter² = candela × steradian / meter² (cd·sr/m²)
+// Unit: lux (lx) = lumen / meterÂ² = candela Ã— steradian / meterÂ² (cdÂ·sr/mÂ²)
 //
 // CHARACTERISTICS:
 // - Measures brightness of light on a surface
@@ -19,9 +19,9 @@ namespace PKR_UNITS_NAMESPACE
 // - Fundamental for lighting design and visibility
 //
 // RELATIONSHIPS:
-// - Illuminance = Luminous flux / Area [lm / m²]
-// - Illuminance = Luminous intensity / Distance² [cd / m²] (simplified for point source)
-// - More precise: [cd·sr / m²] accounts for solid angle properly
+// - Illuminance = Luminous flux / Area [lm / mÂ²]
+// - Illuminance = Luminous intensity / DistanceÂ² [cd / mÂ²] (simplified for point source)
+// - More precise: [cdÂ·sr / mÂ²] accounts for solid angle properly
 //
 // TYPICAL VALUES:
 // - Full moon clear night: ~0.25 lux
@@ -38,7 +38,7 @@ namespace PKR_UNITS_NAMESPACE
 // - Camera sensor characterization
 // - Astronomical observations
 //
-// NOTE: In the type system, illuminance is [intensity·solid_angle / length²]
+// NOTE: In the type system, illuminance is [intensityÂ·solid_angle / lengthÂ²]
 // which reflects the full dimensional relationship.
 // Strong type for lux (illuminance)
 template <is_unit_value_type_c T>

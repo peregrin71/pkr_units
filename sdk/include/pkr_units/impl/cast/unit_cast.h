@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/namespace_config.h>
 #include <type_traits>
 #include <ratio>

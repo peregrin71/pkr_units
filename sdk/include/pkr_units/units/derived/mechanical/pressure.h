@@ -1,15 +1,15 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_impl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/dimension.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Pressure dimension: kg·m⁻¹·s⁻² (M·L⁻¹·T⁻²)
+// Pressure dimension: kgÂ·mâ»Â¹Â·sâ»Â² (MÂ·Lâ»Â¹Â·Tâ»Â²)
 inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0, 0};
 
 // Pressure units (Pascal and derived)
-// Base unit: Pascal (Pa) = kg·m⁻¹·s⁻²
+// Base unit: Pascal (Pa) = kgÂ·mâ»Â¹Â·sâ»Â²
 template <is_unit_value_type_c T>
 struct pascal_t final : public details::unit_t<T, std::ratio<1, 1>, pressure_dimension>
 {

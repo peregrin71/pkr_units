@@ -1,3 +1,4 @@
+#pragma once
 //
 // High-precision physical constants that can be retrieved at float, double, or long double precision.
 // All values are from CODATA 2022 or SI 9th edition and are precise enough for long double representation.
@@ -13,8 +14,6 @@
 //
 // Constants are defined as function templates in the details namespace, with typed SI unit instances
 // created in the main si:: namespace for use throughout the codebase.
-
-#pragma once
 
 #include <type_traits>
 #include <limits>

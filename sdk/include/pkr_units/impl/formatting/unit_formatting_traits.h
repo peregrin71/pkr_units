@@ -317,6 +317,40 @@ inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = 
 template <>
 inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
 
+// Helper: constexpr conversion of unsigned int to digits in buffer
+// Returns number of digits written
+constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_buffer, std::size_t buffer_size)
+{
+    if (value == 0)
+    {
+        if (buffer_size > 0)
+            digit_buffer[0] = '0';
+        return 1;
+    }
+
+    // Count digits
+    unsigned int temp = value;
+    std::size_t digit_count = 0;
+    while (temp > 0)
+    {
+        ++digit_count;
+        temp /= 10;
+    }
+
+    if (digit_count > buffer_size)
+        return 0; // Buffer too small
+
+    // Write digits in reverse order
+    temp = value;
+    for (std::size_t i = digit_count; i > 0; --i)
+    {
+        digit_buffer[i - 1] = static_cast<char>('0' + (temp % 10));
+        temp /= 10;
+    }
+
+    return digit_count;
+}
+
 // Helper to get superscript exponent string using lookup tables
 template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
@@ -335,11 +369,12 @@ std::basic_string<CharT> superscript_exponent(int exp)
     if (negative)
         s += char_traits_dispatch<CharT>::superscript_minus();
 
-    // Convert digits using lookup table (no branching)
-    std::string digit_str = std::to_string(abs_exp);
-    for (char c : digit_str)
+    // Convert digits using lookup table (constexpr-compatible)
+    char digit_buffer[32];
+    std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+    for (std::size_t i = 0; i < digit_count; ++i)
     {
-        int digit_idx = c - '0';
+        int digit_idx = digit_buffer[i] - '0';
         s += superscript_digit_lookup<CharT>(digit_idx);
     }
 
@@ -379,6 +414,48 @@ inline std::basic_string<CharT> build_dimension_symbol(const PKR_UNITS_NAMESPACE
         return std::basic_string<CharT>{};
 
     return result;
+}
+
+// Build dimension symbol into a format_buffer (no allocation, constexpr-compatible)
+template <typename CharT>
+constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const PKR_UNITS_NAMESPACE::dimension_t& dim)
+{
+    // Canonical dimension order: mass, length, time, current, temperature, amount, intensity, angle, star_angle
+    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
+    const auto& symbols = base_unit_symbols<CharT>;
+
+    // Process all dimensions in canonical order
+    for (int i = 0; i < 9; ++i)
+    {
+        if (dims[i] != 0)
+        {
+            if (buf.byte_length != 0)
+                buf.append(char_traits_dispatch<CharT>::separator());
+
+            buf.append(symbols[i]);
+            if (dims[i] != 1)
+            {
+                bool negative = dims[i] < 0;
+                int abs_exp = negative ? -dims[i] : dims[i];
+
+                // Add caret (empty for wchar_t)
+                buf.append(char_traits_dispatch<CharT>::superscript_caret());
+
+                // Add minus sign for negative exponents
+                if (negative)
+                    buf.append(char_traits_dispatch<CharT>::superscript_minus());
+
+                // Convert digits using constexpr conversion (no std::to_string)
+                char digit_buffer[32];
+                std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+                for (std::size_t j = 0; j < digit_count; ++j)
+                {
+                    int digit_idx = digit_buffer[j] - '0';
+                    buf.append(superscript_digit_lookup<CharT>(digit_idx));
+                }
+            }
+        }
+    }
 }
 
 } // namespace PKR_UNITS_NAMESPACE::impl

@@ -4,6 +4,7 @@
 #ifndef PKR_UNITS_CE_SINGLE_HEADER_H
 #define PKR_UNITS_CE_SINGLE_HEADER_H
 
+#include <bitset>
 #include <chrono>
 #include <complex>
 #include <cmath>
@@ -31,6 +32,28 @@ struct dimension_t
 };
 
 inline constexpr dimension_t scalar_dimension{0, 0, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t angle_dimension{0, 0, 0, 0, 0, 0, 0, 1, 0};
+
+inline constexpr dimension_t length_dimension{1, 0, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t mass_dimension{0, 1, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t time_dimension{0, 0, 1, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t current_dimension{0, 0, 0, 1, 0, 0, 0, 0, 0};
+inline constexpr dimension_t temperature_dimension{0, 0, 0, 0, 1, 0, 0, 0, 0};
+inline constexpr dimension_t amount_dimension{0, 0, 0, 0, 0, 1, 0, 0, 0};
+inline constexpr dimension_t intensity_dimension{0, 0, 0, 0, 0, 0, 1, 0, 0};
+
+inline constexpr dimension_t area_dimension{2, 0, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t acceleration_v{1, 0, -2, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t velocity_dimension{1, 0, -1, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t mass_concentration_v{-3, 1, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t molar_concentration_v{-3, 0, 0, 0, 0, 1, 0, 0, 0};
+inline constexpr dimension_t density_dimension{-3, 1, 0, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t dynamic_viscosity_dimension{-1, 1, -1, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t kinematic_viscosity_dimension{2, 0, -1, 0, 0, 0, 0, 0, 0};
+inline constexpr dimension_t josephson_dimension{-2, -1, 2, 1, 0, 0, 0, 0, 0};
+
+inline constexpr dimension_t solid_angle_dimension{0, 0, 0, 0, 0, 0, 0, 0, 1};
 
 }
 
@@ -75,6 +98,23 @@ constexpr type_t divide_values(type_t val1, type_t val2) noexcept
 {
     return val1 / val2;
 }
+
+template <typename T>
+concept complex_type_c = (std::same_as<T, std::complex<float>> || std::same_as<T, std::complex<double>>);
+
+template <typename T>
+struct complex_underlying_type
+{
+};
+
+template <typename T>
+struct complex_underlying_type<std::complex<T>>
+{
+    using type = T;
+};
+
+template <typename T>
+using complex_underlying_type_t = typename complex_underlying_type<T>::type;
 
 template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v>
 class unit_t
@@ -224,6 +264,24 @@ public:
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
 
+    constexpr auto magnitude() const noexcept
+        requires complex_type_c<type_t>
+    {
+        using real_type = complex_underlying_type_t<type_t>;
+        real_type mag_value = static_cast<real_type>(std::abs(m_value));
+        using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v>::type;
+        return result_unit{mag_value};
+    }
+
+    constexpr auto phase() const noexcept
+        requires complex_type_c<type_t>
+    {
+        using real_type = complex_underlying_type_t<type_t>;
+        real_type phase_value = static_cast<real_type>(std::arg(m_value));
+        using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension>::type;
+        return result_unit{phase_value};
+    }
+
 private:
     type_t m_value;
 };
@@ -233,6 +291,7 @@ struct derived_unit_type_t
 {
     using type = details::unit_t<type_t, ratio_t, dim_v>;
 };
+
 template <typename T>
 struct is_pkr_unit : std::false_type
 {
@@ -278,6 +337,63 @@ struct is_pkr_unit<const T> : is_pkr_unit<T>
 
 }
 
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using length_unit_t = details::unit_t<type_t, ratio_t, length_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using mass_unit_t = details::unit_t<type_t, ratio_t, mass_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using time_unit_t = details::unit_t<type_t, ratio_t, time_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using current_unit_t = details::unit_t<type_t, ratio_t, current_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using temperature_unit_t = details::unit_t<type_t, ratio_t, temperature_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using amount_unit_t = details::unit_t<type_t, ratio_t, amount_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using intensity_unit_t = details::unit_t<type_t, ratio_t, intensity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using angle_unit_t = details::unit_t<type_t, ratio_t, angle_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using area_unit_t = details::unit_t<type_t, ratio_t, area_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using volume_unit_t = details::unit_t<type_t, ratio_t, volume_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using acceleration_unit_t = details::unit_t<type_t, ratio_t, acceleration_v>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using velocity_unit_t = details::unit_t<type_t, ratio_t, velocity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using dynamic_viscosity_unit_t = details::unit_t<type_t, ratio_t, dynamic_viscosity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using kinematic_viscosity_unit_t = details::unit_t<type_t, ratio_t, kinematic_viscosity_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using mass_concentration_unit_t = details::unit_t<type_t, ratio_t, mass_concentration_v>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using molar_concentration_unit_t = details::unit_t<type_t, ratio_t, molar_concentration_v>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using josephson_unit_t = details::unit_t<type_t, ratio_t, josephson_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using solid_angle_unit_t = details::unit_t<type_t, ratio_t, solid_angle_dimension>;
+
 }
 
 namespace pkr::units
@@ -290,6 +406,9 @@ concept is_angle_unit_c = requires { typename UnitT::dimension; } && UnitT::dime
 
 template <typename ScalarT>
 concept scalar_value_c = std::same_as<std::remove_cvref_t<ScalarT>, float> || std::same_as<std::remove_cvref_t<ScalarT>, double>;
+
+template <typename T>
+concept complex_type_c = (std::same_as<T, std::complex<float>> || std::same_as<T, std::complex<double>>);
 
 static_assert(scalar_value_c<float>);
 static_assert(scalar_value_c<double>);
@@ -795,14 +914,7 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
     };
     return to_canonical(lhs) <=> to_canonical(rhs);
 }
-}
 
-namespace pkr::units
-{
-inline constexpr dimension_t angle_dimension{0, 0, 0, 0, 0, 0, 0, 1};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using angle_unit_t = details::unit_t<type_t, ratio_t, angle_dimension>;
 }
 
 namespace pkr::units
@@ -816,7 +928,7 @@ struct hms_archour_t final : public details::unit_t<T, std::ratio<26179935, 1000
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_archour"};
     [[maybe_unused]] static constexpr std::string_view symbol{"h"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ʰ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02B0"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"h"};
 };
 
@@ -835,8 +947,8 @@ struct hms_arcminute_t final : public details::unit_t<T, std::ratio<26179935, 60
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcminute"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u1D50"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m"};
 };
 
 template <is_unit_value_type_c T>
@@ -854,8 +966,8 @@ struct hms_arcsecond_t final : public details::unit_t<T, std::ratio<26179935, 36
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcsecond"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02E2"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"s"};
 };
 
 template <is_unit_value_type_c T>
@@ -873,7 +985,7 @@ struct dms_degree_t final : public details::unit_t<T, std::ratio<1745329, 100000
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_degree"};
     [[maybe_unused]] static constexpr std::string_view symbol{"deg"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"°"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00B0"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"deg"};
 };
 
@@ -892,8 +1004,8 @@ struct dms_arcminute_t final : public details::unit_t<T, std::ratio<1745329, 600
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcminute"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ᵐ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ᵐ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u1D50"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m"};
 };
 
 template <is_unit_value_type_c T>
@@ -911,8 +1023,8 @@ struct dms_arcsecond_t final : public details::unit_t<T, std::ratio<1745329, 360
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcsecond"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
-    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"ˢ"};
-    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"ˢ"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u02E2"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"s"};
 };
 
 template <is_unit_value_type_c T>
@@ -950,15 +1062,6 @@ template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == angle_dimension)
 dms_angle_t(const U&) -> dms_angle_t<typename details::is_pkr_unit<U>::value_type>;
 
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t length_dimension{1, 0, 0, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using length_unit_t = details::unit_t<type_t, ratio_t, length_dimension>;
 }
 
 namespace pkr::units
@@ -1118,15 +1221,6 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 namespace pkr::units
 {
 
-inline constexpr dimension_t acceleration_v{1, 0, -2, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using acceleration_unit_t = details::unit_t<type_t, ratio_t, acceleration_v>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct gal_t final : public details::unit_t<T, std::ratio<1, 100>, acceleration_v>
 {
@@ -1145,20 +1239,6 @@ gal_t(T) -> gal_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == acceleration_v)
 gal_t(const U&) -> gal_t<typename details::is_pkr_unit<U>::value_type>;
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t dynamic_viscosity_dimension{-1, 1, -1, 0, 0, 0, 0, 0};
-
-inline constexpr dimension_t kinematic_viscosity_dimension{2, 0, -1, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using dynamic_viscosity_unit_t = details::unit_t<type_t, ratio_t, dynamic_viscosity_dimension>;
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using kinematic_viscosity_unit_t = details::unit_t<type_t, ratio_t, kinematic_viscosity_dimension>;
 }
 
 namespace pkr::units
@@ -1404,8 +1484,6 @@ namespace pkr::units
 {
 
 inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
-
-using namespace_force_units_detail = int;
 
 template <is_unit_value_type_c T>
 struct newton_t final : public details::unit_t<T, std::ratio<1, 1>, force_dimension>
@@ -2619,15 +2697,6 @@ struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_d
 namespace pkr::units
 {
 
-inline constexpr dimension_t time_dimension{0, 0, 1, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using time_unit_t = details::unit_t<type_t, ratio_t, time_dimension>;
-}
-
-namespace pkr::units
-{
-
 namespace details
 {
 
@@ -3247,15 +3316,6 @@ struct details::derived_unit_type_t<T, std::ratio<31557600, 1>, time_dimension>
 namespace pkr::units
 {
 
-inline constexpr dimension_t mass_dimension{0, 1, 0, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass_unit_t = details::unit_t<type_t, ratio_t, mass_dimension>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct kilogram_t final : public details::unit_t<T, std::ratio<1, 1>, mass_dimension>
 {
@@ -3607,15 +3667,6 @@ struct details::derived_unit_type_t<T, std::peta, mass_dimension>
 namespace pkr::units
 {
 
-inline constexpr dimension_t velocity_dimension{.length = 1, .mass = 0, .time = -1, .current = 0, .temperature = 0, .amount = 0, .intensity = 0, .angle = 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using velocity_unit_t = details::unit_t<type_t, ratio_t, velocity_dimension>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, velocity_dimension>
 {
@@ -3752,7 +3803,7 @@ struct meter_per_second_squared_t final : public details::unit_t<T, std::ratio<1
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"m/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"m/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"m\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"m\u00B7s\u207B\u00B2"};
 };
@@ -3771,7 +3822,7 @@ struct centimeter_per_second_squared_t final : public details::unit_t<T, std::ra
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"cm/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"cm/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"cm\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"cm\u00B7s\u207B\u00B2"};
 };
@@ -3790,7 +3841,7 @@ struct millimeter_per_second_squared_t final : public details::unit_t<T, std::ra
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"mm/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"mm/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"mm\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"mm\u00B7s\u207B\u00B2"};
 };
@@ -3809,7 +3860,7 @@ struct kilometer_per_second_squared_t final : public details::unit_t<T, std::rat
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per second squared"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"km/s²"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"km/sÂ²"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"km\u00B7s\u207B\u00B2"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"km\u00B7s\u207B\u00B2"};
 };
@@ -5063,15 +5114,6 @@ struct details::derived_unit_type_t<T, std::exa, length_dimension>
 namespace pkr::units
 {
 
-inline constexpr dimension_t current_dimension{0, 0, 0, 1, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using current_unit_t = details::unit_t<type_t, ratio_t, current_dimension>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct ampere_t final : public details::unit_t<T, std::ratio<1, 1>, current_dimension>
 {
@@ -5501,15 +5543,6 @@ struct details::derived_unit_type_t<T, std::exa, current_dimension>
 namespace pkr::units
 {
 
-inline constexpr dimension_t temperature_dimension{0, 0, 0, 0, 1, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using temperature_unit_t = details::unit_t<type_t, ratio_t, temperature_dimension>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct kelvin_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
 {
@@ -5870,15 +5903,6 @@ struct details::derived_unit_type_t<T, std::exa, temperature_dimension>
 {
     using type = exakelvin_t<T>;
 };
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t amount_dimension{0, 0, 0, 0, 0, 1, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using amount_unit_t = details::unit_t<type_t, ratio_t, amount_dimension>;
 }
 
 namespace pkr::units
@@ -6276,15 +6300,6 @@ struct details::derived_unit_type_t<T, std::exa, amount_dimension>
 {
     using type = examole_t<T>;
 };
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t intensity_dimension{0, 0, 0, 0, 0, 0, 1, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using intensity_unit_t = details::unit_t<type_t, ratio_t, intensity_dimension>;
 }
 
 namespace pkr::units
@@ -6794,14 +6809,6 @@ struct details::derived_unit_type_t<T, std::ratio<1570796, 100000000>, angle_dim
 
 namespace pkr::units
 {
-inline constexpr dimension_t solid_angle_dimension{0, 0, 0, 0, 0, 0, 0, 0, 1};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using solid_angle_unit_t = details::unit_t<type_t, ratio_t, solid_angle_dimension>;
-}
-
-namespace pkr::units
-{
 
 template <is_unit_value_type_c T>
 struct steradian_t final : public details::unit_t<T, std::ratio<1, 1>, solid_angle_dimension>
@@ -7009,15 +7016,6 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, power_dimensio
 {
     using type = nanowatt_t<T>;
 };
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t density_dimension{0, 1, 0, 0, 0, 0, 0, -3};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
 }
 
 namespace pkr::units
@@ -7238,20 +7236,6 @@ struct details::derived_unit_type_t<T, std::ratio<166054, 1>, density_dimension>
 {
     using type = atomic_mass_unit_per_cubic_angstrom_t<T>;
 };
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t mass_concentration_v{-3, 1, 0, 0, 0, 0, 0, 0};
-
-inline constexpr dimension_t molar_concentration_v{-3, 0, 0, 0, 0, 1, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass_concentration_unit_t = details::unit_t<type_t, ratio_t, mass_concentration_v>;
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using molar_concentration_unit_t = details::unit_t<type_t, ratio_t, molar_concentration_v>;
 }
 
 namespace pkr::units
@@ -7700,7 +7684,7 @@ struct watt_per_square_meter_per_steradian_t final : public details::unit_t<T, s
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter_per_steradian"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m2·sr)"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m2Â·sr)"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
 };
@@ -7719,7 +7703,7 @@ struct radiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"radiance"};
-    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m2·sr)"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"W/(m2Â·sr)"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"W\u00b7m\u207b\u00b2\u00b7sr\u207b\u00b9"};
 };
@@ -8192,15 +8176,6 @@ constexpr auto hz_in_inverse_meter = details::hz_in_inverse_meter<double>();
 namespace pkr::units
 {
 
-inline constexpr dimension_t josephson_dimension{-2, -1, 2, 1, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using josephson_unit_t = details::unit_t<type_t, ratio_t, josephson_dimension>;
-}
-
-namespace pkr::units
-{
-
 template <is_unit_value_type_c T>
 struct josephson_t final : public details::unit_t<T, std::ratio<1, 1>, josephson_dimension>
 {
@@ -8267,15 +8242,6 @@ constexpr weber_t magnetic_flux_quantum{details::magnetic_flux_quantum<double>()
 constexpr siemens_t conductance_quantum{details::conductance_quantum<double>()};
 constexpr ohm_t inverse_conductance_quantum{details::inverse_conductance_quantum<double>()};
 
-}
-
-namespace pkr::units
-{
-
-inline constexpr dimension_t area_dimension{2, 0, 0, 0, 0, 0, 0, 0};
-
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using area_unit_t = details::unit_t<type_t, ratio_t, area_dimension>;
 }
 
 namespace pkr::units
@@ -8735,6 +8701,36 @@ inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = 
 template <>
 inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
 
+constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_buffer, std::size_t buffer_size)
+{
+    if (value == 0)
+    {
+        if (buffer_size > 0)
+            digit_buffer[0] = '0';
+        return 1;
+    }
+
+    unsigned int temp = value;
+    std::size_t digit_count = 0;
+    while (temp > 0)
+    {
+        ++digit_count;
+        temp /= 10;
+    }
+
+    if (digit_count > buffer_size)
+        return 0;
+
+    temp = value;
+    for (std::size_t i = digit_count; i > 0; --i)
+    {
+        digit_buffer[i - 1] = static_cast<char>('0' + (temp % 10));
+        temp /= 10;
+    }
+
+    return digit_count;
+}
+
 template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
@@ -8750,10 +8746,11 @@ std::basic_string<CharT> superscript_exponent(int exp)
     if (negative)
         s += char_traits_dispatch<CharT>::superscript_minus();
 
-    std::string digit_str = std::to_string(abs_exp);
-    for (char c : digit_str)
+    char digit_buffer[32];
+    std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+    for (std::size_t i = 0; i < digit_count; ++i)
     {
-        int digit_idx = c - '0';
+        int digit_idx = digit_buffer[i] - '0';
         s += superscript_digit_lookup<CharT>(digit_idx);
     }
 
@@ -8785,6 +8782,43 @@ inline std::basic_string<CharT> build_dimension_symbol(const pkr::units::dimensi
         return std::basic_string<CharT>{};
 
     return result;
+}
+
+template <typename CharT>
+constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const pkr::units::dimension_t& dim)
+{
+
+    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
+    const auto& symbols = base_unit_symbols<CharT>;
+
+    for (int i = 0; i < 9; ++i)
+    {
+        if (dims[i] != 0)
+        {
+            if (buf.byte_length != 0)
+                buf.append(char_traits_dispatch<CharT>::separator());
+
+            buf.append(symbols[i]);
+            if (dims[i] != 1)
+            {
+                bool negative = dims[i] < 0;
+                int abs_exp = negative ? -dims[i] : dims[i];
+
+                buf.append(char_traits_dispatch<CharT>::superscript_caret());
+
+                if (negative)
+                    buf.append(char_traits_dispatch<CharT>::superscript_minus());
+
+                char digit_buffer[32];
+                std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+                for (std::size_t j = 0; j < digit_count; ++j)
+                {
+                    int digit_idx = digit_buffer[j] - '0';
+                    buf.append(superscript_digit_lookup<CharT>(digit_idx));
+                }
+            }
+        }
+    }
 }
 
 }
@@ -9019,11 +9053,14 @@ struct formatter<T, CharT>
     {
         auto out = ctx.out();
         out = value_formatter.format(unit.value(), ctx);
+
+        pkr::units::impl::format_buffer<CharT> buf;
+        buf.clear();
         constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
-        static const std::basic_string<CharT> symbol = pkr::units::impl::build_dimension_symbol<CharT>(dim);
+        pkr::units::impl::build_dimension_symbol_to_buffer(buf, dim);
 
         *out++ = static_cast<CharT>(' ');
-        return std::copy(symbol.begin(), symbol.end(), out);
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -9059,22 +9096,100 @@ struct formatter<T, CharT>
     }
 };
 
+template <typename CharT, typename Traits, typename T>
+    requires pkr::units::is_pkr_unit_c<T>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const T& unit)
+{
+
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+
+        std::wstring formatted = std::format(L"{}", unit);
+        os << formatted;
+    }
+
+    else
+    {
+
+        std::string formatted = std::format("{}", unit);
+        os << formatted;
+    }
+    return os;
+}
+
 }
 namespace std
 {
+
+template <typename CharT>
+class stack_array_iterator
+{
+    std::array<CharT, 128>* m_buffer;
+    std::size_t* m_pos;
+
+public:
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+
+    constexpr stack_array_iterator(std::array<CharT, 128>& buf, std::size_t& pos)
+        : m_buffer(&buf)
+        , m_pos(&pos)
+    {
+    }
+
+    stack_array_iterator(const stack_array_iterator&) = default;
+    stack_array_iterator& operator=(const stack_array_iterator&) = default;
+
+    stack_array_iterator& operator*()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++(int)
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator=(CharT c)
+    {
+        if (*m_pos < m_buffer->size())
+            (*m_buffer)[*m_pos] = c;
+        ++*m_pos;
+        return *this;
+    }
+};
+
+template <typename Real, typename CharT>
+inline void format_to_stack_buffer(pkr::units::impl::format_buffer<CharT>& buf, const Real& value)
+{
+    std::array<CharT, 128> temp_buf;
+    std::size_t pos = 0;
+    auto it = stack_array_iterator<CharT>(temp_buf, pos);
+    std::format_to(it, "{}", value);
+    for (std::size_t i = 0; i < pos; ++i)
+        buf.push_back(temp_buf[i]);
+}
 
 template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
 struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
 {
     std::formatter<Real, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -9106,126 +9221,167 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                 Real mant_r = real / std::pow(10.0, exp);
                 Real mant_i = imag / std::pow(10.0, exp);
 
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                pkr::units::impl::format_buffer<CharT> buf;
+                buf.push_back(static_cast<CharT>('('));
 
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                format_to_stack_buffer<Real, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<Real>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<Real, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                std::basic_string<CharT> exp_sup;
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
 
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
-                std::basic_string<CharT> composed;
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<Real>(0))
+                buf.push_back(static_cast<CharT>(' '));
+
+                const int dims[] = {
+                    dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+                const auto& symbols = pkr::units::impl::base_unit_symbols<CharT>;
+                bool first_dim = true;
+                for (std::size_t i = 0; i < 9; ++i)
                 {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                    if (dims[i] != 0)
+                    {
+                        if (!first_dim)
+                            buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                        first_dim = false;
 
-                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
+                        buf.append(symbols[i]);
+                        if (dims[i] != 1)
+                        {
+                            bool negative_exp = dims[i] < 0;
+                            int abs_exp = negative_exp ? -dims[i] : dims[i];
 
-                auto dim_sym = pkr::units::impl::build_dimension_symbol<CharT>(dim_v);
-                if (!dim_sym.empty())
-                {
-                    composed += dim_sym;
+                            buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
+                            if (negative_exp)
+                                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                            std::array<int, 10> temp_digits{};
+                            std::size_t temp_count = 0;
+                            int temp_val = abs_exp;
+                            while (temp_val > 0 && temp_count < 10)
+                            {
+                                temp_digits[temp_count++] = temp_val % 10;
+                                temp_val /= 10;
+                            }
+                            if (temp_count == 0)
+                                temp_digits[temp_count++] = 0;
+
+                            for (std::size_t idx = temp_count; idx > 0; --idx)
+                                buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                        }
+                    }
                 }
 
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        pkr::units::impl::format_buffer<CharT> buf;
+
+        buf.push_back(static_cast<CharT>('('));
+
+        format_to_stack_buffer<Real, CharT>(buf, real);
 
         if (imag >= static_cast<Real>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
+        format_to_stack_buffer<Real, CharT>(buf, std::abs(imag));
 
-        static const std::basic_string<CharT> built = []() { return pkr::units::impl::build_dimension_symbol<CharT>(dim_v); }();
-        std::basic_string_view<CharT> sym = built;
+        buf.push_back(static_cast<CharT>(')'));
 
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(sym.begin(), sym.end(), out);
+        buf.push_back(static_cast<CharT>(' '));
+        const int dims[] = {
+            dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+        const auto& symbols = pkr::units::impl::base_unit_symbols<CharT>;
+        bool first_dim = true;
+        for (std::size_t i = 0; i < 9; ++i)
+        {
+            if (dims[i] != 0)
+            {
+                if (!first_dim)
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                first_dim = false;
+
+                buf.append(symbols[i]);
+                if (dims[i] != 1)
+                {
+                    bool negative_exp = dims[i] < 0;
+                    int abs_exp = negative_exp ? -dims[i] : dims[i];
+
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
+                    if (negative_exp)
+                        buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                    std::array<int, 10> temp_digits{};
+                    std::size_t temp_count = 0;
+                    int temp_val = abs_exp;
+                    while (temp_val > 0 && temp_count < 10)
+                    {
+                        temp_digits[temp_count++] = temp_val % 10;
+                        temp_val /= 10;
+                    }
+                    if (temp_count == 0)
+                        temp_digits[temp_count++] = 0;
+
+                    for (std::size_t idx = temp_count; idx > 0; --idx)
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                }
+            }
+        }
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -9239,14 +9395,14 @@ struct formatter<T, CharT>
     using real_t = typename complex_t::value_type;
 
     std::formatter<real_t, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -9290,121 +9446,93 @@ struct formatter<T, CharT>
                 real_t mant_r = real / std::pow(10.0, exp);
                 real_t mant_i = imag / std::pow(10.0, exp);
 
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                pkr::units::impl::format_buffer<CharT> buf;
 
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                buf.push_back(static_cast<CharT>('('));
+                format_to_stack_buffer<real_t, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<real_t>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<real_t, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
+                buf.push_back(static_cast<CharT>('^'));
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                std::basic_string<CharT> exp_sup;
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
 
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
-                std::basic_string<CharT> composed;
-                composed += static_cast<CharT>('(');
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<real_t>(0))
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                buf.push_back(static_cast<CharT>(' '));
+                buf.append(get_symbol());
 
-                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += static_cast<CharT>('^');
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
-
-                composed += get_symbol();
-
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        pkr::units::impl::format_buffer<CharT> buf;
+
+        buf.push_back(static_cast<CharT>('('));
+
+        format_to_stack_buffer<real_t, CharT>(buf, real);
 
         if (imag >= static_cast<real_t>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
+        format_to_stack_buffer<real_t, CharT>(buf, std::abs(imag));
 
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(get_symbol().begin(), get_symbol().end(), out);
+        buf.push_back(static_cast<CharT>(')'));
+
+        buf.push_back(static_cast<CharT>(' '));
+        buf.append(get_symbol());
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -10568,10 +10696,504 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 namespace pkr::units
 {
 
-inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0};
+template <is_pkr_unit_c T>
+struct vec_3d_units_t
+{
+    T x, y, z;
 
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using volume_unit_t = details::unit_t<type_t, ratio_t, volume_dimension>;
+    constexpr vec_3d_units_t()
+        : x{0}
+        , y{0}
+        , z{0}
+    {
+    }
+
+    constexpr vec_3d_units_t(T x_value, T y_value, T z_value)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+    {
+    }
+
+    template <typename U>
+        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
+    constexpr vec_3d_units_t(U x_value, U y_value, U z_value)
+        : x{T{x_value.value()}}
+        , y{T{y_value.value()}}
+        , z{T{z_value.value()}}
+    {
+    }
+
+    template <typename ScalarT>
+        requires scalar_value_c<ScalarT>
+    constexpr vec_3d_units_t(ScalarT x_value, ScalarT y_value, ScalarT z_value)
+        : x{T{x_value}}
+        , y{T{y_value}}
+        , z{T{z_value}}
+    {
+    }
+
+    constexpr vec_3d_units_t& operator+=(const vec_3d_units_t& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        return *this;
+    }
+
+    constexpr vec_3d_units_t& operator-=(const vec_3d_units_t& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_3d_units_t& operator+=(const vec_3d_units_t<OtherT>& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_3d_units_t& operator-=(const vec_3d_units_t<OtherT>& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
+    constexpr vec_3d_units_t& operator*=(const Factor& value) noexcept
+    {
+        x = x * value;
+        y = y * value;
+        z = z * value;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires scalar_value_c<Factor>
+    constexpr vec_3d_units_t& operator/=(const Factor& value) noexcept
+    {
+        x = x / value;
+        y = y / value;
+        z = z / value;
+        return *this;
+    }
+
+    constexpr T magnitude() const noexcept
+    {
+        auto sum_of_squares = (x * x + y * y + z * z);
+
+        auto scalar_value = sum_of_squares.value();
+        using value_type = typename details::is_pkr_unit<T>::value_type;
+        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
+        return T{sqrt_value};
+    }
+};
+
+template <is_pkr_unit_c T>
+constexpr auto operator+(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x + b.x;
+    auto y_result = a.y + b.y;
+    auto z_result = a.z + b.z;
+    return vec_3d_units_t<decltype(x_result)>{x_result, y_result, z_result};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_3d_units_t<T1>& a, const vec_3d_units_t<T2>& b) noexcept
+{
+    using ResultT = decltype(a.x + b.x);
+    return vec_3d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr auto operator-(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x - b.x;
+    auto y_result = a.y - b.y;
+    auto z_result = a.z - b.z;
+    return vec_3d_units_t<decltype(x_result)>{x_result, y_result, z_result};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const T& value, const vec_3d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value * v.x);
+    return vec_3d_units_t<ResultT>{value * v.x, value * v.y, value * v.z};
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const vec_3d_units_t<U>& v, const T& value) noexcept
+{
+    return value * v;
+}
+
+template <is_pkr_unit_c T>
+constexpr auto dot(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    return (a.x * b.x + a.y * b.y + a.z * b.z);
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const vec_3d_units_t<U>& v, const T& value) noexcept
+{
+    using ResultT = decltype(v.x / value);
+    return vec_3d_units_t<ResultT>{v.x / value, v.y / value, v.z / value};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const T& value, const vec_3d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value / v.x);
+    return vec_3d_units_t<ResultT>{value / v.x, value / v.y, value / v.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr vec_3d_units_t<T> operator-(const vec_3d_units_t<T>& v) noexcept
+{
+    return vec_3d_units_t<T>{-v.x, -v.y, -v.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr bool operator==(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+}
+
+namespace pkr::units::impl::vector_formatting
+{
+
+template <typename CharT, typename ValueT, typename FormatContext>
+inline auto format_component(FormatContext& ctx, std::basic_string_view<CharT> format_spec, const ValueT& value)
+{
+    return std::vformat_to(ctx.out(), std::basic_string_view<CharT>{format_spec}, std::make_format_args(value));
+}
+
+template <typename CharT, typename OutputIt>
+inline OutputIt write_unit_symbol(OutputIt out, const dimension_t& dim)
+{
+    pkr::units::impl::format_buffer<CharT> buf;
+    buf.clear();
+    pkr::units::impl::build_dimension_symbol_to_buffer(buf, dim);
+    return std::copy(buf.begin(), buf.end(), out);
+}
+
+template <typename CharT, typename OutputIt>
+constexpr OutputIt write_separator(OutputIt out)
+{
+    *out++ = static_cast<CharT>(',');
+    *out++ = static_cast<CharT>(' ');
+    return out;
+}
+
+}
+
+namespace std
+{
+
+template <pkr::units::is_pkr_unit_c T, typename CharT>
+struct formatter<pkr::units::vec_3d_units_t<T>, CharT>
+{
+
+    std::basic_string_view<CharT> format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+
+        format_spec = std::basic_string_view<CharT>(it, end - it);
+
+        return end;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::vec_3d_units_t<T>& vec, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        *out++ = static_cast<CharT>('[');
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.x.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.y.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.z.value());
+
+        *out++ = static_cast<CharT>(']');
+        *out++ = static_cast<CharT>(' ');
+
+        constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
+        out = pkr::units::impl::vector_formatting::write_unit_symbol<CharT>(out, dim);
+
+        return out;
+    }
+};
+
+}
+
+namespace pkr::units
+{
+
+template <is_pkr_unit_c T>
+struct vec_4d_units_t
+{
+    T x, y, z, w;
+
+    constexpr vec_4d_units_t()
+        : x{0}
+        , y{0}
+        , z{0}
+        , w{1}
+    {
+    }
+
+    constexpr vec_4d_units_t(T x_value, T y_value, T z_value, T w_value = 1)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+        , w{w_value}
+    {
+    }
+
+    template <typename U>
+        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
+    constexpr vec_4d_units_t(U x_value, U y_value, U z_value, U w_value = U{1})
+        : x{T{x_value.value()}}
+        , y{T{y_value.value()}}
+        , z{T{z_value.value()}}
+        , w{T{w_value.value()}}
+    {
+    }
+
+    template <typename ScalarT>
+        requires scalar_value_c<ScalarT>
+    constexpr vec_4d_units_t(ScalarT x_value, ScalarT y_value, ScalarT z_value, ScalarT w_value = 1)
+        : x{T{x_value}}
+        , y{T{y_value}}
+        , z{T{z_value}}
+        , w{T{w_value}}
+    {
+    }
+
+    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
+        return *this;
+    }
+
+    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t<OtherT>& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t<OtherT>& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
+    constexpr vec_4d_units_t& operator*=(const Factor& value) noexcept
+    {
+        x = x * value;
+        y = y * value;
+        z = z * value;
+        w = w * value;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires scalar_value_c<Factor>
+    constexpr vec_4d_units_t& operator/=(const Factor& value) noexcept
+    {
+        x = x / value;
+        y = y / value;
+        z = z / value;
+        w = w / value;
+        return *this;
+    }
+
+    constexpr T magnitude() const noexcept
+    {
+        auto sum_of_squares = (x * x + y * y) + (z * z + w * w);
+
+        auto scalar_value = sum_of_squares.value();
+        using value_type = typename details::is_pkr_unit<T>::value_type;
+        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
+        return T{sqrt_value};
+    }
+};
+
+template <is_pkr_unit_c T>
+constexpr auto operator+(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x + b.x;
+    auto y_result = a.y + b.y;
+    auto z_result = a.z + b.z;
+    auto w_result = a.w + b.w;
+    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_4d_units_t<T1>& a, const vec_4d_units_t<T2>& b) noexcept
+{
+    using ResultT = decltype(a.x + b.x);
+    return vec_4d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr auto operator-(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x - b.x;
+    auto y_result = a.y - b.y;
+    auto z_result = a.z - b.z;
+    auto w_result = a.w - b.w;
+    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const T& value, const vec_4d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value * v.x);
+    return vec_4d_units_t<ResultT>{value * v.x, value * v.y, value * v.z, value * v.w};
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const vec_4d_units_t<U>& v, const T& value) noexcept
+{
+    return value * v;
+}
+
+template <is_pkr_unit_c T>
+constexpr auto dot(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const vec_4d_units_t<U>& v, const T& value) noexcept
+{
+    using ResultT = decltype(v.x / value);
+    return vec_4d_units_t<ResultT>{v.x / value, v.y / value, v.z / value, v.w / value};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const T& value, const vec_4d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value / v.x);
+    return vec_4d_units_t<ResultT>{value / v.x, value / v.y, value / v.z, value / v.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr vec_4d_units_t<T> operator-(const vec_4d_units_t<T>& v) noexcept
+{
+    return vec_4d_units_t<T>{-v.x, -v.y, -v.z, -v.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+}
+
+namespace std
+{
+
+template <pkr::units::is_pkr_unit_c T, typename CharT>
+struct formatter<pkr::units::vec_4d_units_t<T>, CharT>
+{
+
+    std::basic_string_view<CharT> format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+
+        format_spec = std::basic_string_view<CharT>(it, end - it);
+
+        return end;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::vec_4d_units_t<T>& vec, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        *out++ = static_cast<CharT>('[');
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.x.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.y.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.z.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.w.value());
+
+        *out++ = static_cast<CharT>(']');
+        *out++ = static_cast<CharT>(' ');
+
+        constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
+        out = pkr::units::impl::vector_formatting::write_unit_symbol<CharT>(out, dim);
+
+        return out;
+    }
+};
+
 }
 
 namespace pkr::units
@@ -13549,6 +14171,180 @@ constexpr vec_measurement_rss_3d_t<T> operator*(const matrix_measurement_rss_3d_
 
 namespace pkr::units
 {
+struct default_arena_policy
+{
+
+    static void on_exhausted()
+    {
+
+    }
+};
+
+template <typename T>
+struct stack_storage
+{
+    using value_type = T;
+    using array_type = std::array<std::array<T, 4>, 4>;
+
+    array_type data{};
+
+    constexpr T& get(std::size_t row, std::size_t col)
+    {
+        return data[row][col];
+    }
+
+    constexpr const T& get(std::size_t row, std::size_t col) const
+    {
+        return data[row][col];
+    }
+
+    constexpr std::array<T, 4>& operator[](std::size_t row)
+    {
+        return data[row];
+    }
+
+    constexpr const std::array<T, 4>& operator[](std::size_t row) const
+    {
+        return data[row];
+    }
+};
+template <typename T, std::size_t POOL_SIZE = 10, typename ExhaustedPolicy = default_arena_policy>
+struct arena_storage
+{
+    using value_type = T;
+    using array_type = std::array<std::array<T, 4>, 4>;
+
+    static_assert(POOL_SIZE > 0, "POOL_SIZE must be greater than 0");
+
+    std::size_t arena_index;
+    array_type stack_fallback{};
+    bool using_arena;
+
+    static inline std::size_t peak_usage = 0;
+    static inline std::size_t fallback_count = 0;
+
+private:
+    static inline std::array<array_type, POOL_SIZE> s_pool{};
+    static inline std::bitset<POOL_SIZE> s_in_use{};
+
+public:
+    arena_storage()
+        : arena_index(POOL_SIZE)
+        , using_arena(false)
+    {
+
+        for (std::size_t i = 0; i < POOL_SIZE; ++i)
+        {
+            if (!s_in_use[i])
+            {
+                arena_index = i;
+                s_in_use[i] = true;
+                using_arena = true;
+                peak_usage = std::max(peak_usage, static_cast<std::size_t>(s_in_use.count()));
+                return;
+            }
+        }
+
+        ExhaustedPolicy::on_exhausted();
+        ++fallback_count;
+        using_arena = false;
+    }
+
+    ~arena_storage()
+    {
+        if (using_arena && arena_index < POOL_SIZE)
+        {
+            s_in_use[arena_index] = false;
+        }
+    }
+
+    arena_storage(const arena_storage&) = delete;
+    arena_storage& operator=(const arena_storage&) = delete;
+
+    arena_storage(arena_storage&& other) noexcept
+        : arena_index(other.arena_index)
+        , using_arena(other.using_arena)
+    {
+        if (using_arena)
+        {
+            other.using_arena = false;
+        }
+        else
+        {
+            stack_fallback = std::move(other.stack_fallback);
+        }
+    }
+
+    arena_storage& operator=(arena_storage&& other) noexcept
+    {
+        if (this != &other)
+        {
+            if (using_arena && arena_index < POOL_SIZE)
+            {
+                s_in_use[arena_index] = false;
+            }
+            arena_index = other.arena_index;
+            using_arena = other.using_arena;
+            if (!using_arena)
+            {
+                stack_fallback = std::move(other.stack_fallback);
+                other.using_arena = false;
+            }
+        }
+        return *this;
+    }
+
+    T& get(std::size_t row, std::size_t col)
+    {
+        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+    }
+
+    const T& get(std::size_t row, std::size_t col) const
+    {
+        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+    }
+
+    std::array<T, 4>& operator[](std::size_t row)
+    {
+        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+    }
+
+    const std::array<T, 4>& operator[](std::size_t row) const
+    {
+        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+    }
+
+    static constexpr std::size_t pool_size()
+    {
+        return POOL_SIZE;
+    }
+
+    static std::size_t active_slots()
+    {
+        return s_in_use.count();
+    }
+
+    static std::size_t get_peak_usage()
+    {
+        return peak_usage;
+    }
+
+    static std::size_t get_fallback_count()
+    {
+        return fallback_count;
+    }
+
+    static void reset_statistics()
+    {
+        peak_usage = 0;
+        fallback_count = 0;
+    }
+};
+
+}
+
+namespace pkr::units
+{
 
 template <pkr::units::is_pkr_unit_c T>
 struct vec_measurement_rss_4d_t
@@ -13683,40 +14479,47 @@ constexpr auto dot(const vec_measurement_rss_4d_t<T>& a, const vec_measurement_r
 namespace pkr::units
 {
 
-template <pkr::units::is_pkr_unit_c T>
+template <pkr::units::is_pkr_unit_c T, typename StoragePolicy = stack_storage<pkr::units::measurement_rss_t<T>>>
 class matrix_measurement_rss_4d_t
 {
 public:
     using value_type = pkr::units::measurement_rss_t<T>;
+    using storage_type = StoragePolicy;
     using array_type = std::array<std::array<value_type, 4>, 4>;
 
-    array_type data;
+    storage_type storage;
 
     constexpr matrix_measurement_rss_4d_t() = default;
 
     constexpr matrix_measurement_rss_4d_t(const array_type& arr)
-        : data(arr)
     {
+        for (std::size_t r = 0; r < 4; ++r)
+        {
+            for (std::size_t c = 0; c < 4; ++c)
+            {
+                storage.get(r, c) = arr[r][c];
+            }
+        }
     }
 
-    constexpr value_type& operator()(size_t row, size_t col)
+    constexpr value_type& operator()(std::size_t row, std::size_t col)
     {
-        return data[row][col];
+        return storage.get(row, col);
     }
 
-    constexpr const value_type& operator()(size_t row, size_t col) const
+    constexpr const value_type& operator()(std::size_t row, std::size_t col) const
     {
-        return data[row][col];
+        return storage.get(row, col);
     }
 
-    constexpr std::array<value_type, 4>& operator[](size_t row)
+    constexpr std::array<value_type, 4>& operator[](std::size_t row)
     {
-        return data[row];
+        return storage[row];
     }
 
-    constexpr const std::array<value_type, 4>& operator[](size_t row) const
+    constexpr const std::array<value_type, 4>& operator[](std::size_t row) const
     {
-        return data[row];
+        return storage[row];
     }
 };
 
@@ -14089,110 +14892,6 @@ inline target_unit_t unit_cast(const decibel_amplitude_t<SourceT>& source)
 namespace pkr::units
 {
 
-template <is_pkr_unit_c T>
-struct vec_3d_t<T>
-{
-    T x, y, z;
-
-    vec_3d_t()
-        : x{0}
-        , y{0}
-        , z{0}
-    {
-    }
-
-    vec_3d_t(T x_value, T y_value, T z_value)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-    {
-    }
-
-    constexpr vec_3d_t& operator+=(const vec_3d_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        return *this;
-    }
-
-    constexpr vec_3d_t& operator-=(const vec_3d_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        return *this;
-    }
-
-    template <typename ScalarT>
-        requires(scalar_value_c<ScalarT> || is_pkr_unit_c<ScalarT>)
-    constexpr vec_3d_t& operator*=(const ScalarT& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        return *this;
-    }
-
-    template <typename ScalarT>
-        requires scalar_value_c<ScalarT>
-    constexpr vec_3d_t& operator/=(const ScalarT& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        return *this;
-    }
-};
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator+(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z};
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_3d_t<T1>& a, const vec_3d_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_3d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator-(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(double scalar, const vec_3d_t<T>& v) noexcept
-{
-    return vec_3d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(const vec_3d_t<T>& v, double scalar) noexcept
-{
-    return scalar * v;
-}
-
-template <is_pkr_unit_c T>
-constexpr auto dot(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
-}
-}
-
-namespace pkr::units
-{
-
 template <is_base_pkr_unit_c T>
 class matrix_3d_units_t
 {
@@ -14251,16 +14950,16 @@ constexpr matrix_3d_units_t<T> identity_3d()
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
-    return vec_3d_t<T>{
+    return vec_3d_units_t<T>{
         (m.data[0][0] * v.x) + (m.data[0][1] * v.y) + (m.data[0][2] * v.z),
         (m.data[1][0] * v.x) + (m.data[1][1] * v.y) + (m.data[1][2] * v.z),
         (m.data[2][0] * v.x) + (m.data[2][1] * v.y) + (m.data[2][2] * v.z)};
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
     return matrix_vector_multiply(m, v);
 }
@@ -14269,396 +14968,73 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>
 namespace pkr::units
 {
 
-template <is_base_pkr_unit_c T>
+template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
 class matrix_4d_units_t
 {
 public:
     using value_type = T;
+    using storage_type = StoragePolicy;
     using array_type = std::array<std::array<T, 4>, 4>;
-    array_type data;
+
+    storage_type storage;
+
     constexpr matrix_4d_units_t() = default;
 
     constexpr matrix_4d_units_t(const array_type& arr)
-        : data(arr)
     {
+        for (std::size_t r = 0; r < 4; ++r)
+        {
+            for (std::size_t c = 0; c < 4; ++c)
+            {
+                storage.get(r, c) = arr[r][c];
+            }
+        }
     }
 
-    constexpr T& operator()(size_t row, size_t col)
+    constexpr T& operator()(std::size_t row, std::size_t col)
     {
-        return data[row][col];
+        return storage.get(row, col);
     }
 
-    constexpr const T& operator()(size_t row, size_t col) const
+    constexpr const T& operator()(std::size_t row, std::size_t col) const
     {
-        return data[row][col];
+        return storage.get(row, col);
     }
 
-    constexpr std::array<T, 4>& operator[](size_t row)
+    constexpr std::array<T, 4>& operator[](std::size_t row)
     {
-        return data[row];
+        return storage[row];
     }
 
-    constexpr const std::array<T, 4>& operator[](size_t row) const
+    constexpr const std::array<T, 4>& operator[](std::size_t row) const
     {
-        return data[row];
+        return storage[row];
     }
 };
 
-template <is_base_pkr_unit_c T>
-constexpr matrix_4d_units_t<T> identity_4d()
+template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
+constexpr matrix_4d_units_t<T, StoragePolicy> identity_4d()
 {
-    matrix_4d_units_t<T> m{};
-    for (int i = 0; i < 4; ++i)
+    matrix_4d_units_t<T, StoragePolicy> m{};
+    for (std::size_t i = 0; i < 4; ++i)
         m[i][i] = T{1};
     return m;
 }
 
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> matrix_vector_multiply(const matrix_4d_units_t<T>& m, const vec_4d_t<T>& v) noexcept
+template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
+constexpr vec_4d_t<T> matrix_vector_multiply(const matrix_4d_units_t<T, StoragePolicy>& m, const vec_4d_t<T>& v) noexcept
 {
     return vec_4d_t<T>{
-        ((m.data[0][0] * v.x) + (m.data[0][1] * v.y)) + ((m.data[0][2] * v.z) + (m.data[0][3] * v.w)),
-        ((m.data[1][0] * v.x) + (m.data[1][1] * v.y)) + ((m.data[1][2] * v.z) + (m.data[1][3] * v.w)),
-        ((m.data[2][0] * v.x) + (m.data[2][1] * v.y)) + ((m.data[2][2] * v.z) + (m.data[2][3] * v.w)),
-        ((m.data[3][0] * v.x) + (m.data[3][1] * v.y)) + ((m.data[3][2] * v.z) + (m.data[3][3] * v.w))};
+        ((m(0, 0) * v.x) + (m(0, 1) * v.y)) + ((m(0, 2) * v.z) + (m(0, 3) * v.w)),
+        ((m(1, 0) * v.x) + (m(1, 1) * v.y)) + ((m(1, 2) * v.z) + (m(1, 3) * v.w)),
+        ((m(2, 0) * v.x) + (m(2, 1) * v.y)) + ((m(2, 2) * v.z) + (m(2, 3) * v.w)),
+        ((m(3, 0) * v.x) + (m(3, 1) * v.y)) + ((m(3, 2) * v.z) + (m(3, 3) * v.w))};
 }
 
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const matrix_4d_units_t<T>& m, const vec_4d_t<T>& v) noexcept
+template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
+constexpr vec_4d_t<T> operator*(const matrix_4d_units_t<T, StoragePolicy>& m, const vec_4d_t<T>& v) noexcept
 {
     return matrix_vector_multiply(m, v);
-}
-}
-
-namespace pkr::units
-{
-
-template <is_pkr_unit_c T>
-struct vec_4d_units_t
-{
-    T x, y, z, w;
-
-    constexpr vec_4d_units_t()
-        : x{0}
-        , y{0}
-        , z{0}
-        , w{1}
-    {
-    }
-
-    constexpr vec_4d_units_t(T x_value, T y_value, T z_value, T w_value = 1)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-        , w{w_value}
-    {
-    }
-
-    template <typename U>
-        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
-    constexpr vec_4d_units_t(U x_value, U y_value, U z_value, U w_value = U{1})
-        : x{T{x_value.value()}}
-        , y{T{y_value.value()}}
-        , z{T{z_value.value()}}
-        , w{T{w_value.value()}}
-    {
-    }
-
-    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <is_base_pkr_unit_c OtherT>
-        requires same_dimensions_c<T, OtherT>
-    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t<OtherT>& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    template <is_base_pkr_unit_c OtherT>
-        requires same_dimensions_c<T, OtherT>
-    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t<OtherT>& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <typename Factor>
-        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
-    constexpr vec_4d_units_t& operator*=(const Factor& value) noexcept
-    {
-        x = x * value;
-        y = y * value;
-        z = z * value;
-        w = w * value;
-        return *this;
-    }
-
-    template <typename Factor>
-        requires scalar_value_c<Factor>
-    constexpr vec_4d_units_t& operator/=(const Factor& value) noexcept
-    {
-        x = x / value;
-        y = y / value;
-        z = z / value;
-        w = w / value;
-        return *this;
-    }
-
-    constexpr T magnitude() const noexcept
-    {
-        auto sum_of_squares = (x * x + y * y) + (z * z + w * w);
-
-        auto scalar_value = sum_of_squares.value();
-        using value_type = typename details::is_pkr_unit<T>::value_type;
-        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
-        return T{sqrt_value};
-    }
-};
-
-template <is_pkr_unit_c T>
-constexpr auto operator+(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    auto x_result = a.x + b.x;
-    auto y_result = a.y + b.y;
-    auto z_result = a.z + b.z;
-    auto w_result = a.w + b.w;
-    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_4d_units_t<T1>& a, const vec_4d_units_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_4d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr auto operator-(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    auto x_result = a.x - b.x;
-    auto y_result = a.y - b.y;
-    auto z_result = a.z - b.z;
-    auto w_result = a.w - b.w;
-    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
-}
-
-template <typename T, is_pkr_unit_c U>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator*(const T& value, const vec_4d_units_t<U>& v) noexcept
-{
-    using ResultT = decltype(value * v.x);
-    return vec_4d_units_t<ResultT>{value * v.x, value * v.y, value * v.z, value * v.w};
-}
-
-template <is_pkr_unit_c U, typename T>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator*(const vec_4d_units_t<U>& v, const T& value) noexcept
-{
-    return value * v;
-}
-
-template <is_pkr_unit_c T>
-constexpr auto dot(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
-}
-
-template <is_pkr_unit_c U, typename T>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator/(const vec_4d_units_t<U>& v, const T& value) noexcept
-{
-    using ResultT = decltype(v.x / value);
-    return vec_4d_units_t<ResultT>{v.x / value, v.y / value, v.z / value, v.w / value};
-}
-
-template <typename T, is_pkr_unit_c U>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator/(const T& value, const vec_4d_units_t<U>& v) noexcept
-{
-    using ResultT = decltype(value / v.x);
-    return vec_4d_units_t<ResultT>{value / v.x, value / v.y, value / v.z, value / v.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_4d_units_t<T> operator-(const vec_4d_units_t<T>& v) noexcept
-{
-    return vec_4d_units_t<T>{-v.x, -v.y, -v.z, -v.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
-}
-}
-
-namespace pkr::units
-{
-
-template <is_base_pkr_unit_c T>
-struct vec_4d_t<T>
-{
-    T x, y, z, w;
-
-    vec_4d_t()
-        : x{0}
-        , y{0}
-        , z{0}
-        , w{1}
-    {
-    }
-
-    vec_4d_t(T x_value, T y_value, T z_value, T w_value = 1)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-        , w{w_value}
-    {
-    }
-
-    constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator*=(const ScalarT& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        w = w * scalar;
-        return *this;
-    }
-
-    template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator/=(const ScalarT& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        w = w / scalar;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator*=(const typename T::value_type& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        w = w * scalar;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator/=(const typename T::value_type& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        w = w / scalar;
-        return *this;
-    }
-};
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-    return vec_4d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_base_pkr_unit_c T1, is_base_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_4d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-    return vec_4d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
-}
-
-template <scalar_value_c ScalarT, is_base_pkr_unit_c T>
-constexpr auto operator*(const ScalarT& scalar, const vec_4d_t<T>& v) noexcept
-{
-    using ResultT = decltype(scalar * v.x);
-    return vec_4d_t<ResultT>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
-}
-
-template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar)
-{
-    return scalar * v;
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const typename T::value_type& scalar, const vec_4d_t<T>& v) noexcept
-{
-    return vec_4d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
-{
-    return scalar * v;
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
-{
-    return vec_4d_t<T>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
-}
-
-template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator/(const vec_4d_t<T>& v, const ScalarT& scalar) noexcept
-{
-    using ResultT = decltype(v.x / scalar);
-    return vec_4d_t<ResultT>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-
-    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
 }
 }
 namespace pkr::units

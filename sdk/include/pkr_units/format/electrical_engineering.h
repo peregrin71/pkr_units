@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // This header contains formatting specializations and helpers
 // for electrical / complex-valued unit types.
@@ -7,18 +7,15 @@
 
 #include <algorithm>
 #include <format>
-#include <string>
 #include <string_view>
 #include <type_traits>
 #include <cmath>
-#include <sstream>
-#include <iomanip>
 #include <complex>
-#include <vector>
 #include <cctype>
+#include <array>
 
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
@@ -26,19 +23,79 @@
 namespace std
 {
 
+// Stack-based output iterator for formatting into a fixed array (no allocation)
+template <typename CharT>
+class stack_array_iterator
+{
+    std::array<CharT, 128>* m_buffer;
+    std::size_t* m_pos;
+
+public:
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+
+    constexpr stack_array_iterator(std::array<CharT, 128>& buf, std::size_t& pos)
+        : m_buffer(&buf)
+        , m_pos(&pos)
+    {
+    }
+
+    // Pointers are trivially copyable and assignable - automatic support for output_iterator
+    stack_array_iterator(const stack_array_iterator&) = default;
+    stack_array_iterator& operator=(const stack_array_iterator&) = default;
+
+    stack_array_iterator& operator*()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++(int)
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator=(CharT c)
+    {
+        if (*m_pos < m_buffer->size())
+            (*m_buffer)[*m_pos] = c;
+        ++*m_pos;
+        return *this;
+    }
+};
+
+// Helper: format a value into a stack buffer and copy to format_buffer
+template <typename Real, typename CharT>
+inline void format_to_stack_buffer(PKR_UNITS_NAMESPACE::impl::format_buffer<CharT>& buf, const Real& value)
+{
+    std::array<CharT, 128> temp_buf;
+    std::size_t pos = 0;
+    auto it = stack_array_iterator<CharT>(temp_buf, pos);
+    std::format_to(it, "{}", value);
+    for (std::size_t i = 0; i < pos; ++i)
+        buf.push_back(temp_buf[i]);
+}
+
 // Specialization for complex-valued base unit_t types
 template <typename Real, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v, typename CharT>
 struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
 {
     std::formatter<Real, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -71,134 +128,179 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
                 Real mant_r = real / std::pow(10.0, exp);
                 Real mant_i = imag / std::pow(10.0, exp);
 
-                // Build mantissa format spec (drop the 'e' if present)
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                PKR_UNITS_NAMESPACE::impl::format_buffer<CharT> buf;
+                buf.push_back(static_cast<CharT>('('));
 
-                // Derive precision from mantissa_spec if present (e.g. ".1e" -> precision 1)
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                // Format real mantissa into temp buffer, then copy to main
+                format_to_stack_buffer<Real, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<Real>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<Real, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                // Use trait dispatch for multiplication sign
+                buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                // Build exponent as superscript using traits
-                std::basic_string<CharT> exp_sup;
+                // Build exponent as superscript
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(d));
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
-                    // digits are collected least-significant-first; append in reverse
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                    // digits are collected least-significant-first; iterate backwards
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
-                // Compose final string: (mant_r [+-] jmant_i) multiply_sign 10 exp_sup sym
-                std::basic_string<CharT> composed;
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<Real>(0))
+                buf.push_back(static_cast<CharT>(' '));
+
+                // Build dimension symbol inline (avoid re-entrancy of global buffer)
+                const int dims[] = {
+                    dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+                const auto& symbols = PKR_UNITS_NAMESPACE::impl::base_unit_symbols<CharT>;
+                bool first_dim = true;
+                for (std::size_t i = 0; i < 9; ++i)
                 {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                    if (dims[i] != 0)
+                    {
+                        if (!first_dim)
+                            buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::separator());
+                        first_dim = false;
 
-                // Use trait dispatch for multiplication sign
-                composed += PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
+                        buf.append(symbols[i]);
+                        if (dims[i] != 1)
+                        {
+                            bool negative_exp = dims[i] < 0;
+                            int abs_exp = negative_exp ? -dims[i] : dims[i];
 
-                auto dim_sym = PKR_UNITS_NAMESPACE::impl::build_dimension_symbol<CharT>(dim_v);
-                if (!dim_sym.empty())
-                {
-                    composed += dim_sym;
+                            buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_caret());
+                            if (negative_exp)
+                                buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                            // Extract digits without heap allocation
+                            std::array<int, 10> temp_digits{};
+                            std::size_t temp_count = 0;
+                            int temp_val = abs_exp;
+                            while (temp_val > 0 && temp_count < 10)
+                            {
+                                temp_digits[temp_count++] = temp_val % 10;
+                                temp_val /= 10;
+                            }
+                            if (temp_count == 0)
+                                temp_digits[temp_count++] = 0;
+                            // Output digits in correct order (reverse of collected)
+                            for (std::size_t idx = temp_count; idx > 0; --idx)
+                                buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                        }
+                    }
                 }
 
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
         // Fallback: default formatting (no factoring)
+        // Use a buffer for the composed string
+        PKR_UNITS_NAMESPACE::impl::format_buffer<CharT> buf;
+
         // (real [+-] jimag)
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        buf.push_back(static_cast<CharT>('('));
+
+        // Format real part into temp buffer, then copy to main
+        format_to_stack_buffer<Real, CharT>(buf, real);
 
         if (imag >= static_cast<Real>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
-        // For base unit_t, always build dimension symbol
-        static const std::basic_string<CharT> built = []() { return PKR_UNITS_NAMESPACE::impl::build_dimension_symbol<CharT>(dim_v); }();
-        std::basic_string_view<CharT> sym = built;
+        // Format imaginary part into temp buffer, then copy to main
+        format_to_stack_buffer<Real, CharT>(buf, std::abs(imag));
 
-        // Space before symbol
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(sym.begin(), sym.end(), out);
+        buf.push_back(static_cast<CharT>(')'));
+
+        // Build dimension symbol inline (avoid re-entrancy of global buffer)
+        buf.push_back(static_cast<CharT>(' '));
+        const int dims[] = {
+            dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+        const auto& symbols = PKR_UNITS_NAMESPACE::impl::base_unit_symbols<CharT>;
+        bool first_dim = true;
+        for (std::size_t i = 0; i < 9; ++i)
+        {
+            if (dims[i] != 0)
+            {
+                if (!first_dim)
+                    buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::separator());
+                first_dim = false;
+
+                buf.append(symbols[i]);
+                if (dims[i] != 1)
+                {
+                    bool negative_exp = dims[i] < 0;
+                    int abs_exp = negative_exp ? -dims[i] : dims[i];
+
+                    buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_caret());
+                    if (negative_exp)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                    // Extract digits without heap allocation
+                    std::array<int, 10> temp_digits{};
+                    std::size_t temp_count = 0;
+                    int temp_val = abs_exp;
+                    while (temp_val > 0 && temp_count < 10)
+                    {
+                        temp_digits[temp_count++] = temp_val % 10;
+                        temp_val /= 10;
+                    }
+                    if (temp_count == 0)
+                        temp_digits[temp_count++] = 0;
+                    // Output digits in correct order (reverse of collected)
+                    for (std::size_t idx = temp_count; idx > 0; --idx)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                }
+            }
+        }
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -213,14 +315,14 @@ struct formatter<T, CharT>
     using real_t = typename complex_t::value_type;
 
     std::formatter<real_t, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -266,129 +368,103 @@ struct formatter<T, CharT>
                 real_t mant_r = real / std::pow(10.0, exp);
                 real_t mant_i = imag / std::pow(10.0, exp);
 
-                // Build mantissa format spec (drop the 'e' if present)
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                // Format mantissas into buffers (no dynamic allocation)
+                // Using format_to_stack_buffer for the actual formatting
+                PKR_UNITS_NAMESPACE::impl::format_buffer<CharT> buf;
 
-                // Derive precision from mantissa_spec if present (e.g. ".1e" -> precision 1)
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                buf.push_back(static_cast<CharT>('('));
+                format_to_stack_buffer<real_t, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<real_t>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<real_t, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                // Use trait dispatch for multiplication sign
+                buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
+                buf.push_back(static_cast<CharT>('^')); // Caret before exponent digits
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                // Build exponent as superscript using traits
-                std::basic_string<CharT> exp_sup;
+                // Build exponent as superscript
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
-                    while (e > 0)
+                    std::array<int, 10> digits{};
+                    std::size_t digit_count = 0;
+                    while (e > 0 && digit_count < 10)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(d));
+                        digits[digit_count++] = e % 10;
                         e /= 10;
                     }
-                    // digits collected least-significant-first; append in reverse order
-                    for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                    // digits are collected least-significant-first; iterate backwards
+                    for (std::size_t i = digit_count; i > 0; --i)
+                        buf.append(PKR_UNITS_NAMESPACE::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
                 }
 
-                // Compose final string: (mant_r [+-] jmant_i) multiply_sign 10 exp_sup sym
-                std::basic_string<CharT> composed;
-                composed += static_cast<CharT>('(');
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<real_t>(0))
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                buf.push_back(static_cast<CharT>(' '));
+                buf.append(get_symbol());
 
-                // Use trait dispatch for multiplication sign
-                composed += PKR_UNITS_NAMESPACE::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += static_cast<CharT>('^'); // Caret before exponent digits
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
-
-                composed += get_symbol();
-
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
         // Fallback: default formatting (no factoring)
+        // Use a buffer for the composed string
+        PKR_UNITS_NAMESPACE::impl::format_buffer<CharT> buf;
+
         // (real [+-] jimag)
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        buf.push_back(static_cast<CharT>('('));
+
+        // Format real part into temp buffer, then copy to main
+        format_to_stack_buffer<real_t, CharT>(buf, real);
 
         if (imag >= static_cast<real_t>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
+        // Format imaginary part into temp buffer, then copy to main
+        format_to_stack_buffer<real_t, CharT>(buf, std::abs(imag));
+
+        buf.push_back(static_cast<CharT>(')'));
 
         // Space before symbol
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(get_symbol().begin(), get_symbol().end(), out);
+        buf.push_back(static_cast<CharT>(' '));
+        buf.append(get_symbol());
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 

@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <array>
-#include <pkr_units/impl/decls/unit_t_decl.h>
+#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/units/math/unit_math.h>
 #include "vector_unit_3d.h"
@@ -68,16 +68,16 @@ constexpr matrix_3d_units_t<T> identity_3d()
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
-    return vec_3d_t<T>{
+    return vec_3d_units_t<T>{
         (m.data[0][0] * v.x) + (m.data[0][1] * v.y) + (m.data[0][2] * v.z),
         (m.data[1][0] * v.x) + (m.data[1][1] * v.y) + (m.data[1][2] * v.z),
         (m.data[2][0] * v.x) + (m.data[2][1] * v.y) + (m.data[2][2] * v.z)};
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
     return matrix_vector_multiply(m, v);
 }
