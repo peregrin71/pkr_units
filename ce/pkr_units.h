@@ -8735,6 +8735,36 @@ inline constexpr std::basic_string_view<wchar_t> base_unit_symbols<wchar_t>[] = 
 template <>
 inline constexpr std::basic_string_view<char8_t> base_unit_symbols<char8_t>[] = {u8"kg", u8"m", u8"s", u8"A", u8"K", u8"mol", u8"cd", u8"rad", u8"sr"};
 
+constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_buffer, std::size_t buffer_size)
+{
+    if (value == 0)
+    {
+        if (buffer_size > 0)
+            digit_buffer[0] = '0';
+        return 1;
+    }
+
+    unsigned int temp = value;
+    std::size_t digit_count = 0;
+    while (temp > 0)
+    {
+        ++digit_count;
+        temp /= 10;
+    }
+
+    if (digit_count > buffer_size)
+        return 0;
+
+    temp = value;
+    for (std::size_t i = digit_count; i > 0; --i)
+    {
+        digit_buffer[i - 1] = static_cast<char>('0' + (temp % 10));
+        temp /= 10;
+    }
+
+    return digit_count;
+}
+
 template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
@@ -8750,10 +8780,11 @@ std::basic_string<CharT> superscript_exponent(int exp)
     if (negative)
         s += char_traits_dispatch<CharT>::superscript_minus();
 
-    std::string digit_str = std::to_string(abs_exp);
-    for (char c : digit_str)
+    char digit_buffer[32];
+    std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+    for (std::size_t i = 0; i < digit_count; ++i)
     {
-        int digit_idx = c - '0';
+        int digit_idx = digit_buffer[i] - '0';
         s += superscript_digit_lookup<CharT>(digit_idx);
     }
 
@@ -8785,6 +8816,43 @@ inline std::basic_string<CharT> build_dimension_symbol(const pkr::units::dimensi
         return std::basic_string<CharT>{};
 
     return result;
+}
+
+template <typename CharT>
+constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const pkr::units::dimension_t& dim)
+{
+
+    const int dims[] = {dim.mass, dim.length, dim.time, dim.current, dim.temperature, dim.amount, dim.intensity, dim.angle, dim.star_angle};
+    const auto& symbols = base_unit_symbols<CharT>;
+
+    for (int i = 0; i < 9; ++i)
+    {
+        if (dims[i] != 0)
+        {
+            if (buf.byte_length != 0)
+                buf.append(char_traits_dispatch<CharT>::separator());
+
+            buf.append(symbols[i]);
+            if (dims[i] != 1)
+            {
+                bool negative = dims[i] < 0;
+                int abs_exp = negative ? -dims[i] : dims[i];
+
+                buf.append(char_traits_dispatch<CharT>::superscript_caret());
+
+                if (negative)
+                    buf.append(char_traits_dispatch<CharT>::superscript_minus());
+
+                char digit_buffer[32];
+                std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
+                for (std::size_t j = 0; j < digit_count; ++j)
+                {
+                    int digit_idx = digit_buffer[j] - '0';
+                    buf.append(superscript_digit_lookup<CharT>(digit_idx));
+                }
+            }
+        }
+    }
 }
 
 }
@@ -9019,11 +9087,14 @@ struct formatter<T, CharT>
     {
         auto out = ctx.out();
         out = value_formatter.format(unit.value(), ctx);
+
+        pkr::units::impl::format_buffer<CharT> buf;
+        buf.clear();
         constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
-        static const std::basic_string<CharT> symbol = pkr::units::impl::build_dimension_symbol<CharT>(dim);
+        pkr::units::impl::build_dimension_symbol_to_buffer(buf, dim);
 
         *out++ = static_cast<CharT>(' ');
-        return std::copy(symbol.begin(), symbol.end(), out);
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -9063,18 +9134,75 @@ struct formatter<T, CharT>
 namespace std
 {
 
+template <typename CharT>
+class stack_array_iterator
+{
+    std::array<CharT, 128>* m_buffer;
+    std::size_t* m_pos;
+
+public:
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+
+    constexpr stack_array_iterator(std::array<CharT, 128>& buf, std::size_t& pos)
+        : m_buffer(&buf)
+        , m_pos(&pos)
+    {
+    }
+
+    stack_array_iterator(const stack_array_iterator&) = default;
+    stack_array_iterator& operator=(const stack_array_iterator&) = default;
+
+    stack_array_iterator& operator*()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++()
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator++(int)
+    {
+        return *this;
+    }
+
+    stack_array_iterator& operator=(CharT c)
+    {
+        if (*m_pos < m_buffer->size())
+            (*m_buffer)[*m_pos] = c;
+        ++*m_pos;
+        return *this;
+    }
+};
+
+template <typename Real, typename CharT>
+inline void format_to_stack_buffer(pkr::units::impl::format_buffer<CharT>& buf, const Real& value)
+{
+    std::array<CharT, 128> temp_buf;
+    std::size_t pos = 0;
+    auto it = stack_array_iterator<CharT>(temp_buf, pos);
+    std::format_to(it, "{}", value);
+    for (std::size_t i = 0; i < pos; ++i)
+        buf.push_back(temp_buf[i]);
+}
+
 template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
 struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
 {
     std::formatter<Real, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -9106,126 +9234,152 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                 Real mant_r = real / std::pow(10.0, exp);
                 Real mant_i = imag / std::pow(10.0, exp);
 
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                pkr::units::impl::format_buffer<CharT> buf;
+                buf.push_back(static_cast<CharT>('('));
 
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                format_to_stack_buffer<Real, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<Real>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<Real, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                std::basic_string<CharT> exp_sup;
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
+                    std::vector<int> digits;
                     while (e > 0)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        digits.push_back(e % 10);
                         e /= 10;
                     }
 
                     for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(*it));
                 }
 
-                std::basic_string<CharT> composed;
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<Real>(0))
+                buf.push_back(static_cast<CharT>(' '));
+
+                const int dims[] = {
+                    dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+                const auto& symbols = pkr::units::impl::base_unit_symbols<CharT>;
+                bool first_dim = true;
+                for (int i = 0; i < 9; ++i)
                 {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                    if (dims[i] != 0)
+                    {
+                        if (!first_dim)
+                            buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                        first_dim = false;
 
-                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
+                        buf.append(symbols[i]);
+                        if (dims[i] != 1)
+                        {
+                            bool negative_exp = dims[i] < 0;
+                            int abs_exp = negative_exp ? -dims[i] : dims[i];
 
-                auto dim_sym = pkr::units::impl::build_dimension_symbol<CharT>(dim_v);
-                if (!dim_sym.empty())
-                {
-                    composed += dim_sym;
+                            buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
+                            if (negative_exp)
+                                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                            std::string digit_str = std::to_string(abs_exp);
+                            for (char c : digit_str)
+                            {
+                                int digit_idx = c - '0';
+                                buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digit_idx));
+                            }
+                        }
+                    }
                 }
 
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        pkr::units::impl::format_buffer<CharT> buf;
+
+        buf.push_back(static_cast<CharT>('('));
+
+        format_to_stack_buffer<Real, CharT>(buf, real);
 
         if (imag >= static_cast<Real>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
+        format_to_stack_buffer<Real, CharT>(buf, std::abs(imag));
 
-        static const std::basic_string<CharT> built = []() { return pkr::units::impl::build_dimension_symbol<CharT>(dim_v); }();
-        std::basic_string_view<CharT> sym = built;
+        buf.push_back(static_cast<CharT>(')'));
 
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(sym.begin(), sym.end(), out);
+        buf.push_back(static_cast<CharT>(' '));
+        const int dims[] = {
+            dim_v.mass, dim_v.length, dim_v.time, dim_v.current, dim_v.temperature, dim_v.amount, dim_v.intensity, dim_v.angle, dim_v.star_angle};
+        const auto& symbols = pkr::units::impl::base_unit_symbols<CharT>;
+        bool first_dim = true;
+        for (int i = 0; i < 9; ++i)
+        {
+            if (dims[i] != 0)
+            {
+                if (!first_dim)
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                first_dim = false;
+
+                buf.append(symbols[i]);
+                if (dims[i] != 1)
+                {
+                    bool negative_exp = dims[i] < 0;
+                    int abs_exp = negative_exp ? -dims[i] : dims[i];
+
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
+                    if (negative_exp)
+                        buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+
+                    std::string digit_str = std::to_string(abs_exp);
+                    for (char c : digit_str)
+                    {
+                        int digit_idx = c - '0';
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digit_idx));
+                    }
+                }
+            }
+        }
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -9239,14 +9393,14 @@ struct formatter<T, CharT>
     using real_t = typename complex_t::value_type;
 
     std::formatter<real_t, CharT> value_formatter;
-    mutable std::basic_string<CharT> saved_format_spec;
+    mutable std::basic_string_view<CharT> saved_format_spec;
 
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx)
     {
         auto it = ctx.begin();
         auto ret = value_formatter.parse(ctx);
-        saved_format_spec = std::basic_string<CharT>(it, ret);
+        saved_format_spec = std::basic_string_view<CharT>(it, ret);
         return ret;
     }
 
@@ -9290,121 +9444,92 @@ struct formatter<T, CharT>
                 real_t mant_r = real / std::pow(10.0, exp);
                 real_t mant_i = imag / std::pow(10.0, exp);
 
-                std::basic_string<CharT> mantissa_spec = saved_format_spec;
-                auto pos = mantissa_spec.find(static_cast<CharT>('e'));
-                if (pos == std::basic_string<CharT>::npos)
-                    pos = mantissa_spec.find(static_cast<CharT>('E'));
-                if (pos != std::basic_string<CharT>::npos)
-                    mantissa_spec.erase(pos);
+                pkr::units::impl::format_buffer<CharT> buf;
 
-                int precision = 6;
-                auto dotpos = mantissa_spec.find(static_cast<CharT>('.'));
-                if (dotpos != std::basic_string<CharT>::npos)
+                buf.push_back(static_cast<CharT>('('));
+                format_to_stack_buffer<real_t, CharT>(buf, mant_r);
+                if (mant_i >= static_cast<real_t>(0))
                 {
-                    size_t p = dotpos + 1;
-                    int val = 0;
-                    while (p < mantissa_spec.size() && std::isdigit(static_cast<unsigned char>(mantissa_spec[p])))
-                    {
-                        val = val * 10 + (mantissa_spec[p] - '0');
-                        ++p;
-                    }
-                    if (val > 0)
-                        precision = val;
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('+'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
                 }
+                else
+                {
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('-'));
+                    buf.push_back(static_cast<CharT>(' '));
+                    buf.push_back(static_cast<CharT>('j'));
+                }
+                format_to_stack_buffer<real_t, CharT>(buf, std::abs(mant_i));
+                buf.push_back(static_cast<CharT>(')'));
+                buf.push_back(static_cast<CharT>(' '));
 
-                std::ostringstream oss_r;
-                oss_r.setf(std::ios::fixed);
-                oss_r << std::setprecision(precision) << mant_r;
-                std::string fmt_r = oss_r.str();
+                buf.append(pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign());
+                buf.push_back(static_cast<CharT>('1'));
+                buf.push_back(static_cast<CharT>('0'));
+                buf.push_back(static_cast<CharT>('^'));
 
-                std::ostringstream oss_i;
-                oss_i.setf(std::ios::fixed);
-                oss_i << std::setprecision(precision) << std::abs(mant_i);
-                std::string fmt_i = oss_i.str();
-
-                std::basic_string<CharT> exp_sup;
                 int e = exp;
                 if (e < 0)
                 {
-                    exp_sup += pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus();
+                    buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
                     e = -e;
                 }
                 if (e == 0)
-                    exp_sup += pkr::units::impl::superscript_digit_lookup<CharT>(0);
+                {
+                    buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(0));
+                }
                 else
                 {
-                    std::vector<std::basic_string_view<CharT>> digits;
+                    std::vector<int> digits;
                     while (e > 0)
                     {
-                        int d = e % 10;
-                        digits.emplace_back(pkr::units::impl::superscript_digit_lookup<CharT>(d));
+                        digits.push_back(e % 10);
                         e /= 10;
                     }
 
                     for (auto it = digits.rbegin(); it != digits.rend(); ++it)
-                        exp_sup += *it;
+                        buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(*it));
                 }
 
-                std::basic_string<CharT> composed;
-                composed += static_cast<CharT>('(');
-                for (char c : fmt_r)
-                    composed += static_cast<CharT>(c);
-                if (mant_i >= static_cast<real_t>(0))
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('+');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                else
-                {
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('-');
-                    composed += static_cast<CharT>(' ');
-                    composed += static_cast<CharT>('j');
-                }
-                for (char c : fmt_i)
-                    composed += static_cast<CharT>(c);
-                composed += static_cast<CharT>(')');
-                composed += static_cast<CharT>(' ');
+                buf.push_back(static_cast<CharT>(' '));
+                buf.append(get_symbol());
 
-                composed += pkr::units::impl::char_traits_dispatch<CharT>::multiply_sign();
-                composed += static_cast<CharT>('1');
-                composed += static_cast<CharT>('0');
-                composed += static_cast<CharT>('^');
-                composed += exp_sup;
-                composed += static_cast<CharT>(' ');
-
-                composed += get_symbol();
-
-                return std::copy(composed.begin(), composed.end(), out);
+                return std::copy(buf.begin(), buf.end(), out);
             }
         }
 
-        *out++ = static_cast<CharT>('(');
-        out = value_formatter.format(real, ctx);
+        pkr::units::impl::format_buffer<CharT> buf;
+
+        buf.push_back(static_cast<CharT>('('));
+
+        format_to_stack_buffer<real_t, CharT>(buf, real);
 
         if (imag >= static_cast<real_t>(0))
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('+');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('+'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
         else
         {
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('-');
-            *out++ = static_cast<CharT>(' ');
-            *out++ = static_cast<CharT>('j');
-            out = value_formatter.format(-imag, ctx);
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('-'));
+            buf.push_back(static_cast<CharT>(' '));
+            buf.push_back(static_cast<CharT>('j'));
         }
 
-        *out++ = static_cast<CharT>(')');
+        format_to_stack_buffer<real_t, CharT>(buf, std::abs(imag));
 
-        *out++ = static_cast<CharT>(' ');
-        return std::copy(get_symbol().begin(), get_symbol().end(), out);
+        buf.push_back(static_cast<CharT>(')'));
+
+        buf.push_back(static_cast<CharT>(' '));
+        buf.append(get_symbol());
+
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 
@@ -10572,6 +10697,509 @@ inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0};
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
 using volume_unit_t = details::unit_t<type_t, ratio_t, volume_dimension>;
+}
+
+namespace pkr::units
+{
+
+template <is_pkr_unit_c T>
+struct vec_3d_units_t
+{
+    T x, y, z;
+
+    constexpr vec_3d_units_t()
+        : x{0}
+        , y{0}
+        , z{0}
+    {
+    }
+
+    constexpr vec_3d_units_t(T x_value, T y_value, T z_value)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+    {
+    }
+
+    template <typename U>
+        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
+    constexpr vec_3d_units_t(U x_value, U y_value, U z_value)
+        : x{T{x_value.value()}}
+        , y{T{y_value.value()}}
+        , z{T{z_value.value()}}
+    {
+    }
+
+    template <typename ScalarT>
+        requires scalar_value_c<ScalarT>
+    constexpr vec_3d_units_t(ScalarT x_value, ScalarT y_value, ScalarT z_value)
+        : x{T{x_value}}
+        , y{T{y_value}}
+        , z{T{z_value}}
+    {
+    }
+
+    constexpr vec_3d_units_t& operator+=(const vec_3d_units_t& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        return *this;
+    }
+
+    constexpr vec_3d_units_t& operator-=(const vec_3d_units_t& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_3d_units_t& operator+=(const vec_3d_units_t<OtherT>& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_3d_units_t& operator-=(const vec_3d_units_t<OtherT>& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
+    constexpr vec_3d_units_t& operator*=(const Factor& value) noexcept
+    {
+        x = x * value;
+        y = y * value;
+        z = z * value;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires scalar_value_c<Factor>
+    constexpr vec_3d_units_t& operator/=(const Factor& value) noexcept
+    {
+        x = x / value;
+        y = y / value;
+        z = z / value;
+        return *this;
+    }
+
+    constexpr T magnitude() const noexcept
+    {
+        auto sum_of_squares = (x * x + y * y + z * z);
+
+        auto scalar_value = sum_of_squares.value();
+        using value_type = typename details::is_pkr_unit<T>::value_type;
+        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
+        return T{sqrt_value};
+    }
+};
+
+template <is_pkr_unit_c T>
+constexpr auto operator+(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x + b.x;
+    auto y_result = a.y + b.y;
+    auto z_result = a.z + b.z;
+    return vec_3d_units_t<decltype(x_result)>{x_result, y_result, z_result};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_3d_units_t<T1>& a, const vec_3d_units_t<T2>& b) noexcept
+{
+    using ResultT = decltype(a.x + b.x);
+    return vec_3d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr auto operator-(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x - b.x;
+    auto y_result = a.y - b.y;
+    auto z_result = a.z - b.z;
+    return vec_3d_units_t<decltype(x_result)>{x_result, y_result, z_result};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const T& value, const vec_3d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value * v.x);
+    return vec_3d_units_t<ResultT>{value * v.x, value * v.y, value * v.z};
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const vec_3d_units_t<U>& v, const T& value) noexcept
+{
+    return value * v;
+}
+
+template <is_pkr_unit_c T>
+constexpr auto dot(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    return (a.x * b.x + a.y * b.y + a.z * b.z);
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const vec_3d_units_t<U>& v, const T& value) noexcept
+{
+    using ResultT = decltype(v.x / value);
+    return vec_3d_units_t<ResultT>{v.x / value, v.y / value, v.z / value};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const T& value, const vec_3d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value / v.x);
+    return vec_3d_units_t<ResultT>{value / v.x, value / v.y, value / v.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr vec_3d_units_t<T> operator-(const vec_3d_units_t<T>& v) noexcept
+{
+    return vec_3d_units_t<T>{-v.x, -v.y, -v.z};
+}
+
+template <is_pkr_unit_c T>
+constexpr bool operator==(const vec_3d_units_t<T>& a, const vec_3d_units_t<T>& b) noexcept
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z;
+}
+}
+
+namespace pkr::units::impl::vector_formatting
+{
+
+template <typename CharT, typename ValueT, typename FormatContext>
+inline auto format_component(FormatContext& ctx, std::basic_string_view<CharT> format_spec, const ValueT& value)
+{
+    return std::vformat_to(ctx.out(), std::basic_string_view<CharT>{format_spec}, std::make_format_args(value));
+}
+
+template <typename CharT, typename OutputIt>
+inline OutputIt write_unit_symbol(OutputIt out, const dimension_t& dim)
+{
+    pkr::units::impl::format_buffer<CharT> buf;
+    buf.clear();
+    pkr::units::impl::build_dimension_symbol_to_buffer(buf, dim);
+    return std::copy(buf.begin(), buf.end(), out);
+}
+
+template <typename CharT, typename OutputIt>
+constexpr OutputIt write_separator(OutputIt out)
+{
+    *out++ = static_cast<CharT>(',');
+    *out++ = static_cast<CharT>(' ');
+    return out;
+}
+
+}
+
+namespace std
+{
+
+template <pkr::units::is_pkr_unit_c T, typename CharT>
+struct formatter<pkr::units::vec_3d_units_t<T>, CharT>
+{
+
+    std::basic_string_view<CharT> format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+
+        format_spec = std::basic_string_view<CharT>(it, end - it);
+
+        return end;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::vec_3d_units_t<T>& vec, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        *out++ = static_cast<CharT>('[');
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.x.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.y.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.z.value());
+
+        *out++ = static_cast<CharT>(']');
+        *out++ = static_cast<CharT>(' ');
+
+        constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
+        out = pkr::units::impl::vector_formatting::write_unit_symbol<CharT>(out, dim);
+
+        return out;
+    }
+};
+
+}
+
+namespace pkr::units
+{
+
+template <is_pkr_unit_c T>
+struct vec_4d_units_t
+{
+    T x, y, z, w;
+
+    constexpr vec_4d_units_t()
+        : x{0}
+        , y{0}
+        , z{0}
+        , w{1}
+    {
+    }
+
+    constexpr vec_4d_units_t(T x_value, T y_value, T z_value, T w_value = 1)
+        : x{x_value}
+        , y{y_value}
+        , z{z_value}
+        , w{w_value}
+    {
+    }
+
+    template <typename U>
+        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
+    constexpr vec_4d_units_t(U x_value, U y_value, U z_value, U w_value = U{1})
+        : x{T{x_value.value()}}
+        , y{T{y_value.value()}}
+        , z{T{z_value.value()}}
+        , w{T{w_value.value()}}
+    {
+    }
+
+    template <typename ScalarT>
+        requires scalar_value_c<ScalarT>
+    constexpr vec_4d_units_t(ScalarT x_value, ScalarT y_value, ScalarT z_value, ScalarT w_value = 1)
+        : x{T{x_value}}
+        , y{T{y_value}}
+        , z{T{z_value}}
+        , w{T{w_value}}
+    {
+    }
+
+    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
+        return *this;
+    }
+
+    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t<OtherT>& other) noexcept
+    {
+        x = x + other.x;
+        y = y + other.y;
+        z = z + other.z;
+        w = w + other.w;
+        return *this;
+    }
+
+    template <is_base_pkr_unit_c OtherT>
+        requires same_dimensions_c<T, OtherT>
+    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t<OtherT>& other) noexcept
+    {
+        x = x - other.x;
+        y = y - other.y;
+        z = z - other.z;
+        w = w - other.w;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
+    constexpr vec_4d_units_t& operator*=(const Factor& value) noexcept
+    {
+        x = x * value;
+        y = y * value;
+        z = z * value;
+        w = w * value;
+        return *this;
+    }
+
+    template <typename Factor>
+        requires scalar_value_c<Factor>
+    constexpr vec_4d_units_t& operator/=(const Factor& value) noexcept
+    {
+        x = x / value;
+        y = y / value;
+        z = z / value;
+        w = w / value;
+        return *this;
+    }
+
+    constexpr T magnitude() const noexcept
+    {
+        auto sum_of_squares = (x * x + y * y) + (z * z + w * w);
+
+        auto scalar_value = sum_of_squares.value();
+        using value_type = typename details::is_pkr_unit<T>::value_type;
+        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
+        return T{sqrt_value};
+    }
+};
+
+template <is_pkr_unit_c T>
+constexpr auto operator+(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x + b.x;
+    auto y_result = a.y + b.y;
+    auto z_result = a.z + b.z;
+    auto w_result = a.w + b.w;
+    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires same_dimensions_c<T1, T2>
+constexpr auto operator+(const vec_4d_units_t<T1>& a, const vec_4d_units_t<T2>& b) noexcept
+{
+    using ResultT = decltype(a.x + b.x);
+    return vec_4d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr auto operator-(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    auto x_result = a.x - b.x;
+    auto y_result = a.y - b.y;
+    auto z_result = a.z - b.z;
+    auto w_result = a.w - b.w;
+    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const T& value, const vec_4d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value * v.x);
+    return vec_4d_units_t<ResultT>{value * v.x, value * v.y, value * v.z, value * v.w};
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator*(const vec_4d_units_t<U>& v, const T& value) noexcept
+{
+    return value * v;
+}
+
+template <is_pkr_unit_c T>
+constexpr auto dot(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
+}
+
+template <is_pkr_unit_c U, typename T>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const vec_4d_units_t<U>& v, const T& value) noexcept
+{
+    using ResultT = decltype(v.x / value);
+    return vec_4d_units_t<ResultT>{v.x / value, v.y / value, v.z / value, v.w / value};
+}
+
+template <typename T, is_pkr_unit_c U>
+    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
+constexpr auto operator/(const T& value, const vec_4d_units_t<U>& v) noexcept
+{
+    using ResultT = decltype(value / v.x);
+    return vec_4d_units_t<ResultT>{value / v.x, value / v.y, value / v.z, value / v.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr vec_4d_units_t<T> operator-(const vec_4d_units_t<T>& v) noexcept
+{
+    return vec_4d_units_t<T>{-v.x, -v.y, -v.z, -v.w};
+}
+
+template <is_pkr_unit_c T>
+constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
+{
+    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
+}
+}
+
+namespace std
+{
+
+template <pkr::units::is_pkr_unit_c T, typename CharT>
+struct formatter<pkr::units::vec_4d_units_t<T>, CharT>
+{
+
+    std::basic_string_view<CharT> format_spec;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        auto it = ctx.begin();
+        auto end = ctx.end();
+
+        format_spec = std::basic_string_view<CharT>(it, end - it);
+
+        return end;
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::vec_4d_units_t<T>& vec, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        *out++ = static_cast<CharT>('[');
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.x.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.y.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.z.value());
+        out = pkr::units::impl::vector_formatting::write_separator(out);
+
+        out = pkr::units::impl::vector_formatting::format_component(ctx, format_spec, vec.w.value());
+
+        *out++ = static_cast<CharT>(']');
+        *out++ = static_cast<CharT>(' ');
+
+        constexpr auto dim = pkr::units::details::is_pkr_unit<T>::value_dimension;
+        out = pkr::units::impl::vector_formatting::write_unit_symbol<CharT>(out, dim);
+
+        return out;
+    }
+};
+
 }
 
 namespace pkr::units
@@ -14089,110 +14717,6 @@ inline target_unit_t unit_cast(const decibel_amplitude_t<SourceT>& source)
 namespace pkr::units
 {
 
-template <is_pkr_unit_c T>
-struct vec_3d_t<T>
-{
-    T x, y, z;
-
-    vec_3d_t()
-        : x{0}
-        , y{0}
-        , z{0}
-    {
-    }
-
-    vec_3d_t(T x_value, T y_value, T z_value)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-    {
-    }
-
-    constexpr vec_3d_t& operator+=(const vec_3d_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        return *this;
-    }
-
-    constexpr vec_3d_t& operator-=(const vec_3d_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        return *this;
-    }
-
-    template <typename ScalarT>
-        requires(scalar_value_c<ScalarT> || is_pkr_unit_c<ScalarT>)
-    constexpr vec_3d_t& operator*=(const ScalarT& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        return *this;
-    }
-
-    template <typename ScalarT>
-        requires scalar_value_c<ScalarT>
-    constexpr vec_3d_t& operator/=(const ScalarT& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        return *this;
-    }
-};
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator+(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z};
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_3d_t<T1>& a, const vec_3d_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_3d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator-(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(double scalar, const vec_3d_t<T>& v) noexcept
-{
-    return vec_3d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(const vec_3d_t<T>& v, double scalar) noexcept
-{
-    return scalar * v;
-}
-
-template <is_pkr_unit_c T>
-constexpr auto dot(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_3d_t<T> cross(const vec_3d_t<T>& a, const vec_3d_t<T>& b) noexcept
-{
-    return vec_3d_t<T>{(a.y * b.z) - (a.z * b.y), (a.z * b.x) - (a.x * b.z), (a.x * b.y) - (a.y * b.x)};
-}
-}
-
-namespace pkr::units
-{
-
 template <is_base_pkr_unit_c T>
 class matrix_3d_units_t
 {
@@ -14251,16 +14775,16 @@ constexpr matrix_3d_units_t<T> identity_3d()
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> matrix_vector_multiply(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
-    return vec_3d_t<T>{
+    return vec_3d_units_t<T>{
         (m.data[0][0] * v.x) + (m.data[0][1] * v.y) + (m.data[0][2] * v.z),
         (m.data[1][0] * v.x) + (m.data[1][1] * v.y) + (m.data[1][2] * v.z),
         (m.data[2][0] * v.x) + (m.data[2][1] * v.y) + (m.data[2][2] * v.z)};
 }
 
 template <is_base_pkr_unit_c T>
-constexpr vec_3d_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_t<T>& v) noexcept
+constexpr vec_3d_units_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3d_units_t<T>& v) noexcept
 {
     return matrix_vector_multiply(m, v);
 }
@@ -14327,338 +14851,6 @@ template <is_base_pkr_unit_c T>
 constexpr vec_4d_t<T> operator*(const matrix_4d_units_t<T>& m, const vec_4d_t<T>& v) noexcept
 {
     return matrix_vector_multiply(m, v);
-}
-}
-
-namespace pkr::units
-{
-
-template <is_pkr_unit_c T>
-struct vec_4d_units_t
-{
-    T x, y, z, w;
-
-    constexpr vec_4d_units_t()
-        : x{0}
-        , y{0}
-        , z{0}
-        , w{1}
-    {
-    }
-
-    constexpr vec_4d_units_t(T x_value, T y_value, T z_value, T w_value = 1)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-        , w{w_value}
-    {
-    }
-
-    template <typename U>
-        requires(is_pkr_unit_c<U> && !std::is_same_v<U, T>)
-    constexpr vec_4d_units_t(U x_value, U y_value, U z_value, U w_value = U{1})
-        : x{T{x_value.value()}}
-        , y{T{y_value.value()}}
-        , z{T{z_value.value()}}
-        , w{T{w_value.value()}}
-    {
-    }
-
-    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <is_base_pkr_unit_c OtherT>
-        requires same_dimensions_c<T, OtherT>
-    constexpr vec_4d_units_t& operator+=(const vec_4d_units_t<OtherT>& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    template <is_base_pkr_unit_c OtherT>
-        requires same_dimensions_c<T, OtherT>
-    constexpr vec_4d_units_t& operator-=(const vec_4d_units_t<OtherT>& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <typename Factor>
-        requires(scalar_value_c<Factor> || is_pkr_unit_c<Factor>)
-    constexpr vec_4d_units_t& operator*=(const Factor& value) noexcept
-    {
-        x = x * value;
-        y = y * value;
-        z = z * value;
-        w = w * value;
-        return *this;
-    }
-
-    template <typename Factor>
-        requires scalar_value_c<Factor>
-    constexpr vec_4d_units_t& operator/=(const Factor& value) noexcept
-    {
-        x = x / value;
-        y = y / value;
-        z = z / value;
-        w = w / value;
-        return *this;
-    }
-
-    constexpr T magnitude() const noexcept
-    {
-        auto sum_of_squares = (x * x + y * y) + (z * z + w * w);
-
-        auto scalar_value = sum_of_squares.value();
-        using value_type = typename details::is_pkr_unit<T>::value_type;
-        auto sqrt_value = static_cast<value_type>(std::sqrt(static_cast<double>(scalar_value)));
-        return T{sqrt_value};
-    }
-};
-
-template <is_pkr_unit_c T>
-constexpr auto operator+(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    auto x_result = a.x + b.x;
-    auto y_result = a.y + b.y;
-    auto z_result = a.z + b.z;
-    auto w_result = a.w + b.w;
-    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_4d_units_t<T1>& a, const vec_4d_units_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_4d_units_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr auto operator-(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    auto x_result = a.x - b.x;
-    auto y_result = a.y - b.y;
-    auto z_result = a.z - b.z;
-    auto w_result = a.w - b.w;
-    return vec_4d_units_t<decltype(x_result)>{x_result, y_result, z_result, w_result};
-}
-
-template <typename T, is_pkr_unit_c U>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator*(const T& value, const vec_4d_units_t<U>& v) noexcept
-{
-    using ResultT = decltype(value * v.x);
-    return vec_4d_units_t<ResultT>{value * v.x, value * v.y, value * v.z, value * v.w};
-}
-
-template <is_pkr_unit_c U, typename T>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator*(const vec_4d_units_t<U>& v, const T& value) noexcept
-{
-    return value * v;
-}
-
-template <is_pkr_unit_c T>
-constexpr auto dot(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
-}
-
-template <is_pkr_unit_c U, typename T>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator/(const vec_4d_units_t<U>& v, const T& value) noexcept
-{
-    using ResultT = decltype(v.x / value);
-    return vec_4d_units_t<ResultT>{v.x / value, v.y / value, v.z / value, v.w / value};
-}
-
-template <typename T, is_pkr_unit_c U>
-    requires(scalar_value_c<T> || is_pkr_unit_c<T>)
-constexpr auto operator/(const T& value, const vec_4d_units_t<U>& v) noexcept
-{
-    using ResultT = decltype(value / v.x);
-    return vec_4d_units_t<ResultT>{value / v.x, value / v.y, value / v.z, value / v.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr vec_4d_units_t<T> operator-(const vec_4d_units_t<T>& v) noexcept
-{
-    return vec_4d_units_t<T>{-v.x, -v.y, -v.z, -v.w};
-}
-
-template <is_pkr_unit_c T>
-constexpr bool operator==(const vec_4d_units_t<T>& a, const vec_4d_units_t<T>& b) noexcept
-{
-    return a.x == b.x && a.y == b.y && a.z == b.z && a.w == b.w;
-}
-}
-
-namespace pkr::units
-{
-
-template <is_base_pkr_unit_c T>
-struct vec_4d_t<T>
-{
-    T x, y, z, w;
-
-    vec_4d_t()
-        : x{0}
-        , y{0}
-        , z{0}
-        , w{1}
-    {
-    }
-
-    vec_4d_t(T x_value, T y_value, T z_value, T w_value = 1)
-        : x{x_value}
-        , y{y_value}
-        , z{z_value}
-        , w{w_value}
-    {
-    }
-
-    constexpr vec_4d_t& operator+=(const vec_4d_t& other) noexcept
-    {
-        x = x + other.x;
-        y = y + other.y;
-        z = z + other.z;
-        w = w + other.w;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator-=(const vec_4d_t& other) noexcept
-    {
-        x = x - other.x;
-        y = y - other.y;
-        z = z - other.z;
-        w = w - other.w;
-        return *this;
-    }
-
-    template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator*=(const ScalarT& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        w = w * scalar;
-        return *this;
-    }
-
-    template <scalar_value_c ScalarT>
-    constexpr vec_4d_t& operator/=(const ScalarT& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        w = w / scalar;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator*=(const typename T::value_type& scalar) noexcept
-    {
-        x = x * scalar;
-        y = y * scalar;
-        z = z * scalar;
-        w = w * scalar;
-        return *this;
-    }
-
-    constexpr vec_4d_t& operator/=(const typename T::value_type& scalar) noexcept
-    {
-        x = x / scalar;
-        y = y / scalar;
-        z = z / scalar;
-        w = w / scalar;
-        return *this;
-    }
-};
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator+(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-    return vec_4d_t<T>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_base_pkr_unit_c T1, is_base_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-constexpr auto operator+(const vec_4d_t<T1>& a, const vec_4d_t<T2>& b) noexcept
-{
-    using ResultT = decltype(a.x + b.x);
-    return vec_4d_t<ResultT>{a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator-(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-    return vec_4d_t<T>{a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w};
-}
-
-template <scalar_value_c ScalarT, is_base_pkr_unit_c T>
-constexpr auto operator*(const ScalarT& scalar, const vec_4d_t<T>& v) noexcept
-{
-    using ResultT = decltype(scalar * v.x);
-    return vec_4d_t<ResultT>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
-}
-
-template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator*(const vec_4d_t<T>& v, const ScalarT& scalar)
-{
-    return scalar * v;
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const typename T::value_type& scalar, const vec_4d_t<T>& v) noexcept
-{
-    return vec_4d_t<T>{scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator*(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
-{
-    return scalar * v;
-}
-
-template <is_base_pkr_unit_c T>
-constexpr vec_4d_t<T> operator/(const vec_4d_t<T>& v, const typename T::value_type& scalar) noexcept
-{
-    return vec_4d_t<T>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
-}
-
-template <is_base_pkr_unit_c T, scalar_value_c ScalarT>
-constexpr auto operator/(const vec_4d_t<T>& v, const ScalarT& scalar) noexcept
-{
-    using ResultT = decltype(v.x / scalar);
-    return vec_4d_t<ResultT>{v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar};
-}
-
-template <is_base_pkr_unit_c T>
-constexpr auto dot(const vec_4d_t<T>& a, const vec_4d_t<T>& b) noexcept
-{
-
-    return (a.x * b.x + a.y * b.y) + (a.z * b.z + a.w * b.w);
 }
 }
 namespace pkr::units

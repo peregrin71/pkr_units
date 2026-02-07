@@ -2,8 +2,6 @@
 
 #include <algorithm>
 #include <format>
-#include <string>
-#include <string_view>
 #include <type_traits>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/decls/unit_t_decl.h>
@@ -31,11 +29,16 @@ struct formatter<T, CharT>
     {
         auto out = ctx.out();
         out = value_formatter.format(unit.value(), ctx);
+
+        // Build dimension symbol into static buffer (no allocation)
+        PKR_UNITS_NAMESPACE::impl::format_buffer<CharT> buf;
+        buf.clear();
         constexpr auto dim = PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value_dimension;
-        static const std::basic_string<CharT> symbol = PKR_UNITS_NAMESPACE::impl::build_dimension_symbol<CharT>(dim);
+        PKR_UNITS_NAMESPACE::impl::build_dimension_symbol_to_buffer(buf, dim);
+
         // Space before symbol
         *out++ = static_cast<CharT>(' ');
-        return std::copy(symbol.begin(), symbol.end(), out);
+        return std::copy(buf.begin(), buf.end(), out);
     }
 };
 

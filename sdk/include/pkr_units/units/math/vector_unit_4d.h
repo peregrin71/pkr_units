@@ -42,6 +42,17 @@ struct vec_4d_units_t
     {
     }
 
+    // Template constructor: accept scalar values and construct units from them
+    template <typename ScalarT>
+        requires scalar_value_c<ScalarT>
+    constexpr vec_4d_units_t(ScalarT x_value, ScalarT y_value, ScalarT z_value, ScalarT w_value = 1)
+        : x{T{x_value}}
+        , y{T{y_value}}
+        , z{T{z_value}}
+        , w{T{w_value}}
+    {
+    }
+
     constexpr vec_4d_units_t& operator+=(const vec_4d_units_t& other) noexcept
     {
         x = x + other.x;

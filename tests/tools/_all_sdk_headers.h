@@ -50,6 +50,9 @@
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/formatting/unit_formatter.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
+#include <pkr_units/impl/formatting/vector_unit_3d.h>
+#include <pkr_units/impl/formatting/vector_unit_4d.h>
+#include <pkr_units/impl/formatting/vector_unit_formatting_traits.h>
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_impl.h>
 #include <pkr_units/literals/acceleration.h>
@@ -166,7 +169,6 @@
 #include <pkr_units/units/math/unit_vector_math.h>
 #include <pkr_units/units/math/vector_unit_3d.h>
 #include <pkr_units/units/math/vector_unit_4d.h>
-#include <pkr_units/units/math/vector_unit_4d_base.h>
 #include <pkr_units/units/temperature/celsius.h>
 #include <pkr_units/units/temperature/fahrenheit.h>
 #include <pkr_units/units/temperature/temperature_cast.h>
