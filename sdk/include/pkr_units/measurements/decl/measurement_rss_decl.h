@@ -355,13 +355,13 @@ public:
     }
 
     // Check if measurement is valid (non-zero uncertainty)
-    constexpr bool is_valid() const
+    [[nodiscard]] constexpr bool is_valid() const
     {
         return m_uncertainty.value() >= 0;
     }
 
     // Get the value with uncertainty as a string representation
-    std::string to_string() const
+    [[nodiscard]] std::string to_string() const
     {
         std::stringstream ss;
         ss << m_value.value() << " +/- " << m_uncertainty.value();
@@ -485,15 +485,23 @@ struct formatter<PKR_UNITS_NAMESPACE::measurement_rss_t<UnitT>, CharT>
         // Add unit symbol
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
+        {
             return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
         else
         {
             for (char ch : stored_t::symbol)
+            {
                 *out++ = static_cast<CharT>(ch);
+            }
             return out;
         }
     }

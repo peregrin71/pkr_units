@@ -9,7 +9,9 @@ namespace PKR_UNITS_NAMESPACE
 constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
 {
     if (exp == 0)
+    {
         return 1;
+    }
 
     intmax_t result = 1;
     for (unsigned int i = 0; i < exp; ++i)

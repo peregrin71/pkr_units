@@ -70,7 +70,7 @@ struct vec_4d_t
     }
 
     // Calculate magnitude of the 3D portion (ignoring w component)
-    double magnitude() const
+    [[nodiscard]] double magnitude() const
         requires requires(T a) { std::sqrt(a * a); }
     {
         return std::sqrt(static_cast<double>(x * x + y * y + z * z));

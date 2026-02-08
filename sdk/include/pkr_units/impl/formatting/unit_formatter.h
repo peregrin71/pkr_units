@@ -64,13 +64,21 @@ struct formatter<T, CharT>
         // For derived types, select appropriate symbol
         std::basic_string_view<CharT> sym;
         if constexpr (std::is_same_v<CharT, char>)
+        {
             sym = T::symbol;
+        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             sym = T::u8_symbol;
+        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             sym = T::w_symbol;
+        }
         else
+        {
             sym = T::symbol;
+        }
 
         // Space before symbol
         *out++ = static_cast<CharT>(' ');

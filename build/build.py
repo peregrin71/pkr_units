@@ -75,12 +75,24 @@ def setup_wsl_environment():
                 print_success("clang-tidy-18 installed in WSL")
             except subprocess.CalledProcessError:
                 print_info("Failed to install clang-tidy-18 automatically; please install it manually in WSL if needed")
+
+        # Check clang-format availability too
+        try:
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "clang-format-18"], check=True)
+            print_success("clang-format-18 already installed in WSL")
+        except subprocess.CalledProcessError:
+            print_info("clang-format-18 not found; installing clang-format-18 in WSL...")
+            try:
+                subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", "apt update && apt install -y clang-format-18"], check=True)
+                print_success("clang-format-18 installed in WSL")
+            except subprocess.CalledProcessError:
+                print_info("Failed to install clang-format-18 automatically; please install it manually in WSL if needed")
     except subprocess.CalledProcessError:
         print_info("Clang 18 not found, installing (including clang-tidy)...")
         # Install required packages (include clang-tidy-18)
         install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-apt update && apt install -y clang-18 clang-tidy-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-venv pipx && \\
+apt update && apt install -y clang-18 clang-format-18 clang-tidy-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-venv pipx && \\
 pipx ensurepath && \\
 pipx install conan || pipx upgrade conan
 """

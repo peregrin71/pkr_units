@@ -58,7 +58,9 @@ constexpr matrix_4d_units_t<T, StoragePolicy> identity_4d()
 {
     matrix_4d_units_t<T, StoragePolicy> m{};
     for (std::size_t i = 0; i < 4; ++i)
+    {
         m[i][i] = T{1};
+    }
     return m;
 }
 
