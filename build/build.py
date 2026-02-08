@@ -64,12 +64,23 @@ def setup_wsl_environment():
     try:
         subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "clang-18"], check=True)
         print_success("Clang 18 already installed in WSL")
+        # Check clang-tidy availability too
+        try:
+            subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "clang-tidy-18"], check=True)
+            print_success("clang-tidy-18 already installed in WSL")
+        except subprocess.CalledProcessError:
+            print_info("clang-tidy-18 not found; installing clang-tidy-18 in WSL...")
+            try:
+                subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", "apt update && apt install -y clang-tidy-18"], check=True)
+                print_success("clang-tidy-18 installed in WSL")
+            except subprocess.CalledProcessError:
+                print_info("Failed to install clang-tidy-18 automatically; please install it manually in WSL if needed")
     except subprocess.CalledProcessError:
-        print_info("Clang 18 not found, installing...")
-        # Install required packages
+        print_info("Clang 18 not found, installing (including clang-tidy)...")
+        # Install required packages (include clang-tidy-18)
         install_cmd = """wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /usr/share/keyrings/kitware-archive-keyring.gpg >/dev/null && \\
 echo 'deb [signed-by=/usr/share/keyrings/kitware-archive-keyring.gpg] https://apt.kitware.com/ubuntu/ noble main' | tee /etc/apt/sources.list.d/kitware.list >/dev/null && \\
-apt update && apt install -y clang-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-venv pipx && \\
+apt update && apt install -y clang-18 clang-tidy-18 libc++-18-dev libc++abi-18-dev llvm-18-tools cmake ninja-build python3 python3-venv pipx && \\
 pipx ensurepath && \\
 pipx install conan || pipx upgrade conan
 """
@@ -77,6 +88,12 @@ pipx install conan || pipx upgrade conan
         try:
             subprocess.run(["wsl", "-u", "root", "-d", "Ubuntu", "--", "bash", "-c", install_cmd], check=True)
             print_success("WSL environment setup complete")
+            # Verify clang-tidy installed
+            try:
+                subprocess.run(["wsl", "-d", "Ubuntu", "--", "which", "clang-tidy-18"], check=True)
+                print_success("clang-tidy-18 installed in WSL")
+            except subprocess.CalledProcessError:
+                print_info("clang-tidy-18 still not found after install; you can install it manually in WSL if needed")
         except subprocess.CalledProcessError as e:
             raise Exception(f"Failed to setup WSL environment: {e}")
     
@@ -134,6 +151,10 @@ def run_build_in_wsl(
     skip_tests: bool,
     skip_setup: bool,
     enable_coverage: bool,
+    clang_tidy_option: str = "off",
+    clang_tidy_files: str = "",
+    clang_tidy_fix: bool = False,
+    clang_tidy_warnings_as_errors: bool = False,
 ):
     """Run build in WSL Ubuntu environment."""
     build_impl = (build_dir / "scripts" / "build_impl.py").resolve()
@@ -152,10 +173,24 @@ def run_build_in_wsl(
     print_info(f"WSL build path: {wsl_build_path}")
     print_info(f"WSL build impl: {wsl_build_impl}")
     
+    # Prepare clang-tidy env exports if requested
+    tidy_exports = ""
+    if clang_tidy_option == "run-all":
+        tidy_exports += "export CLANG_TIDY_RUN_ALL=1 && "
+    elif clang_tidy_option == "changed-files" and clang_tidy_files:
+        # convert semicolons to spaces
+        files = clang_tidy_files.replace(';', ' ')
+        tidy_exports += f"export CLANG_TIDY_FILES=\"{files}\" && "
+    if clang_tidy_fix:
+        tidy_exports += "export CLANG_TIDY_FIX=1 && "
+    if clang_tidy_warnings_as_errors:
+        tidy_exports += "export CLANG_TIDY_WARNINGS_AS_ERRORS=1 && "
+
+    
     # Command to run in WSL
     cmd = f"""
     export PATH="$HOME/.local/bin:$PATH" && \\
-    conan profile detect --force && \\
+    {tidy_exports if tidy_exports else ''}conan profile detect --force && \\
     cd "{wsl_project_root}" && \\
     python3 "{wsl_build_impl}" "{wsl_project_root}" "{wsl_build_path}" \\
         --config {config} \\
@@ -189,7 +224,7 @@ def run_in_conda_env_old(cmd, description=None):
     pass
 
 
-def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool, enable_coverage: bool):
+def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, compiler: str, skip_tests: bool, skip_setup: bool, enable_coverage: bool, clang_tidy_option: str = "off", clang_tidy_files: str = "", clang_tidy_fix: bool = False, clang_tidy_warnings_as_errors: bool = False):
     """
     Activate Conda environment, run build_impl.py for a specific compiler, ensure deactivation
     Activation and deactivation happen once for the entire build
@@ -201,6 +236,19 @@ def run_build_in_conda_env(project_root: Path, build_path: Path, config: str, co
     if system == "Windows":
         # PowerShell script: activate, run build_impl, deactivate in finally
         script_path = build_path / f"_build_session_{compiler}.ps1"
+
+        # Prepare optional PowerShell env settings for clang-tidy
+        powershell_tidy_env = ""
+        if clang_tidy_option == "run-all":
+            powershell_tidy_env += "$env:CLANG_TIDY_RUN_ALL = \"1\"\n"
+        elif clang_tidy_option == "changed-files" and clang_tidy_files:
+            files = clang_tidy_files.replace(';', ' ')
+            powershell_tidy_env += f"$env:CLANG_TIDY_FILES = \"{files}\"\n"
+        if clang_tidy_fix:
+            powershell_tidy_env += "$env:CLANG_TIDY_FIX = \"1\"\n"
+        if clang_tidy_warnings_as_errors:
+            powershell_tidy_env += "$env:CLANG_TIDY_WARNINGS_AS_ERRORS = \"1\"\n"
+
         script_content = f"""
 $ErrorActionPreference = "Stop"
 
@@ -209,6 +257,9 @@ conda activate {CONDA_ENV_NAME}
 
 # Ensure clang tools are in PATH
 $env:PATH = "$env:CONDA_PREFIX/Library/bin;$env:PATH"
+
+# Optional clang-tidy env
+{powershell_tidy_env}
 
 try {{
     # Run build implementation for specific compiler
@@ -242,6 +293,19 @@ try {{
     else:
         # Bash script: activate, run build_impl, deactivate with trap
         script_path = build_path / f"_build_session_{compiler}.sh"
+
+        # Prepare optional bash env settings for clang-tidy
+        bash_tidy_env = ""
+        if clang_tidy_option == "run-all":
+            bash_tidy_env += "export CLANG_TIDY_RUN_ALL=1\n"
+        elif clang_tidy_option == "changed-files" and clang_tidy_files:
+            files = clang_tidy_files.replace(';', ' ')
+            bash_tidy_env += f"export CLANG_TIDY_FILES=\"{files}\"\n"
+        if clang_tidy_fix:
+            bash_tidy_env += "export CLANG_TIDY_FIX=1\n"
+        if clang_tidy_warnings_as_errors:
+            bash_tidy_env += "export CLANG_TIDY_WARNINGS_AS_ERRORS=1\n"
+
         script_content = f"""#!/bin/bash
 set -e
 
@@ -251,6 +315,9 @@ conda activate {CONDA_ENV_NAME}
 
 # Ensure deactivation on exit (success or failure)
 trap "conda deactivate" EXIT
+
+# Optional clang-tidy env
+{bash_tidy_env}
 
 # Run build implementation for specific compiler
 python "{build_impl}" "{project_root}" "{build_path}" \\
@@ -292,6 +359,27 @@ def main():
         "--compilers",
         default="msvc",
         help="Comma-separated list of compilers to build with (msvc,clang,gcc). Default: msvc",
+    )
+    parser.add_argument(
+        "--clang-tidy",
+        choices=["off", "run-all", "changed-files"],
+        default="off",
+        help="Enable clang-tidy integration for local builds: 'run-all' adds the checks to the default build; 'changed-files' expects --clang-tidy-files to be set with a space- or semicolon-separated list of paths",
+    )
+    parser.add_argument(
+        "--clang-tidy-files",
+        default="",
+        help="Space- or semicolon-separated list of files to pass to clang-tidy when using --clang-tidy=changed-files",
+    )
+    parser.add_argument(
+        "--clang-tidy-fix",
+        action="store_true",
+        help="If set, will enable automatic -fix during clang-tidy invocation (use with caution)",
+    )
+    parser.add_argument(
+        "--clang-tidy-warnings-as-errors",
+        action="store_true",
+        help="Treat clang-tidy findings as errors in CI (sets CLANG_TIDY_WARNINGS_AS_ERRORS=1)",
     )
     parser.add_argument(
         "--clean", action="store_true", help="Clean build directory before building"
@@ -390,6 +478,10 @@ def main():
                             args.no_tests,
                             args.skip_setup,
                             args.coverage,
+                            clang_tidy_option=args.clang_tidy,
+                            clang_tidy_files=args.clang_tidy_files,
+                            clang_tidy_fix=args.clang_tidy_fix,
+                            clang_tidy_warnings_as_errors=args.clang_tidy_warnings_as_errors,
                         )
                     else:
                         print_step("Running build within Conda environment")
@@ -402,6 +494,10 @@ def main():
                             args.no_tests,
                             args.skip_setup,
                             args.coverage,
+                            clang_tidy_option=args.clang_tidy,
+                            clang_tidy_files=args.clang_tidy_files,
+                            clang_tidy_fix=args.clang_tidy_fix,
+                            clang_tidy_warnings_as_errors=args.clang_tidy_warnings_as_errors,
                         )
                     results[compiler] = "[PASSED]"
                 else:

@@ -1,0 +1,21 @@
+# Repo-level clang-tidy configuration. Adjust checks here to change CI/local behavior.
+# Enable the chosen high-signal checks, but explicitly disable two noisy checks
+# for this codebase (trailing-return-type and magic numbers) per project policy.
+Checks: >
+  modernize-*,
+  readability-*,
+  bugprone_*,
+  performance_*,
+  -modernize-use-trailing-return-type,
+  -modernize-concat-nested-namespaces,
+  -readability-magic-numbers,
+  -readability-identifier-length,
+  -readability-redundant-string-init,  
+  -readability-redundant-string-init,
+  -readability-function-cognitive-complexity
+  
+# Limit to project headers by default (same pattern used previously)
+HeaderFilterRegex: '.*pkr_units[\\/].*'
+
+# Note: CI/build may override this file if CLANG_TIDY_CHECKS is explicitly set
+# via environment. Prefer editing this file to tune behavior for the repo.

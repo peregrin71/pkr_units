@@ -14,7 +14,8 @@ The SI Units library is built on four core principles:
 
 2. **Clear Semantic Types**: Provide expressive, domain-specific types that help developers express intent directly in code. Types like `meter_t`, `kilogram_t`, `kilometer_per_hour_t` make unit semantics explicit and self-documenting.
 
-3. **(Close to) Zero-Cost Abstraction**: Minimize runtime overhead. All dimensional checking is compile-time. Unit conversions require calculation (hence "close to" rather than absolute zero), but this calculation is optimized to compile away when possible and runs at machine speed otherwise.
+3. **Zero-Cost Abstraction**: Minimize runtime overhead. All dimensional checking is compile-time. Unit conversions require calculation (hence "close to" rather than absolute zero), but this calculation is optimized to compile away when possible and runs at machine speed otherwise.
+E.g. when adding units with same dimension but different scales there will be a scaling + addition instruction emitted, but all the ratio calculations etc. are done at compile time.
 
 4. **Extensibility**: Enable users to define their own unit types in their own code. The library provides the foundation (templates, traits, operators) so applications can add domain-specific units without modifying the library.
 
