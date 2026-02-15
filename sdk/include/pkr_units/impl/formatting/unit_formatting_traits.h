@@ -81,7 +81,9 @@ struct format_buffer
     constexpr void append(std::basic_string_view<CharT> sv)
     {
         for (CharT c : sv)
+        {
             push_back(c);
+        }
     }
 
     constexpr std::basic_string_view<CharT> view() const
@@ -324,7 +326,9 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
     if (value == 0)
     {
         if (buffer_size > 0)
+        {
             digit_buffer[0] = '0';
+        }
         return 1;
     }
 
@@ -338,7 +342,9 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
     }
 
     if (digit_count > buffer_size)
+    {
         return 0; // Buffer too small
+    }
 
     // Write digits in reverse order
     temp = value;
@@ -356,7 +362,9 @@ template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
     if (exp == 0)
+    {
         return std::basic_string<CharT>{};
+    }
 
     bool negative = exp < 0;
     int abs_exp = negative ? -exp : exp;
@@ -367,7 +375,9 @@ std::basic_string<CharT> superscript_exponent(int exp)
 
     // Add minus sign for negative exponents
     if (negative)
+    {
         s += char_traits_dispatch<CharT>::superscript_minus();
+    }
 
     // Convert digits using lookup table (constexpr-compatible)
     char digit_buffer[32];
@@ -402,16 +412,22 @@ inline std::basic_string<CharT> build_dimension_symbol(const PKR_UNITS_NAMESPACE
         if (dims[i] != 0)
         {
             if (!result.empty())
+            {
                 result += char_traits_dispatch<CharT>::separator();
+            }
 
             result += symbols[i];
             if (dims[i] != 1)
+            {
                 result += superscript_exponent<CharT>(dims[i]);
+            }
         }
     }
 
     if (result.empty())
+    {
         return std::basic_string<CharT>{};
+    }
 
     return result;
 }
@@ -430,7 +446,9 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
         if (dims[i] != 0)
         {
             if (buf.byte_length != 0)
+            {
                 buf.append(char_traits_dispatch<CharT>::separator());
+            }
 
             buf.append(symbols[i]);
             if (dims[i] != 1)
@@ -443,7 +461,9 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
 
                 // Add minus sign for negative exponents
                 if (negative)
+                {
                     buf.append(char_traits_dispatch<CharT>::superscript_minus());
+                }
 
                 // Convert digits using constexpr conversion (no std::to_string)
                 char digit_buffer[32];

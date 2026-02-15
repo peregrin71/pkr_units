@@ -241,7 +241,7 @@ public:
         return *this;
     }
 
-    constexpr type_t value() const noexcept
+    [[nodiscard]] constexpr type_t value() const noexcept
     {
         return m_value;
     }
@@ -251,33 +251,33 @@ public:
         return m_value;
     }
 
-    constexpr auto to_si() const noexcept
+    [[nodiscard]] constexpr auto to_si() const noexcept
     {
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
         using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
         return canonical_unit{canonical_value};
     }
 
-    constexpr auto in_base_si_units() const noexcept
+    [[nodiscard]] constexpr auto in_base_si_units() const noexcept
     {
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
     }
 
-    constexpr auto magnitude() const noexcept
+    [[nodiscard]] constexpr auto magnitude() const noexcept
         requires complex_type_c<type_t>
     {
         using real_type = complex_underlying_type_t<type_t>;
-        real_type mag_value = static_cast<real_type>(std::abs(m_value));
+        auto mag_value = static_cast<real_type>(std::abs(m_value));
         using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v>::type;
         return result_unit{mag_value};
     }
 
-    constexpr auto phase() const noexcept
+    [[nodiscard]] constexpr auto phase() const noexcept
         requires complex_type_c<type_t>
     {
         using real_type = complex_underlying_type_t<type_t>;
-        real_type phase_value = static_cast<real_type>(std::arg(m_value));
+        auto phase_value = static_cast<real_type>(std::arg(m_value));
         using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension>::type;
         return result_unit{phase_value};
     }
@@ -7796,6 +7796,7 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, scalar_dimension>
     using type = scalar_t<T>;
 };
 }
+
 namespace pkr::units
 {
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
@@ -7916,21 +7917,29 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     {
         using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
         if constexpr (N == 0)
+        {
             return result_type{1.0};
+        }
         else if constexpr (N == 1)
+        {
             return result_type{base.value()};
+        }
         else if constexpr (N > 0)
         {
             T result = base.value();
             for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
+            }
             return result_type{result};
         }
         else
         {
             T result = 1.0 / base.value();
             for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
+            }
             return result_type{result};
         }
     }
@@ -7939,21 +7948,29 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
 
         using result_type = details::unit_t<T, Ratio, powered_dim>;
         if constexpr (N == 0)
+        {
             return result_type{1.0};
+        }
         else if constexpr (N == 1)
+        {
             return result_type{base.value()};
+        }
         else if constexpr (N > 0)
         {
             T result = base.value();
             for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
+            }
             return result_type{result};
         }
         else
         {
             T result = 1.0 / base.value();
             for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
+            }
             return result_type{result};
         }
     }
@@ -8487,7 +8504,9 @@ struct format_buffer
     constexpr void append(std::basic_string_view<CharT> sv)
     {
         for (CharT c : sv)
+        {
             push_back(c);
+        }
     }
 
     constexpr std::basic_string_view<CharT> view() const
@@ -8706,7 +8725,9 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
     if (value == 0)
     {
         if (buffer_size > 0)
+        {
             digit_buffer[0] = '0';
+        }
         return 1;
     }
 
@@ -8719,7 +8740,9 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
     }
 
     if (digit_count > buffer_size)
+    {
         return 0;
+    }
 
     temp = value;
     for (std::size_t i = digit_count; i > 0; --i)
@@ -8735,7 +8758,9 @@ template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
     if (exp == 0)
+    {
         return std::basic_string<CharT>{};
+    }
 
     bool negative = exp < 0;
     int abs_exp = negative ? -exp : exp;
@@ -8744,7 +8769,9 @@ std::basic_string<CharT> superscript_exponent(int exp)
     s += char_traits_dispatch<CharT>::superscript_caret();
 
     if (negative)
+    {
         s += char_traits_dispatch<CharT>::superscript_minus();
+    }
 
     char digit_buffer[32];
     std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
@@ -8770,16 +8797,22 @@ inline std::basic_string<CharT> build_dimension_symbol(const pkr::units::dimensi
         if (dims[i] != 0)
         {
             if (!result.empty())
+            {
                 result += char_traits_dispatch<CharT>::separator();
+            }
 
             result += symbols[i];
             if (dims[i] != 1)
+            {
                 result += superscript_exponent<CharT>(dims[i]);
+            }
         }
     }
 
     if (result.empty())
+    {
         return std::basic_string<CharT>{};
+    }
 
     return result;
 }
@@ -8796,7 +8829,9 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
         if (dims[i] != 0)
         {
             if (buf.byte_length != 0)
+            {
                 buf.append(char_traits_dispatch<CharT>::separator());
+            }
 
             buf.append(symbols[i]);
             if (dims[i] != 1)
@@ -8807,7 +8842,9 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
                 buf.append(char_traits_dispatch<CharT>::superscript_caret());
 
                 if (negative)
+                {
                     buf.append(char_traits_dispatch<CharT>::superscript_minus());
+                }
 
                 char digit_buffer[32];
                 std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
@@ -9083,13 +9120,21 @@ struct formatter<T, CharT>
 
         std::basic_string_view<CharT> sym;
         if constexpr (std::is_same_v<CharT, char>)
+        {
             sym = T::symbol;
+        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             sym = T::u8_symbol;
+        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             sym = T::w_symbol;
+        }
         else
+        {
             sym = T::symbol;
+        }
 
         *out++ = static_cast<CharT>(' ');
         return std::copy(sym.begin(), sym.end(), out);
@@ -9161,7 +9206,9 @@ public:
     stack_array_iterator& operator=(CharT c)
     {
         if (*m_pos < m_buffer->size())
+        {
             (*m_buffer)[*m_pos] = c;
+        }
         ++*m_pos;
         return *this;
     }
@@ -9175,7 +9222,9 @@ inline void format_to_stack_buffer(pkr::units::impl::format_buffer<CharT>& buf, 
     auto it = stack_array_iterator<CharT>(temp_buf, pos);
     std::format_to(it, "{}", value);
     for (std::size_t i = 0; i < pos; ++i)
+    {
         buf.push_back(temp_buf[i]);
+    }
 }
 
 template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
@@ -9268,7 +9317,9 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                     }
 
                     for (std::size_t i = digit_count; i > 0; --i)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
+                    }
                 }
 
                 buf.push_back(static_cast<CharT>(' '));
@@ -9282,7 +9333,9 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                     if (dims[i] != 0)
                     {
                         if (!first_dim)
+                        {
                             buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                        }
                         first_dim = false;
 
                         buf.append(symbols[i]);
@@ -9293,7 +9346,9 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
 
                             buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
                             if (negative_exp)
+                            {
                                 buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+                            }
 
                             std::array<int, 10> temp_digits{};
                             std::size_t temp_count = 0;
@@ -9304,10 +9359,14 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                                 temp_val /= 10;
                             }
                             if (temp_count == 0)
+                            {
                                 temp_digits[temp_count++] = 0;
+                            }
 
                             for (std::size_t idx = temp_count; idx > 0; --idx)
+                            {
                                 buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                            }
                         }
                     }
                 }
@@ -9351,7 +9410,9 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
             if (dims[i] != 0)
             {
                 if (!first_dim)
+                {
                     buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
+                }
                 first_dim = false;
 
                 buf.append(symbols[i]);
@@ -9362,7 +9423,9 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
 
                     buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
                     if (negative_exp)
+                    {
                         buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
+                    }
 
                     std::array<int, 10> temp_digits{};
                     std::size_t temp_count = 0;
@@ -9373,10 +9436,14 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                         temp_val /= 10;
                     }
                     if (temp_count == 0)
+                    {
                         temp_digits[temp_count++] = 0;
+                    }
 
                     for (std::size_t idx = temp_count; idx > 0; --idx)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
+                    }
                 }
             }
         }
@@ -9417,13 +9484,21 @@ struct formatter<T, CharT>
         auto get_symbol = []() -> std::basic_string_view<CharT>
         {
             if constexpr (std::is_same_v<CharT, char>)
+            {
                 return T::symbol;
+            }
             else if constexpr (std::is_same_v<CharT, char8_t>)
+            {
                 return T::u8_symbol;
+            }
             else if constexpr (std::is_same_v<CharT, wchar_t>)
+            {
                 return T::w_symbol;
+            }
             else
+            {
                 return T::symbol;
+            }
         };
 
         bool has_e = false;
@@ -9494,7 +9569,9 @@ struct formatter<T, CharT>
                     }
 
                     for (std::size_t i = digit_count; i > 0; --i)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
+                    }
                 }
 
                 buf.push_back(static_cast<CharT>(' '));
@@ -10250,7 +10327,9 @@ namespace pkr::units
 constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
 {
     if (exp == 0)
+    {
         return 1;
+    }
 
     intmax_t result = 1;
     for (unsigned int i = 0; i < exp; ++i)
@@ -10350,40 +10429,40 @@ struct per_unit_inverse_squared : per<Unit, std::integral_constant<int, -2>>
 constexpr dimension_t combine_dimensions_multiply(dimension_t left, dimension_t right) noexcept
 {
     return dimension_t{
-        static_cast<int>(left.length + right.length),
-        static_cast<int>(left.mass + right.mass),
-        static_cast<int>(left.time + right.time),
-        static_cast<int>(left.current + right.current),
-        static_cast<int>(left.temperature + right.temperature),
-        static_cast<int>(left.amount + right.amount),
-        static_cast<int>(left.intensity + right.intensity),
-        static_cast<int>(left.angle + right.angle)};
+        (left.length + right.length),
+        (left.mass + right.mass),
+        (left.time + right.time),
+        (left.current + right.current),
+        (left.temperature + right.temperature),
+        (left.amount + right.amount),
+        (left.intensity + right.intensity),
+        (left.angle + right.angle)};
 }
 
 constexpr dimension_t combine_dimensions_divide(dimension_t left, dimension_t right) noexcept
 {
     return dimension_t{
-        static_cast<int>(left.length - right.length),
-        static_cast<int>(left.mass - right.mass),
-        static_cast<int>(left.time - right.time),
-        static_cast<int>(left.current - right.current),
-        static_cast<int>(left.temperature - right.temperature),
-        static_cast<int>(left.amount - right.amount),
-        static_cast<int>(left.intensity - right.intensity),
-        static_cast<int>(left.angle - right.angle)};
+        (left.length - right.length),
+        (left.mass - right.mass),
+        (left.time - right.time),
+        (left.current - right.current),
+        (left.temperature - right.temperature),
+        (left.amount - right.amount),
+        (left.intensity - right.intensity),
+        (left.angle - right.angle)};
 }
 
 constexpr dimension_t pow_dimension(dimension_t dim, int power) noexcept
 {
     return dimension_t{
-        static_cast<int>(dim.length * power),
-        static_cast<int>(dim.mass * power),
-        static_cast<int>(dim.time * power),
-        static_cast<int>(dim.current * power),
-        static_cast<int>(dim.temperature * power),
-        static_cast<int>(dim.amount * power),
-        static_cast<int>(dim.intensity * power),
-        static_cast<int>(dim.angle * power)};
+        (dim.length * power),
+        (dim.mass * power),
+        (dim.time * power),
+        (dim.current * power),
+        (dim.temperature * power),
+        (dim.amount * power),
+        (dim.intensity * power),
+        (dim.angle * power)};
 }
 
 template <typename T>
@@ -10492,7 +10571,8 @@ struct apply_denominators<Ratio, Dim, Unit, Unit2, Rest...>
 };
 
 template <typename source_unit_t, typename... numerator_unit_types, typename... denominator_items>
-constexpr auto multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>*, std::tuple<denominator_items...>*) noexcept
+constexpr auto
+    multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>* , std::tuple<denominator_items...>* ) noexcept
 {
     using source_traits = details::is_pkr_unit<source_unit_t>;
     using source_ratio = typename source_traits::ratio_type;
@@ -12585,7 +12665,9 @@ constexpr matrix_3d_t<T> identity_3d()
 {
     matrix_3d_t<T> m = {};
     for (int i = 0; i < 3; ++i)
+    {
         m[i][i] = 1;
+    }
     return m;
 }
 
@@ -12874,12 +12956,12 @@ public:
             result_value, pkr::units::scalar_t{result_uncertainty_value}};
     }
 
-    constexpr bool is_valid() const
+    [[nodiscard]] constexpr bool is_valid() const
     {
         return m_uncertainty.value() >= 0;
     }
 
-    std::string to_string() const
+    [[nodiscard]] std::string to_string() const
     {
         std::stringstream ss;
         ss << m_value.value() << " +/- " << m_uncertainty.value();
@@ -12985,15 +13067,23 @@ struct formatter<pkr::units::measurement_rss_t<UnitT>, CharT>
 
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
+        {
             return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
         else
         {
             for (char ch : stored_t::symbol)
+            {
                 *out++ = static_cast<CharT>(ch);
+            }
             return out;
         }
     }
@@ -13176,12 +13266,12 @@ public:
         return m_uncertainty;
     }
 
-    constexpr bool is_valid() const
+    [[nodiscard]] constexpr bool is_valid() const
     {
         return m_uncertainty.value() >= 0;
     }
 
-    std::string to_string() const
+    [[nodiscard]] std::string to_string() const
     {
         std::stringstream ss;
         ss << m_value.value() << " +/- " << m_uncertainty.value();
@@ -13384,15 +13474,23 @@ struct formatter<pkr::units::measurement_lin_t<UnitT>, CharT>
 
         *out++ = static_cast<CharT>(' ');
         if constexpr (std::is_same_v<CharT, char>)
+        {
             return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
         else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
         else
         {
             for (char ch : stored_t::symbol)
+            {
                 *out++ = static_cast<CharT>(ch);
+            }
             return out;
         }
     }
@@ -13460,7 +13558,7 @@ struct vec_4d_t
         return *this;
     }
 
-    double magnitude() const
+    [[nodiscard]] double magnitude() const
         requires requires(T a) { std::sqrt(a * a); }
     {
         return std::sqrt(static_cast<double>(x * x + y * y + z * z));
@@ -13558,7 +13656,9 @@ constexpr matrix_4d_t<T> identity_4d()
 {
     matrix_4d_t<T> m = {};
     for (int i = 0; i < 4; ++i)
+    {
         m[i][i] = 1;
+    }
     return m;
 }
 
@@ -14218,7 +14318,7 @@ struct arena_storage
 
     std::size_t arena_index;
     array_type stack_fallback{};
-    bool using_arena;
+    bool using_arena{false};
 
     static inline std::size_t peak_usage = 0;
     static inline std::size_t fallback_count = 0;
@@ -14230,7 +14330,7 @@ private:
 public:
     arena_storage()
         : arena_index(POOL_SIZE)
-        , using_arena(false)
+
     {
 
         for (std::size_t i = 0; i < POOL_SIZE; ++i)
@@ -14847,7 +14947,7 @@ template <typename target_unit_t, typename source_unit_t>
 inline decibel_power_t<double> unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    double value = static_cast<double>(canonical.value());
+    auto value = static_cast<double>(canonical.value());
     if (value <= 0.0)
     {
         throw std::invalid_argument("decibel_power conversion requires positive linear ratio");
@@ -14860,7 +14960,7 @@ template <typename target_unit_t, typename source_unit_t>
 inline decibel_amplitude_t<double> unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    double value = static_cast<double>(canonical.value());
+    auto value = static_cast<double>(canonical.value());
     if (value <= 0.0)
     {
         throw std::invalid_argument("decibel_amplitude conversion requires positive linear ratio");
@@ -14945,7 +15045,9 @@ constexpr matrix_3d_units_t<T> identity_3d()
 {
     matrix_3d_units_t<T> m{};
     for (int i = 0; i < 3; ++i)
+    {
         m[i][i] = T{1};
+    }
     return m;
 }
 
@@ -15017,7 +15119,9 @@ constexpr matrix_4d_units_t<T, StoragePolicy> identity_4d()
 {
     matrix_4d_units_t<T, StoragePolicy> m{};
     for (std::size_t i = 0; i < 4; ++i)
+    {
         m[i][i] = T{1};
+    }
     return m;
 }
 

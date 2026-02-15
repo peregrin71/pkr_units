@@ -4,7 +4,6 @@
 #include <pkr_units/impl/cast/unit_pow.h>
 #include <pkr_units/impl/dimension.h>
 #include <pkr_units/impl/namespace_config.h>
-#include <pkr_units/impl/unit_t.h>
 #include <ratio>
 #include <tuple>
 #include <type_traits>
@@ -67,40 +66,40 @@ struct per_unit_inverse_squared : per<Unit, std::integral_constant<int, -2>>
 constexpr dimension_t combine_dimensions_multiply(dimension_t left, dimension_t right) noexcept
 {
     return dimension_t{
-        static_cast<int>(left.length + right.length),
-        static_cast<int>(left.mass + right.mass),
-        static_cast<int>(left.time + right.time),
-        static_cast<int>(left.current + right.current),
-        static_cast<int>(left.temperature + right.temperature),
-        static_cast<int>(left.amount + right.amount),
-        static_cast<int>(left.intensity + right.intensity),
-        static_cast<int>(left.angle + right.angle)};
+        (left.length + right.length),
+        (left.mass + right.mass),
+        (left.time + right.time),
+        (left.current + right.current),
+        (left.temperature + right.temperature),
+        (left.amount + right.amount),
+        (left.intensity + right.intensity),
+        (left.angle + right.angle)};
 }
 
 constexpr dimension_t combine_dimensions_divide(dimension_t left, dimension_t right) noexcept
 {
     return dimension_t{
-        static_cast<int>(left.length - right.length),
-        static_cast<int>(left.mass - right.mass),
-        static_cast<int>(left.time - right.time),
-        static_cast<int>(left.current - right.current),
-        static_cast<int>(left.temperature - right.temperature),
-        static_cast<int>(left.amount - right.amount),
-        static_cast<int>(left.intensity - right.intensity),
-        static_cast<int>(left.angle - right.angle)};
+        (left.length - right.length),
+        (left.mass - right.mass),
+        (left.time - right.time),
+        (left.current - right.current),
+        (left.temperature - right.temperature),
+        (left.amount - right.amount),
+        (left.intensity - right.intensity),
+        (left.angle - right.angle)};
 }
 
 constexpr dimension_t pow_dimension(dimension_t dim, int power) noexcept
 {
     return dimension_t{
-        static_cast<int>(dim.length * power),
-        static_cast<int>(dim.mass * power),
-        static_cast<int>(dim.time * power),
-        static_cast<int>(dim.current * power),
-        static_cast<int>(dim.temperature * power),
-        static_cast<int>(dim.amount * power),
-        static_cast<int>(dim.intensity * power),
-        static_cast<int>(dim.angle * power)};
+        (dim.length * power),
+        (dim.mass * power),
+        (dim.time * power),
+        (dim.current * power),
+        (dim.temperature * power),
+        (dim.amount * power),
+        (dim.intensity * power),
+        (dim.angle * power)};
 }
 
 // ========================================================================
@@ -225,7 +224,8 @@ struct apply_denominators<Ratio, Dim, Unit, Unit2, Rest...>
 // ========================================================================
 
 template <typename source_unit_t, typename... numerator_unit_types, typename... denominator_items>
-constexpr auto multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>*, std::tuple<denominator_items...>*) noexcept
+constexpr auto
+    multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>* /*unused*/, std::tuple<denominator_items...>* /*unused*/) noexcept
 {
     using source_traits = details::is_pkr_unit<source_unit_t>;
     using source_ratio = typename source_traits::ratio_type;

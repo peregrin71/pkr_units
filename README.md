@@ -22,6 +22,7 @@ License: MIT (see `LICENSE`).
 - [Custom Units](#custom-units)
 - [Extensibility](#extensibility)
 - [Appendix: Predefined Unit Types](#appendix-predefined-unit-types)
+- [Glossary](#glossary)
 - [Build and Tests](#build-and-tests)
 
 ## Introduction
@@ -577,3 +578,80 @@ The following unit types are defined in the headers under `sdk/include/pkr_units
 
 This is a header-only library. Tests use GTest and live under `tests/`.
 For local builds, use `build/build.py` from the repository root. But read the buildnotes.md first
+
+## Glossary
+
+Ordered by dependency (foundational → high-level). Each item lists its primary dependencies and a short role description.
+
+1. **Primitive numeric type / scalar / magnitude** (`double`, `float`, `std::complex<double>`, `std::complex<float>`)  
+   - Depends on: none.  
+   - Role: Raw numeric storage used by units.
+
+2. **`ratio` / `ratio_t`**  
+   - Depends on: numeric/compile-time ratio representation.  
+   - Role: Compile-time scaling factor relating a unit to a base SI unit. Reuses standard library `std::ratio`
+
+3. **`dimension` / `dimension_t`**  
+   - A unit in this system has a dimension, this is a structure that for each "SI Unit" keeps track of the exponent 
+     of that unit in a calculation.
+   - Role: Compile-time descriptor for physical kinds (length, mass, time, angle, etc.). When two units participate in a calculation their dimensions are combined to calculate a new (strong) type at compile time.
+
+4. **`prefix` (SI prefixes)**  
+   - Depends on: `ratio_t`.  
+   - Role: Convenience names for common ratios (kilo, milli, micro).
+
+5. **`unit_t<type_t, ratio_t, dimension_t>`**  
+   - Depends on: `type_t`, `ratio_t`, `dimension_t`.  
+   - Role: Core template building block for all unit/quantity types.
+
+6. **Strong unit types** (`meter_t`, `kilogram_t`, `second_t`)  
+   - Depends on: `unit_t` and appropriate `ratio_t`/`dimension_t`.  
+   - Role: Concrete, named unit types that inherit from `unit_t`.
+
+7. **`derived_unit_type_t` trait**  
+   - Depends on: the set of strong unit types and `unit_t`.  
+   - Role: Maps a `<type, ratio, dimension>` triplet to the most specific strong type available.
+
+8. **`quantity` / unit value**  
+   - Depends on: `unit_t`/strong unit types and numeric values.  
+   - Role: The actual numeric measurement used in computations.
+
+9. **UDLs (user-defined literals)**  
+   - Depends on: strong unit types and `quantity` constructors.  
+   - Role: Literal operators to create quantities in source code (e.g., `10.0_m`).
+
+10. **`dimensionless` and angle special-case (`radian_t`)**  
+    - Depends on: `dimension_t`.  
+    - Role: Special-case handling and explicit angle dimension for safer compile-time checks.
+
+11. **Coherent / canonical unit concepts**  
+    - Depends on: `ratio_t`, `dimension_t`, and unit definitions.  
+    - Role: Canonical representations for conversions and documentation.
+
+12. **`constexpr` / `noexcept` usage**  
+    - Depends on: `unit_t`, UDLs, and compile-time evaluability of expressions.  
+    - Role: Enable zero-cost abstractions and compile-time evaluation where possible.
+
+13. **Dimensional analysis / dimensional safety / type safety**  
+    - Depends on: `dimension_t`, `unit_t`, and strong unit types.  
+    - Role: Compile-time enforcement preventing invalid operations between incompatible dimensions.
+
+14. **Measurement wrappers** (`measurement_lin_t`, `measurement_rss_t`)  
+    - Depends on: `unit_t`/quantities.  
+    - Role: Provide domain-specific aggregation/uncertainty semantics for multi-component measures.
+
+15. **Vector / matrix unit types** (`vec_4d_units_t`, matrix types)  
+    - Depends on: quantities, measurement wrappers, and storage policies.  
+    - Role: Unit-aware linear algebra types.
+
+16. **Storage policies** (`stack_storage`, `arena_storage`)  
+    - Depends on: vector/matrix storage needs.  
+    - Role: Strategies for where and how component data is stored.
+
+17. **Arena / memory pool details** (`arena`, `slot`, `fallback`, stats)  
+    - Depends on: `arena_storage` implementation.  
+    - Role: Pool semantics, fallback behavior, and telemetry used by `arena_storage`.
+
+18. **Tooling and postprocessing** (UDL normalization, docs generation, e.g., `tools/fix_udl_return_types.py`)  
+    - Depends on: UDL headers, unit definitions, and naming conventions.  
+    - Role: Keep generated and handwritten headers consistent and deduplicated.

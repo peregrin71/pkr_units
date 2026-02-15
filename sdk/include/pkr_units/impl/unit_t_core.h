@@ -219,7 +219,7 @@ public:
         return *this;
     }
 
-    constexpr type_t value() const noexcept
+    [[nodiscard]] constexpr type_t value() const noexcept
     {
         return m_value;
     }
@@ -229,14 +229,14 @@ public:
         return m_value;
     }
 
-    constexpr auto to_si() const noexcept
+    [[nodiscard]] constexpr auto to_si() const noexcept
     {
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
         using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
         return canonical_unit{canonical_value};
     }
 
-    constexpr auto in_base_si_units() const noexcept
+    [[nodiscard]] constexpr auto in_base_si_units() const noexcept
     {
         type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
         return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
@@ -244,11 +244,11 @@ public:
 
     // Member function to get magnitude (only available for complex value types)
     // Returns the same unit type but with real-valued magnitude
-    constexpr auto magnitude() const noexcept
+    [[nodiscard]] constexpr auto magnitude() const noexcept
         requires complex_type_c<type_t>
     {
         using real_type = complex_underlying_type_t<type_t>;
-        real_type mag_value = static_cast<real_type>(std::abs(m_value));
+        auto mag_value = static_cast<real_type>(std::abs(m_value));
         using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v>::type;
         return result_unit{mag_value};
     }
@@ -256,11 +256,11 @@ public:
     // Member function to get phase angle in radians (only available for complex value types)
     // Returns a unit with angle dimension, which resolves to radian_t<real_type>
     // Result is in range [-π, π] radians
-    constexpr auto phase() const noexcept
+    [[nodiscard]] constexpr auto phase() const noexcept
         requires complex_type_c<type_t>
     {
         using real_type = complex_underlying_type_t<type_t>;
-        real_type phase_value = static_cast<real_type>(std::arg(m_value));
+        auto phase_value = static_cast<real_type>(std::arg(m_value));
         using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension>::type;
         return result_unit{phase_value};
     }

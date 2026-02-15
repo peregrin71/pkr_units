@@ -44,7 +44,9 @@ constexpr matrix_4d_t<T> identity_4d()
 {
     matrix_4d_t<T> m = {};
     for (int i = 0; i < 4; ++i)
+    {
         m[i][i] = 1;
+    }
     return m;
 }
 

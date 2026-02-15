@@ -4,7 +4,6 @@
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
-#include <pkr_units/impl/unit_t.h>
 #include <pkr_units/units/dimensionless/scalar.h>
 
 namespace PKR_UNITS_NAMESPACE
@@ -165,21 +164,29 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     {
         using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
         if constexpr (N == 0)
+        {
             return result_type{1.0};
+        }
         else if constexpr (N == 1)
+        {
             return result_type{base.value()};
+        }
         else if constexpr (N > 0)
         {
             T result = base.value();
             for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
+            }
             return result_type{result};
         }
         else // N < 0
         {
             T result = 1.0 / base.value();
             for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
+            }
             return result_type{result};
         }
     }
@@ -188,21 +195,29 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
         // For other ratios, just return generic unit_t (specializations would be needed for derived types)
         using result_type = details::unit_t<T, Ratio, powered_dim>;
         if constexpr (N == 0)
+        {
             return result_type{1.0};
+        }
         else if constexpr (N == 1)
+        {
             return result_type{base.value()};
+        }
         else if constexpr (N > 0)
         {
             T result = base.value();
             for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
+            }
             return result_type{result};
         }
         else // N < 0
         {
             T result = 1.0 / base.value();
             for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
+            }
             return result_type{result};
         }
     }

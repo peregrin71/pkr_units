@@ -33,7 +33,7 @@ template <typename target_unit_t, typename source_unit_t>
 inline decibel_power_t<double> unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    double value = static_cast<double>(canonical.value());
+    auto value = static_cast<double>(canonical.value());
     if (value <= 0.0)
     {
         throw std::invalid_argument("decibel_power conversion requires positive linear ratio");
@@ -47,7 +47,7 @@ template <typename target_unit_t, typename source_unit_t>
 inline decibel_amplitude_t<double> unit_cast(const source_unit_t& source)
 {
     auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    double value = static_cast<double>(canonical.value());
+    auto value = static_cast<double>(canonical.value());
     if (value <= 0.0)
     {
         throw std::invalid_argument("decibel_amplitude conversion requires positive linear ratio");

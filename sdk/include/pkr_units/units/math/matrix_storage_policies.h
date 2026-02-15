@@ -137,7 +137,7 @@ struct arena_storage
 
     std::size_t arena_index;
     array_type stack_fallback{};
-    bool using_arena;
+    bool using_arena{false};
 
     // Monitoring statistics
     static inline std::size_t peak_usage = 0;
@@ -150,7 +150,7 @@ private:
 public:
     arena_storage()
         : arena_index(POOL_SIZE)
-        , using_arena(false)
+
     {
         // Try to allocate from arena
         for (std::size_t i = 0; i < POOL_SIZE; ++i)

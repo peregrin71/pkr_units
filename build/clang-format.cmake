@@ -14,7 +14,7 @@ unset(LOCAL_CLANG_FORMAT_EXE CACHE)
 if(WIN32)
 find_program (LOCAL_CLANG_FORMAT_EXE
               NAMES clang-format bin/clang-format
-              HINTS CLANG_FORMAT_ROOT}
+              HINTS CLANG_FORMAT_ROOT
                     ENV CLANG_FORMAT_ROOT
                     LLVM_ROOT
                     ENV LLVM_ROOT
@@ -23,7 +23,7 @@ find_program (LOCAL_CLANG_FORMAT_EXE
 else(win32)
 find_program (LOCAL_CLANG_FORMAT_EXE
               NAMES clang-format bin/clang-format
-              HINTS CLANG_FORMAT_ROOT}
+              HINTS CLANG_FORMAT_ROOT
                     ENV CLANG_FORMAT_ROOT
                     LLVM_ROOT
                     ENV LLVM_ROOT

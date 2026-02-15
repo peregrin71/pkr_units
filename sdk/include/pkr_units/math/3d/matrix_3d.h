@@ -44,7 +44,9 @@ constexpr matrix_3d_t<T> identity_3d()
 {
     matrix_3d_t<T> m = {};
     for (int i = 0; i < 3; ++i)
+    {
         m[i][i] = 1;
+    }
     return m;
 }
 
