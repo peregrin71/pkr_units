@@ -7916,24 +7916,30 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     if constexpr (std::is_same_v<Ratio, std::ratio<1, 1>>)
     {
         using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
-        if constexpr (N == 0) {
+        if constexpr (N == 0)
+        {
             return result_type{1.0};
-        } else if constexpr (N == 1) {
+        }
+        else if constexpr (N == 1)
+        {
             return result_type{base.value()};
-        } else if constexpr (N > 0)
+        }
+        else if constexpr (N > 0)
         {
             T result = base.value();
-            for (int i = 1; i < N; ++i) {
+            for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
-}
+            }
             return result_type{result};
         }
         else
         {
             T result = 1.0 / base.value();
-            for (int i = 1; i < -N; ++i) {
+            for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
-}
+            }
             return result_type{result};
         }
     }
@@ -7941,24 +7947,30 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     {
 
         using result_type = details::unit_t<T, Ratio, powered_dim>;
-        if constexpr (N == 0) {
+        if constexpr (N == 0)
+        {
             return result_type{1.0};
-        } else if constexpr (N == 1) {
+        }
+        else if constexpr (N == 1)
+        {
             return result_type{base.value()};
-        } else if constexpr (N > 0)
+        }
+        else if constexpr (N > 0)
         {
             T result = base.value();
-            for (int i = 1; i < N; ++i) {
+            for (int i = 1; i < N; ++i)
+            {
                 result *= base.value();
-}
+            }
             return result_type{result};
         }
         else
         {
             T result = 1.0 / base.value();
-            for (int i = 1; i < -N; ++i) {
+            for (int i = 1; i < -N; ++i)
+            {
                 result /= base.value();
-}
+            }
             return result_type{result};
         }
     }
@@ -8491,9 +8503,10 @@ struct format_buffer
 
     constexpr void append(std::basic_string_view<CharT> sv)
     {
-        for (CharT c : sv) {
+        for (CharT c : sv)
+        {
             push_back(c);
-}
+        }
     }
 
     constexpr std::basic_string_view<CharT> view() const
@@ -8711,9 +8724,10 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
 {
     if (value == 0)
     {
-        if (buffer_size > 0) {
+        if (buffer_size > 0)
+        {
             digit_buffer[0] = '0';
-}
+        }
         return 1;
     }
 
@@ -8725,9 +8739,10 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
         temp /= 10;
     }
 
-    if (digit_count > buffer_size) {
+    if (digit_count > buffer_size)
+    {
         return 0;
-}
+    }
 
     temp = value;
     for (std::size_t i = digit_count; i > 0; --i)
@@ -8742,9 +8757,10 @@ constexpr std::size_t constexpr_uint_to_digits(unsigned int value, char* digit_b
 template <typename CharT>
 std::basic_string<CharT> superscript_exponent(int exp)
 {
-    if (exp == 0) {
+    if (exp == 0)
+    {
         return std::basic_string<CharT>{};
-}
+    }
 
     bool negative = exp < 0;
     int abs_exp = negative ? -exp : exp;
@@ -8752,9 +8768,10 @@ std::basic_string<CharT> superscript_exponent(int exp)
 
     s += char_traits_dispatch<CharT>::superscript_caret();
 
-    if (negative) {
+    if (negative)
+    {
         s += char_traits_dispatch<CharT>::superscript_minus();
-}
+    }
 
     char digit_buffer[32];
     std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
@@ -8779,20 +8796,23 @@ inline std::basic_string<CharT> build_dimension_symbol(const pkr::units::dimensi
     {
         if (dims[i] != 0)
         {
-            if (!result.empty()) {
+            if (!result.empty())
+            {
                 result += char_traits_dispatch<CharT>::separator();
-}
+            }
 
             result += symbols[i];
-            if (dims[i] != 1) {
+            if (dims[i] != 1)
+            {
                 result += superscript_exponent<CharT>(dims[i]);
-}
+            }
         }
     }
 
-    if (result.empty()) {
+    if (result.empty())
+    {
         return std::basic_string<CharT>{};
-}
+    }
 
     return result;
 }
@@ -8808,9 +8828,10 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
     {
         if (dims[i] != 0)
         {
-            if (buf.byte_length != 0) {
+            if (buf.byte_length != 0)
+            {
                 buf.append(char_traits_dispatch<CharT>::separator());
-}
+            }
 
             buf.append(symbols[i]);
             if (dims[i] != 1)
@@ -8820,9 +8841,10 @@ constexpr void build_dimension_symbol_to_buffer(format_buffer<CharT>& buf, const
 
                 buf.append(char_traits_dispatch<CharT>::superscript_caret());
 
-                if (negative) {
+                if (negative)
+                {
                     buf.append(char_traits_dispatch<CharT>::superscript_minus());
-}
+                }
 
                 char digit_buffer[32];
                 std::size_t digit_count = constexpr_uint_to_digits(static_cast<unsigned int>(abs_exp), digit_buffer, 32);
@@ -9097,15 +9119,22 @@ struct formatter<T, CharT>
         out = value_formatter.format(unit.value(), ctx);
 
         std::basic_string_view<CharT> sym;
-        if constexpr (std::is_same_v<CharT, char>) {
+        if constexpr (std::is_same_v<CharT, char>)
+        {
             sym = T::symbol;
-        } else if constexpr (std::is_same_v<CharT, char8_t>) {
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
             sym = T::u8_symbol;
-        } else if constexpr (std::is_same_v<CharT, wchar_t>) {
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
             sym = T::w_symbol;
-        } else {
+        }
+        else
+        {
             sym = T::symbol;
-}
+        }
 
         *out++ = static_cast<CharT>(' ');
         return std::copy(sym.begin(), sym.end(), out);
@@ -9176,9 +9205,10 @@ public:
 
     stack_array_iterator& operator=(CharT c)
     {
-        if (*m_pos < m_buffer->size()) {
+        if (*m_pos < m_buffer->size())
+        {
             (*m_buffer)[*m_pos] = c;
-}
+        }
         ++*m_pos;
         return *this;
     }
@@ -9191,9 +9221,10 @@ inline void format_to_stack_buffer(pkr::units::impl::format_buffer<CharT>& buf, 
     std::size_t pos = 0;
     auto it = stack_array_iterator<CharT>(temp_buf, pos);
     std::format_to(it, "{}", value);
-    for (std::size_t i = 0; i < pos; ++i) {
+    for (std::size_t i = 0; i < pos; ++i)
+    {
         buf.push_back(temp_buf[i]);
-}
+    }
 }
 
 template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
@@ -9285,9 +9316,10 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                         e /= 10;
                     }
 
-                    for (std::size_t i = digit_count; i > 0; --i) {
+                    for (std::size_t i = digit_count; i > 0; --i)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
-}
+                    }
                 }
 
                 buf.push_back(static_cast<CharT>(' '));
@@ -9300,9 +9332,10 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                 {
                     if (dims[i] != 0)
                     {
-                        if (!first_dim) {
+                        if (!first_dim)
+                        {
                             buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
-}
+                        }
                         first_dim = false;
 
                         buf.append(symbols[i]);
@@ -9312,9 +9345,10 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                             int abs_exp = negative_exp ? -dims[i] : dims[i];
 
                             buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
-                            if (negative_exp) {
+                            if (negative_exp)
+                            {
                                 buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
-}
+                            }
 
                             std::array<int, 10> temp_digits{};
                             std::size_t temp_count = 0;
@@ -9324,13 +9358,15 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                                 temp_digits[temp_count++] = temp_val % 10;
                                 temp_val /= 10;
                             }
-                            if (temp_count == 0) {
+                            if (temp_count == 0)
+                            {
                                 temp_digits[temp_count++] = 0;
-}
+                            }
 
-                            for (std::size_t idx = temp_count; idx > 0; --idx) {
+                            for (std::size_t idx = temp_count; idx > 0; --idx)
+                            {
                                 buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
-}
+                            }
                         }
                     }
                 }
@@ -9373,9 +9409,10 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
         {
             if (dims[i] != 0)
             {
-                if (!first_dim) {
+                if (!first_dim)
+                {
                     buf.append(pkr::units::impl::char_traits_dispatch<CharT>::separator());
-}
+                }
                 first_dim = false;
 
                 buf.append(symbols[i]);
@@ -9385,9 +9422,10 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                     int abs_exp = negative_exp ? -dims[i] : dims[i];
 
                     buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_caret());
-                    if (negative_exp) {
+                    if (negative_exp)
+                    {
                         buf.append(pkr::units::impl::char_traits_dispatch<CharT>::superscript_minus());
-}
+                    }
 
                     std::array<int, 10> temp_digits{};
                     std::size_t temp_count = 0;
@@ -9397,13 +9435,15 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
                         temp_digits[temp_count++] = temp_val % 10;
                         temp_val /= 10;
                     }
-                    if (temp_count == 0) {
+                    if (temp_count == 0)
+                    {
                         temp_digits[temp_count++] = 0;
-}
+                    }
 
-                    for (std::size_t idx = temp_count; idx > 0; --idx) {
+                    for (std::size_t idx = temp_count; idx > 0; --idx)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(temp_digits[idx - 1]));
-}
+                    }
                 }
             }
         }
@@ -9443,15 +9483,22 @@ struct formatter<T, CharT>
 
         auto get_symbol = []() -> std::basic_string_view<CharT>
         {
-            if constexpr (std::is_same_v<CharT, char>) {
+            if constexpr (std::is_same_v<CharT, char>)
+            {
                 return T::symbol;
-            } else if constexpr (std::is_same_v<CharT, char8_t>) {
+            }
+            else if constexpr (std::is_same_v<CharT, char8_t>)
+            {
                 return T::u8_symbol;
-            } else if constexpr (std::is_same_v<CharT, wchar_t>) {
+            }
+            else if constexpr (std::is_same_v<CharT, wchar_t>)
+            {
                 return T::w_symbol;
-            } else {
+            }
+            else
+            {
                 return T::symbol;
-}
+            }
         };
 
         bool has_e = false;
@@ -9521,9 +9568,10 @@ struct formatter<T, CharT>
                         e /= 10;
                     }
 
-                    for (std::size_t i = digit_count; i > 0; --i) {
+                    for (std::size_t i = digit_count; i > 0; --i)
+                    {
                         buf.append(pkr::units::impl::superscript_digit_lookup<CharT>(digits[i - 1]));
-}
+                    }
                 }
 
                 buf.push_back(static_cast<CharT>(' '));
@@ -10278,9 +10326,10 @@ namespace pkr::units
 
 constexpr intmax_t constexpr_pow(intmax_t base, unsigned int exp) noexcept
 {
-    if (exp == 0) {
+    if (exp == 0)
+    {
         return 1;
-}
+    }
 
     intmax_t result = 1;
     for (unsigned int i = 0; i < exp; ++i)
@@ -10522,7 +10571,8 @@ struct apply_denominators<Ratio, Dim, Unit, Unit2, Rest...>
 };
 
 template <typename source_unit_t, typename... numerator_unit_types, typename... denominator_items>
-constexpr auto multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>* , std::tuple<denominator_items...>* ) noexcept
+constexpr auto
+    multi_unit_cast_impl(const source_unit_t& source, std::tuple<numerator_unit_types...>* , std::tuple<denominator_items...>* ) noexcept
 {
     using source_traits = details::is_pkr_unit<source_unit_t>;
     using source_ratio = typename source_traits::ratio_type;
@@ -12614,9 +12664,10 @@ template <typename T>
 constexpr matrix_3d_t<T> identity_3d()
 {
     matrix_3d_t<T> m = {};
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         m[i][i] = 1;
-}
+    }
     return m;
 }
 
@@ -13015,17 +13066,24 @@ struct formatter<pkr::units::measurement_rss_t<UnitT>, CharT>
         out = value_formatter.format(measurement.uncertainty(), ctx);
 
         *out++ = static_cast<CharT>(' ');
-        if constexpr (std::is_same_v<CharT, char>) {
-            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
-        } else if constexpr (std::is_same_v<CharT, char8_t>) {
-            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
-        } else if constexpr (std::is_same_v<CharT, wchar_t>) {
-            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
-        } else
+        if constexpr (std::is_same_v<CharT, char>)
         {
-            for (char ch : stored_t::symbol) {
+            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
+            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
+        else
+        {
+            for (char ch : stored_t::symbol)
+            {
                 *out++ = static_cast<CharT>(ch);
-}
+            }
             return out;
         }
     }
@@ -13415,17 +13473,24 @@ struct formatter<pkr::units::measurement_lin_t<UnitT>, CharT>
         out = value_formatter.format(measurement.uncertainty(), ctx);
 
         *out++ = static_cast<CharT>(' ');
-        if constexpr (std::is_same_v<CharT, char>) {
-            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
-        } else if constexpr (std::is_same_v<CharT, char8_t>) {
-            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
-        } else if constexpr (std::is_same_v<CharT, wchar_t>) {
-            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
-        } else
+        if constexpr (std::is_same_v<CharT, char>)
         {
-            for (char ch : stored_t::symbol) {
+            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
+            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
+        else
+        {
+            for (char ch : stored_t::symbol)
+            {
                 *out++ = static_cast<CharT>(ch);
-}
+            }
             return out;
         }
     }
@@ -13590,9 +13655,10 @@ template <typename T>
 constexpr matrix_4d_t<T> identity_4d()
 {
     matrix_4d_t<T> m = {};
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4; ++i)
+    {
         m[i][i] = 1;
-}
+    }
     return m;
 }
 
@@ -14978,9 +15044,10 @@ template <is_base_pkr_unit_c T>
 constexpr matrix_3d_units_t<T> identity_3d()
 {
     matrix_3d_units_t<T> m{};
-    for (int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i)
+    {
         m[i][i] = T{1};
-}
+    }
     return m;
 }
 
@@ -15051,7 +15118,8 @@ template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
 constexpr matrix_4d_units_t<T, StoragePolicy> identity_4d()
 {
     matrix_4d_units_t<T, StoragePolicy> m{};
-    for (std::size_t i = 0; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i)
+    {
         m[i][i] = T{1};
     }
     return m;
