@@ -73,10 +73,17 @@ constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
 
 // Helper: divide two values
 template <typename type_t>
+#ifdef _MSC_VER
+#pragma warning(push)
+#pragma warning(disable : 4723)
+#endif
 constexpr type_t divide_values(type_t val1, type_t val2) noexcept
 {
     return val1 / val2;
 }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 // ============================================================================
 // Helper utilities for complex number support
