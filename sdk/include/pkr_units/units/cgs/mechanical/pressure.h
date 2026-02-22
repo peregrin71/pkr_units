@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // CGS pressure unit
 // Barye (Ba) = 0.1 pascal
 template <is_unit_value_type_c T>
-struct barye_t final : public details::unit_t<T, std::ratio<1, 10>, pressure_dimension>
+struct barye_t final : public unit_t<T, std::ratio<1, 10>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"barye"};
@@ -27,7 +27,7 @@ template <is_pkr_unit_c U>
 barye_t(const U&) -> barye_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10>, pressure_dimension>
 {
     using type = barye_t<T>;
 };

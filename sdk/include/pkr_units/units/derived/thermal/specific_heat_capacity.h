@@ -10,9 +10,9 @@ inline constexpr dimension_t specific_heat_capacity_dimension{2, 0, -2, 0, -1, 0
 
 // Specific heat capacity unit: J/(kg*K)
 template <is_unit_value_type_c T>
-struct specific_heat_capacity_t final : public details::unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct specific_heat_capacity_t final : public unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"specific_heat_capacity"};
@@ -25,14 +25,14 @@ template <is_unit_value_type_c T>
 specific_heat_capacity_t(T) -> specific_heat_capacity_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
     using type = specific_heat_capacity_t<T>;
 };
 
 // Explicit double instantiation
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
     using type = specific_heat_capacity_t<double>;
 };

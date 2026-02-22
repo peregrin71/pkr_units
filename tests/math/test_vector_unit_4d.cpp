@@ -247,4 +247,67 @@ TEST_F(Vector4DUnitsTest, ratio_preservation_km_add_meter)
     EXPECT_DOUBLE_EQ(result.w.value(), 6.0);
 }
 
+// Additional tests for better branch coverage
+TEST_F(Vector4DUnitsTest, division_by_unit)
+{
+    pkr::units::vec_4d_units_t<pkr::units::meter_t<double>> v{
+        pkr::units::meter_t<double>{10.0}, pkr::units::meter_t<double>{20.0}, pkr::units::meter_t<double>{30.0}, pkr::units::meter_t<double>{40.0}};
+    auto second = pkr::units::second_t<double>{2.0};
+    auto result = v / second;
+
+    EXPECT_DOUBLE_EQ(result.x.value(), 5.0);
+    EXPECT_DOUBLE_EQ(result.y.value(), 10.0);
+    EXPECT_DOUBLE_EQ(result.z.value(), 15.0);
+    EXPECT_DOUBLE_EQ(result.w.value(), 20.0);
+}
+
+TEST_F(Vector4DUnitsTest, division_by_zero_scalar)
+{
+    pkr::units::vec_4d_units_t<pkr::units::meter_t<double>> v{
+        pkr::units::meter_t<double>{10.0}, pkr::units::meter_t<double>{20.0}, pkr::units::meter_t<double>{30.0}, pkr::units::meter_t<double>{40.0}};
+    // Division by zero should result in inf values
+    auto result = v / 0.0;
+
+    EXPECT_TRUE(std::isinf(result.x.value()));
+    EXPECT_TRUE(std::isinf(result.y.value()));
+    EXPECT_TRUE(std::isinf(result.z.value()));
+    EXPECT_TRUE(std::isinf(result.w.value()));
+}
+
+TEST_F(Vector4DUnitsTest, subtraction_resulting_in_zero)
+{
+    pkr::units::vec_4d_units_t<pkr::units::meter_t<double>> v{
+        pkr::units::meter_t<double>{5.0}, pkr::units::meter_t<double>{10.0}, pkr::units::meter_t<double>{15.0}, pkr::units::meter_t<double>{20.0}};
+    auto result = v - v;
+
+    EXPECT_DOUBLE_EQ(result.x.value(), 0.0);
+    EXPECT_DOUBLE_EQ(result.y.value(), 0.0);
+    EXPECT_DOUBLE_EQ(result.z.value(), 0.0);
+    EXPECT_DOUBLE_EQ(result.w.value(), 0.0);
+}
+
+TEST_F(Vector4DUnitsTest, negative_scalar_multiplication)
+{
+    pkr::units::vec_4d_units_t<pkr::units::meter_t<double>> v{
+        pkr::units::meter_t<double>{1.0}, pkr::units::meter_t<double>{2.0}, pkr::units::meter_t<double>{3.0}, pkr::units::meter_t<double>{4.0}};
+    auto result = v * -3.0;
+
+    EXPECT_DOUBLE_EQ(result.x.value(), -3.0);
+    EXPECT_DOUBLE_EQ(result.y.value(), -6.0);
+    EXPECT_DOUBLE_EQ(result.z.value(), -9.0);
+    EXPECT_DOUBLE_EQ(result.w.value(), -12.0);
+}
+
+TEST_F(Vector4DUnitsTest, division_by_negative_scalar)
+{
+    pkr::units::vec_4d_units_t<pkr::units::meter_t<double>> v{
+        pkr::units::meter_t<double>{10.0}, pkr::units::meter_t<double>{20.0}, pkr::units::meter_t<double>{30.0}, pkr::units::meter_t<double>{40.0}};
+    auto result = v / -2.0;
+
+    EXPECT_DOUBLE_EQ(result.x.value(), -5.0);
+    EXPECT_DOUBLE_EQ(result.y.value(), -10.0);
+    EXPECT_DOUBLE_EQ(result.z.value(), -15.0);
+    EXPECT_DOUBLE_EQ(result.w.value(), -20.0);
+}
+
 } // namespace test

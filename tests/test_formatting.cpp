@@ -125,7 +125,7 @@ TEST(FormattingTest, WideLengthUnit)
 
 TEST(FormattingTest, BaseUnitFormatting)
 {
-    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    using base_length_t = pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
     base_length_t length{7.0};
     auto formatted = std::format("{}", length);
     EXPECT_EQ(formatted, "7 m");
@@ -133,7 +133,7 @@ TEST(FormattingTest, BaseUnitFormatting)
 
 TEST(FormattingTest, BaseUnitFormattingWide)
 {
-    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    using base_length_t = pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
     base_length_t length{7.0};
     auto formatted = std::format(L"{}", length);
     EXPECT_EQ(formatted, L"7 m");

@@ -6,21 +6,19 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Fahrenheit temperature
 //
-// NOTE: fahrenheit_t intentionally does NOT define _base typedef.
-// This serves as a marker that prevents it from being used with unit_cast().
-// Temperature conversions between Celsius and Fahrenheit require offset handling
-// that the ratio-based unit_cast template doesn't support. Use the unit_cast
-// overloads defined in temperature_cast.h instead.
-//
-// The absence of _base causes SFINAE rejection in unit_cast's requires clause,
-// which accesses target_unit_t::_base. This is an intentional design pattern.
-template <is_unit_value_type_c T>
-struct fahrenheit_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
+// Tagged with `fahrenheit_tag_t` so that temperature_cast can dispatch to the
+// appropriate affine conversion logic.  The old SFINAE trick (omitting `_base`)
+// is no longer necessary.
+// tag to identify affine Fahrenheit-scale units
+struct fahrenheit_tag_t
 {
-    // Intentionally no _base typedef - this is the marker that prevents unit_cast usage
-    // Use a differently-named alias to inherit constructors without introducing `_base`.
-    using base = details::unit_t<T, std::ratio<1, 1>, temperature_dimension>;
-    using base::base;
+};
+
+template <is_unit_value_type_c T>
+struct fahrenheit_t final : public unit_t<T, std::ratio<1, 1>, temperature_dimension, fahrenheit_tag_t>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, temperature_dimension, fahrenheit_tag_t>;
+    using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"fahrenheit"};
     [[maybe_unused]] static constexpr std::string_view symbol{"F"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b0F"};

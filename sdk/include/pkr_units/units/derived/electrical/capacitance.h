@@ -10,9 +10,9 @@ inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0, 0};
 
 // Capacitance units (Farad and derived)
 template <is_unit_value_type_c T>
-struct farad_t final : public details::unit_t<T, std::ratio<1, 1>, capacitance_v>
+struct farad_t final : public unit_t<T, std::ratio<1, 1>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"farad"};
@@ -25,9 +25,9 @@ template <is_unit_value_type_c T>
 farad_t(T) -> farad_t<T>;
 
 template <is_unit_value_type_c T>
-struct millifarad_t final : public details::unit_t<T, std::ratio<1, 1000>, capacitance_v>
+struct millifarad_t final : public unit_t<T, std::ratio<1, 1000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millifarad"};
@@ -40,9 +40,9 @@ template <is_unit_value_type_c T>
 millifarad_t(T) -> millifarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct microfarad_t final : public details::unit_t<T, std::ratio<1, 1000000>, capacitance_v>
+struct microfarad_t final : public unit_t<T, std::ratio<1, 1000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microfarad"};
@@ -55,9 +55,9 @@ template <is_unit_value_type_c T>
 microfarad_t(T) -> microfarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanofarad_t final : public details::unit_t<T, std::ratio<1, 1000000000>, capacitance_v>
+struct nanofarad_t final : public unit_t<T, std::ratio<1, 1000000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanofarad"};
@@ -70,9 +70,9 @@ template <is_unit_value_type_c T>
 nanofarad_t(T) -> nanofarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct picofarad_t final : public details::unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>
+struct picofarad_t final : public unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picofarad"};
@@ -88,62 +88,62 @@ picofarad_t(T) -> picofarad_t<T>;
 // Most derived unit type specializations for capacitance units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1>, capacitance_v>
 {
     using type = farad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, capacitance_v>
 {
     using type = millifarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, capacitance_v>
 {
     using type = microfarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, capacitance_v>
 {
     using type = nanofarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using type = picofarad_t<T>;
 };
 
 // Explicit double instantiations for ABI / UDL stability
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
 {
     using type = farad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
 {
     using type = millifarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
     using type = microfarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
     using type = nanofarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using type = picofarad_t<double>;
 };

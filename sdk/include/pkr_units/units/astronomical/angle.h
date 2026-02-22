@@ -10,9 +10,9 @@ namespace PKR_UNITS_NAMESPACE
 // 24h = 360 degrees, so 1h = 15 degrees = pi/12 radians.
 // Ratio uses the same pi approximation as degree_t (15 * 1745329/100000000).
 template <is_unit_value_type_c T>
-struct hms_archour_t final : public details::unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>
+struct hms_archour_t final : public unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_archour"};
@@ -30,9 +30,9 @@ hms_archour_t(const U&) -> hms_archour_t<typename details::is_pkr_unit<U>::value
 
 // HMS minute (1/60 archour).
 template <is_unit_value_type_c T>
-struct hms_arcminute_t final : public details::unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>
+struct hms_arcminute_t final : public unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcminute"};
@@ -50,9 +50,9 @@ hms_arcminute_t(const U&) -> hms_arcminute_t<typename details::is_pkr_unit<U>::v
 
 // HMS second (1/3600 archour).
 template <is_unit_value_type_c T>
-struct hms_arcsecond_t final : public details::unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>
+struct hms_arcsecond_t final : public unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcsecond"};
@@ -70,9 +70,9 @@ hms_arcsecond_t(const U&) -> hms_arcsecond_t<typename details::is_pkr_unit<U>::v
 
 // DMS degree (formatting-only).
 template <is_unit_value_type_c T>
-struct dms_degree_t final : public details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct dms_degree_t final : public unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_degree"};
@@ -90,9 +90,9 @@ dms_degree_t(const U&) -> dms_degree_t<typename details::is_pkr_unit<U>::value_t
 
 // DMS arcminute (formatting-only).
 template <is_unit_value_type_c T>
-struct dms_arcminute_t final : public details::unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>
+struct dms_arcminute_t final : public unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcminute"};
@@ -110,9 +110,9 @@ dms_arcminute_t(const U&) -> dms_arcminute_t<typename details::is_pkr_unit<U>::v
 
 // DMS arcsecond (formatting-only).
 template <is_unit_value_type_c T>
-struct dms_arcsecond_t final : public details::unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>
+struct dms_arcsecond_t final : public unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcsecond"};
@@ -131,9 +131,9 @@ dms_arcsecond_t(const U&) -> dms_arcsecond_t<typename details::is_pkr_unit<U>::v
 // HMS formatting type (hour/minute/second components).
 // Uses a canonical ratio to allow conversion from any angle unit.
 template <is_unit_value_type_c T>
-struct hms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct hms_angle_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 };
 
@@ -147,9 +147,9 @@ hms_angle_t(const U&) -> hms_angle_t<typename details::is_pkr_unit<U>::value_typ
 // DMS formatting type (degree/minute/second components).
 // Uses a canonical ratio to allow conversion from any angle unit.
 template <is_unit_value_type_c T>
-struct dms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct dms_angle_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 };
 

@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for meter per second (SI base unit)
 template <is_unit_value_type_c T>
-struct meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, velocity_dimension>
+struct meter_per_second_t final : public unit_t<T, std::ratio<1, 1>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meter per second"};
@@ -27,9 +27,9 @@ meter_per_second_t(const U&) -> meter_per_second_t<typename details::is_pkr_unit
 
 // Strong type for kilometer per hour
 template <is_unit_value_type_c T>
-struct kilometer_per_hour_t final : public details::unit_t<T, std::ratio<5, 18>, velocity_dimension>
+struct kilometer_per_hour_t final : public unit_t<T, std::ratio<5, 18>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<5, 18>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<5, 18>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per hour"};
@@ -47,9 +47,9 @@ kilometer_per_hour_t(const U&) -> kilometer_per_hour_t<typename details::is_pkr_
 
 // Strong type for centimeter per second
 template <is_unit_value_type_c T>
-struct centimeter_per_second_t final : public details::unit_t<T, std::ratio<1, 100>, velocity_dimension>
+struct centimeter_per_second_t final : public unit_t<T, std::ratio<1, 100>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter per second"};
@@ -67,9 +67,9 @@ centimeter_per_second_t(const U&) -> centimeter_per_second_t<typename details::i
 
 // Strong type for millimeter per second
 template <is_unit_value_type_c T>
-struct millimeter_per_second_t final : public details::unit_t<T, std::ratio<1, 1000>, velocity_dimension>
+struct millimeter_per_second_t final : public unit_t<T, std::ratio<1, 1000>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter per second"};
@@ -87,9 +87,9 @@ millimeter_per_second_t(const U&) -> millimeter_per_second_t<typename details::i
 
 // Strong type for kilometer per second
 template <is_unit_value_type_c T>
-struct kilometer_per_second_t final : public details::unit_t<T, std::ratio<1000, 1>, velocity_dimension>
+struct kilometer_per_second_t final : public unit_t<T, std::ratio<1000, 1>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per second"};
@@ -109,31 +109,31 @@ kilometer_per_second_t(const U&) -> kilometer_per_second_t<typename details::is_
 // Most derived unit type specializations for velocity units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, velocity_dimension>
 {
     using type = meter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<5, 18>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<5, 18>, velocity_dimension>
 {
     using type = kilometer_per_hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100>, velocity_dimension>
 {
     using type = centimeter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, velocity_dimension>
 {
     using type = millimeter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, velocity_dimension>
 {
     using type = kilometer_per_second_t<T>;
 };

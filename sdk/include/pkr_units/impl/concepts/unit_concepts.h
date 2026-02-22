@@ -30,9 +30,8 @@ static_assert(!scalar_value_c<bool>);
 
 // Concept for any direct unit_t type (not derived)
 template <typename T>
-concept is_base_unit_t_c = std::same_as<
-    T,
-    details::unit_t<typename details::is_pkr_unit<T>::value_type, typename details::is_pkr_unit<T>::ratio_type, details::is_pkr_unit<T>::value_dimension>>;
+concept is_base_unit_t_c = std::
+    same_as<T, unit_t<typename details::is_pkr_unit<T>::value_type, typename details::is_pkr_unit<T>::ratio_type, details::is_pkr_unit<T>::value_dimension>>;
 
 // Concept for derived pkr_unit types (those with a _base member inheriting from it)
 template <typename T>
@@ -46,11 +45,19 @@ concept is_base_pkr_unit_c = details::is_pkr_unit<T>::value && !is_derived_pkr_u
 template <typename T>
 concept is_pkr_unit_c = is_base_pkr_unit_c<T> || is_derived_pkr_unit_c<T>;
 
-// Concept to check if a dimension_t allows taking square root (all exponents even and non-negative)
+// Concept to check if a dimension_t allows taking square root (all exponents are even)
+// Negative exponents (e.g. time^-2) are acceptable as long as they are even — sqrt(length^2 * time^-2) -> length^1 * time^-1
 template <dimension_t Dim>
-concept pkr_unit_can_take_square_root_c = Dim.length >= 0 && Dim.length % 2 == 0 && Dim.mass >= 0 && Dim.mass % 2 == 0 && Dim.time >= 0 && Dim.time % 2 == 0 &&
-                                          Dim.current >= 0 && Dim.current % 2 == 0 && Dim.temperature >= 0 && Dim.temperature % 2 == 0 && Dim.amount >= 0 &&
-                                          Dim.amount % 2 == 0 && Dim.intensity >= 0 && Dim.intensity % 2 == 0 && Dim.angle >= 0 && Dim.angle % 2 == 0;
+concept pkr_unit_can_take_square_root_c = (Dim.length % 2 == 0) && (Dim.mass % 2 == 0) && (Dim.time % 2 == 0) && (Dim.current % 2 == 0) &&
+                                          (Dim.temperature % 2 == 0) && (Dim.amount % 2 == 0) && (Dim.intensity % 2 == 0) && (Dim.angle % 2 == 0);
+
+// Concept to check if a pkr_unit_t type allows taking square root (all dimensions are even)
+template <typename T>
+concept pkr_unit_sqrt_valid_c = is_pkr_unit_c<T> && pkr_unit_can_take_square_root_c<details::is_pkr_unit<T>::value_dimension>;
+
+// Concept to check if a pkr_unit_t type does NOT allow taking square root (negative concept)
+template <typename T>
+concept pkr_unit_sqrt_invalid_c = is_pkr_unit_c<T> && !pkr_unit_sqrt_valid_c<T>;
 
 // Concept to check if a type is std::complex<T>
 template <typename T>

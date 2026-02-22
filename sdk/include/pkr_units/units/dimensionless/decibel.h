@@ -8,12 +8,25 @@
 
 namespace PKR_UNITS_NAMESPACE
 {
-// Decibel (power ratio, 10 * log10)
-// Intentionally does NOT define _base, to avoid generic unit_cast.
-template <is_unit_value_type_c T>
-struct decibel_power_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+// Tags to distinguish decibel scaling (power vs amplitude)
+struct decibel_power_tag
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+};
+
+struct decibel_amplitude_tag
+{
+};
+
+// Unified decibel type with tag-based distinction
+// Primary template (not instantiated directly)
+template <is_unit_value_type_c T, typename Tag>
+struct decibel_t;
+
+// Power-scale decibel (10 * log10)
+template <is_unit_value_type_c T>
+struct decibel_t<T, decibel_power_tag> final : public unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_power_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_power_tag>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -21,19 +34,11 @@ struct decibel_power_t final : public details::unit_t<T, std::ratio<1, 1>, scala
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
+// Amplitude-scale decibel (20 * log10)
 template <is_unit_value_type_c T>
-decibel_power_t(T) -> decibel_power_t<T>;
-
-template <is_pkr_unit_c U>
-    requires(details::is_pkr_unit<U>::value_dimension == scalar_dimension)
-decibel_power_t(const U&) -> decibel_power_t<typename details::is_pkr_unit<U>::value_type>;
-
-// Decibel (amplitude ratio, 20 * log10)
-// Intentionally does NOT define _base, to avoid generic unit_cast.
-template <is_unit_value_type_c T>
-struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+struct decibel_t<T, decibel_amplitude_tag> final : public unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_amplitude_tag>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_amplitude_tag>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -41,8 +46,16 @@ struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, s
     [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"dB"};
 };
 
+// Deduction guides for primary template
 template <is_unit_value_type_c T>
-decibel_amplitude_t(T) -> decibel_amplitude_t<T>;
+decibel_t(T) -> decibel_t<T, decibel_power_tag>;
+
+// Type aliases for backward compatibility
+template <is_unit_value_type_c T>
+using decibel_power_t = decibel_t<T, decibel_power_tag>;
+
+template <is_unit_value_type_c T>
+using decibel_amplitude_t = decibel_t<T, decibel_amplitude_tag>;
 } // namespace PKR_UNITS_NAMESPACE
 
 namespace std

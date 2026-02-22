@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/amount.h>
+#include <pkr_units/units/computer_science/bytes.h>
 
 using namespace ::testing;
 

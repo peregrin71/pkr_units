@@ -329,7 +329,7 @@ auto operator/(T lhs, const measurement_lin_t<UnitT>& rhs)
     constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
     constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
     using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
-    using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
+    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_lin_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
 

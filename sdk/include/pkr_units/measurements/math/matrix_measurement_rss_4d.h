@@ -25,17 +25,12 @@ public:
 
     storage_type storage;
 
-    constexpr matrix_measurement_rss_4d_t() = default;
+    // Default constructor deleted - use explicit construction methods
+    matrix_measurement_rss_4d_t() = delete;
 
-    constexpr matrix_measurement_rss_4d_t(const array_type& arr)
+    // Construct from an array by passing it to storage
+    explicit matrix_measurement_rss_4d_t(const array_type& arr) : storage(arr)
     {
-        for (std::size_t r = 0; r < 4; ++r)
-        {
-            for (std::size_t c = 0; c < 4; ++c)
-            {
-                storage.get(r, c) = arr[r][c];
-            }
-        }
     }
 
     constexpr value_type& operator()(std::size_t row, std::size_t col)

@@ -64,3 +64,6 @@ __pycache__/
 
 # Dependencies
 vcpkg_installed/
+output.txt
+build_coverage.txt
+build_output_detailed.txt

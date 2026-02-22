@@ -9,9 +9,9 @@ namespace PKR_UNITS_NAMESPACE
 inline constexpr dimension_t electric_charge_dimension{0, 0, 1, 1, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct coulomb_t final : public details::unit_t<T, std::ratio<1, 1>, electric_charge_dimension>
+struct coulomb_t final : public unit_t<T, std::ratio<1, 1>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"coulomb"};
@@ -28,9 +28,9 @@ template <is_pkr_unit_c U>
 coulomb_t(const U&) -> coulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilocoulomb_t final : public details::unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>
+struct kilocoulomb_t final : public unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilocoulomb"};
@@ -47,9 +47,9 @@ template <is_pkr_unit_c U>
 kilocoulomb_t(const U&) -> kilocoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millicoulomb_t final : public details::unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>
+struct millicoulomb_t final : public unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millicoulomb"};
@@ -66,9 +66,9 @@ template <is_pkr_unit_c U>
 millicoulomb_t(const U&) -> millicoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microcoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
+struct microcoulomb_t final : public unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microcoulomb"};
@@ -85,9 +85,9 @@ template <is_pkr_unit_c U>
 microcoulomb_t(const U&) -> microcoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanocoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
+struct nanocoulomb_t final : public unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanocoulomb"};
@@ -104,9 +104,9 @@ template <is_pkr_unit_c U>
 nanocoulomb_t(const U&) -> nanocoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picocoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
+struct picocoulomb_t final : public unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picocoulomb"};
@@ -126,37 +126,37 @@ picocoulomb_t(const U&) -> picocoulomb_t<typename details::is_pkr_unit<U>::value
 // Most derived unit type specializations for electric charge units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, electric_charge_dimension>
 {
     using type = coulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, electric_charge_dimension>
 {
     using type = kilocoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, electric_charge_dimension>
 {
     using type = millicoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
 {
     using type = microcoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
     using type = nanocoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
     using type = picocoulomb_t<T>;
 };

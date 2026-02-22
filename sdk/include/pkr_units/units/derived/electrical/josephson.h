@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // Josephson constant unit
 // Base unit: Hz/V (Josephson constant)
 template <is_unit_value_type_c T>
-struct josephson_t final : public details::unit_t<T, std::ratio<1, 1>, josephson_dimension>
+struct josephson_t final : public unit_t<T, std::ratio<1, 1>, josephson_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, josephson_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, josephson_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"josephson"};

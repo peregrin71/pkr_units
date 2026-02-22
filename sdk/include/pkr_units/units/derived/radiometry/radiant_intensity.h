@@ -41,9 +41,9 @@ namespace PKR_UNITS_NAMESPACE
 // radiometry treats all wavelengths equally.
 // Strong type for watt_per_steradian (radiant intensity)
 template <is_unit_value_type_c T>
-struct watt_per_steradian_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct watt_per_steradian_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_steradian"};
@@ -64,14 +64,14 @@ watt_per_steradian_t(const U&) -> watt_per_steradian_t<typename details::is_pkr_
 // ============================================================================
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = watt_per_steradian_t<T>;
 };
 
 // Explicit double instantiation
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = watt_per_steradian_t<double>;
 };

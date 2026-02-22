@@ -6,9 +6,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for candela (SI base unit)
 template <is_unit_value_type_c T>
-struct candela_t final : public details::unit_t<T, std::ratio<1, 1>, intensity_dimension>
+struct candela_t final : public unit_t<T, std::ratio<1, 1>, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, intensity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"candela"};
@@ -26,9 +26,9 @@ candela_t(const U&) -> candela_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric intensity prefixes (strong types)
 template <is_unit_value_type_c T>
-struct attocandela_t final : public details::unit_t<T, std::atto, intensity_dimension>
+struct attocandela_t final : public unit_t<T, std::atto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::atto, intensity_dimension>;
+    using _base = unit_t<T, std::atto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attocandela"};
@@ -45,9 +45,9 @@ template <is_pkr_unit_c U>
 attocandela_t(const U&) -> attocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtocandela_t final : public details::unit_t<T, std::femto, intensity_dimension>
+struct femtocandela_t final : public unit_t<T, std::femto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::femto, intensity_dimension>;
+    using _base = unit_t<T, std::femto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtocandela"};
@@ -64,9 +64,9 @@ template <is_pkr_unit_c U>
 femtocandela_t(const U&) -> femtocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picocandela_t final : public details::unit_t<T, std::pico, intensity_dimension>
+struct picocandela_t final : public unit_t<T, std::pico, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::pico, intensity_dimension>;
+    using _base = unit_t<T, std::pico, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picocandela"};
@@ -83,9 +83,9 @@ template <is_pkr_unit_c U>
 picocandela_t(const U&) -> picocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanocandela_t final : public details::unit_t<T, std::nano, intensity_dimension>
+struct nanocandela_t final : public unit_t<T, std::nano, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::nano, intensity_dimension>;
+    using _base = unit_t<T, std::nano, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanocandela"};
@@ -102,9 +102,9 @@ template <is_pkr_unit_c U>
 nanocandela_t(const U&) -> nanocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microcandela_t final : public details::unit_t<T, std::micro, intensity_dimension>
+struct microcandela_t final : public unit_t<T, std::micro, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::micro, intensity_dimension>;
+    using _base = unit_t<T, std::micro, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microcandela"};
@@ -121,9 +121,9 @@ template <is_pkr_unit_c U>
 microcandela_t(const U&) -> microcandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millicandela_t final : public details::unit_t<T, std::milli, intensity_dimension>
+struct millicandela_t final : public unit_t<T, std::milli, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::milli, intensity_dimension>;
+    using _base = unit_t<T, std::milli, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millicandela"};
@@ -140,9 +140,9 @@ template <is_pkr_unit_c U>
 millicandela_t(const U&) -> millicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centicandela_t final : public details::unit_t<T, std::centi, intensity_dimension>
+struct centicandela_t final : public unit_t<T, std::centi, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::centi, intensity_dimension>;
+    using _base = unit_t<T, std::centi, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centicandela"};
@@ -159,9 +159,9 @@ template <is_pkr_unit_c U>
 centicandela_t(const U&) -> centicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decicandela_t final : public details::unit_t<T, std::deci, intensity_dimension>
+struct decicandela_t final : public unit_t<T, std::deci, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::deci, intensity_dimension>;
+    using _base = unit_t<T, std::deci, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decicandela"};
@@ -178,9 +178,9 @@ template <is_pkr_unit_c U>
 decicandela_t(const U&) -> decicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decacandela_t final : public details::unit_t<T, std::deca, intensity_dimension>
+struct decacandela_t final : public unit_t<T, std::deca, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::deca, intensity_dimension>;
+    using _base = unit_t<T, std::deca, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decacandela"};
@@ -197,9 +197,9 @@ template <is_pkr_unit_c U>
 decacandela_t(const U&) -> decacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectocandela_t final : public details::unit_t<T, std::hecto, intensity_dimension>
+struct hectocandela_t final : public unit_t<T, std::hecto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, intensity_dimension>;
+    using _base = unit_t<T, std::hecto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectocandela"};
@@ -216,9 +216,9 @@ template <is_pkr_unit_c U>
 hectocandela_t(const U&) -> hectocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilocandela_t final : public details::unit_t<T, std::kilo, intensity_dimension>
+struct kilocandela_t final : public unit_t<T, std::kilo, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, intensity_dimension>;
+    using _base = unit_t<T, std::kilo, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilocandela"};
@@ -235,9 +235,9 @@ template <is_pkr_unit_c U>
 kilocandela_t(const U&) -> kilocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megacandela_t final : public details::unit_t<T, std::mega, intensity_dimension>
+struct megacandela_t final : public unit_t<T, std::mega, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::mega, intensity_dimension>;
+    using _base = unit_t<T, std::mega, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megacandela"};
@@ -254,9 +254,9 @@ template <is_pkr_unit_c U>
 megacandela_t(const U&) -> megacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigacandela_t final : public details::unit_t<T, std::giga, intensity_dimension>
+struct gigacandela_t final : public unit_t<T, std::giga, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::giga, intensity_dimension>;
+    using _base = unit_t<T, std::giga, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigacandela"};
@@ -273,9 +273,9 @@ template <is_pkr_unit_c U>
 gigacandela_t(const U&) -> gigacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct teracandela_t final : public details::unit_t<T, std::tera, intensity_dimension>
+struct teracandela_t final : public unit_t<T, std::tera, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::tera, intensity_dimension>;
+    using _base = unit_t<T, std::tera, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teracandela"};
@@ -292,9 +292,9 @@ template <is_pkr_unit_c U>
 teracandela_t(const U&) -> teracandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petacandela_t final : public details::unit_t<T, std::peta, intensity_dimension>
+struct petacandela_t final : public unit_t<T, std::peta, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::peta, intensity_dimension>;
+    using _base = unit_t<T, std::peta, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petacandela"};
@@ -311,9 +311,9 @@ template <is_pkr_unit_c U>
 petacandela_t(const U&) -> petacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exacandela_t final : public details::unit_t<T, std::exa, intensity_dimension>
+struct exacandela_t final : public unit_t<T, std::exa, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::exa, intensity_dimension>;
+    using _base = unit_t<T, std::exa, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exacandela"};
@@ -333,103 +333,103 @@ exacandela_t(const U&) -> exacandela_t<typename details::is_pkr_unit<U>::value_t
 // Most derived unit type specializations for intensity units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, intensity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, intensity_dimension>
 {
     using type = candela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, intensity_dimension>
+struct derived_unit_type_t<T, std::atto, intensity_dimension>
 {
     using type = attocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, intensity_dimension>
+struct derived_unit_type_t<T, std::femto, intensity_dimension>
 {
     using type = femtocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, intensity_dimension>
+struct derived_unit_type_t<T, std::pico, intensity_dimension>
 {
     using type = picocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, intensity_dimension>
+struct derived_unit_type_t<T, std::nano, intensity_dimension>
 {
     using type = nanocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, intensity_dimension>
+struct derived_unit_type_t<T, std::micro, intensity_dimension>
 {
     using type = microcandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, intensity_dimension>
+struct derived_unit_type_t<T, std::milli, intensity_dimension>
 {
     using type = millicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, intensity_dimension>
+struct derived_unit_type_t<T, std::centi, intensity_dimension>
 {
     using type = centicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, intensity_dimension>
+struct derived_unit_type_t<T, std::deci, intensity_dimension>
 {
     using type = decicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, intensity_dimension>
+struct derived_unit_type_t<T, std::deca, intensity_dimension>
 {
     using type = decacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, intensity_dimension>
+struct derived_unit_type_t<T, std::hecto, intensity_dimension>
 {
     using type = hectocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, intensity_dimension>
+struct derived_unit_type_t<T, std::kilo, intensity_dimension>
 {
     using type = kilocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, intensity_dimension>
+struct derived_unit_type_t<T, std::mega, intensity_dimension>
 {
     using type = megacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, intensity_dimension>
+struct derived_unit_type_t<T, std::giga, intensity_dimension>
 {
     using type = gigacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, intensity_dimension>
+struct derived_unit_type_t<T, std::tera, intensity_dimension>
 {
     using type = teracandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, intensity_dimension>
+struct derived_unit_type_t<T, std::peta, intensity_dimension>
 {
     using type = petacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, intensity_dimension>
+struct derived_unit_type_t<T, std::exa, intensity_dimension>
 {
     using type = exacandela_t<T>;
 };

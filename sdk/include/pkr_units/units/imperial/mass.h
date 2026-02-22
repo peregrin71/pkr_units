@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial mass units
 template <is_unit_value_type_c T>
-struct grain_t final : public details::unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>
+struct grain_t final : public unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"grain"};
@@ -26,9 +26,9 @@ template <is_pkr_unit_c U>
 grain_t(const U&) -> grain_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dram_t final : public details::unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>
+struct dram_t final : public unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dram"};
@@ -45,9 +45,9 @@ template <is_pkr_unit_c U>
 dram_t(const U&) -> dram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_t final : public details::unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>
+struct ounce_t final : public unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce"};
@@ -64,9 +64,9 @@ template <is_pkr_unit_c U>
 ounce_t(const U&) -> ounce_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_t final : public details::unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>
+struct pound_t final : public unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound"};
@@ -83,9 +83,9 @@ template <is_pkr_unit_c U>
 pound_t(const U&) -> pound_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct stone_t final : public details::unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>
+struct stone_t final : public unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"stone"};
@@ -102,9 +102,9 @@ template <is_pkr_unit_c U>
 stone_t(const U&) -> stone_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hundredweight_t final : public details::unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>
+struct hundredweight_t final : public unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hundredweight"};
@@ -121,9 +121,9 @@ template <is_pkr_unit_c U>
 hundredweight_t(const U&) -> hundredweight_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct us_ton_t final : public details::unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>
+struct us_ton_t final : public unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"us_ton"};
@@ -140,9 +140,9 @@ template <is_pkr_unit_c U>
 us_ton_t(const U&) -> us_ton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct long_ton_t final : public details::unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>
+struct long_ton_t final : public unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"long_ton"};

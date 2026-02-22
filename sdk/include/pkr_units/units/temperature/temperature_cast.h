@@ -12,110 +12,105 @@ namespace PKR_UNITS_NAMESPACE
 {
 // unit_cast specializations: Converts between offset-based temperature scales.
 //
-// These specializations handle conversions that require offset adjustments
-// (Celsius <-> Fahrenheit <-> Kelvin). They intentionally bypass the ratio-based
-// unit_cast template because these scales have different zero points. Kelvin
-// conversions to other Kelvin-based units remain handled by the generic unit_cast.
+// Instead of relying on an ad-hoc trait struct, we tag Celsius and Fahrenheit
+// units via the `tag_t` parameter of `unit_t`.  Conversions are driven by the
+// tag type at compile time.
 inline constexpr double KELVIN_OFFSET = 273.15;
 
-template <typename T>
-struct temperature_affine_traits
+// helper predicate implementation that avoids touching `is_pkr_unit<U>::tag_type`
+// when `U` is not actually a pkr unit.  This prevents hard-to-debug compile
+// errors when the variable template is instantiated with unrelated types
+// (e.g. `dimension_t`).
+
+template <typename U, bool = is_pkr_unit_c<U>>
+struct affine_temp_unit_helper : std::false_type
 {
-    static constexpr bool is_affine = false;
 };
 
-template <is_unit_value_type_c T>
-struct temperature_affine_traits<celsius_t<T>>
+// Specialization for real unit types
+template <typename U>
+struct affine_temp_unit_helper<U, true>
+    : std::bool_constant<
+          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, celsius_tag_t> ||
+          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, fahrenheit_tag_t>>
 {
-    static constexpr bool is_affine = true;
-    using value_type = T;
-
-    static constexpr value_type to_kelvin(value_type value) noexcept
-    {
-        return value + static_cast<value_type>(KELVIN_OFFSET);
-    }
-
-    static constexpr value_type from_kelvin(value_type value) noexcept
-    {
-        return value - static_cast<value_type>(KELVIN_OFFSET);
-    }
 };
 
-template <is_unit_value_type_c T>
-struct temperature_affine_traits<fahrenheit_t<T>>
-{
-    static constexpr bool is_affine = true;
-    using value_type = T;
+// public variable template
+template <typename U>
+inline constexpr bool is_affine_temp_unit_v = affine_temp_unit_helper<U>::value;
 
-    static constexpr value_type to_kelvin(value_type value) noexcept
-    {
-        return ((value - static_cast<value_type>(32.0)) * static_cast<value_type>(5.0) / static_cast<value_type>(9.0)) + static_cast<value_type>(KELVIN_OFFSET);
-    }
+// any temperature-like quantity is either an affine unit (C/F) or a
+// pkr_unit whose dimension equals temperature_dimension (Kelvin and its
+// ratio-based derivatives).  Wrap the dimension check in a helper to avoid
+// referencing `details::is_pkr_unit<T>::value_dimension` when `T` is not a
+// unit type.
 
-    static constexpr value_type from_kelvin(value_type value) noexcept
-    {
-        return ((value - static_cast<value_type>(KELVIN_OFFSET)) * static_cast<value_type>(9.0) / static_cast<value_type>(5.0)) + static_cast<value_type>(32.0);
-    }
-};
-
-template <typename T, typename = void>
-struct is_temperature_pkr_unit : std::false_type
+template <typename T, bool = is_pkr_unit_c<T>>
+struct temperature_like_helper : std::false_type
 {
 };
 
 template <typename T>
-struct is_temperature_pkr_unit<T, std::enable_if_t<is_pkr_unit_c<T>>> : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
+struct temperature_like_helper<T, true> : std::bool_constant<is_affine_temp_unit_v<T> || (details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
 {
 };
 
 template <typename T>
-inline constexpr bool is_temperature_like_v = temperature_affine_traits<T>::is_affine || is_temperature_pkr_unit<T>::value;
+inline constexpr bool is_temperature_like_v = temperature_like_helper<T>::value;
+
+// convert any temperature-like quantity to a Kelvin value (double) for
+// comparison or intermediate calculations
+template <typename T>
+    requires is_temperature_like_v<T>
+constexpr double to_kelvin_for_comparison(const T& temp) noexcept
+{
+    if constexpr (std::is_same_v<unit_tag_t<T>, celsius_tag_t>)
+    {
+        return static_cast<double>(temp.value()) + KELVIN_OFFSET;
+    }
+    else if constexpr (std::is_same_v<unit_tag_t<T>, fahrenheit_tag_t>)
+    {
+        return ((static_cast<double>(temp.value()) - 32.0) * 5.0 / 9.0) + KELVIN_OFFSET;
+    }
+    else
+    {
+        auto kelvin_unit = details::unit_cast_impl<std::ratio<1, 1>>(temp);
+        return static_cast<double>(kelvin_unit.value());
+    }
+}
 
 template <typename target_unit_t, typename source_unit_t>
     requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
-             (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
+             (is_affine_temp_unit_v<target_unit_t> || is_affine_temp_unit_v<source_unit_t>)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 {
-    double kelvin_value = 0.0;
-    if constexpr (temperature_affine_traits<source_unit_t>::is_affine)
+    double kelvin_value = to_kelvin_for_comparison(source);
+    if constexpr (is_affine_temp_unit_v<target_unit_t>)
     {
-        kelvin_value = temperature_affine_traits<source_unit_t>::to_kelvin(source.value());
+        if constexpr (std::is_same_v<unit_tag_t<target_unit_t>, celsius_tag_t>)
+        {
+            return target_unit_t{static_cast<unit_value_t<target_unit_t>>(kelvin_value - KELVIN_OFFSET)};
+        }
+        else // fahrenheit
+        {
+            double f = ((kelvin_value - KELVIN_OFFSET) * 9.0 / 5.0) + 32.0;
+            return target_unit_t{static_cast<unit_value_t<target_unit_t>>(f)};
+        }
     }
     else
     {
-        auto kelvin_unit = details::unit_cast_impl<std::ratio<1, 1>>(source);
-        kelvin_value = static_cast<double>(kelvin_unit.value());
-    }
-    if constexpr (temperature_affine_traits<target_unit_t>::is_affine)
-    {
-        return target_unit_t{temperature_affine_traits<target_unit_t>::from_kelvin(kelvin_value)};
-    }
-    else
-    {
-        using ratio_type = typename details::is_pkr_unit<target_unit_t>::ratio_type;
-        using value_type = typename details::is_pkr_unit<target_unit_t>::value_type;
-        details::unit_t<value_type, std::ratio<1, 1>, temperature_dimension> base_kelvin{static_cast<value_type>(kelvin_value)};
+        using ratio_type = unit_ratio_t<target_unit_t>;
+        using value_type = unit_value_t<target_unit_t>;
+        unit_t<value_type, std::ratio<1, 1>, temperature_dimension> base_kelvin{static_cast<value_type>(kelvin_value)};
         auto converted = details::unit_cast_impl<ratio_type>(base_kelvin);
         return target_unit_t{converted.value()};
     }
 }
 
 // Special comparison operators for temperature units with affine transformations
-// Helper function to convert any temperature unit to Kelvin for comparison
-template <typename T>
-    requires is_temperature_like_v<T>
-constexpr double to_kelvin_for_comparison(const T& temp) noexcept
-{
-    if constexpr (temperature_affine_traits<T>::is_affine)
-    {
-        return temperature_affine_traits<T>::to_kelvin(temp.value());
-    }
-    else
-    {
-        // For Kelvin-based units, just return the value
-        return static_cast<double>(temp.value());
-    }
-}
+// (the `to_kelvin_for_comparison` defined above serves both comparison and
+// casting purposes; no duplicate helper is required here)
 
 // Three-way comparison for temperature units
 template <typename T1, typename T2>

@@ -9,9 +9,9 @@ namespace PKR_UNITS_NAMESPACE
 inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct volt_t final : public details::unit_t<T, std::ratio<1, 1>, electric_potential_dimension>
+struct volt_t final : public unit_t<T, std::ratio<1, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"volt"};
@@ -28,9 +28,9 @@ template <is_pkr_unit_c U>
 volt_t(const U&) -> volt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilovolt_t final : public details::unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>
+struct kilovolt_t final : public unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilovolt"};
@@ -47,9 +47,9 @@ template <is_pkr_unit_c U>
 kilovolt_t(const U&) -> kilovolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megavolt_t final : public details::unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
+struct megavolt_t final : public unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megavolt"};
@@ -66,9 +66,9 @@ template <is_pkr_unit_c U>
 megavolt_t(const U&) -> megavolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millivolt_t final : public details::unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>
+struct millivolt_t final : public unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millivolt"};
@@ -85,9 +85,9 @@ template <is_pkr_unit_c U>
 millivolt_t(const U&) -> millivolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microvolt_t final : public details::unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
+struct microvolt_t final : public unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microvolt"};
@@ -107,31 +107,31 @@ microvolt_t(const U&) -> microvolt_t<typename details::is_pkr_unit<U>::value_typ
 // Most derived unit type specializations for electric potential units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, electric_potential_dimension>
 {
     using type = volt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using type = kilovolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using type = megavolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using type = millivolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using type = microvolt_t<T>;
 };

@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial length units
 template <is_unit_value_type_c T>
-struct inch_t final : public details::unit_t<T, std::ratio<254, 10000>, length_dimension>
+struct inch_t final : public unit_t<T, std::ratio<254, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<254, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<254, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"inch"};
@@ -26,9 +26,9 @@ template <is_pkr_unit_c U>
 inch_t(const U&) -> inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct mil_t final : public details::unit_t<T, std::ratio<254, 10000000>, length_dimension>
+struct mil_t final : public unit_t<T, std::ratio<254, 10000000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<254, 10000000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<254, 10000000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mil"};
@@ -45,9 +45,9 @@ template <is_pkr_unit_c U>
 mil_t(const U&) -> mil_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct foot_t final : public details::unit_t<T, std::ratio<3048, 10000>, length_dimension>
+struct foot_t final : public unit_t<T, std::ratio<3048, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3048, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<3048, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"foot"};
@@ -64,9 +64,9 @@ template <is_pkr_unit_c U>
 foot_t(const U&) -> foot_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct yard_t final : public details::unit_t<T, std::ratio<9144, 10000>, length_dimension>
+struct yard_t final : public unit_t<T, std::ratio<9144, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<9144, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<9144, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"yard"};
@@ -83,9 +83,9 @@ template <is_pkr_unit_c U>
 yard_t(const U&) -> yard_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct fathom_t final : public details::unit_t<T, std::ratio<18288, 10000>, length_dimension>
+struct fathom_t final : public unit_t<T, std::ratio<18288, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<18288, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<18288, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"fathom"};
@@ -102,9 +102,9 @@ template <is_pkr_unit_c U>
 fathom_t(const U&) -> fathom_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct rod_t final : public details::unit_t<T, std::ratio<50292, 10000>, length_dimension>
+struct rod_t final : public unit_t<T, std::ratio<50292, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<50292, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<50292, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"rod"};
@@ -121,9 +121,9 @@ template <is_pkr_unit_c U>
 rod_t(const U&) -> rod_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct chain_t final : public details::unit_t<T, std::ratio<201168, 10000>, length_dimension>
+struct chain_t final : public unit_t<T, std::ratio<201168, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<201168, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<201168, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"chain"};
@@ -140,9 +140,9 @@ template <is_pkr_unit_c U>
 chain_t(const U&) -> chain_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct furlong_t final : public details::unit_t<T, std::ratio<201168, 1000>, length_dimension>
+struct furlong_t final : public unit_t<T, std::ratio<201168, 1000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<201168, 1000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<201168, 1000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"furlong"};
@@ -159,9 +159,9 @@ template <is_pkr_unit_c U>
 furlong_t(const U&) -> furlong_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct mile_t final : public details::unit_t<T, std::ratio<1609344, 1000>, length_dimension>
+struct mile_t final : public unit_t<T, std::ratio<1609344, 1000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1609344, 1000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1609344, 1000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mile"};
@@ -178,9 +178,9 @@ template <is_pkr_unit_c U>
 mile_t(const U&) -> mile_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nautical_mile_t final : public details::unit_t<T, std::ratio<1852, 1>, length_dimension>
+struct nautical_mile_t final : public unit_t<T, std::ratio<1852, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1852, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1852, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nautical_mile"};

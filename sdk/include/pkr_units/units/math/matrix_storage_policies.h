@@ -76,7 +76,14 @@ struct stack_storage
     using value_type = T;
     using array_type = std::array<std::array<T, 4>, 4>;
 
-    array_type data{};
+    array_type data;
+
+    // Default constructor deleted - storage must be explicitly constructed
+    // Use from_array() or other factory methods
+    stack_storage() = delete;
+
+    // Construct from an existing array
+    explicit constexpr stack_storage(const array_type& init_data) : data(init_data) {}
 
     constexpr T& get(std::size_t row, std::size_t col)
     {
@@ -136,7 +143,7 @@ struct arena_storage
     static_assert(POOL_SIZE > 0, "POOL_SIZE must be greater than 0");
 
     std::size_t arena_index;
-    array_type stack_fallback{};
+    array_type stack_fallback;
     bool using_arena{false};
 
     // Monitoring statistics
@@ -144,13 +151,21 @@ struct arena_storage
     static inline std::size_t fallback_count = 0;
 
 private:
-    static inline std::array<array_type, POOL_SIZE> s_pool{};
+    // Use char buffer for uninitialized storage, managed manually with placement new
+    static inline std::array<std::byte, sizeof(array_type) * POOL_SIZE> s_pool_buffer;
     static inline std::bitset<POOL_SIZE> s_in_use{};
+    static inline bool s_pool_initialized{false};
+
+    // Get the pool as array_type pointers
+    static array_type* get_pool_ptr()
+    {
+        return reinterpret_cast<array_type*>(s_pool_buffer.data());
+    }
 
 public:
-    arena_storage()
-        : arena_index(POOL_SIZE)
-
+    // Construct arena storage from an array
+    explicit constexpr arena_storage(const array_type& init_fallback)
+        : arena_index(POOL_SIZE), stack_fallback(init_fallback), using_arena(false)
     {
         // Try to allocate from arena
         for (std::size_t i = 0; i < POOL_SIZE; ++i)
@@ -219,22 +234,22 @@ public:
 
     T& get(std::size_t row, std::size_t col)
     {
-        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
     }
 
     const T& get(std::size_t row, std::size_t col) const
     {
-        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
     }
 
     std::array<T, 4>& operator[](std::size_t row)
     {
-        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+        return using_arena ? get_pool_ptr()[arena_index][row] : stack_fallback[row];
     }
 
     const std::array<T, 4>& operator[](std::size_t row) const
     {
-        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+        return using_arena ? get_pool_ptr()[arena_index][row] : stack_fallback[row];
     }
 
     // ========== Monitoring Utilities ==========

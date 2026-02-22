@@ -4,8 +4,11 @@
  * @file si_units.h
  * @brief Master header for the pkr_units library
  * 
- * Include this file to get access to the complete SI units system and framework
- * for creating custom units.
+ * Include this file to get access to the core SI units system and
+ * framework for creating custom units.  Computer-science-specific
+ * units (bits, bytes, FLOPs, neural ops, etc.) are intentionally
+ * **not** pulled in by the master header; they must be included
+ * separately when needed.
  * 
  * Usage:
  *   #include <pkr_units/si_units.h>
@@ -62,6 +65,16 @@
 #include <pkr_units/units/derived/radiometry/radiance.h>
 #include <pkr_units/units/derived/radiometry/irradiance.h>
 #include <pkr_units/units/dimensionless/scalar.h>
+
+// ============================================================================
+// NOTES
+// ============================================================================
+// Computer-science / computing units are _not_ included by default; users
+// who require them should pull in the appropriate headers, e.g.
+//   #include <pkr_units/units/computer_science/bits.h>
+//   #include <pkr_units/units/computer_science/bytes.h>
+//   #include <pkr_units/units/computer_science/flop.h>
+//   #include <pkr_units/units/computer_science/neural.h
 
 // ============================================================================
 // Unit Operators and Casting

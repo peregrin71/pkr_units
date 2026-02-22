@@ -51,6 +51,9 @@ inline constexpr dimension_t temperature_dimension{0, 0, 0, 0, 1, 0, 0, 0, 0};
 inline constexpr dimension_t amount_dimension{0, 0, 0, 0, 0, 1, 0, 0, 0};
 inline constexpr dimension_t intensity_dimension{0, 0, 0, 0, 0, 0, 1, 0, 0};
 
+// amount rate: amount per time (e.g. bits/s, flops/s, nops/s)
+inline constexpr dimension_t amount_rate_dimension{0, 0, -1, 0, 0, 1, 0, 0, 0};
+
 // Derived Dimensions
 inline constexpr dimension_t area_dimension{2, 0, 0, 0, 0, 0, 0, 0, 0};
 inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0, 0};

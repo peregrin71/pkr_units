@@ -1,6 +1,7 @@
 #pragma once
 #include <pkr_units/impl/namespace_config.h>
 #include <pkr_units/units/math/matrix_storage_policies.h>
+#include <pkr_units/math/4d/vector_4d.h>
 
 namespace PKR_UNITS_NAMESPACE
 {
@@ -9,7 +10,7 @@ namespace PKR_UNITS_NAMESPACE
 // StoragePolicy parameter allows stack or arena-based allocation
 // Default: stack_storage (zero overhead, current behavior)
 // ============================================================================
-template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
+template <is_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
 class matrix_4d_units_t
 {
 public:
@@ -19,17 +20,13 @@ public:
 
     storage_type storage;
 
-    constexpr matrix_4d_units_t() = default;
+    // Default constructor deleted - use explicit construction methods
+    // identity_4d(), from_array(), or other factory functions instead
+    matrix_4d_units_t() = delete;
 
-    constexpr matrix_4d_units_t(const array_type& arr)
+    // Construct from an array by passing it to storage
+    explicit matrix_4d_units_t(const array_type& arr) : storage(arr)
     {
-        for (std::size_t r = 0; r < 4; ++r)
-        {
-            for (std::size_t c = 0; c < 4; ++c)
-            {
-                storage.get(r, c) = arr[r][c];
-            }
-        }
     }
 
     constexpr T& operator()(std::size_t row, std::size_t col)

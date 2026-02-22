@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for steradian (SI base unit for solid angle)
 template <is_unit_value_type_c T>
-struct steradian_t final : public details::unit_t<T, std::ratio<1, 1>, solid_angle_dimension>
+struct steradian_t final : public unit_t<T, std::ratio<1, 1>, solid_angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, solid_angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, solid_angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"steradian"};
@@ -29,7 +29,7 @@ steradian_t(const U&) -> steradian_t<typename details::is_pkr_unit<U>::value_typ
 // Most derived unit type specializations
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, solid_angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, solid_angle_dimension>
 {
     using type = steradian_t<T>;
 };

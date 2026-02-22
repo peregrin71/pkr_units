@@ -11,9 +11,9 @@ inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0, 0};
 // Pressure units (Pascal and derived)
 // Base unit: Pascal (Pa) = kgÂ·mâ»Â¹Â·sâ»Â²
 template <is_unit_value_type_c T>
-struct pascal_t final : public details::unit_t<T, std::ratio<1, 1>, pressure_dimension>
+struct pascal_t final : public unit_t<T, std::ratio<1, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pascal"};
@@ -30,9 +30,9 @@ template <is_pkr_unit_c U>
 pascal_t(const U&) -> pascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilopascal_t final : public details::unit_t<T, std::ratio<1000, 1>, pressure_dimension>
+struct kilopascal_t final : public unit_t<T, std::ratio<1000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilopascal"};
@@ -49,9 +49,9 @@ template <is_pkr_unit_c U>
 kilopascal_t(const U&) -> kilopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectopascal_t final : public details::unit_t<T, std::ratio<100, 1>, pressure_dimension>
+struct hectopascal_t final : public unit_t<T, std::ratio<100, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<100, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<100, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectopascal"};
@@ -68,9 +68,9 @@ template <is_pkr_unit_c U>
 hectopascal_t(const U&) -> hectopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megapascal_t final : public details::unit_t<T, std::ratio<1000000, 1>, pressure_dimension>
+struct megapascal_t final : public unit_t<T, std::ratio<1000000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megapascal"};
@@ -87,9 +87,9 @@ template <is_pkr_unit_c U>
 megapascal_t(const U&) -> megapascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micropascal_t final : public details::unit_t<T, std::ratio<1, 1000000>, pressure_dimension>
+struct micropascal_t final : public unit_t<T, std::ratio<1, 1000000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micropascal"};
@@ -106,9 +106,9 @@ template <is_pkr_unit_c U>
 micropascal_t(const U&) -> micropascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millipascal_t final : public details::unit_t<T, std::ratio<1, 1000>, pressure_dimension>
+struct millipascal_t final : public unit_t<T, std::ratio<1, 1000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millipascal"};
@@ -125,9 +125,9 @@ template <is_pkr_unit_c U>
 millipascal_t(const U&) -> millipascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanopascal_t final : public details::unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>
+struct nanopascal_t final : public unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanopascal"};
@@ -144,9 +144,9 @@ template <is_pkr_unit_c U>
 nanopascal_t(const U&) -> nanopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct bar_t final : public details::unit_t<T, std::ratio<100000, 1>, pressure_dimension>
+struct bar_t final : public unit_t<T, std::ratio<100000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<100000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<100000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"bar"};
@@ -163,9 +163,9 @@ template <is_pkr_unit_c U>
 bar_t(const U&) -> bar_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct atmosphere_t final : public details::unit_t<T, std::ratio<101325, 1>, pressure_dimension>
+struct atmosphere_t final : public unit_t<T, std::ratio<101325, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<101325, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<101325, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"atmosphere"};
@@ -179,55 +179,55 @@ atmosphere_t(T) -> atmosphere_t<T>;
 
 // Pressure units
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, pressure_dimension>
 {
     using type = pascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, pressure_dimension>
 {
     using type = kilopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<100, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<100, 1>, pressure_dimension>
 {
     using type = hectopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, pressure_dimension>
 {
     using type = megapascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, pressure_dimension>
 {
     using type = micropascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, pressure_dimension>
 {
     using type = millipascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, pressure_dimension>
 {
     using type = nanopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<100000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<100000, 1>, pressure_dimension>
 {
     using type = bar_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<101325, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<101325, 1>, pressure_dimension>
 {
     using type = atmosphere_t<T>;
 };

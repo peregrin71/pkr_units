@@ -16,6 +16,9 @@ def generate(out_path: Path):
     entries = []
     for path in ROOT.rglob('*.h'):
         rel = path.relative_to(ROOT).as_posix()
+        # skip removed/legacy umbrella header
+        if rel == 'units/computer_science/count.h':
+            continue
         entries.append(rel)
     entries.sort()
 

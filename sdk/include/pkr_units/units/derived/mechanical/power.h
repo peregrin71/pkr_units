@@ -11,9 +11,9 @@ inline constexpr dimension_t power_dimension{2, 1, -3, 0, 0, 0, 0, 0};
 // Power units (Watt and derived)
 // Base unit: Watt (W) = kgÂ·mÂ²Â·sâ»Â³
 template <is_unit_value_type_c T>
-struct watt_t final : public details::unit_t<T, std::ratio<1, 1>, power_dimension>
+struct watt_t final : public unit_t<T, std::ratio<1, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt"};
@@ -30,9 +30,9 @@ template <is_pkr_unit_c U>
 watt_t(const U&) -> watt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilowatt_t final : public details::unit_t<T, std::ratio<1000, 1>, power_dimension>
+struct kilowatt_t final : public unit_t<T, std::ratio<1000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilowatt"};
@@ -49,9 +49,9 @@ template <is_pkr_unit_c U>
 kilowatt_t(const U&) -> kilowatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megawatt_t final : public details::unit_t<T, std::ratio<1000000, 1>, power_dimension>
+struct megawatt_t final : public unit_t<T, std::ratio<1000000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megawatt"};
@@ -68,9 +68,9 @@ template <is_pkr_unit_c U>
 megawatt_t(const U&) -> megawatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigawatt_t final : public details::unit_t<T, std::ratio<1000000000, 1>, power_dimension>
+struct gigawatt_t final : public unit_t<T, std::ratio<1000000000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigawatt"};
@@ -87,9 +87,9 @@ template <is_pkr_unit_c U>
 gigawatt_t(const U&) -> gigawatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microwatt_t final : public details::unit_t<T, std::ratio<1, 1000000>, power_dimension>
+struct microwatt_t final : public unit_t<T, std::ratio<1, 1000000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microwatt"};
@@ -106,9 +106,9 @@ template <is_pkr_unit_c U>
 microwatt_t(const U&) -> microwatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliwatt_t final : public details::unit_t<T, std::ratio<1, 1000>, power_dimension>
+struct milliwatt_t final : public unit_t<T, std::ratio<1, 1000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliwatt"};
@@ -125,9 +125,9 @@ template <is_pkr_unit_c U>
 milliwatt_t(const U&) -> milliwatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanowatt_t final : public details::unit_t<T, std::ratio<1, 1000000000>, power_dimension>
+struct nanowatt_t final : public unit_t<T, std::ratio<1, 1000000000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanowatt"};
@@ -145,43 +145,43 @@ nanowatt_t(const U&) -> nanowatt_t<typename details::is_pkr_unit<U>::value_type>
 
 // Power units
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, power_dimension>
 {
     using type = watt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, power_dimension>
 {
     using type = kilowatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, power_dimension>
 {
     using type = megawatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, power_dimension>
 {
     using type = gigawatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, power_dimension>
 {
     using type = microwatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, power_dimension>
 {
     using type = milliwatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, power_dimension>
 {
     using type = nanowatt_t<T>;
 };

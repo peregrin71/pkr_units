@@ -64,7 +64,7 @@ struct power_of
     using powered_ratio = std::ratio<powered_num, powered_den>;
 
     // The resulting unit type - can be used directly in si_cast
-    using type = details::unit_t<value_type, powered_ratio, powered_dim>;
+    using type = unit_t<value_type, powered_ratio, powered_dim>;
 };
 
 // Convenience alias to get the unit type from power_of

@@ -89,7 +89,7 @@ inline void format_to_stack_buffer(PKR_UNITS_NAMESPACE::impl::format_buffer<Char
 
 // Specialization for complex-valued base unit_t types
 template <typename Real, typename ratio_t, PKR_UNITS_NAMESPACE::dimension_t dim_v, typename CharT>
-struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
+struct formatter<PKR_UNITS_NAMESPACE::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
 {
     std::formatter<Real, CharT> value_formatter;
     mutable std::basic_string_view<CharT> saved_format_spec;
@@ -104,7 +104,7 @@ struct formatter<PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_
     }
 
     template <typename FormatContext>
-    auto format(const PKR_UNITS_NAMESPACE::details::unit_t<std::complex<Real>, ratio_t, dim_v>& unit, FormatContext& ctx) const
+    auto format(const PKR_UNITS_NAMESPACE::unit_t<std::complex<Real>, ratio_t, dim_v>& unit, FormatContext& ctx) const
     {
         auto out = ctx.out();
         const auto v = unit.value();

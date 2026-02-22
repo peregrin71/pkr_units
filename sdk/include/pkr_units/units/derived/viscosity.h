@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 // Dynamic viscosity units
 // Base unit: pascal second (Pa*s) = kgÂ·m^-1Â·s^-1
 template <is_unit_value_type_c T>
-struct pascal_second_t final : public details::unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
+struct pascal_second_t final : public unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pascal_second"};
@@ -28,9 +28,9 @@ pascal_second_t(const U&) -> pascal_second_t<typename details::is_pkr_unit<U>::v
 // Kinematic viscosity units
 // Base unit: square meter per second (m^2/s) = m^2Â·s^-1
 template <is_unit_value_type_c T>
-struct square_meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
+struct square_meter_per_second_t final : public unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square_meter_per_second"};
@@ -47,13 +47,13 @@ template <is_pkr_unit_c U>
 square_meter_per_second_t(const U&) -> square_meter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
 {
     using type = pascal_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
 {
     using type = square_meter_per_second_t<T>;
 };

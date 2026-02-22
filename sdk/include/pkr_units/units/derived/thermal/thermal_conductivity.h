@@ -10,9 +10,9 @@ inline constexpr dimension_t thermal_conductivity_dimension{1, 1, -3, 0, -1, 0, 
 
 // Thermal conductivity unit: W/(m*K)
 template <is_unit_value_type_c T>
-struct thermal_conductivity_t final : public details::unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct thermal_conductivity_t final : public unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"thermal_conductivity"};
@@ -25,14 +25,14 @@ template <is_unit_value_type_c T>
 thermal_conductivity_t(T) -> thermal_conductivity_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
     using type = thermal_conductivity_t<T>;
 };
 
 // Explicit double instantiation
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
     using type = thermal_conductivity_t<double>;
 };

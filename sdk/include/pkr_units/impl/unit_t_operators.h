@@ -20,24 +20,25 @@ concept same_dimensions_c = details::is_pkr_unit<T1>::value_dimension.length == 
                             details::is_pkr_unit<T1>::value_dimension.temperature == details::is_pkr_unit<T2>::value_dimension.temperature &&
                             details::is_pkr_unit<T1>::value_dimension.amount == details::is_pkr_unit<T2>::value_dimension.amount &&
                             details::is_pkr_unit<T1>::value_dimension.intensity == details::is_pkr_unit<T2>::value_dimension.intensity &&
-                            details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle;
+                            details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle &&
+                            std::is_same_v<typename details::is_pkr_unit<T1>::tag_type, typename details::is_pkr_unit<T2>::tag_type>;
 
 // Direct unit_t addition for base units (same ratio, same dimension)
-template <typename type_t, typename ratio_t, dimension_t dim_v>
-constexpr details::unit_t<type_t, ratio_t, dim_v>
-    operator+(const details::unit_t<type_t, ratio_t, dim_v>& lhs, const details::unit_t<type_t, ratio_t, dim_v>& rhs) noexcept
+template <typename type_t, typename ratio_t, dimension_t dim_v, typename tag_t = void>
+constexpr unit_t<type_t, ratio_t, dim_v, tag_t>
+    operator+(const unit_t<type_t, ratio_t, dim_v, tag_t>& lhs, const unit_t<type_t, ratio_t, dim_v, tag_t>& rhs) noexcept
 {
-    return details::unit_t<type_t, ratio_t, dim_v>{lhs.value() + rhs.value()};
+    return unit_t<type_t, ratio_t, dim_v, tag_t>{lhs.value() + rhs.value()};
 }
 
 // Direct unit_t addition for units with same dimension, different ratios
-template <typename type_t, typename ratio_t1, typename ratio_t2, dimension_t dim_v>
+template <typename type_t, typename ratio_t1, typename ratio_t2, dimension_t dim_v, typename tag_t = void>
     requires(!std::is_same_v<ratio_t1, ratio_t2>)
-constexpr details::unit_t<type_t, ratio_t1, dim_v>
-    operator+(const details::unit_t<type_t, ratio_t1, dim_v>& lhs, const details::unit_t<type_t, ratio_t2, dim_v>& rhs) noexcept
+constexpr unit_t<type_t, ratio_t1, dim_v, tag_t>
+    operator+(const unit_t<type_t, ratio_t1, dim_v, tag_t>& lhs, const unit_t<type_t, ratio_t2, dim_v, tag_t>& rhs) noexcept
 {
     type_t converted_rhs = details::convert_ratio_to<type_t, ratio_t2, ratio_t1>(rhs.value());
-    return details::unit_t<type_t, ratio_t1, dim_v>{lhs.value() + converted_rhs};
+    return unit_t<type_t, ratio_t1, dim_v, tag_t>{lhs.value() + converted_rhs};
 }
 
 // ============================================================================
@@ -95,6 +96,13 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(!same_dimensions_c<T1, T2>)
+constexpr auto operator+(const T1&, const T2&) noexcept
+{
+    static_assert(same_dimensions_c<T1, T2>, "invalid operands to operator+ : operands must have the same dimensions");
+}
+
 // Subtraction operator - unified for all base/derived combinations
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires(same_dimensions_c<T1, T2>)
@@ -140,6 +148,13 @@ constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(!same_dimensions_c<T1, T2>)
+constexpr auto operator-(const T1&, const T2&) noexcept
+{
+    static_assert(same_dimensions_c<T1, T2>, "invalid operands to operator- : operands must have the same dimensions");
+}
+
 // Unary negation operator - unified for base and derived types
 template <is_pkr_unit_c T>
 constexpr T operator-(const T& a) noexcept
@@ -169,7 +184,17 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
         .angle = dim1.angle + dim2.angle};
 
     using result_ratio = std::ratio_multiply<lhs_ratio, rhs_ratio>;
-    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+
+    // Tag propagation: normalize `untagged_t` -> void and preserve when equal; if
+    // both non‑void but different the tag is dropped.
+    using lhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T1>::tag_type>;
+    using rhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T2>::tag_type>;
+    using result_tag = std::conditional_t<
+        std::is_same_v<lhs_tag, rhs_tag>,
+        lhs_tag,
+        std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
+    using result_type = typename derived_unit_type_t<value_type, result_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs.value(), rhs.value())};
 }
 
@@ -195,7 +220,16 @@ constexpr auto operator/(const T1& lhs, const T2& rhs) noexcept
         .angle = dim1.angle - dim2.angle};
 
     using result_ratio = std::ratio_divide<lhs_ratio, rhs_ratio>;
-    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+
+    // Tag propagation for division (same policy as multiplication)
+    using lhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T1>::tag_type>;
+    using rhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T2>::tag_type>;
+    using result_tag = std::conditional_t<
+        std::is_same_v<lhs_tag, rhs_tag>,
+        lhs_tag,
+        std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
+    using result_type = typename derived_unit_type_t<value_type, result_ratio, combined_dim, result_tag>::type;
     return result_type{details::divide_values(lhs.value(), rhs.value())};
 }
 
@@ -223,7 +257,8 @@ constexpr auto operator*(const T& lhs, const S& rhs) noexcept
 
     // Preserve lhs unit and ratio
     value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, combined_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, lhs_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs.value(), rhs_converted)};
 }
 
@@ -250,7 +285,8 @@ constexpr auto operator*(const S& lhs, const T& rhs) noexcept
 
     // Use rhs as reference
     value_type lhs_converted = details::convert_ratio_to<value_type, lhs_ratio, rhs_ratio>(lhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, rhs_ratio, combined_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, rhs_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs_converted, rhs.value())};
 }
 
@@ -277,7 +313,8 @@ constexpr auto operator/(const T& lhs, const S& rhs) noexcept
 
     // Preserve lhs unit ratio
     value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, result_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, lhs_ratio, result_dim, result_tag>::type;
     return result_type{details::divide_values(lhs.value(), rhs_converted)};
 }
 
@@ -303,7 +340,8 @@ constexpr auto operator/(const S& lhs, const T& rhs) noexcept
         .intensity = -dim2.intensity,
         .angle = -dim2.angle};
 
-    using result_type = typename details::derived_unit_type_t<value_type, inv_ratio, inv_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, inv_ratio, inv_dim, result_tag>::type;
     // Convert rhs to canonical for stable division
     value_type rhs_canonical = details::convert_ratio_to<value_type, rhs_ratio, std::ratio<1, 1>>(rhs.value());
     return result_type{details::divide_values(lhs.value(), rhs_canonical)};
@@ -318,7 +356,8 @@ constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
     // Ensure scalar uses same value_type before dividing
     return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
@@ -333,7 +372,8 @@ constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
     // Ensure scalar and unit value use the same value_type before multiplying
     return result_type(details::multiply_values<value_type>(static_cast<value_type>(scalar), unit.value()));
 }
@@ -362,7 +402,8 @@ constexpr auto operator/(const ScalarType& scalar, const T& unit)
     // Invert the ratio for division
     using inverted_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
 
-    using result_type = typename details::derived_unit_type_t<value_type, inverted_ratio, inverted_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, inverted_ratio, inverted_dim, result_tag>::type;
     // Ensure scalar uses same value_type before dividing
     return result_type(details::divide_values<value_type>(static_cast<value_type>(scalar), unit.value()));
 }
@@ -411,7 +452,8 @@ constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
     return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
 

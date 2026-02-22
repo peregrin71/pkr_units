@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 // CGS acceleration unit (formatting-friendly, not a derived-unit mapping)
 // Gal (cm/s^2) = 0.01 m/s^2
 template <is_unit_value_type_c T>
-struct gal_t final : public details::unit_t<T, std::ratio<1, 100>, acceleration_v>
+struct gal_t final : public unit_t<T, std::ratio<1, 100>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1, 100>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gal"};

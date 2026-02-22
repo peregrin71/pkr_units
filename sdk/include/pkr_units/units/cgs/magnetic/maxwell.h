@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // CGS magnetic flux unit
 // Maxwell = 10^-8 weber
 template <is_unit_value_type_c T>
-struct maxwell_t final : public details::unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
+struct maxwell_t final : public unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"maxwell"};
@@ -27,7 +27,7 @@ template <is_pkr_unit_c U>
 maxwell_t(const U&) -> maxwell_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
 {
     using type = maxwell_t<T>;
 };

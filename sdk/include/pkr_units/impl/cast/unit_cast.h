@@ -5,6 +5,15 @@
 #include <type_traits>
 #include <ratio>
 
+// Forward declare temperature tags so we can exclude affine conversions from
+// the generic unit_cast overload without including temperature headers (which
+// would create a circular dependency).
+namespace PKR_UNITS_NAMESPACE
+{
+struct celsius_tag_t;
+struct fahrenheit_tag_t;
+} // namespace PKR_UNITS_NAMESPACE
+
 namespace PKR_UNITS_NAMESPACE
 {
 
@@ -18,51 +27,74 @@ constexpr type_t compute_conversion_factor(long long source_num, long long sourc
     return (static_cast<type_t>(source_num) * static_cast<type_t>(target_den)) / (static_cast<type_t>(source_den) * static_cast<type_t>(target_num));
 }
 
-// Internal cast function (preserves dimension, converts ratio)
-template <typename target_ratio_t, typename type_t, typename source_ratio_t, dimension_t dim_v>
-constexpr details::unit_t<type_t, target_ratio_t, dim_v> unit_cast_impl(const details::unit_t<type_t, source_ratio_t, dim_v>& source) noexcept
+// Internal cast function (preserves dimension, converts ratio).
+// Accepts any pkr unit (base or derived) thanks to the new `unit_traits`.
+// The returned object is always a bare `unit_t`; callers may wrap it in a
+// stronger type if desired.
+
+template <typename target_ratio_t, pkr_unit_c Source>
+constexpr auto unit_cast_impl(const Source& source) noexcept
 {
-    if constexpr (std::is_same_v<source_ratio_t, target_ratio_t>)
+    using V = unit_value_t<Source>;
+    using SR = unit_ratio_t<Source>;
+    constexpr dimension_t D = ::PKR_UNITS_NAMESPACE::details::unit_traits<Source>::dimension::value;
+
+    if constexpr (std::is_same_v<SR, target_ratio_t>)
     {
-        // No conversion needed - same ratio
-        return source;
+        return unit_t<V, target_ratio_t, D>(source.value());
     }
     else
     {
-        // Convert between different ratios using type_t for precision matching
-        constexpr type_t conversion_factor =
-            compute_conversion_factor<type_t>(source_ratio_t::num, source_ratio_t::den, target_ratio_t::num, target_ratio_t::den);
-        type_t converted_value = source.value() * conversion_factor;
-        return details::unit_t<type_t, target_ratio_t, dim_v>(converted_value);
+        constexpr V factor = compute_conversion_factor<V>(SR::num, SR::den, target_ratio_t::num, target_ratio_t::den);
+        return unit_t<V, target_ratio_t, D>(source.value() * factor);
     }
 }
 
 // Concept: two types have the same dimension
 template <typename Target, typename Source>
-concept same_dimension_si_units = details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension;
+concept same_dimension_si_units = is_pkr_unit<Target>::value_dimension == is_pkr_unit<Source>::value_dimension;
 } // namespace details
 
-// Overload 1: For casting between direct unit_t types
+// Compatibility overload: the original API allowed callers to specify the
+// target unit parameters directly (value type, ratio, dimension).  Older
+// tests and user code relied on that form.  Reintroduce it as a thin wrapper
+// around the new general template to avoid breaking existing call sites.
+
+// Overload 1 (compatibility): same as the previous implementation
 template <typename target_type_t, typename target_ratio_t, dimension_t target_dim_v, typename source_type_t, typename source_ratio_t, dimension_t source_dim_v>
     requires(target_dim_v == source_dim_v) // Same dimension
-constexpr details::unit_t<target_type_t, target_ratio_t, target_dim_v>
-    unit_cast(const details::unit_t<source_type_t, source_ratio_t, source_dim_v>& source) noexcept
+constexpr unit_t<target_type_t, target_ratio_t, target_dim_v> unit_cast(const unit_t<source_type_t, source_ratio_t, source_dim_v>& source) noexcept
 {
-    return details::unit_cast_impl<target_ratio_t>(source);
+    using target_unit_t = unit_t<target_type_t, target_ratio_t, target_dim_v>;
+    // delegate to the unified template
+    return unit_cast<target_unit_t>(source);
 }
 
-// Overload 2: For casting between derived types (e.g., meter_per_second_t -> kilometer_per_hour_t)
-// These are types that inherit from unit_t
-template <typename target_unit_t, typename source_unit_t>
-    requires std::is_base_of_v<typename target_unit_t::_base, target_unit_t> && std::is_base_of_v<typename source_unit_t::_base, source_unit_t> &&
-             (details::is_pkr_unit<target_unit_t>::value_dimension == details::is_pkr_unit<source_unit_t>::value_dimension)
-constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
-{
-    using target_ratio = typename details::is_pkr_unit<target_unit_t>::ratio_type;
+// Unified casting for any two pkr units with matching dimensions.  This
+// handles plain `unit_t` types, derived strong types, or any mix of the two.
+// The old two-overload design was brittle; overload resolution could fail when
+// one operand was a base type and the other a derived type because the second
+// overload required both arguments to have an `_base` alias.  The result was
+// the caller ending up with a plain `unit_t` when a more specific derived type
+// existed (see examples errors during clang build).  The new implementation
+// computes the conversion via `unit_cast_impl` and then constructs the target
+// type from the converted value, which works uniformly.
 
-    // Convert to base unit_t first, then construct the derived type
+template <is_pkr_unit_c Target, is_pkr_unit_c Source>
+    requires(details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension) &&
+            (!std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, celsius_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, fahrenheit_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Source>::tag_type, celsius_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Source>::tag_type, fahrenheit_tag_t>)
+constexpr Target unit_cast(const Source& source) noexcept
+{
+    using target_ratio = typename details::is_pkr_unit<Target>::ratio_type;
     auto converted = details::unit_cast_impl<target_ratio>(source);
-    return target_unit_t(converted.value());
+
+    if constexpr (std::is_constructible_v<Target, decltype(converted.value())>)
+        return Target(converted.value());
+    else
+        return converted; // already target-esque unit_t
 }
 
 } // namespace PKR_UNITS_NAMESPACE
