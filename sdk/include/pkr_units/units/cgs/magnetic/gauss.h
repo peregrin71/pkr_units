@@ -9,9 +9,9 @@ namespace PKR_UNITS_NAMESPACE
 // Gauss (CGS unit for magnetic flux density)
 // 1 Gauss = 10^-4 Tesla
 template <is_unit_value_type_c T>
-struct gauss_t final : public details::unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>
+struct gauss_t final : public unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gauss"};

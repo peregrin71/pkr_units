@@ -10,7 +10,7 @@ namespace units
 {
 
 // Area unit (m²) for testing
-using square_meter_t = details::unit_t<double, std::ratio<1>, dimension_t{2, 0, 0, 0, 0, 0, 0, 0}>;
+using square_meter_t = unit_t<double, std::ratio<1>, dimension_t{2, 0, 0, 0, 0, 0, 0, 0}>;
 
 } // namespace units
 } // namespace pkr

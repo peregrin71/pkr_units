@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 // Strong type for kilogram (SI base unit for mass)
 // NOTE: Kilogram is the base SI unit, not gram (unlike length where meter is base)
 template <is_unit_value_type_c T>
-struct kilogram_t final : public details::unit_t<T, std::ratio<1, 1>, mass_dimension>
+struct kilogram_t final : public unit_t<T, std::ratio<1, 1>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram"};
@@ -30,9 +30,9 @@ kilogram_t(const U&) -> kilogram_t<typename details::is_pkr_unit<U>::value_type>
 // NOTE: attogram (10^-21) and femtogram (10^-18) exceed std::ratio limits
 // and are omitted. The smallest representable is picogram (10^-15).
 template <is_unit_value_type_c T>
-struct picogram_t final : public details::unit_t<T, std::femto, mass_dimension>
+struct picogram_t final : public unit_t<T, std::femto, mass_dimension>
 {
-    using _base = details::unit_t<T, std::femto, mass_dimension>;
+    using _base = unit_t<T, std::femto, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picogram"};
@@ -49,9 +49,9 @@ template <is_pkr_unit_c U>
 picogram_t(const U&) -> picogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanogram_t final : public details::unit_t<T, std::pico, mass_dimension>
+struct nanogram_t final : public unit_t<T, std::pico, mass_dimension>
 {
-    using _base = details::unit_t<T, std::pico, mass_dimension>;
+    using _base = unit_t<T, std::pico, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanogram"};
@@ -68,9 +68,9 @@ template <is_pkr_unit_c U>
 nanogram_t(const U&) -> nanogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microgram_t final : public details::unit_t<T, std::nano, mass_dimension>
+struct microgram_t final : public unit_t<T, std::nano, mass_dimension>
 {
-    using _base = details::unit_t<T, std::nano, mass_dimension>;
+    using _base = unit_t<T, std::nano, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microgram"};
@@ -87,9 +87,9 @@ template <is_pkr_unit_c U>
 microgram_t(const U&) -> microgram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_t final : public details::unit_t<T, std::micro, mass_dimension>
+struct milligram_t final : public unit_t<T, std::micro, mass_dimension>
 {
-    using _base = details::unit_t<T, std::micro, mass_dimension>;
+    using _base = unit_t<T, std::micro, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram"};
@@ -106,9 +106,9 @@ template <is_pkr_unit_c U>
 milligram_t(const U&) -> milligram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centigram_t final : public details::unit_t<T, std::ratio<1, 100000>, mass_dimension>
+struct centigram_t final : public unit_t<T, std::ratio<1, 100000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centigram"};
@@ -125,9 +125,9 @@ template <is_pkr_unit_c U>
 centigram_t(const U&) -> centigram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decigram_t final : public details::unit_t<T, std::ratio<1, 10000>, mass_dimension>
+struct decigram_t final : public unit_t<T, std::ratio<1, 10000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decigram"};
@@ -145,9 +145,9 @@ decigram_t(const U&) -> decigram_t<typename details::is_pkr_unit<U>::value_type>
 
 // gram is 1/1000 of kilogram
 template <is_unit_value_type_c T>
-struct gram_t final : public details::unit_t<T, std::milli, mass_dimension>
+struct gram_t final : public unit_t<T, std::milli, mass_dimension>
 {
-    using _base = details::unit_t<T, std::milli, mass_dimension>;
+    using _base = unit_t<T, std::milli, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram"};
@@ -164,9 +164,9 @@ template <is_pkr_unit_c U>
 gram_t(const U&) -> gram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decagram_t final : public details::unit_t<T, std::centi, mass_dimension>
+struct decagram_t final : public unit_t<T, std::centi, mass_dimension>
 {
-    using _base = details::unit_t<T, std::centi, mass_dimension>;
+    using _base = unit_t<T, std::centi, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decagram"};
@@ -179,9 +179,9 @@ template <is_unit_value_type_c T>
 decagram_t(T) -> decagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectogram_t final : public details::unit_t<T, std::deci, mass_dimension>
+struct hectogram_t final : public unit_t<T, std::deci, mass_dimension>
 {
-    using _base = details::unit_t<T, std::deci, mass_dimension>;
+    using _base = unit_t<T, std::deci, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectogram"};
@@ -195,9 +195,9 @@ hectogram_t(T) -> hectogram_t<T>;
 
 // Larger mass units
 template <is_unit_value_type_c T>
-struct gigagram_t final : public details::unit_t<T, std::mega, mass_dimension>
+struct gigagram_t final : public unit_t<T, std::mega, mass_dimension>
 {
-    using _base = details::unit_t<T, std::mega, mass_dimension>;
+    using _base = unit_t<T, std::mega, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigagram"};
@@ -210,9 +210,9 @@ template <is_unit_value_type_c T>
 gigagram_t(T) -> gigagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct teragram_t final : public details::unit_t<T, std::giga, mass_dimension>
+struct teragram_t final : public unit_t<T, std::giga, mass_dimension>
 {
-    using _base = details::unit_t<T, std::giga, mass_dimension>;
+    using _base = unit_t<T, std::giga, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teragram"};
@@ -225,9 +225,9 @@ template <is_unit_value_type_c T>
 teragram_t(T) -> teragram_t<T>;
 
 template <is_unit_value_type_c T>
-struct petagram_t final : public details::unit_t<T, std::tera, mass_dimension>
+struct petagram_t final : public unit_t<T, std::tera, mass_dimension>
 {
-    using _base = details::unit_t<T, std::tera, mass_dimension>;
+    using _base = unit_t<T, std::tera, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petagram"};
@@ -240,9 +240,9 @@ template <is_unit_value_type_c T>
 petagram_t(T) -> petagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct exagram_t final : public details::unit_t<T, std::peta, mass_dimension>
+struct exagram_t final : public unit_t<T, std::peta, mass_dimension>
 {
-    using _base = details::unit_t<T, std::peta, mass_dimension>;
+    using _base = unit_t<T, std::peta, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exagram"};
@@ -256,9 +256,9 @@ exagram_t(T) -> exagram_t<T>;
 
 // Common mass units
 template <is_unit_value_type_c T>
-struct metric_ton_t final : public details::unit_t<T, std::kilo, mass_dimension>
+struct metric_ton_t final : public unit_t<T, std::kilo, mass_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, mass_dimension>;
+    using _base = unit_t<T, std::kilo, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"metric ton"};
@@ -274,91 +274,91 @@ metric_ton_t(T) -> metric_ton_t<T>;
 // Most derived unit type specializations for mass units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, mass_dimension>
 {
     using type = kilogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, mass_dimension>
+struct derived_unit_type_t<T, std::femto, mass_dimension>
 {
     using type = picogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, mass_dimension>
+struct derived_unit_type_t<T, std::pico, mass_dimension>
 {
     using type = nanogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, mass_dimension>
+struct derived_unit_type_t<T, std::nano, mass_dimension>
 {
     using type = microgram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, mass_dimension>
+struct derived_unit_type_t<T, std::micro, mass_dimension>
 {
     using type = milligram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100000>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100000>, mass_dimension>
 {
     using type = centigram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10000>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10000>, mass_dimension>
 {
     using type = decigram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, mass_dimension>
+struct derived_unit_type_t<T, std::milli, mass_dimension>
 {
     using type = gram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, mass_dimension>
+struct derived_unit_type_t<T, std::centi, mass_dimension>
 {
     using type = decagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, mass_dimension>
+struct derived_unit_type_t<T, std::deci, mass_dimension>
 {
     using type = hectogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, mass_dimension>
+struct derived_unit_type_t<T, std::kilo, mass_dimension>
 {
     using type = metric_ton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, mass_dimension>
+struct derived_unit_type_t<T, std::mega, mass_dimension>
 {
     using type = gigagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, mass_dimension>
+struct derived_unit_type_t<T, std::giga, mass_dimension>
 {
     using type = teragram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, mass_dimension>
+struct derived_unit_type_t<T, std::tera, mass_dimension>
 {
     using type = petagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, mass_dimension>
+struct derived_unit_type_t<T, std::peta, mass_dimension>
 {
     using type = exagram_t<T>;
 };

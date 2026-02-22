@@ -53,9 +53,9 @@ namespace PKR_UNITS_NAMESPACE
 // or per unit frequency [W/(mÂ²Â·Hz)], used in detailed spectroscopy.
 // Strong type for watt_per_square_meter (irradiance)
 template <is_unit_value_type_c T>
-struct watt_per_square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct watt_per_square_meter_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter"};
@@ -73,9 +73,9 @@ watt_per_square_meter_t(const U&) -> watt_per_square_meter_t<typename details::i
 
 // Shorter alias for irradiance
 template <is_unit_value_type_c T>
-struct irradiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct irradiance_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"irradiance"};
@@ -95,7 +95,7 @@ irradiance_t(const U&) -> irradiance_t<typename details::is_pkr_unit<U>::value_t
 // Derived unit type specializations
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
     using type = irradiance_t<T>;
 };

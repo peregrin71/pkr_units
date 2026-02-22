@@ -3,6 +3,7 @@
 #include <format>
 #include <pkr_units/format/si.h>
 #include <pkr_units/units/dimensionless/ratio.h>
+#include <pkr_units/units/dimensionless/percentage.h>
 #include <pkr_units/units/dimensionless/decibel.h>
 
 using namespace ::testing;

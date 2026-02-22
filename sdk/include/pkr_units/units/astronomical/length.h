@@ -6,9 +6,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Astronomical units
 template <is_unit_value_type_c T>
-struct micron_t final : public details::unit_t<T, std::micro, length_dimension>
+struct micron_t final : public unit_t<T, std::micro, length_dimension>
 {
-    using _base = details::unit_t<T, std::micro, length_dimension>;
+    using _base = unit_t<T, std::micro, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micron"};
@@ -25,9 +25,9 @@ template <is_pkr_unit_c U>
 micron_t(const U&) -> micron_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct angstrom_t final : public details::unit_t<T, std::ratio<1, 10000000000>, length_dimension>
+struct angstrom_t final : public unit_t<T, std::ratio<1, 10000000000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000000000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000000000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"angstrom"};
@@ -44,9 +44,9 @@ template <is_pkr_unit_c U>
 angstrom_t(const U&) -> angstrom_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct au_t final : public details::unit_t<T, std::ratio<149597870700, 1>, length_dimension>
+struct au_t final : public unit_t<T, std::ratio<149597870700, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<149597870700, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<149597870700, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"astronomical_unit"};
@@ -63,9 +63,9 @@ template <is_pkr_unit_c U>
 au_t(const U&) -> au_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct light_year_t final : public details::unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>
+struct light_year_t final : public unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"light_year"};
@@ -82,9 +82,9 @@ template <is_pkr_unit_c U>
 light_year_t(const U&) -> light_year_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct parsec_t final : public details::unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>
+struct parsec_t final : public unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"parsec"};

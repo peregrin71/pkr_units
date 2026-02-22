@@ -42,6 +42,8 @@ inline constexpr dimension_t temperature_dimension{0, 0, 0, 0, 1, 0, 0, 0, 0};
 inline constexpr dimension_t amount_dimension{0, 0, 0, 0, 0, 1, 0, 0, 0};
 inline constexpr dimension_t intensity_dimension{0, 0, 0, 0, 0, 0, 1, 0, 0};
 
+inline constexpr dimension_t amount_rate_dimension{0, 0, -1, 0, 0, 1, 0, 0, 0};
+
 inline constexpr dimension_t area_dimension{2, 0, 0, 0, 0, 0, 0, 0, 0};
 inline constexpr dimension_t volume_dimension{3, 0, 0, 0, 0, 0, 0, 0, 0};
 inline constexpr dimension_t acceleration_v{1, 0, -2, 0, 0, 0, 0, 0, 0};
@@ -59,7 +61,6 @@ inline constexpr dimension_t solid_angle_dimension{0, 0, 0, 0, 0, 0, 0, 0, 1};
 
 namespace pkr::units
 {
-
 template <typename type_t>
 concept is_unit_value_type_c = (std::is_integral_v<type_t> && !std::same_as<type_t, bool> && std::is_signed_v<type_t>) || std::is_floating_point_v<type_t> ||
 
@@ -77,15 +78,16 @@ static_assert(!is_unit_value_type_c<bool>);
 namespace details
 {
 
-template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v>
-struct derived_unit_type_t;
-
 template <typename type_t, typename ratio_from, typename ratio_to>
 constexpr type_t convert_ratio_to(type_t value) noexcept
 {
     using conversion = std::ratio_divide<ratio_from, ratio_to>;
     return (value / static_cast<type_t>(conversion::den)) * static_cast<type_t>(conversion::num);
 }
+struct untagged_t;
+
+template <typename tag_t>
+using normalize_tag_t = std::conditional_t<std::is_same_v<tag_t, untagged_t>, void, tag_t>;
 
 template <typename type_t>
 constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
@@ -116,12 +118,22 @@ struct complex_underlying_type<std::complex<T>>
 template <typename T>
 using complex_underlying_type_t = typename complex_underlying_type<T>::type;
 
-template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v>
+struct untagged_t
+{
+};
+
+}
+
+template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v, typename tag_t>
+struct derived_unit_type_t;
+
+template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v, typename tag_t = details::untagged_t>
 class unit_t
 {
 public:
     using value_type = type_t;
     using ratio_type = ratio_t;
+    using tag_type = tag_t;
     using dimension_type = std::integral_constant<pkr::units::dimension_t, dim_v>;
 
     struct dimension
@@ -134,10 +146,18 @@ public:
     {
     }
 
-    template <typename other_ratio_t>
-    constexpr unit_t(const unit_t<type_t, other_ratio_t, dim_v>& other) noexcept
-        : m_value(convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
+    template <typename other_ratio_t, typename other_tag_t>
+        requires std::is_same_v<other_tag_t, tag_t>
+    constexpr unit_t(const unit_t<type_t, other_ratio_t, dim_v, other_tag_t>& other) noexcept
+        : m_value(details::convert_ratio_to<type_t, other_ratio_t, ratio_t>(other.value()))
     {
+    }
+
+    template <typename other_ratio_t, dimension_t other_dim_v, typename other_tag_t>
+        requires(other_dim_v != dim_v)
+    explicit constexpr unit_t(const unit_t<type_t, other_ratio_t, other_dim_v, other_tag_t>&) noexcept
+    {
+        static_assert(other_dim_v == dim_v, "unit_t: cannot construct from unit with different dimensions");
     }
 
     constexpr unit_t(const unit_t&) noexcept = default;
@@ -145,8 +165,9 @@ public:
     constexpr unit_t& operator=(const unit_t&) noexcept = default;
     constexpr unit_t& operator=(unit_t&&) noexcept = default;
 
-    template <typename ratio_u, dimension_t dim_u>
-    constexpr auto operator*(const details::unit_t<type_t, ratio_u, dim_u>& other) const noexcept
+    template <typename ratio_u, dimension_t dim_u, typename tag_u>
+        requires((dim_u != dim_v) || std::is_same_v<tag_u, tag_t>)
+    constexpr auto operator*(const unit_t<type_t, ratio_u, dim_u, tag_u>& other) const noexcept
     {
 
         using combined_ratio = std::ratio_multiply<ratio_t, ratio_u>;
@@ -161,12 +182,19 @@ public:
             .intensity = dim_v.intensity + dim_u.intensity,
             .angle = dim_v.angle + dim_u.angle};
 
+        using lhs_tag = details::normalize_tag_t<tag_t>;
+        using rhs_tag = details::normalize_tag_t<tag_u>;
+        using result_tag = std::conditional_t<
+            std::is_same_v<lhs_tag, rhs_tag>,
+            lhs_tag,
+            std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
         type_t result_value = m_value * other.value();
-        return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
+        return typename derived_unit_type_t<type_t, combined_ratio, combined_dim_v, result_tag>::type{result_value};
     }
 
-    template <typename ratio_u, dimension_t dim_u>
-    constexpr auto operator/(const details::unit_t<type_t, ratio_u, dim_u>& other) const
+    template <typename ratio_u, dimension_t dim_u, typename tag_u>
+    constexpr auto operator/(const unit_t<type_t, ratio_u, dim_u, tag_u>& other) const
     {
 
         if (!std::is_constant_evaluated())
@@ -201,19 +229,26 @@ public:
             dim_v.intensity - dim_u.intensity,
             dim_v.angle - dim_u.angle};
 
+        using lhs_tag = details::normalize_tag_t<tag_t>;
+        using rhs_tag = details::normalize_tag_t<tag_u>;
+        using result_tag = std::conditional_t<
+            std::is_same_v<lhs_tag, rhs_tag>,
+            lhs_tag,
+            std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
         type_t result_value = m_value / other.value();
-        return typename details::derived_unit_type_t<type_t, combined_ratio, combined_dim_v>::type{result_value};
+        return typename derived_unit_type_t<type_t, combined_ratio, combined_dim_v, result_tag>::type{result_value};
     }
 
     constexpr auto operator*(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v, details::normalize_tag_t<tag_t>>::type;
         return result_type{m_value * scalar};
     }
 
     constexpr auto operator/(std::same_as<type_t> auto scalar) const noexcept
     {
-        using result_type = typename details::derived_unit_type_t<type_t, ratio_t, dim_v>::type;
+        using result_type = typename derived_unit_type_t<type_t, ratio_t, dim_v, details::normalize_tag_t<tag_t>>::type;
         return result_type{m_value / scalar};
     }
 
@@ -253,32 +288,32 @@ public:
 
     [[nodiscard]] constexpr auto to_si() const noexcept
     {
-        type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-        using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v>::type;
+        type_t canonical_value = details::convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
+        using canonical_unit = typename derived_unit_type_t<type_t, std::ratio<1, 1>, dim_v, details::normalize_tag_t<tag_t>>::type;
         return canonical_unit{canonical_value};
     }
 
     [[nodiscard]] constexpr auto in_base_si_units() const noexcept
     {
-        type_t canonical_value = convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
-        return details::unit_t<type_t, std::ratio<1, 1>, dim_v>{canonical_value};
+        type_t canonical_value = details::convert_ratio_to<type_t, ratio_t, std::ratio<1, 1>>(m_value);
+        return unit_t<type_t, std::ratio<1, 1>, dim_v, tag_t>{canonical_value};
     }
 
     [[nodiscard]] constexpr auto magnitude() const noexcept
-        requires complex_type_c<type_t>
+        requires details::complex_type_c<type_t>
     {
-        using real_type = complex_underlying_type_t<type_t>;
+        using real_type = details::complex_underlying_type_t<type_t>;
         auto mag_value = static_cast<real_type>(std::abs(m_value));
-        using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v>::type;
+        using result_unit = typename derived_unit_type_t<real_type, ratio_t, dim_v, details::normalize_tag_t<tag_t>>::type;
         return result_unit{mag_value};
     }
 
     [[nodiscard]] constexpr auto phase() const noexcept
-        requires complex_type_c<type_t>
+        requires details::complex_type_c<type_t>
     {
-        using real_type = complex_underlying_type_t<type_t>;
+        using real_type = details::complex_underlying_type_t<type_t>;
         auto phase_value = static_cast<real_type>(std::arg(m_value));
-        using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension>::type;
+        using result_unit = typename derived_unit_type_t<real_type, std::ratio<1, 1>, angle_dimension, details::normalize_tag_t<tag_t>>::type;
         return result_unit{phase_value};
     }
 
@@ -286,39 +321,82 @@ private:
     type_t m_value;
 };
 
-template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v>
+template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v, typename tag_t = void>
 struct derived_unit_type_t
 {
-    using type = details::unit_t<type_t, ratio_t, dim_v>;
+
+    using normalized_tag = std::conditional_t<std::is_same_v<tag_t, details::untagged_t>, void, tag_t>;
+    using type = unit_t<type_t, ratio_t, dim_v, normalized_tag>;
 };
+
+namespace details
+{
 
 template <typename T>
 struct is_pkr_unit : std::false_type
 {
 };
 
-template <typename type_t, typename ratio_t, dimension_t dim_v>
-struct is_pkr_unit<details::unit_t<type_t, ratio_t, dim_v>> : std::true_type
+template <typename type_t, typename ratio_t, dimension_t dim_v, typename tag_t>
+struct is_pkr_unit<::pkr::units::unit_t<type_t, ratio_t, dim_v, tag_t>> : std::true_type
 {
     static constexpr bool value = true;
     using value_type = type_t;
     using ratio_type = ratio_t;
-    using most_derived_type = details::unit_t<type_t, ratio_t, dim_v>;
+    using tag_type = tag_t;
+    using most_derived_type = ::pkr::units::unit_t<type_t, ratio_t, dim_v, tag_t>;
     static constexpr dimension_t value_dimension = dim_v;
 };
 
 template <typename T>
     requires std::is_base_of_v<typename T::_base, T>
-
 struct is_pkr_unit<T> : std::true_type
 {
     static constexpr bool value = true;
     using value_type = typename T::_base::value_type;
     using ratio_type = typename T::_base::ratio_type;
+    using tag_type = typename T::_base::tag_type;
     using most_derived_type = T;
 
     static constexpr dimension_t value_dimension = T::_base::dimension::value;
 };
+
+template <typename U>
+struct unit_traits
+{
+    static constexpr bool is_unit = false;
+};
+
+using namespace pkr::units;
+
+template <typename value_t, typename ratio_t, dimension_t dim_v, typename tag_t>
+struct unit_traits<unit_t<value_t, ratio_t, dim_v, tag_t>>
+{
+    static constexpr bool is_unit = true;
+    using value_type = value_t;
+    using ratio_type = ratio_t;
+    using dimension = std::integral_constant<dimension_t, dim_v>;
+    using tag_type = tag_t;
+    using most_derived = unit_t<value_t, ratio_t, dim_v, tag_t>;
+};
+
+template <typename U>
+    requires std::is_base_of_v<typename U::_base, U>
+struct unit_traits<U> : unit_traits<typename U::_base>
+{
+};
+
+template <typename U>
+using value_type_t = typename unit_traits<U>::value_type;
+
+template <typename U>
+using ratio_type_t = typename unit_traits<U>::ratio_type;
+
+template <typename U>
+using tag_type_t = typename unit_traits<U>::tag_type;
+
+template <typename U>
+using dim_v_t = typename unit_traits<U>::dimension::value_type;
 
 template <typename T>
 struct is_pkr_unit<const T&> : is_pkr_unit<T>
@@ -335,64 +413,82 @@ struct is_pkr_unit<const T> : is_pkr_unit<T>
 {
 };
 
+template <pkr::units::is_unit_value_type_c type_t, typename ratio_t, pkr::units::dimension_t dim_v, typename tag_t = void>
+using derived_unit_type_t = ::pkr::units::derived_unit_type_t<type_t, ratio_t, dim_v, tag_t>;
+
 }
 
-template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using length_unit_t = details::unit_t<type_t, ratio_t, length_dimension>;
+template <typename U>
+concept pkr_unit_c = details::unit_traits<U>::is_unit;
+
+template <typename U>
+using unit_value_t = details::value_type_t<U>;
+
+template <typename U>
+using unit_ratio_t = details::ratio_type_t<U>;
+
+template <typename U>
+using unit_tag_t = details::tag_type_t<U>;
+
+template <typename U>
+using unit_dim_t = details::dim_v_t<U>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass_unit_t = details::unit_t<type_t, ratio_t, mass_dimension>;
+using length_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::length_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using time_unit_t = details::unit_t<type_t, ratio_t, time_dimension>;
+using mass_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::mass_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using current_unit_t = details::unit_t<type_t, ratio_t, current_dimension>;
+using time_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::time_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using temperature_unit_t = details::unit_t<type_t, ratio_t, temperature_dimension>;
+using current_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::current_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using amount_unit_t = details::unit_t<type_t, ratio_t, amount_dimension>;
+using temperature_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::temperature_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using intensity_unit_t = details::unit_t<type_t, ratio_t, intensity_dimension>;
+using amount_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::amount_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using angle_unit_t = details::unit_t<type_t, ratio_t, angle_dimension>;
+using intensity_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::intensity_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using area_unit_t = details::unit_t<type_t, ratio_t, area_dimension>;
+using angle_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::angle_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using volume_unit_t = details::unit_t<type_t, ratio_t, volume_dimension>;
+using area_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::area_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using acceleration_unit_t = details::unit_t<type_t, ratio_t, acceleration_v>;
+using volume_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::volume_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using velocity_unit_t = details::unit_t<type_t, ratio_t, velocity_dimension>;
+using acceleration_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::acceleration_v>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using density_unit_t = details::unit_t<type_t, ratio_t, density_dimension>;
+using velocity_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::velocity_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using dynamic_viscosity_unit_t = details::unit_t<type_t, ratio_t, dynamic_viscosity_dimension>;
+using density_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::density_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using kinematic_viscosity_unit_t = details::unit_t<type_t, ratio_t, kinematic_viscosity_dimension>;
+using dynamic_viscosity_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::dynamic_viscosity_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using mass_concentration_unit_t = details::unit_t<type_t, ratio_t, mass_concentration_v>;
+using kinematic_viscosity_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::kinematic_viscosity_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using molar_concentration_unit_t = details::unit_t<type_t, ratio_t, molar_concentration_v>;
+using mass_concentration_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::mass_concentration_v>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using josephson_unit_t = details::unit_t<type_t, ratio_t, josephson_dimension>;
+using molar_concentration_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::molar_concentration_v>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using solid_angle_unit_t = details::unit_t<type_t, ratio_t, solid_angle_dimension>;
+using josephson_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::josephson_dimension>;
+
+template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
+using solid_angle_unit_t = ::pkr::units::unit_t<type_t, ratio_t, ::pkr::units::solid_angle_dimension>;
 
 }
 
@@ -415,9 +511,8 @@ static_assert(scalar_value_c<double>);
 static_assert(!scalar_value_c<bool>);
 
 template <typename T>
-concept is_base_unit_t_c = std::same_as<
-    T,
-    details::unit_t<typename details::is_pkr_unit<T>::value_type, typename details::is_pkr_unit<T>::ratio_type, details::is_pkr_unit<T>::value_dimension>>;
+concept is_base_unit_t_c = std::
+    same_as<T, unit_t<typename details::is_pkr_unit<T>::value_type, typename details::is_pkr_unit<T>::ratio_type, details::is_pkr_unit<T>::value_dimension>>;
 
 template <typename T>
 concept is_derived_pkr_unit_c = requires { typename T::_base; } && std::is_base_of_v<typename T::_base, T>;
@@ -429,9 +524,14 @@ template <typename T>
 concept is_pkr_unit_c = is_base_pkr_unit_c<T> || is_derived_pkr_unit_c<T>;
 
 template <dimension_t Dim>
-concept pkr_unit_can_take_square_root_c = Dim.length >= 0 && Dim.length % 2 == 0 && Dim.mass >= 0 && Dim.mass % 2 == 0 && Dim.time >= 0 && Dim.time % 2 == 0 &&
-                                          Dim.current >= 0 && Dim.current % 2 == 0 && Dim.temperature >= 0 && Dim.temperature % 2 == 0 && Dim.amount >= 0 &&
-                                          Dim.amount % 2 == 0 && Dim.intensity >= 0 && Dim.intensity % 2 == 0 && Dim.angle >= 0 && Dim.angle % 2 == 0;
+concept pkr_unit_can_take_square_root_c = (Dim.length % 2 == 0) && (Dim.mass % 2 == 0) && (Dim.time % 2 == 0) && (Dim.current % 2 == 0) &&
+                                          (Dim.temperature % 2 == 0) && (Dim.amount % 2 == 0) && (Dim.intensity % 2 == 0) && (Dim.angle % 2 == 0);
+
+template <typename T>
+concept pkr_unit_sqrt_valid_c = is_pkr_unit_c<T> && pkr_unit_can_take_square_root_c<details::is_pkr_unit<T>::value_dimension>;
+
+template <typename T>
+concept pkr_unit_sqrt_invalid_c = is_pkr_unit_c<T> && !pkr_unit_sqrt_valid_c<T>;
 
 template <typename T>
 concept is_std_complex_c = requires { typename T::value_type; } && std::same_as<T, std::complex<typename T::value_type>>;
@@ -449,22 +549,23 @@ concept same_dimensions_c = details::is_pkr_unit<T1>::value_dimension.length == 
                             details::is_pkr_unit<T1>::value_dimension.temperature == details::is_pkr_unit<T2>::value_dimension.temperature &&
                             details::is_pkr_unit<T1>::value_dimension.amount == details::is_pkr_unit<T2>::value_dimension.amount &&
                             details::is_pkr_unit<T1>::value_dimension.intensity == details::is_pkr_unit<T2>::value_dimension.intensity &&
-                            details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle;
+                            details::is_pkr_unit<T1>::value_dimension.angle == details::is_pkr_unit<T2>::value_dimension.angle &&
+                            std::is_same_v<typename details::is_pkr_unit<T1>::tag_type, typename details::is_pkr_unit<T2>::tag_type>;
 
-template <typename type_t, typename ratio_t, dimension_t dim_v>
-constexpr details::unit_t<type_t, ratio_t, dim_v>
-    operator+(const details::unit_t<type_t, ratio_t, dim_v>& lhs, const details::unit_t<type_t, ratio_t, dim_v>& rhs) noexcept
+template <typename type_t, typename ratio_t, dimension_t dim_v, typename tag_t = void>
+constexpr unit_t<type_t, ratio_t, dim_v, tag_t>
+    operator+(const unit_t<type_t, ratio_t, dim_v, tag_t>& lhs, const unit_t<type_t, ratio_t, dim_v, tag_t>& rhs) noexcept
 {
-    return details::unit_t<type_t, ratio_t, dim_v>{lhs.value() + rhs.value()};
+    return unit_t<type_t, ratio_t, dim_v, tag_t>{lhs.value() + rhs.value()};
 }
 
-template <typename type_t, typename ratio_t1, typename ratio_t2, dimension_t dim_v>
+template <typename type_t, typename ratio_t1, typename ratio_t2, dimension_t dim_v, typename tag_t = void>
     requires(!std::is_same_v<ratio_t1, ratio_t2>)
-constexpr details::unit_t<type_t, ratio_t1, dim_v>
-    operator+(const details::unit_t<type_t, ratio_t1, dim_v>& lhs, const details::unit_t<type_t, ratio_t2, dim_v>& rhs) noexcept
+constexpr unit_t<type_t, ratio_t1, dim_v, tag_t>
+    operator+(const unit_t<type_t, ratio_t1, dim_v, tag_t>& lhs, const unit_t<type_t, ratio_t2, dim_v, tag_t>& rhs) noexcept
 {
     type_t converted_rhs = details::convert_ratio_to<type_t, ratio_t2, ratio_t1>(rhs.value());
-    return details::unit_t<type_t, ratio_t1, dim_v>{lhs.value() + converted_rhs};
+    return unit_t<type_t, ratio_t1, dim_v, tag_t>{lhs.value() + converted_rhs};
 }
 
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
@@ -518,6 +619,13 @@ constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 }
 
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(!same_dimensions_c<T1, T2>)
+constexpr auto operator+(const T1&, const T2&) noexcept
+{
+    static_assert(same_dimensions_c<T1, T2>, "invalid operands to operator+ : operands must have the same dimensions");
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires(same_dimensions_c<T1, T2>)
 constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
 {
@@ -561,6 +669,13 @@ constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
     }
 }
 
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(!same_dimensions_c<T1, T2>)
+constexpr auto operator-(const T1&, const T2&) noexcept
+{
+    static_assert(same_dimensions_c<T1, T2>, "invalid operands to operator- : operands must have the same dimensions");
+}
+
 template <is_pkr_unit_c T>
 constexpr T operator-(const T& a) noexcept
 {
@@ -588,7 +703,15 @@ constexpr auto operator*(const T1& lhs, const T2& rhs) noexcept
         .angle = dim1.angle + dim2.angle};
 
     using result_ratio = std::ratio_multiply<lhs_ratio, rhs_ratio>;
-    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+
+    using lhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T1>::tag_type>;
+    using rhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T2>::tag_type>;
+    using result_tag = std::conditional_t<
+        std::is_same_v<lhs_tag, rhs_tag>,
+        lhs_tag,
+        std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
+    using result_type = typename derived_unit_type_t<value_type, result_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs.value(), rhs.value())};
 }
 
@@ -613,7 +736,15 @@ constexpr auto operator/(const T1& lhs, const T2& rhs) noexcept
         .angle = dim1.angle - dim2.angle};
 
     using result_ratio = std::ratio_divide<lhs_ratio, rhs_ratio>;
-    using result_type = typename details::derived_unit_type_t<value_type, result_ratio, combined_dim>::type;
+
+    using lhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T1>::tag_type>;
+    using rhs_tag = details::normalize_tag_t<typename details::is_pkr_unit<T2>::tag_type>;
+    using result_tag = std::conditional_t<
+        std::is_same_v<lhs_tag, rhs_tag>,
+        lhs_tag,
+        std::conditional_t<std::is_same_v<lhs_tag, void>, rhs_tag, std::conditional_t<std::is_same_v<rhs_tag, void>, lhs_tag, void>>>;
+
+    using result_type = typename derived_unit_type_t<value_type, result_ratio, combined_dim, result_tag>::type;
     return result_type{details::divide_values(lhs.value(), rhs.value())};
 }
 
@@ -638,7 +769,8 @@ constexpr auto operator*(const T& lhs, const S& rhs) noexcept
         .angle = dim1.angle + dim2.angle};
 
     value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, combined_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, lhs_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs.value(), rhs_converted)};
 }
 
@@ -663,7 +795,8 @@ constexpr auto operator*(const S& lhs, const T& rhs) noexcept
         .angle = dim1.angle + dim2.angle};
 
     value_type lhs_converted = details::convert_ratio_to<value_type, lhs_ratio, rhs_ratio>(lhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, rhs_ratio, combined_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, rhs_ratio, combined_dim, result_tag>::type;
     return result_type{details::multiply_values(lhs_converted, rhs.value())};
 }
 
@@ -688,7 +821,8 @@ constexpr auto operator/(const T& lhs, const S& rhs) noexcept
         .angle = dim1.angle - dim2.angle};
 
     value_type rhs_converted = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-    using result_type = typename details::derived_unit_type_t<value_type, lhs_ratio, result_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, lhs_ratio, result_dim, result_tag>::type;
     return result_type{details::divide_values(lhs.value(), rhs_converted)};
 }
 
@@ -712,7 +846,8 @@ constexpr auto operator/(const S& lhs, const T& rhs) noexcept
         .intensity = -dim2.intensity,
         .angle = -dim2.angle};
 
-    using result_type = typename details::derived_unit_type_t<value_type, inv_ratio, inv_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, inv_ratio, inv_dim, result_tag>::type;
 
     value_type rhs_canonical = details::convert_ratio_to<value_type, rhs_ratio, std::ratio<1, 1>>(rhs.value());
     return result_type{details::divide_values(lhs.value(), rhs_canonical)};
@@ -726,7 +861,8 @@ constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
 
     return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
@@ -740,7 +876,8 @@ constexpr auto operator*(const ScalarType& scalar, const T& unit) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
 
     return result_type(details::multiply_values<value_type>(static_cast<value_type>(scalar), unit.value()));
 }
@@ -766,7 +903,8 @@ constexpr auto operator/(const ScalarType& scalar, const T& unit)
 
     using inverted_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
 
-    using result_type = typename details::derived_unit_type_t<value_type, inverted_ratio, inverted_dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, inverted_ratio, inverted_dim, result_tag>::type;
 
     return result_type(details::divide_values<value_type>(static_cast<value_type>(scalar), unit.value()));
 }
@@ -807,7 +945,8 @@ constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
     using ratio_type = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
 
-    using result_type = typename details::derived_unit_type_t<value_type, ratio_type, dim>::type;
+    using result_tag = details::normalize_tag_t<typename details::is_pkr_unit<T>::tag_type>;
+    using result_type = typename derived_unit_type_t<value_type, ratio_type, dim, result_tag>::type;
     return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
 
@@ -921,9 +1060,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct hms_archour_t final : public details::unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>
+struct hms_archour_t final : public unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_archour"};
@@ -940,9 +1079,9 @@ template <is_pkr_unit_c U>
 hms_archour_t(const U&) -> hms_archour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hms_arcminute_t final : public details::unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>
+struct hms_arcminute_t final : public unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 6000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcminute"};
@@ -959,9 +1098,9 @@ template <is_pkr_unit_c U>
 hms_arcminute_t(const U&) -> hms_arcminute_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hms_arcsecond_t final : public details::unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>
+struct hms_arcsecond_t final : public unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<26179935, 360000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hms_arcsecond"};
@@ -978,9 +1117,9 @@ template <is_pkr_unit_c U>
 hms_arcsecond_t(const U&) -> hms_arcsecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dms_degree_t final : public details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct dms_degree_t final : public unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_degree"};
@@ -997,9 +1136,9 @@ template <is_pkr_unit_c U>
 dms_degree_t(const U&) -> dms_degree_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dms_arcminute_t final : public details::unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>
+struct dms_arcminute_t final : public unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 6000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcminute"};
@@ -1016,9 +1155,9 @@ template <is_pkr_unit_c U>
 dms_arcminute_t(const U&) -> dms_arcminute_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dms_arcsecond_t final : public details::unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>
+struct dms_arcsecond_t final : public unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 360000000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dms_arcsecond"};
@@ -1035,9 +1174,9 @@ template <is_pkr_unit_c U>
 dms_arcsecond_t(const U&) -> dms_arcsecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct hms_angle_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 };
 
@@ -1049,9 +1188,9 @@ template <is_pkr_unit_c U>
 hms_angle_t(const U&) -> hms_angle_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dms_angle_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct dms_angle_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 };
 
@@ -1068,9 +1207,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct micron_t final : public details::unit_t<T, std::micro, length_dimension>
+struct micron_t final : public unit_t<T, std::micro, length_dimension>
 {
-    using _base = details::unit_t<T, std::micro, length_dimension>;
+    using _base = unit_t<T, std::micro, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micron"};
@@ -1087,9 +1226,9 @@ template <is_pkr_unit_c U>
 micron_t(const U&) -> micron_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct angstrom_t final : public details::unit_t<T, std::ratio<1, 10000000000>, length_dimension>
+struct angstrom_t final : public unit_t<T, std::ratio<1, 10000000000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000000000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000000000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"angstrom"};
@@ -1106,9 +1245,9 @@ template <is_pkr_unit_c U>
 angstrom_t(const U&) -> angstrom_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct au_t final : public details::unit_t<T, std::ratio<149597870700, 1>, length_dimension>
+struct au_t final : public unit_t<T, std::ratio<149597870700, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<149597870700, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<149597870700, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"astronomical_unit"};
@@ -1125,9 +1264,9 @@ template <is_pkr_unit_c U>
 au_t(const U&) -> au_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct light_year_t final : public details::unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>
+struct light_year_t final : public unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<94607304725808000, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"light_year"};
@@ -1144,9 +1283,9 @@ template <is_pkr_unit_c U>
 light_year_t(const U&) -> light_year_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct parsec_t final : public details::unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>
+struct parsec_t final : public unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<30856775814913673, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"parsec"};
@@ -1165,6 +1304,12 @@ parsec_t(const U&) -> parsec_t<typename details::is_pkr_unit<U>::value_type>;
 
 namespace pkr::units
 {
+struct celsius_tag_t;
+struct fahrenheit_tag_t;
+}
+
+namespace pkr::units
+{
 
 namespace details
 {
@@ -1175,45 +1320,51 @@ constexpr type_t compute_conversion_factor(long long source_num, long long sourc
     return (static_cast<type_t>(source_num) * static_cast<type_t>(target_den)) / (static_cast<type_t>(source_den) * static_cast<type_t>(target_num));
 }
 
-template <typename target_ratio_t, typename type_t, typename source_ratio_t, dimension_t dim_v>
-constexpr details::unit_t<type_t, target_ratio_t, dim_v> unit_cast_impl(const details::unit_t<type_t, source_ratio_t, dim_v>& source) noexcept
+template <typename target_ratio_t, pkr_unit_c Source>
+constexpr auto unit_cast_impl(const Source& source) noexcept
 {
-    if constexpr (std::is_same_v<source_ratio_t, target_ratio_t>)
-    {
+    using V = unit_value_t<Source>;
+    using SR = unit_ratio_t<Source>;
+    constexpr dimension_t D = ::pkr::units::details::unit_traits<Source>::dimension::value;
 
-        return source;
+    if constexpr (std::is_same_v<SR, target_ratio_t>)
+    {
+        return unit_t<V, target_ratio_t, D>(source.value());
     }
     else
     {
-
-        constexpr type_t conversion_factor =
-            compute_conversion_factor<type_t>(source_ratio_t::num, source_ratio_t::den, target_ratio_t::num, target_ratio_t::den);
-        type_t converted_value = source.value() * conversion_factor;
-        return details::unit_t<type_t, target_ratio_t, dim_v>(converted_value);
+        constexpr V factor = compute_conversion_factor<V>(SR::num, SR::den, target_ratio_t::num, target_ratio_t::den);
+        return unit_t<V, target_ratio_t, D>(source.value() * factor);
     }
 }
 
 template <typename Target, typename Source>
-concept same_dimension_si_units = details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension;
+concept same_dimension_si_units = is_pkr_unit<Target>::value_dimension == is_pkr_unit<Source>::value_dimension;
 }
 
 template <typename target_type_t, typename target_ratio_t, dimension_t target_dim_v, typename source_type_t, typename source_ratio_t, dimension_t source_dim_v>
     requires(target_dim_v == source_dim_v)
-constexpr details::unit_t<target_type_t, target_ratio_t, target_dim_v>
-    unit_cast(const details::unit_t<source_type_t, source_ratio_t, source_dim_v>& source) noexcept
+constexpr unit_t<target_type_t, target_ratio_t, target_dim_v> unit_cast(const unit_t<source_type_t, source_ratio_t, source_dim_v>& source) noexcept
 {
-    return details::unit_cast_impl<target_ratio_t>(source);
+    using target_unit_t = unit_t<target_type_t, target_ratio_t, target_dim_v>;
+
+    return unit_cast<target_unit_t>(source);
 }
-
-template <typename target_unit_t, typename source_unit_t>
-    requires std::is_base_of_v<typename target_unit_t::_base, target_unit_t> && std::is_base_of_v<typename source_unit_t::_base, source_unit_t> &&
-             (details::is_pkr_unit<target_unit_t>::value_dimension == details::is_pkr_unit<source_unit_t>::value_dimension)
-constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
+template <is_pkr_unit_c Target, is_pkr_unit_c Source>
+    requires(details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension) &&
+            (!std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, celsius_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, fahrenheit_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Source>::tag_type, celsius_tag_t> &&
+             !std::is_same_v<typename details::is_pkr_unit<Source>::tag_type, fahrenheit_tag_t>)
+constexpr Target unit_cast(const Source& source) noexcept
 {
-    using target_ratio = typename details::is_pkr_unit<target_unit_t>::ratio_type;
-
+    using target_ratio = typename details::is_pkr_unit<Target>::ratio_type;
     auto converted = details::unit_cast_impl<target_ratio>(source);
-    return target_unit_t(converted.value());
+
+    if constexpr (std::is_constructible_v<Target, decltype(converted.value())>)
+        return Target(converted.value());
+    else
+        return converted;
 }
 
 }
@@ -1222,9 +1373,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct gal_t final : public details::unit_t<T, std::ratio<1, 100>, acceleration_v>
+struct gal_t final : public unit_t<T, std::ratio<1, 100>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1, 100>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gal"};
@@ -1245,9 +1396,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct poise_t final : public details::unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
+struct poise_t final : public unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"poise"};
@@ -1264,9 +1415,9 @@ template <is_pkr_unit_c U>
 poise_t(const U&) -> poise_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct stokes_t final : public details::unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
+struct stokes_t final : public unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"stokes"};
@@ -1283,13 +1434,13 @@ template <is_pkr_unit_c U>
 stokes_t(const U&) -> stokes_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
 {
     using type = poise_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
 {
     using type = stokes_t<T>;
 };
@@ -1301,9 +1452,9 @@ namespace pkr::units
 inline constexpr dimension_t electric_charge_dimension{0, 0, 1, 1, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct coulomb_t final : public details::unit_t<T, std::ratio<1, 1>, electric_charge_dimension>
+struct coulomb_t final : public unit_t<T, std::ratio<1, 1>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"coulomb"};
@@ -1320,9 +1471,9 @@ template <is_pkr_unit_c U>
 coulomb_t(const U&) -> coulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilocoulomb_t final : public details::unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>
+struct kilocoulomb_t final : public unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilocoulomb"};
@@ -1339,9 +1490,9 @@ template <is_pkr_unit_c U>
 kilocoulomb_t(const U&) -> kilocoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millicoulomb_t final : public details::unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>
+struct millicoulomb_t final : public unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millicoulomb"};
@@ -1358,9 +1509,9 @@ template <is_pkr_unit_c U>
 millicoulomb_t(const U&) -> millicoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microcoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
+struct microcoulomb_t final : public unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microcoulomb"};
@@ -1377,9 +1528,9 @@ template <is_pkr_unit_c U>
 microcoulomb_t(const U&) -> microcoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanocoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
+struct nanocoulomb_t final : public unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanocoulomb"};
@@ -1396,9 +1547,9 @@ template <is_pkr_unit_c U>
 nanocoulomb_t(const U&) -> nanocoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picocoulomb_t final : public details::unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
+struct picocoulomb_t final : public unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picocoulomb"};
@@ -1415,37 +1566,37 @@ template <is_pkr_unit_c U>
 picocoulomb_t(const U&) -> picocoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, electric_charge_dimension>
 {
     using type = coulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, electric_charge_dimension>
 {
     using type = kilocoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, electric_charge_dimension>
 {
     using type = millicoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, electric_charge_dimension>
 {
     using type = microcoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, electric_charge_dimension>
 {
     using type = nanocoulomb_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000000>, electric_charge_dimension>
 {
     using type = picocoulomb_t<T>;
 };
@@ -1455,9 +1606,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct statcoulomb_t final : public details::unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
+struct statcoulomb_t final : public unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"statcoulomb"};
@@ -1474,7 +1625,7 @@ template <is_pkr_unit_c U>
 statcoulomb_t(const U&) -> statcoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
 {
     using type = statcoulomb_t<T>;
 };
@@ -1486,9 +1637,9 @@ namespace pkr::units
 inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct newton_t final : public details::unit_t<T, std::ratio<1, 1>, force_dimension>
+struct newton_t final : public unit_t<T, std::ratio<1, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"newton"};
@@ -1505,9 +1656,9 @@ template <is_pkr_unit_c U>
 newton_t(const U&) -> newton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilonewton_t final : public details::unit_t<T, std::ratio<1000, 1>, force_dimension>
+struct kilonewton_t final : public unit_t<T, std::ratio<1000, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilonewton"};
@@ -1524,9 +1675,9 @@ template <is_pkr_unit_c U>
 kilonewton_t(const U&) -> kilonewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct meganewton_t final : public details::unit_t<T, std::ratio<1000000, 1>, force_dimension>
+struct meganewton_t final : public unit_t<T, std::ratio<1000000, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meganewton"};
@@ -1543,9 +1694,9 @@ template <is_pkr_unit_c U>
 meganewton_t(const U&) -> meganewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micronewton_t final : public details::unit_t<T, std::ratio<1, 1000000>, force_dimension>
+struct micronewton_t final : public unit_t<T, std::ratio<1, 1000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micronewton"};
@@ -1562,9 +1713,9 @@ template <is_pkr_unit_c U>
 micronewton_t(const U&) -> micronewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millinewton_t final : public details::unit_t<T, std::ratio<1, 1000>, force_dimension>
+struct millinewton_t final : public unit_t<T, std::ratio<1, 1000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millinewton"};
@@ -1581,9 +1732,9 @@ template <is_pkr_unit_c U>
 millinewton_t(const U&) -> millinewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanonewton_t final : public details::unit_t<T, std::ratio<1, 1000000000>, force_dimension>
+struct nanonewton_t final : public unit_t<T, std::ratio<1, 1000000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanonewton"};
@@ -1600,37 +1751,37 @@ template <is_pkr_unit_c U>
 nanonewton_t(const U&) -> nanonewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, force_dimension>
 {
     using type = newton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, force_dimension>
 {
     using type = kilonewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, force_dimension>
 {
     using type = meganewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, force_dimension>
 {
     using type = micronewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, force_dimension>
 {
     using type = millinewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, force_dimension>
 {
     using type = nanonewton_t<T>;
 };
@@ -1640,9 +1791,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct dyne_t final : public details::unit_t<T, std::ratio<1, 100000>, force_dimension>
+struct dyne_t final : public unit_t<T, std::ratio<1, 100000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dyne"};
@@ -1659,7 +1810,7 @@ template <is_pkr_unit_c U>
 dyne_t(const U&) -> dyne_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100000>, force_dimension>
 {
     using type = dyne_t<T>;
 };
@@ -1671,9 +1822,9 @@ namespace pkr::units
 inline constexpr dimension_t energy_dimension{2, 1, -2, 0, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct joule_t final : public details::unit_t<T, std::ratio<1, 1>, energy_dimension>
+struct joule_t final : public unit_t<T, std::ratio<1, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"joule"};
@@ -1690,9 +1841,9 @@ template <is_pkr_unit_c U>
 joule_t(const U&) -> joule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilojoule_t final : public details::unit_t<T, std::ratio<1000, 1>, energy_dimension>
+struct kilojoule_t final : public unit_t<T, std::ratio<1000, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilojoule"};
@@ -1709,9 +1860,9 @@ template <is_pkr_unit_c U>
 kilojoule_t(const U&) -> kilojoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megajoule_t final : public details::unit_t<T, std::ratio<1000000, 1>, energy_dimension>
+struct megajoule_t final : public unit_t<T, std::ratio<1000000, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megajoule"};
@@ -1728,9 +1879,9 @@ template <is_pkr_unit_c U>
 megajoule_t(const U&) -> megajoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigajoule_t final : public details::unit_t<T, std::ratio<1000000000, 1>, energy_dimension>
+struct gigajoule_t final : public unit_t<T, std::ratio<1000000000, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigajoule"};
@@ -1747,9 +1898,9 @@ template <is_pkr_unit_c U>
 gigajoule_t(const U&) -> gigajoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microjoule_t final : public details::unit_t<T, std::ratio<1, 1000000>, energy_dimension>
+struct microjoule_t final : public unit_t<T, std::ratio<1, 1000000>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microjoule"};
@@ -1766,9 +1917,9 @@ template <is_pkr_unit_c U>
 microjoule_t(const U&) -> microjoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millijoule_t final : public details::unit_t<T, std::ratio<1, 1000>, energy_dimension>
+struct millijoule_t final : public unit_t<T, std::ratio<1, 1000>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millijoule"};
@@ -1785,9 +1936,9 @@ template <is_pkr_unit_c U>
 millijoule_t(const U&) -> millijoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanojoule_t final : public details::unit_t<T, std::ratio<1, 1000000000>, energy_dimension>
+struct nanojoule_t final : public unit_t<T, std::ratio<1, 1000000000>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanojoule"};
@@ -1804,9 +1955,9 @@ template <is_pkr_unit_c U>
 nanojoule_t(const U&) -> nanojoule_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct calorie_t final : public details::unit_t<T, std::ratio<4184, 1000>, energy_dimension>
+struct calorie_t final : public unit_t<T, std::ratio<4184, 1000>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<4184, 1000>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<4184, 1000>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"calorie"};
@@ -1823,9 +1974,9 @@ template <is_pkr_unit_c U>
 calorie_t(const U&) -> calorie_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilocalorie_t final : public details::unit_t<T, std::ratio<4184, 1>, energy_dimension>
+struct kilocalorie_t final : public unit_t<T, std::ratio<4184, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<4184, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<4184, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilocalorie"};
@@ -1842,9 +1993,9 @@ template <is_pkr_unit_c U>
 kilocalorie_t(const U&) -> kilocalorie_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct watt_hour_t final : public details::unit_t<T, std::ratio<3600, 1>, energy_dimension>
+struct watt_hour_t final : public unit_t<T, std::ratio<3600, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3600, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<3600, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_hour"};
@@ -1861,9 +2012,9 @@ template <is_pkr_unit_c U>
 watt_hour_t(const U&) -> watt_hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilowatt_hour_t final : public details::unit_t<T, std::ratio<3600000, 1>, energy_dimension>
+struct kilowatt_hour_t final : public unit_t<T, std::ratio<3600000, 1>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3600000, 1>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<3600000, 1>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilowatt_hour"};
@@ -1876,9 +2027,9 @@ template <is_unit_value_type_c T>
 kilowatt_hour_t(T) -> kilowatt_hour_t<T>;
 
 template <is_unit_value_type_c T>
-struct electronvolt_t final : public details::unit_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>
+struct electronvolt_t final : public unit_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"electronvolt"};
@@ -1895,9 +2046,9 @@ template <is_pkr_unit_c U>
 electronvolt_t(const U&) -> electronvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloelectronvolt_t final : public details::unit_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>
+struct kiloelectronvolt_t final : public unit_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloelectronvolt"};
@@ -1914,9 +2065,9 @@ template <is_pkr_unit_c U>
 kiloelectronvolt_t(const U&) -> kiloelectronvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megaelectronvolt_t final : public details::unit_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>
+struct megaelectronvolt_t final : public unit_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megaelectronvolt"};
@@ -1933,9 +2084,9 @@ template <is_pkr_unit_c U>
 megaelectronvolt_t(const U&) -> megaelectronvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigaelectronvolt_t final : public details::unit_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>
+struct gigaelectronvolt_t final : public unit_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigaelectronvolt"};
@@ -1952,91 +2103,91 @@ template <is_pkr_unit_c U>
 gigaelectronvolt_t(const U&) -> gigaelectronvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, energy_dimension>
 {
     using type = joule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, energy_dimension>
 {
     using type = kilojoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, energy_dimension>
 {
     using type = megajoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000000, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, energy_dimension>
 {
     using type = gigajoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, energy_dimension>
 {
     using type = microjoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, energy_dimension>
 {
     using type = millijoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, energy_dimension>
 {
     using type = nanojoule_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<4184, 1000>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<4184, 1000>, energy_dimension>
 {
     using type = calorie_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<4184, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<4184, 1>, energy_dimension>
 {
     using type = kilocalorie_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<3600, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<3600, 1>, energy_dimension>
 {
     using type = watt_hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<3600000, 1>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<3600000, 1>, energy_dimension>
 {
     using type = kilowatt_hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 6241509074460762607>, energy_dimension>
 {
     using type = electronvolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 6241509074460762607>, energy_dimension>
 {
     using type = kiloelectronvolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 6241509074460762607>, energy_dimension>
 {
     using type = megaelectronvolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000000, 6241509074460762607>, energy_dimension>
 {
     using type = gigaelectronvolt_t<T>;
 };
@@ -2046,9 +2197,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct erg_t final : public details::unit_t<T, std::ratio<1, 10000000>, energy_dimension>
+struct erg_t final : public unit_t<T, std::ratio<1, 10000000>, energy_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000000>, energy_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000000>, energy_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"erg"};
@@ -2065,7 +2216,7 @@ template <is_pkr_unit_c U>
 erg_t(const U&) -> erg_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10000000>, energy_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10000000>, energy_dimension>
 {
     using type = erg_t<T>;
 };
@@ -2077,9 +2228,9 @@ namespace pkr::units
 inline constexpr dimension_t pressure_dimension{-1, 1, -2, 0, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct pascal_t final : public details::unit_t<T, std::ratio<1, 1>, pressure_dimension>
+struct pascal_t final : public unit_t<T, std::ratio<1, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pascal"};
@@ -2096,9 +2247,9 @@ template <is_pkr_unit_c U>
 pascal_t(const U&) -> pascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilopascal_t final : public details::unit_t<T, std::ratio<1000, 1>, pressure_dimension>
+struct kilopascal_t final : public unit_t<T, std::ratio<1000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilopascal"};
@@ -2115,9 +2266,9 @@ template <is_pkr_unit_c U>
 kilopascal_t(const U&) -> kilopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectopascal_t final : public details::unit_t<T, std::ratio<100, 1>, pressure_dimension>
+struct hectopascal_t final : public unit_t<T, std::ratio<100, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<100, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<100, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectopascal"};
@@ -2134,9 +2285,9 @@ template <is_pkr_unit_c U>
 hectopascal_t(const U&) -> hectopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megapascal_t final : public details::unit_t<T, std::ratio<1000000, 1>, pressure_dimension>
+struct megapascal_t final : public unit_t<T, std::ratio<1000000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megapascal"};
@@ -2153,9 +2304,9 @@ template <is_pkr_unit_c U>
 megapascal_t(const U&) -> megapascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micropascal_t final : public details::unit_t<T, std::ratio<1, 1000000>, pressure_dimension>
+struct micropascal_t final : public unit_t<T, std::ratio<1, 1000000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micropascal"};
@@ -2172,9 +2323,9 @@ template <is_pkr_unit_c U>
 micropascal_t(const U&) -> micropascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millipascal_t final : public details::unit_t<T, std::ratio<1, 1000>, pressure_dimension>
+struct millipascal_t final : public unit_t<T, std::ratio<1, 1000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millipascal"};
@@ -2191,9 +2342,9 @@ template <is_pkr_unit_c U>
 millipascal_t(const U&) -> millipascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanopascal_t final : public details::unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>
+struct nanopascal_t final : public unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanopascal"};
@@ -2210,9 +2361,9 @@ template <is_pkr_unit_c U>
 nanopascal_t(const U&) -> nanopascal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct bar_t final : public details::unit_t<T, std::ratio<100000, 1>, pressure_dimension>
+struct bar_t final : public unit_t<T, std::ratio<100000, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<100000, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<100000, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"bar"};
@@ -2229,9 +2380,9 @@ template <is_pkr_unit_c U>
 bar_t(const U&) -> bar_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct atmosphere_t final : public details::unit_t<T, std::ratio<101325, 1>, pressure_dimension>
+struct atmosphere_t final : public unit_t<T, std::ratio<101325, 1>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<101325, 1>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<101325, 1>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"atmosphere"};
@@ -2244,55 +2395,55 @@ template <is_unit_value_type_c T>
 atmosphere_t(T) -> atmosphere_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, pressure_dimension>
 {
     using type = pascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, pressure_dimension>
 {
     using type = kilopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<100, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<100, 1>, pressure_dimension>
 {
     using type = hectopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, pressure_dimension>
 {
     using type = megapascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, pressure_dimension>
 {
     using type = micropascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, pressure_dimension>
 {
     using type = millipascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, pressure_dimension>
 {
     using type = nanopascal_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<100000, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<100000, 1>, pressure_dimension>
 {
     using type = bar_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<101325, 1>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<101325, 1>, pressure_dimension>
 {
     using type = atmosphere_t<T>;
 };
@@ -2303,9 +2454,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct barye_t final : public details::unit_t<T, std::ratio<1, 10>, pressure_dimension>
+struct barye_t final : public unit_t<T, std::ratio<1, 10>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"barye"};
@@ -2322,7 +2473,7 @@ template <is_pkr_unit_c U>
 barye_t(const U&) -> barye_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10>, pressure_dimension>
 {
     using type = barye_t<T>;
 };
@@ -2336,15 +2487,15 @@ inline constexpr dimension_t magnetic_flux_dimension{2, 1, -2, -1, 0, 0, 0, 0};
 inline constexpr dimension_t magnetic_flux_density_dimension{0, 1, -2, -1, 0, 0, 0, 0};
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux = details::unit_t<type_t, ratio_t, magnetic_flux_dimension>;
+using magnetic_flux = unit_t<type_t, ratio_t, magnetic_flux_dimension>;
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
+using magnetic_flux_density = unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
 
 template <is_unit_value_type_c T>
-struct weber_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
+struct weber_t final : public unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"weber"};
@@ -2361,9 +2512,9 @@ template <is_pkr_unit_c U>
 weber_t(const U&) -> weber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliweber_t final : public details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
+struct milliweber_t final : public unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliweber"};
@@ -2380,9 +2531,9 @@ template <is_pkr_unit_c U>
 milliweber_t(const U&) -> milliweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microweber_t final : public details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
+struct microweber_t final : public unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microweber"};
@@ -2399,9 +2550,9 @@ template <is_pkr_unit_c U>
 microweber_t(const U&) -> microweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanoweber_t final : public details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+struct nanoweber_t final : public unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanoweber"};
@@ -2418,9 +2569,9 @@ template <is_pkr_unit_c U>
 nanoweber_t(const U&) -> nanoweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloweber_t final : public details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
+struct kiloweber_t final : public unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloweber"};
@@ -2437,9 +2588,9 @@ template <is_pkr_unit_c U>
 kiloweber_t(const U&) -> kiloweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct tesla_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
+struct tesla_t final : public unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"tesla"};
@@ -2456,9 +2607,9 @@ template <is_pkr_unit_c U>
 tesla_t(const U&) -> tesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millitesla_t final : public details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+struct millitesla_t final : public unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millitesla"};
@@ -2475,9 +2626,9 @@ template <is_pkr_unit_c U>
 millitesla_t(const U&) -> millitesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microtesla_t final : public details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+struct microtesla_t final : public unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microtesla"};
@@ -2494,9 +2645,9 @@ template <is_pkr_unit_c U>
 microtesla_t(const U&) -> microtesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanotesla_t final : public details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+struct nanotesla_t final : public unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanotesla"};
@@ -2513,9 +2664,9 @@ template <is_pkr_unit_c U>
 nanotesla_t(const U&) -> nanotesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilotesla_t final : public details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+struct kilotesla_t final : public unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilotesla"};
@@ -2532,9 +2683,9 @@ template <is_pkr_unit_c U>
 kilotesla_t(const U&) -> kilotesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megatesla_t final : public details::unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+struct megatesla_t final : public unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megatesla"};
@@ -2544,67 +2695,67 @@ struct megatesla_t final : public details::unit_t<T, std::ratio<1000000, 1>, mag
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
 {
     using type = weber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
     using type = milliweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
     using type = microweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
     using type = nanoweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
     using type = kiloweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
     using type = tesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
     using type = millitesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
     using type = microtesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
     using type = nanotesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
     using type = kilotesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
     using type = megatesla_t<T>;
 };
@@ -2615,9 +2766,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct gauss_t final : public details::unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>
+struct gauss_t final : public unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gauss"};
@@ -2640,9 +2791,9 @@ namespace pkr::units
 inline constexpr dimension_t magnetic_field_strength_dimension{-1, 0, 0, 1, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct oersted_t final : public details::unit_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>
+struct oersted_t final : public unit_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>;
+    using _base = unit_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"oersted"};
@@ -2659,7 +2810,7 @@ template <is_pkr_unit_c U>
 oersted_t(const U&) -> oersted_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>
+struct derived_unit_type_t<T, std::ratio<795774715459477, 10000000000000>, magnetic_field_strength_dimension>
 {
     using type = oersted_t<T>;
 };
@@ -2669,9 +2820,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct maxwell_t final : public details::unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
+struct maxwell_t final : public unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"maxwell"};
@@ -2688,7 +2839,7 @@ template <is_pkr_unit_c U>
 maxwell_t(const U&) -> maxwell_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_dimension>
 {
     using type = maxwell_t<T>;
 };
@@ -2697,24 +2848,19 @@ struct details::derived_unit_type_t<T, std::ratio<1, 100000000>, magnetic_flux_d
 namespace pkr::units
 {
 
-namespace details
-{
-
 template <typename type_t, typename ratio_t>
 struct derived_unit_type_t<type_t, ratio_t, time_dimension>
 {
     using type = time_unit_t<type_t, ratio_t>;
 };
-}
 
-template <typename target_unit_t, typename Rep, typename Period>
-
-    requires std::is_base_of_v<typename target_unit_t::_base, target_unit_t> && (details::is_pkr_unit<target_unit_t>::value_dimension == time_dimension)
+template <pkr_unit_c target_unit_t, typename Rep, typename Period>
+    requires(::pkr::units::details::unit_traits<target_unit_t>::dimension::value == time_dimension)
 constexpr target_unit_t unit_cast(std::chrono::duration<Rep, Period> d) noexcept
 {
 
-    using target_ratio = typename details::is_pkr_unit<target_unit_t>::ratio_type;
-    using target_type_t = typename details::is_pkr_unit<target_unit_t>::value_type;
+    using target_ratio = unit_ratio_t<target_unit_t>;
+    using target_type_t = unit_value_t<target_unit_t>;
 
     constexpr target_type_t conversion_factor = details::compute_conversion_factor<target_type_t>(
         Period::num, Period::den, target_ratio::num, target_ratio::den);
@@ -2724,13 +2870,12 @@ constexpr target_unit_t unit_cast(std::chrono::duration<Rep, Period> d) noexcept
     return target_unit_t(value);
 }
 
-template <typename Duration, typename source_unit_t>
-
-    requires std::is_base_of_v<typename source_unit_t::_base, source_unit_t> && (details::is_pkr_unit<source_unit_t>::value_dimension == time_dimension)
+template <typename Duration, pkr_unit_c source_unit_t>
+    requires(::pkr::units::details::unit_traits<source_unit_t>::dimension::value == time_dimension)
 constexpr Duration unit_cast(const source_unit_t& source) noexcept
 {
-    using source_ratio = typename details::is_pkr_unit<source_unit_t>::ratio_type;
-    using source_type_t = typename details::is_pkr_unit<source_unit_t>::value_type;
+    using source_ratio = unit_ratio_t<source_unit_t>;
+    using source_type_t = unit_value_t<source_unit_t>;
 
     constexpr source_type_t conversion_factor = details::compute_conversion_factor<source_type_t>(
         source_ratio::num, source_ratio::den, Duration::period::num, Duration::period::den);
@@ -2746,10 +2891,17 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct second_t final : public details::unit_t<T, std::ratio<1, 1>, time_dimension>
+struct second_t final : public unit_t<T, std::ratio<1, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, time_dimension>;
     using _base::_base;
+
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != time_dimension)
+    explicit second_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == time_dimension, "second_t: expected a time unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"second"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
@@ -2765,9 +2917,9 @@ template <is_pkr_unit_c U>
 second_t(const U&) -> second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attosecond_t final : public details::unit_t<T, std::atto, time_dimension>
+struct attosecond_t final : public unit_t<T, std::atto, time_dimension>
 {
-    using _base = details::unit_t<T, std::atto, time_dimension>;
+    using _base = unit_t<T, std::atto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attosecond"};
@@ -2784,9 +2936,9 @@ template <is_pkr_unit_c U>
 attosecond_t(const U&) -> attosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtosecond_t final : public details::unit_t<T, std::femto, time_dimension>
+struct femtosecond_t final : public unit_t<T, std::femto, time_dimension>
 {
-    using _base = details::unit_t<T, std::femto, time_dimension>;
+    using _base = unit_t<T, std::femto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtosecond"};
@@ -2803,9 +2955,9 @@ template <is_pkr_unit_c U>
 femtosecond_t(const U&) -> femtosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picosecond_t final : public details::unit_t<T, std::pico, time_dimension>
+struct picosecond_t final : public unit_t<T, std::pico, time_dimension>
 {
-    using _base = details::unit_t<T, std::pico, time_dimension>;
+    using _base = unit_t<T, std::pico, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picosecond"};
@@ -2822,9 +2974,9 @@ template <is_pkr_unit_c U>
 picosecond_t(const U&) -> picosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanosecond_t final : public details::unit_t<T, std::nano, time_dimension>
+struct nanosecond_t final : public unit_t<T, std::nano, time_dimension>
 {
-    using _base = details::unit_t<T, std::nano, time_dimension>;
+    using _base = unit_t<T, std::nano, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanosecond"};
@@ -2841,9 +2993,9 @@ template <is_pkr_unit_c U>
 nanosecond_t(const U&) -> nanosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microsecond_t final : public details::unit_t<T, std::micro, time_dimension>
+struct microsecond_t final : public unit_t<T, std::micro, time_dimension>
 {
-    using _base = details::unit_t<T, std::micro, time_dimension>;
+    using _base = unit_t<T, std::micro, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microsecond"};
@@ -2860,9 +3012,9 @@ template <is_pkr_unit_c U>
 microsecond_t(const U&) -> microsecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millisecond_t final : public details::unit_t<T, std::milli, time_dimension>
+struct millisecond_t final : public unit_t<T, std::milli, time_dimension>
 {
-    using _base = details::unit_t<T, std::milli, time_dimension>;
+    using _base = unit_t<T, std::milli, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millisecond"};
@@ -2879,9 +3031,9 @@ template <is_pkr_unit_c U>
 millisecond_t(const U&) -> millisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centisecond_t final : public details::unit_t<T, std::centi, time_dimension>
+struct centisecond_t final : public unit_t<T, std::centi, time_dimension>
 {
-    using _base = details::unit_t<T, std::centi, time_dimension>;
+    using _base = unit_t<T, std::centi, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centisecond"};
@@ -2898,9 +3050,9 @@ template <is_pkr_unit_c U>
 centisecond_t(const U&) -> centisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decisecond_t final : public details::unit_t<T, std::deci, time_dimension>
+struct decisecond_t final : public unit_t<T, std::deci, time_dimension>
 {
-    using _base = details::unit_t<T, std::deci, time_dimension>;
+    using _base = unit_t<T, std::deci, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decisecond"};
@@ -2917,9 +3069,9 @@ template <is_pkr_unit_c U>
 decisecond_t(const U&) -> decisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decasecond_t final : public details::unit_t<T, std::deca, time_dimension>
+struct decasecond_t final : public unit_t<T, std::deca, time_dimension>
 {
-    using _base = details::unit_t<T, std::deca, time_dimension>;
+    using _base = unit_t<T, std::deca, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decasecond"};
@@ -2936,9 +3088,9 @@ template <is_pkr_unit_c U>
 decasecond_t(const U&) -> decasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectosecond_t final : public details::unit_t<T, std::hecto, time_dimension>
+struct hectosecond_t final : public unit_t<T, std::hecto, time_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, time_dimension>;
+    using _base = unit_t<T, std::hecto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectosecond"};
@@ -2955,9 +3107,9 @@ template <is_pkr_unit_c U>
 hectosecond_t(const U&) -> hectosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilosecond_t final : public details::unit_t<T, std::kilo, time_dimension>
+struct kilosecond_t final : public unit_t<T, std::kilo, time_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, time_dimension>;
+    using _base = unit_t<T, std::kilo, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilosecond"};
@@ -2970,9 +3122,9 @@ template <is_unit_value_type_c T>
 kilosecond_t(T) -> kilosecond_t<T>;
 
 template <is_unit_value_type_c T>
-struct megasecond_t final : public details::unit_t<T, std::mega, time_dimension>
+struct megasecond_t final : public unit_t<T, std::mega, time_dimension>
 {
-    using _base = details::unit_t<T, std::mega, time_dimension>;
+    using _base = unit_t<T, std::mega, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megasecond"};
@@ -2989,9 +3141,9 @@ template <is_pkr_unit_c U>
 megasecond_t(const U&) -> megasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigasecond_t final : public details::unit_t<T, std::giga, time_dimension>
+struct gigasecond_t final : public unit_t<T, std::giga, time_dimension>
 {
-    using _base = details::unit_t<T, std::giga, time_dimension>;
+    using _base = unit_t<T, std::giga, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigasecond"};
@@ -3008,9 +3160,9 @@ template <is_pkr_unit_c U>
 gigasecond_t(const U&) -> gigasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct terasecond_t final : public details::unit_t<T, std::tera, time_dimension>
+struct terasecond_t final : public unit_t<T, std::tera, time_dimension>
 {
-    using _base = details::unit_t<T, std::tera, time_dimension>;
+    using _base = unit_t<T, std::tera, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terasecond"};
@@ -3027,9 +3179,9 @@ template <is_pkr_unit_c U>
 terasecond_t(const U&) -> terasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petasecond_t final : public details::unit_t<T, std::peta, time_dimension>
+struct petasecond_t final : public unit_t<T, std::peta, time_dimension>
 {
-    using _base = details::unit_t<T, std::peta, time_dimension>;
+    using _base = unit_t<T, std::peta, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petasecond"};
@@ -3046,9 +3198,9 @@ template <is_pkr_unit_c U>
 petasecond_t(const U&) -> petasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exasecond_t final : public details::unit_t<T, std::exa, time_dimension>
+struct exasecond_t final : public unit_t<T, std::exa, time_dimension>
 {
-    using _base = details::unit_t<T, std::exa, time_dimension>;
+    using _base = unit_t<T, std::exa, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exasecond"};
@@ -3065,9 +3217,9 @@ template <is_pkr_unit_c U>
 exasecond_t(const U&) -> exasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct minute_t final : public details::unit_t<T, std::ratio<60, 1>, time_dimension>
+struct minute_t final : public unit_t<T, std::ratio<60, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<60, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<60, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"minute"};
@@ -3084,9 +3236,9 @@ template <is_pkr_unit_c U>
 minute_t(const U&) -> minute_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hour_t final : public details::unit_t<T, std::ratio<3600, 1>, time_dimension>
+struct hour_t final : public unit_t<T, std::ratio<3600, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3600, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<3600, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hour"};
@@ -3103,9 +3255,9 @@ template <is_pkr_unit_c U>
 hour_t(const U&) -> hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct day_t final : public details::unit_t<T, std::ratio<86400, 1>, time_dimension>
+struct day_t final : public unit_t<T, std::ratio<86400, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<86400, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<86400, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"day"};
@@ -3122,9 +3274,9 @@ template <is_pkr_unit_c U>
 day_t(const U&) -> day_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct week_t final : public details::unit_t<T, std::ratio<604800, 1>, time_dimension>
+struct week_t final : public unit_t<T, std::ratio<604800, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<604800, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<604800, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"week"};
@@ -3141,9 +3293,9 @@ template <is_pkr_unit_c U>
 week_t(const U&) -> week_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct month_t final : public details::unit_t<T, std::ratio<2629800, 1>, time_dimension>
+struct month_t final : public unit_t<T, std::ratio<2629800, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<2629800, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<2629800, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"month"};
@@ -3160,9 +3312,9 @@ template <is_pkr_unit_c U>
 month_t(const U&) -> month_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct year_t final : public details::unit_t<T, std::ratio<31557600, 1>, time_dimension>
+struct year_t final : public unit_t<T, std::ratio<31557600, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<31557600, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<31557600, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"year"};
@@ -3175,139 +3327,139 @@ template <is_unit_value_type_c T>
 year_t(T) -> year_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, time_dimension>
 {
     using type = second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, time_dimension>
+struct derived_unit_type_t<T, std::atto, time_dimension>
 {
     using type = attosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, time_dimension>
+struct derived_unit_type_t<T, std::femto, time_dimension>
 {
     using type = femtosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, time_dimension>
+struct derived_unit_type_t<T, std::pico, time_dimension>
 {
     using type = picosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, time_dimension>
+struct derived_unit_type_t<T, std::nano, time_dimension>
 {
     using type = nanosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, time_dimension>
+struct derived_unit_type_t<T, std::micro, time_dimension>
 {
     using type = microsecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, time_dimension>
+struct derived_unit_type_t<T, std::milli, time_dimension>
 {
     using type = millisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, time_dimension>
+struct derived_unit_type_t<T, std::centi, time_dimension>
 {
     using type = centisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, time_dimension>
+struct derived_unit_type_t<T, std::deci, time_dimension>
 {
     using type = decisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, time_dimension>
+struct derived_unit_type_t<T, std::deca, time_dimension>
 {
     using type = decasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, time_dimension>
+struct derived_unit_type_t<T, std::hecto, time_dimension>
 {
     using type = hectosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, time_dimension>
+struct derived_unit_type_t<T, std::kilo, time_dimension>
 {
     using type = kilosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, time_dimension>
+struct derived_unit_type_t<T, std::mega, time_dimension>
 {
     using type = megasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, time_dimension>
+struct derived_unit_type_t<T, std::giga, time_dimension>
 {
     using type = gigasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, time_dimension>
+struct derived_unit_type_t<T, std::tera, time_dimension>
 {
     using type = terasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, time_dimension>
+struct derived_unit_type_t<T, std::peta, time_dimension>
 {
     using type = petasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, time_dimension>
+struct derived_unit_type_t<T, std::exa, time_dimension>
 {
     using type = exasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<60, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<60, 1>, time_dimension>
 {
     using type = minute_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<3600, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<3600, 1>, time_dimension>
 {
     using type = hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<86400, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<86400, 1>, time_dimension>
 {
     using type = day_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<604800, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<604800, 1>, time_dimension>
 {
     using type = week_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<2629800, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<2629800, 1>, time_dimension>
 {
     using type = month_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<31557600, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<31557600, 1>, time_dimension>
 {
     using type = year_t<T>;
 };
@@ -3317,9 +3469,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct kilogram_t final : public details::unit_t<T, std::ratio<1, 1>, mass_dimension>
+struct kilogram_t final : public unit_t<T, std::ratio<1, 1>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram"};
@@ -3336,9 +3488,9 @@ template <is_pkr_unit_c U>
 kilogram_t(const U&) -> kilogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picogram_t final : public details::unit_t<T, std::femto, mass_dimension>
+struct picogram_t final : public unit_t<T, std::femto, mass_dimension>
 {
-    using _base = details::unit_t<T, std::femto, mass_dimension>;
+    using _base = unit_t<T, std::femto, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picogram"};
@@ -3355,9 +3507,9 @@ template <is_pkr_unit_c U>
 picogram_t(const U&) -> picogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanogram_t final : public details::unit_t<T, std::pico, mass_dimension>
+struct nanogram_t final : public unit_t<T, std::pico, mass_dimension>
 {
-    using _base = details::unit_t<T, std::pico, mass_dimension>;
+    using _base = unit_t<T, std::pico, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanogram"};
@@ -3374,9 +3526,9 @@ template <is_pkr_unit_c U>
 nanogram_t(const U&) -> nanogram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microgram_t final : public details::unit_t<T, std::nano, mass_dimension>
+struct microgram_t final : public unit_t<T, std::nano, mass_dimension>
 {
-    using _base = details::unit_t<T, std::nano, mass_dimension>;
+    using _base = unit_t<T, std::nano, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microgram"};
@@ -3393,9 +3545,9 @@ template <is_pkr_unit_c U>
 microgram_t(const U&) -> microgram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_t final : public details::unit_t<T, std::micro, mass_dimension>
+struct milligram_t final : public unit_t<T, std::micro, mass_dimension>
 {
-    using _base = details::unit_t<T, std::micro, mass_dimension>;
+    using _base = unit_t<T, std::micro, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram"};
@@ -3412,9 +3564,9 @@ template <is_pkr_unit_c U>
 milligram_t(const U&) -> milligram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centigram_t final : public details::unit_t<T, std::ratio<1, 100000>, mass_dimension>
+struct centigram_t final : public unit_t<T, std::ratio<1, 100000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centigram"};
@@ -3431,9 +3583,9 @@ template <is_pkr_unit_c U>
 centigram_t(const U&) -> centigram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decigram_t final : public details::unit_t<T, std::ratio<1, 10000>, mass_dimension>
+struct decigram_t final : public unit_t<T, std::ratio<1, 10000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decigram"};
@@ -3450,9 +3602,9 @@ template <is_pkr_unit_c U>
 decigram_t(const U&) -> decigram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_t final : public details::unit_t<T, std::milli, mass_dimension>
+struct gram_t final : public unit_t<T, std::milli, mass_dimension>
 {
-    using _base = details::unit_t<T, std::milli, mass_dimension>;
+    using _base = unit_t<T, std::milli, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram"};
@@ -3469,9 +3621,9 @@ template <is_pkr_unit_c U>
 gram_t(const U&) -> gram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decagram_t final : public details::unit_t<T, std::centi, mass_dimension>
+struct decagram_t final : public unit_t<T, std::centi, mass_dimension>
 {
-    using _base = details::unit_t<T, std::centi, mass_dimension>;
+    using _base = unit_t<T, std::centi, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decagram"};
@@ -3484,9 +3636,9 @@ template <is_unit_value_type_c T>
 decagram_t(T) -> decagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectogram_t final : public details::unit_t<T, std::deci, mass_dimension>
+struct hectogram_t final : public unit_t<T, std::deci, mass_dimension>
 {
-    using _base = details::unit_t<T, std::deci, mass_dimension>;
+    using _base = unit_t<T, std::deci, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectogram"};
@@ -3499,9 +3651,9 @@ template <is_unit_value_type_c T>
 hectogram_t(T) -> hectogram_t<T>;
 
 template <is_unit_value_type_c T>
-struct gigagram_t final : public details::unit_t<T, std::mega, mass_dimension>
+struct gigagram_t final : public unit_t<T, std::mega, mass_dimension>
 {
-    using _base = details::unit_t<T, std::mega, mass_dimension>;
+    using _base = unit_t<T, std::mega, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigagram"};
@@ -3514,9 +3666,9 @@ template <is_unit_value_type_c T>
 gigagram_t(T) -> gigagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct teragram_t final : public details::unit_t<T, std::giga, mass_dimension>
+struct teragram_t final : public unit_t<T, std::giga, mass_dimension>
 {
-    using _base = details::unit_t<T, std::giga, mass_dimension>;
+    using _base = unit_t<T, std::giga, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teragram"};
@@ -3529,9 +3681,9 @@ template <is_unit_value_type_c T>
 teragram_t(T) -> teragram_t<T>;
 
 template <is_unit_value_type_c T>
-struct petagram_t final : public details::unit_t<T, std::tera, mass_dimension>
+struct petagram_t final : public unit_t<T, std::tera, mass_dimension>
 {
-    using _base = details::unit_t<T, std::tera, mass_dimension>;
+    using _base = unit_t<T, std::tera, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petagram"};
@@ -3544,9 +3696,9 @@ template <is_unit_value_type_c T>
 petagram_t(T) -> petagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct exagram_t final : public details::unit_t<T, std::peta, mass_dimension>
+struct exagram_t final : public unit_t<T, std::peta, mass_dimension>
 {
-    using _base = details::unit_t<T, std::peta, mass_dimension>;
+    using _base = unit_t<T, std::peta, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exagram"};
@@ -3559,9 +3711,9 @@ template <is_unit_value_type_c T>
 exagram_t(T) -> exagram_t<T>;
 
 template <is_unit_value_type_c T>
-struct metric_ton_t final : public details::unit_t<T, std::kilo, mass_dimension>
+struct metric_ton_t final : public unit_t<T, std::kilo, mass_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, mass_dimension>;
+    using _base = unit_t<T, std::kilo, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"metric ton"};
@@ -3574,91 +3726,91 @@ template <is_unit_value_type_c T>
 metric_ton_t(T) -> metric_ton_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, mass_dimension>
 {
     using type = kilogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, mass_dimension>
+struct derived_unit_type_t<T, std::femto, mass_dimension>
 {
     using type = picogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, mass_dimension>
+struct derived_unit_type_t<T, std::pico, mass_dimension>
 {
     using type = nanogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, mass_dimension>
+struct derived_unit_type_t<T, std::nano, mass_dimension>
 {
     using type = microgram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, mass_dimension>
+struct derived_unit_type_t<T, std::micro, mass_dimension>
 {
     using type = milligram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100000>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100000>, mass_dimension>
 {
     using type = centigram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10000>, mass_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10000>, mass_dimension>
 {
     using type = decigram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, mass_dimension>
+struct derived_unit_type_t<T, std::milli, mass_dimension>
 {
     using type = gram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, mass_dimension>
+struct derived_unit_type_t<T, std::centi, mass_dimension>
 {
     using type = decagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, mass_dimension>
+struct derived_unit_type_t<T, std::deci, mass_dimension>
 {
     using type = hectogram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, mass_dimension>
+struct derived_unit_type_t<T, std::kilo, mass_dimension>
 {
     using type = metric_ton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, mass_dimension>
+struct derived_unit_type_t<T, std::mega, mass_dimension>
 {
     using type = gigagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, mass_dimension>
+struct derived_unit_type_t<T, std::giga, mass_dimension>
 {
     using type = teragram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, mass_dimension>
+struct derived_unit_type_t<T, std::tera, mass_dimension>
 {
     using type = petagram_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, mass_dimension>
+struct derived_unit_type_t<T, std::peta, mass_dimension>
 {
     using type = exagram_t<T>;
 };
@@ -3668,9 +3820,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, velocity_dimension>
+struct meter_per_second_t final : public unit_t<T, std::ratio<1, 1>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meter per second"};
@@ -3687,9 +3839,9 @@ template <is_pkr_unit_c U>
 meter_per_second_t(const U&) -> meter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilometer_per_hour_t final : public details::unit_t<T, std::ratio<5, 18>, velocity_dimension>
+struct kilometer_per_hour_t final : public unit_t<T, std::ratio<5, 18>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<5, 18>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<5, 18>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per hour"};
@@ -3706,9 +3858,9 @@ template <is_pkr_unit_c U>
 kilometer_per_hour_t(const U&) -> kilometer_per_hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimeter_per_second_t final : public details::unit_t<T, std::ratio<1, 100>, velocity_dimension>
+struct centimeter_per_second_t final : public unit_t<T, std::ratio<1, 100>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter per second"};
@@ -3725,9 +3877,9 @@ template <is_pkr_unit_c U>
 centimeter_per_second_t(const U&) -> centimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimeter_per_second_t final : public details::unit_t<T, std::ratio<1, 1000>, velocity_dimension>
+struct millimeter_per_second_t final : public unit_t<T, std::ratio<1, 1000>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter per second"};
@@ -3744,9 +3896,9 @@ template <is_pkr_unit_c U>
 millimeter_per_second_t(const U&) -> millimeter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilometer_per_second_t final : public details::unit_t<T, std::ratio<1000, 1>, velocity_dimension>
+struct kilometer_per_second_t final : public unit_t<T, std::ratio<1000, 1>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per second"};
@@ -3763,31 +3915,31 @@ template <is_pkr_unit_c U>
 kilometer_per_second_t(const U&) -> kilometer_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, velocity_dimension>
 {
     using type = meter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<5, 18>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<5, 18>, velocity_dimension>
 {
     using type = kilometer_per_hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 100>, velocity_dimension>
 {
     using type = centimeter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, velocity_dimension>
 {
     using type = millimeter_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, velocity_dimension>
 {
     using type = kilometer_per_second_t<T>;
 };
@@ -3797,9 +3949,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct meter_per_second_squared_t final : public details::unit_t<T, std::ratio<1, 1>, acceleration_v>
+struct meter_per_second_squared_t final : public unit_t<T, std::ratio<1, 1>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meter per second squared"};
@@ -3816,9 +3968,9 @@ template <is_pkr_unit_c U>
 meter_per_second_squared_t(const U&) -> meter_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimeter_per_second_squared_t final : public details::unit_t<T, std::ratio<1, 100>, acceleration_v>
+struct centimeter_per_second_squared_t final : public unit_t<T, std::ratio<1, 100>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1, 100>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter per second squared"};
@@ -3835,9 +3987,9 @@ template <is_pkr_unit_c U>
 centimeter_per_second_squared_t(const U&) -> centimeter_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimeter_per_second_squared_t final : public details::unit_t<T, std::ratio<1, 1000>, acceleration_v>
+struct millimeter_per_second_squared_t final : public unit_t<T, std::ratio<1, 1000>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter per second squared"};
@@ -3854,9 +4006,9 @@ template <is_pkr_unit_c U>
 millimeter_per_second_squared_t(const U&) -> millimeter_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilometer_per_second_squared_t final : public details::unit_t<T, std::ratio<1000, 1>, acceleration_v>
+struct kilometer_per_second_squared_t final : public unit_t<T, std::ratio<1000, 1>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer per second squared"};
@@ -3873,9 +4025,9 @@ template <is_pkr_unit_c U>
 kilometer_per_second_squared_t(const U&) -> kilometer_per_second_squared_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct standard_gravity_t final : public details::unit_t<T, std::ratio<980665, 100000>, acceleration_v>
+struct standard_gravity_t final : public unit_t<T, std::ratio<980665, 100000>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<980665, 100000>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<980665, 100000>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"standard gravity"};
@@ -3892,31 +4044,31 @@ template <is_pkr_unit_c U>
 standard_gravity_t(const U&) -> standard_gravity_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, acceleration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1>, acceleration_v>
 {
     using type = meter_per_second_squared_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 100>, acceleration_v>
+struct derived_unit_type_t<T, std::ratio<1, 100>, acceleration_v>
 {
     using type = centimeter_per_second_squared_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, acceleration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, acceleration_v>
 {
     using type = millimeter_per_second_squared_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, acceleration_v>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, acceleration_v>
 {
     using type = kilometer_per_second_squared_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<980665, 100000>, acceleration_v>
+struct derived_unit_type_t<T, std::ratio<980665, 100000>, acceleration_v>
 {
     using type = standard_gravity_t<T>;
 };
@@ -3928,9 +4080,9 @@ namespace pkr::units
 inline constexpr dimension_t electric_potential_dimension{2, 1, -3, -1, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct volt_t final : public details::unit_t<T, std::ratio<1, 1>, electric_potential_dimension>
+struct volt_t final : public unit_t<T, std::ratio<1, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"volt"};
@@ -3947,9 +4099,9 @@ template <is_pkr_unit_c U>
 volt_t(const U&) -> volt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilovolt_t final : public details::unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>
+struct kilovolt_t final : public unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilovolt"};
@@ -3966,9 +4118,9 @@ template <is_pkr_unit_c U>
 kilovolt_t(const U&) -> kilovolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megavolt_t final : public details::unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
+struct megavolt_t final : public unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megavolt"};
@@ -3985,9 +4137,9 @@ template <is_pkr_unit_c U>
 megavolt_t(const U&) -> megavolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millivolt_t final : public details::unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>
+struct millivolt_t final : public unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millivolt"};
@@ -4004,9 +4156,9 @@ template <is_pkr_unit_c U>
 millivolt_t(const U&) -> millivolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microvolt_t final : public details::unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
+struct microvolt_t final : public unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, electric_potential_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microvolt"};
@@ -4023,31 +4175,31 @@ template <is_pkr_unit_c U>
 microvolt_t(const U&) -> microvolt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, electric_potential_dimension>
 {
     using type = volt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, electric_potential_dimension>
 {
     using type = kilovolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, electric_potential_dimension>
 {
     using type = megavolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, electric_potential_dimension>
 {
     using type = millivolt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, electric_potential_dimension>
 {
     using type = microvolt_t<T>;
 };
@@ -4059,9 +4211,9 @@ namespace pkr::units
 inline constexpr dimension_t electric_resistance_dimension{2, 1, -3, -2, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct ohm_t final : public details::unit_t<T, std::ratio<1, 1>, electric_resistance_dimension>
+struct ohm_t final : public unit_t<T, std::ratio<1, 1>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ohm"};
@@ -4078,9 +4230,9 @@ template <is_pkr_unit_c U>
 ohm_t(const U&) -> ohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloohm_t final : public details::unit_t<T, std::ratio<1000, 1>, electric_resistance_dimension>
+struct kiloohm_t final : public unit_t<T, std::ratio<1000, 1>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloohm"};
@@ -4097,9 +4249,9 @@ template <is_pkr_unit_c U>
 kiloohm_t(const U&) -> kiloohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megaohm_t final : public details::unit_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>
+struct megaohm_t final : public unit_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megaohm"};
@@ -4116,9 +4268,9 @@ template <is_pkr_unit_c U>
 megaohm_t(const U&) -> megaohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigaohm_t final : public details::unit_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>
+struct gigaohm_t final : public unit_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigaohm"};
@@ -4135,9 +4287,9 @@ template <is_pkr_unit_c U>
 gigaohm_t(const U&) -> gigaohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliohm_t final : public details::unit_t<T, std::ratio<1, 1000>, electric_resistance_dimension>
+struct milliohm_t final : public unit_t<T, std::ratio<1, 1000>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliohm"};
@@ -4154,9 +4306,9 @@ template <is_pkr_unit_c U>
 milliohm_t(const U&) -> milliohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microohm_t final : public details::unit_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>
+struct microohm_t final : public unit_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microohm"};
@@ -4173,37 +4325,37 @@ template <is_pkr_unit_c U>
 microohm_t(const U&) -> microohm_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, electric_resistance_dimension>
 {
     using type = ohm_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, electric_resistance_dimension>
 {
     using type = kiloohm_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, electric_resistance_dimension>
 {
     using type = megaohm_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, electric_resistance_dimension>
 {
     using type = gigaohm_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, electric_resistance_dimension>
 {
     using type = milliohm_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, electric_resistance_dimension>
 {
     using type = microohm_t<T>;
 };
@@ -4215,9 +4367,9 @@ namespace pkr::units
 inline constexpr dimension_t capacitance_v{-2, -1, 4, 2, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct farad_t final : public details::unit_t<T, std::ratio<1, 1>, capacitance_v>
+struct farad_t final : public unit_t<T, std::ratio<1, 1>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"farad"};
@@ -4230,9 +4382,9 @@ template <is_unit_value_type_c T>
 farad_t(T) -> farad_t<T>;
 
 template <is_unit_value_type_c T>
-struct millifarad_t final : public details::unit_t<T, std::ratio<1, 1000>, capacitance_v>
+struct millifarad_t final : public unit_t<T, std::ratio<1, 1000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millifarad"};
@@ -4245,9 +4397,9 @@ template <is_unit_value_type_c T>
 millifarad_t(T) -> millifarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct microfarad_t final : public details::unit_t<T, std::ratio<1, 1000000>, capacitance_v>
+struct microfarad_t final : public unit_t<T, std::ratio<1, 1000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microfarad"};
@@ -4260,9 +4412,9 @@ template <is_unit_value_type_c T>
 microfarad_t(T) -> microfarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanofarad_t final : public details::unit_t<T, std::ratio<1, 1000000000>, capacitance_v>
+struct nanofarad_t final : public unit_t<T, std::ratio<1, 1000000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanofarad"};
@@ -4275,9 +4427,9 @@ template <is_unit_value_type_c T>
 nanofarad_t(T) -> nanofarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct picofarad_t final : public details::unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>
+struct picofarad_t final : public unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000000>, capacitance_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picofarad"};
@@ -4290,61 +4442,61 @@ template <is_unit_value_type_c T>
 picofarad_t(T) -> picofarad_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1>, capacitance_v>
 {
     using type = farad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, capacitance_v>
 {
     using type = millifarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, capacitance_v>
 {
     using type = microfarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, capacitance_v>
 {
     using type = nanofarad_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000000>, capacitance_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using type = picofarad_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1>, capacitance_v>
 {
     using type = farad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, capacitance_v>
 {
     using type = millifarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, capacitance_v>
 {
     using type = microfarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000000>, capacitance_v>
 {
     using type = nanofarad_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000000000>, capacitance_v>
 {
     using type = picofarad_t<double>;
 };
@@ -4356,9 +4508,9 @@ namespace pkr::units
 inline constexpr dimension_t inductance_dimension{2, 1, -2, -2, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct henry_t final : public details::unit_t<T, std::ratio<1, 1>, inductance_dimension>
+struct henry_t final : public unit_t<T, std::ratio<1, 1>, inductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, inductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, inductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"henry"};
@@ -4375,9 +4527,9 @@ template <is_pkr_unit_c U>
 henry_t(const U&) -> henry_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millihenry_t final : public details::unit_t<T, std::ratio<1, 1000>, inductance_dimension>
+struct millihenry_t final : public unit_t<T, std::ratio<1, 1000>, inductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, inductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, inductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millihenry"};
@@ -4390,9 +4542,9 @@ template <is_unit_value_type_c T>
 millihenry_t(T) -> millihenry_t<T>;
 
 template <is_unit_value_type_c T>
-struct microhenry_t final : public details::unit_t<T, std::ratio<1, 1000000>, inductance_dimension>
+struct microhenry_t final : public unit_t<T, std::ratio<1, 1000000>, inductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, inductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, inductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microhenry"};
@@ -4405,9 +4557,9 @@ template <is_unit_value_type_c T>
 microhenry_t(T) -> microhenry_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanohenry_t final : public details::unit_t<T, std::ratio<1, 1000000000>, inductance_dimension>
+struct nanohenry_t final : public unit_t<T, std::ratio<1, 1000000000>, inductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, inductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, inductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanohenry"};
@@ -4420,25 +4572,25 @@ template <is_unit_value_type_c T>
 nanohenry_t(T) -> nanohenry_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, inductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, inductance_dimension>
 {
     using type = henry_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, inductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, inductance_dimension>
 {
     using type = millihenry_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, inductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, inductance_dimension>
 {
     using type = microhenry_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, inductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, inductance_dimension>
 {
     using type = nanohenry_t<T>;
 };
@@ -4450,9 +4602,9 @@ namespace pkr::units
 inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct siemens_t final : public details::unit_t<T, std::ratio<1, 1>, conductance_dimension>
+struct siemens_t final : public unit_t<T, std::ratio<1, 1>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"siemens"};
@@ -4465,9 +4617,9 @@ template <is_unit_value_type_c T>
 siemens_t(T) -> siemens_t<T>;
 
 template <is_unit_value_type_c T>
-struct millisiemens_t final : public details::unit_t<T, std::ratio<1, 1000>, conductance_dimension>
+struct millisiemens_t final : public unit_t<T, std::ratio<1, 1000>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millisiemens"};
@@ -4480,9 +4632,9 @@ template <is_unit_value_type_c T>
 millisiemens_t(T) -> millisiemens_t<T>;
 
 template <is_unit_value_type_c T>
-struct microsiemens_t final : public details::unit_t<T, std::ratio<1, 1000000>, conductance_dimension>
+struct microsiemens_t final : public unit_t<T, std::ratio<1, 1000000>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microsiemens"};
@@ -4495,37 +4647,37 @@ template <is_unit_value_type_c T>
 microsiemens_t(T) -> microsiemens_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, conductance_dimension>
 {
     using type = siemens_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, conductance_dimension>
 {
     using type = millisiemens_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, conductance_dimension>
 {
     using type = microsiemens_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
 {
     using type = siemens_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using type = millisiemens_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using type = microsiemens_t<double>;
 };
@@ -4685,10 +4837,17 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct meter_t final : public details::unit_t<T, std::ratio<1, 1>, length_dimension>
+struct meter_t final : public unit_t<T, std::ratio<1, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, length_dimension>;
     using _base::_base;
+
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != length_dimension)
+    explicit meter_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == length_dimension, "meter_t: expected a length unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"meter"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
@@ -4704,9 +4863,9 @@ template <is_pkr_unit_c U>
 meter_t(const U&) -> meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attometer_t final : public details::unit_t<T, std::atto, length_dimension>
+struct attometer_t final : public unit_t<T, std::atto, length_dimension>
 {
-    using _base = details::unit_t<T, std::atto, length_dimension>;
+    using _base = unit_t<T, std::atto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attometer"};
@@ -4723,9 +4882,9 @@ template <is_pkr_unit_c U>
 attometer_t(const U&) -> attometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtometer_t final : public details::unit_t<T, std::femto, length_dimension>
+struct femtometer_t final : public unit_t<T, std::femto, length_dimension>
 {
-    using _base = details::unit_t<T, std::femto, length_dimension>;
+    using _base = unit_t<T, std::femto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtometer"};
@@ -4742,9 +4901,9 @@ template <is_pkr_unit_c U>
 femtometer_t(const U&) -> femtometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picometer_t final : public details::unit_t<T, std::pico, length_dimension>
+struct picometer_t final : public unit_t<T, std::pico, length_dimension>
 {
-    using _base = details::unit_t<T, std::pico, length_dimension>;
+    using _base = unit_t<T, std::pico, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picometer"};
@@ -4761,9 +4920,9 @@ template <is_pkr_unit_c U>
 picometer_t(const U&) -> picometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanometer_t final : public details::unit_t<T, std::nano, length_dimension>
+struct nanometer_t final : public unit_t<T, std::nano, length_dimension>
 {
-    using _base = details::unit_t<T, std::nano, length_dimension>;
+    using _base = unit_t<T, std::nano, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanometer"};
@@ -4780,9 +4939,9 @@ template <is_pkr_unit_c U>
 nanometer_t(const U&) -> nanometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micrometer_t final : public details::unit_t<T, std::micro, length_dimension>
+struct micrometer_t final : public unit_t<T, std::micro, length_dimension>
 {
-    using _base = details::unit_t<T, std::micro, length_dimension>;
+    using _base = unit_t<T, std::micro, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micrometer"};
@@ -4799,9 +4958,9 @@ template <is_pkr_unit_c U>
 micrometer_t(const U&) -> micrometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimeter_t final : public details::unit_t<T, std::milli, length_dimension>
+struct millimeter_t final : public unit_t<T, std::milli, length_dimension>
 {
-    using _base = details::unit_t<T, std::milli, length_dimension>;
+    using _base = unit_t<T, std::milli, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter"};
@@ -4818,9 +4977,9 @@ template <is_pkr_unit_c U>
 millimeter_t(const U&) -> millimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimeter_t final : public details::unit_t<T, std::centi, length_dimension>
+struct centimeter_t final : public unit_t<T, std::centi, length_dimension>
 {
-    using _base = details::unit_t<T, std::centi, length_dimension>;
+    using _base = unit_t<T, std::centi, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter"};
@@ -4837,9 +4996,9 @@ template <is_pkr_unit_c U>
 centimeter_t(const U&) -> centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decimeter_t final : public details::unit_t<T, std::deci, length_dimension>
+struct decimeter_t final : public unit_t<T, std::deci, length_dimension>
 {
-    using _base = details::unit_t<T, std::deci, length_dimension>;
+    using _base = unit_t<T, std::deci, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decimeter"};
@@ -4856,9 +5015,9 @@ template <is_pkr_unit_c U>
 decimeter_t(const U&) -> decimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decameter_t final : public details::unit_t<T, std::deca, length_dimension>
+struct decameter_t final : public unit_t<T, std::deca, length_dimension>
 {
-    using _base = details::unit_t<T, std::deca, length_dimension>;
+    using _base = unit_t<T, std::deca, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decameter"};
@@ -4875,9 +5034,9 @@ template <is_pkr_unit_c U>
 decameter_t(const U&) -> decameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectometer_t final : public details::unit_t<T, std::hecto, length_dimension>
+struct hectometer_t final : public unit_t<T, std::hecto, length_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, length_dimension>;
+    using _base = unit_t<T, std::hecto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectometer"};
@@ -4894,9 +5053,9 @@ template <is_pkr_unit_c U>
 hectometer_t(const U&) -> hectometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilometer_t final : public details::unit_t<T, std::kilo, length_dimension>
+struct kilometer_t final : public unit_t<T, std::kilo, length_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, length_dimension>;
+    using _base = unit_t<T, std::kilo, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer"};
@@ -4913,9 +5072,9 @@ template <is_pkr_unit_c U>
 kilometer_t(const U&) -> kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megameter_t final : public details::unit_t<T, std::mega, length_dimension>
+struct megameter_t final : public unit_t<T, std::mega, length_dimension>
 {
-    using _base = details::unit_t<T, std::mega, length_dimension>;
+    using _base = unit_t<T, std::mega, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megameter"};
@@ -4932,9 +5091,9 @@ template <is_pkr_unit_c U>
 megameter_t(const U&) -> megameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigameter_t final : public details::unit_t<T, std::giga, length_dimension>
+struct gigameter_t final : public unit_t<T, std::giga, length_dimension>
 {
-    using _base = details::unit_t<T, std::giga, length_dimension>;
+    using _base = unit_t<T, std::giga, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigameter"};
@@ -4951,9 +5110,9 @@ template <is_pkr_unit_c U>
 gigameter_t(const U&) -> gigameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct terameter_t final : public details::unit_t<T, std::tera, length_dimension>
+struct terameter_t final : public unit_t<T, std::tera, length_dimension>
 {
-    using _base = details::unit_t<T, std::tera, length_dimension>;
+    using _base = unit_t<T, std::tera, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terameter"};
@@ -4970,9 +5129,9 @@ template <is_pkr_unit_c U>
 terameter_t(const U&) -> terameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petameter_t final : public details::unit_t<T, std::peta, length_dimension>
+struct petameter_t final : public unit_t<T, std::peta, length_dimension>
 {
-    using _base = details::unit_t<T, std::peta, length_dimension>;
+    using _base = unit_t<T, std::peta, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petameter"};
@@ -4989,9 +5148,9 @@ template <is_pkr_unit_c U>
 petameter_t(const U&) -> petameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exameter_t final : public details::unit_t<T, std::exa, length_dimension>
+struct exameter_t final : public unit_t<T, std::exa, length_dimension>
 {
-    using _base = details::unit_t<T, std::exa, length_dimension>;
+    using _base = unit_t<T, std::exa, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exameter"};
@@ -5008,103 +5167,103 @@ template <is_pkr_unit_c U>
 exameter_t(const U&) -> exameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, length_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, length_dimension>
 {
     using type = meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, length_dimension>
+struct derived_unit_type_t<T, std::atto, length_dimension>
 {
     using type = attometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, length_dimension>
+struct derived_unit_type_t<T, std::femto, length_dimension>
 {
     using type = femtometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, length_dimension>
+struct derived_unit_type_t<T, std::pico, length_dimension>
 {
     using type = picometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, length_dimension>
+struct derived_unit_type_t<T, std::nano, length_dimension>
 {
     using type = nanometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, length_dimension>
+struct derived_unit_type_t<T, std::micro, length_dimension>
 {
     using type = micrometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, length_dimension>
+struct derived_unit_type_t<T, std::milli, length_dimension>
 {
     using type = millimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, length_dimension>
+struct derived_unit_type_t<T, std::centi, length_dimension>
 {
     using type = centimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, length_dimension>
+struct derived_unit_type_t<T, std::deci, length_dimension>
 {
     using type = decimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, length_dimension>
+struct derived_unit_type_t<T, std::deca, length_dimension>
 {
     using type = decameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, length_dimension>
+struct derived_unit_type_t<T, std::hecto, length_dimension>
 {
     using type = hectometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, length_dimension>
+struct derived_unit_type_t<T, std::kilo, length_dimension>
 {
     using type = kilometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, length_dimension>
+struct derived_unit_type_t<T, std::mega, length_dimension>
 {
     using type = megameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, length_dimension>
+struct derived_unit_type_t<T, std::giga, length_dimension>
 {
     using type = gigameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, length_dimension>
+struct derived_unit_type_t<T, std::tera, length_dimension>
 {
     using type = terameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, length_dimension>
+struct derived_unit_type_t<T, std::peta, length_dimension>
 {
     using type = petameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, length_dimension>
+struct derived_unit_type_t<T, std::exa, length_dimension>
 {
     using type = exameter_t<T>;
 };
@@ -5115,9 +5274,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct ampere_t final : public details::unit_t<T, std::ratio<1, 1>, current_dimension>
+struct ampere_t final : public unit_t<T, std::ratio<1, 1>, current_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, current_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ampere"};
@@ -5134,9 +5293,9 @@ template <is_pkr_unit_c U>
 ampere_t(const U&) -> ampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attoampere_t final : public details::unit_t<T, std::atto, current_dimension>
+struct attoampere_t final : public unit_t<T, std::atto, current_dimension>
 {
-    using _base = details::unit_t<T, std::atto, current_dimension>;
+    using _base = unit_t<T, std::atto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attoampere"};
@@ -5153,9 +5312,9 @@ template <is_pkr_unit_c U>
 attoampere_t(const U&) -> attoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtoampere_t final : public details::unit_t<T, std::femto, current_dimension>
+struct femtoampere_t final : public unit_t<T, std::femto, current_dimension>
 {
-    using _base = details::unit_t<T, std::femto, current_dimension>;
+    using _base = unit_t<T, std::femto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtoampere"};
@@ -5172,9 +5331,9 @@ template <is_pkr_unit_c U>
 femtoampere_t(const U&) -> femtoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct deciampere_t final : public details::unit_t<T, std::deci, current_dimension>
+struct deciampere_t final : public unit_t<T, std::deci, current_dimension>
 {
-    using _base = details::unit_t<T, std::deci, current_dimension>;
+    using _base = unit_t<T, std::deci, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"deciampere"};
@@ -5191,9 +5350,9 @@ template <is_pkr_unit_c U>
 deciampere_t(const U&) -> deciampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decaampere_t final : public details::unit_t<T, std::deca, current_dimension>
+struct decaampere_t final : public unit_t<T, std::deca, current_dimension>
 {
-    using _base = details::unit_t<T, std::deca, current_dimension>;
+    using _base = unit_t<T, std::deca, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decaampere"};
@@ -5210,9 +5369,9 @@ template <is_pkr_unit_c U>
 decaampere_t(const U&) -> decaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectoampere_t final : public details::unit_t<T, std::hecto, current_dimension>
+struct hectoampere_t final : public unit_t<T, std::hecto, current_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, current_dimension>;
+    using _base = unit_t<T, std::hecto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectoampere"};
@@ -5229,9 +5388,9 @@ template <is_pkr_unit_c U>
 hectoampere_t(const U&) -> hectoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloampere_t final : public details::unit_t<T, std::kilo, current_dimension>
+struct kiloampere_t final : public unit_t<T, std::kilo, current_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, current_dimension>;
+    using _base = unit_t<T, std::kilo, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloampere"};
@@ -5248,9 +5407,9 @@ template <is_pkr_unit_c U>
 kiloampere_t(const U&) -> kiloampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megaampere_t final : public details::unit_t<T, std::mega, current_dimension>
+struct megaampere_t final : public unit_t<T, std::mega, current_dimension>
 {
-    using _base = details::unit_t<T, std::mega, current_dimension>;
+    using _base = unit_t<T, std::mega, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megaampere"};
@@ -5267,9 +5426,9 @@ template <is_pkr_unit_c U>
 megaampere_t(const U&) -> megaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigaampere_t final : public details::unit_t<T, std::giga, current_dimension>
+struct gigaampere_t final : public unit_t<T, std::giga, current_dimension>
 {
-    using _base = details::unit_t<T, std::giga, current_dimension>;
+    using _base = unit_t<T, std::giga, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigaampere"};
@@ -5286,9 +5445,9 @@ template <is_pkr_unit_c U>
 gigaampere_t(const U&) -> gigaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct teraampere_t final : public details::unit_t<T, std::tera, current_dimension>
+struct teraampere_t final : public unit_t<T, std::tera, current_dimension>
 {
-    using _base = details::unit_t<T, std::tera, current_dimension>;
+    using _base = unit_t<T, std::tera, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teraampere"};
@@ -5305,9 +5464,9 @@ template <is_pkr_unit_c U>
 teraampere_t(const U&) -> teraampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petaampere_t final : public details::unit_t<T, std::peta, current_dimension>
+struct petaampere_t final : public unit_t<T, std::peta, current_dimension>
 {
-    using _base = details::unit_t<T, std::peta, current_dimension>;
+    using _base = unit_t<T, std::peta, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petaampere"};
@@ -5324,9 +5483,9 @@ template <is_pkr_unit_c U>
 petaampere_t(const U&) -> petaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exaampere_t final : public details::unit_t<T, std::exa, current_dimension>
+struct exaampere_t final : public unit_t<T, std::exa, current_dimension>
 {
-    using _base = details::unit_t<T, std::exa, current_dimension>;
+    using _base = unit_t<T, std::exa, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exaampere"};
@@ -5343,9 +5502,9 @@ template <is_pkr_unit_c U>
 exaampere_t(const U&) -> exaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picoampere_t final : public details::unit_t<T, std::pico, current_dimension>
+struct picoampere_t final : public unit_t<T, std::pico, current_dimension>
 {
-    using _base = details::unit_t<T, std::pico, current_dimension>;
+    using _base = unit_t<T, std::pico, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picoampere"};
@@ -5362,9 +5521,9 @@ template <is_pkr_unit_c U>
 picoampere_t(const U&) -> picoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanoampere_t final : public details::unit_t<T, std::nano, current_dimension>
+struct nanoampere_t final : public unit_t<T, std::nano, current_dimension>
 {
-    using _base = details::unit_t<T, std::nano, current_dimension>;
+    using _base = unit_t<T, std::nano, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanoampere"};
@@ -5381,9 +5540,9 @@ template <is_pkr_unit_c U>
 nanoampere_t(const U&) -> nanoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microampere_t final : public details::unit_t<T, std::micro, current_dimension>
+struct microampere_t final : public unit_t<T, std::micro, current_dimension>
 {
-    using _base = details::unit_t<T, std::micro, current_dimension>;
+    using _base = unit_t<T, std::micro, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microampere"};
@@ -5400,9 +5559,9 @@ template <is_pkr_unit_c U>
 microampere_t(const U&) -> microampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliampere_t final : public details::unit_t<T, std::milli, current_dimension>
+struct milliampere_t final : public unit_t<T, std::milli, current_dimension>
 {
-    using _base = details::unit_t<T, std::milli, current_dimension>;
+    using _base = unit_t<T, std::milli, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliampere"};
@@ -5419,9 +5578,9 @@ template <is_pkr_unit_c U>
 milliampere_t(const U&) -> milliampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centiampere_t final : public details::unit_t<T, std::centi, current_dimension>
+struct centiampere_t final : public unit_t<T, std::centi, current_dimension>
 {
-    using _base = details::unit_t<T, std::centi, current_dimension>;
+    using _base = unit_t<T, std::centi, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centiampere"};
@@ -5438,103 +5597,103 @@ template <is_pkr_unit_c U>
 centiampere_t(const U&) -> centiampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, current_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, current_dimension>
 {
     using type = ampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, current_dimension>
+struct derived_unit_type_t<T, std::atto, current_dimension>
 {
     using type = attoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, current_dimension>
+struct derived_unit_type_t<T, std::femto, current_dimension>
 {
     using type = femtoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, current_dimension>
+struct derived_unit_type_t<T, std::pico, current_dimension>
 {
     using type = picoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, current_dimension>
+struct derived_unit_type_t<T, std::nano, current_dimension>
 {
     using type = nanoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, current_dimension>
+struct derived_unit_type_t<T, std::micro, current_dimension>
 {
     using type = microampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, current_dimension>
+struct derived_unit_type_t<T, std::milli, current_dimension>
 {
     using type = milliampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, current_dimension>
+struct derived_unit_type_t<T, std::centi, current_dimension>
 {
     using type = centiampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, current_dimension>
+struct derived_unit_type_t<T, std::deci, current_dimension>
 {
     using type = deciampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, current_dimension>
+struct derived_unit_type_t<T, std::deca, current_dimension>
 {
     using type = decaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, current_dimension>
+struct derived_unit_type_t<T, std::hecto, current_dimension>
 {
     using type = hectoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, current_dimension>
+struct derived_unit_type_t<T, std::kilo, current_dimension>
 {
     using type = kiloampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, current_dimension>
+struct derived_unit_type_t<T, std::mega, current_dimension>
 {
     using type = megaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, current_dimension>
+struct derived_unit_type_t<T, std::giga, current_dimension>
 {
     using type = gigaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, current_dimension>
+struct derived_unit_type_t<T, std::tera, current_dimension>
 {
     using type = teraampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, current_dimension>
+struct derived_unit_type_t<T, std::peta, current_dimension>
 {
     using type = petaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, current_dimension>
+struct derived_unit_type_t<T, std::exa, current_dimension>
 {
     using type = exaampere_t<T>;
 };
@@ -5544,10 +5703,17 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct kelvin_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
+struct kelvin_t final : public unit_t<T, std::ratio<1, 1>, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, temperature_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, temperature_dimension>;
     using _base::_base;
+
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != temperature_dimension)
+    explicit kelvin_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == temperature_dimension, "kelvin_t: expected a temperature unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"kelvin"};
     [[maybe_unused]] static constexpr std::string_view symbol{"K"};
@@ -5563,9 +5729,9 @@ template <is_pkr_unit_c U>
 kelvin_t(const U&) -> kelvin_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attokelvin_t final : public details::unit_t<T, std::atto, temperature_dimension>
+struct attokelvin_t final : public unit_t<T, std::atto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::atto, temperature_dimension>;
+    using _base = unit_t<T, std::atto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attokelvin"};
@@ -5578,9 +5744,9 @@ template <is_unit_value_type_c T>
 attokelvin_t(T) -> attokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct femtokelvin_t final : public details::unit_t<T, std::femto, temperature_dimension>
+struct femtokelvin_t final : public unit_t<T, std::femto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::femto, temperature_dimension>;
+    using _base = unit_t<T, std::femto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtokelvin"};
@@ -5593,9 +5759,9 @@ template <is_unit_value_type_c T>
 femtokelvin_t(T) -> femtokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct picokelvin_t final : public details::unit_t<T, std::pico, temperature_dimension>
+struct picokelvin_t final : public unit_t<T, std::pico, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::pico, temperature_dimension>;
+    using _base = unit_t<T, std::pico, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picokelvin"};
@@ -5608,9 +5774,9 @@ template <is_unit_value_type_c T>
 picokelvin_t(T) -> picokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanokelvin_t final : public details::unit_t<T, std::nano, temperature_dimension>
+struct nanokelvin_t final : public unit_t<T, std::nano, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::nano, temperature_dimension>;
+    using _base = unit_t<T, std::nano, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanokelvin"};
@@ -5623,9 +5789,9 @@ template <is_unit_value_type_c T>
 nanokelvin_t(T) -> nanokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct microkelvin_t final : public details::unit_t<T, std::micro, temperature_dimension>
+struct microkelvin_t final : public unit_t<T, std::micro, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::micro, temperature_dimension>;
+    using _base = unit_t<T, std::micro, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microkelvin"};
@@ -5638,9 +5804,9 @@ template <is_unit_value_type_c T>
 microkelvin_t(T) -> microkelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct millikelvin_t final : public details::unit_t<T, std::milli, temperature_dimension>
+struct millikelvin_t final : public unit_t<T, std::milli, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::milli, temperature_dimension>;
+    using _base = unit_t<T, std::milli, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millikelvin"};
@@ -5653,9 +5819,9 @@ template <is_unit_value_type_c T>
 millikelvin_t(T) -> millikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct centikelvin_t final : public details::unit_t<T, std::centi, temperature_dimension>
+struct centikelvin_t final : public unit_t<T, std::centi, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::centi, temperature_dimension>;
+    using _base = unit_t<T, std::centi, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centikelvin"};
@@ -5668,9 +5834,9 @@ template <is_unit_value_type_c T>
 centikelvin_t(T) -> centikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct decikelvin_t final : public details::unit_t<T, std::deci, temperature_dimension>
+struct decikelvin_t final : public unit_t<T, std::deci, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::deci, temperature_dimension>;
+    using _base = unit_t<T, std::deci, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decikelvin"};
@@ -5683,9 +5849,9 @@ template <is_unit_value_type_c T>
 decikelvin_t(T) -> decikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct decakelvin_t final : public details::unit_t<T, std::deca, temperature_dimension>
+struct decakelvin_t final : public unit_t<T, std::deca, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::deca, temperature_dimension>;
+    using _base = unit_t<T, std::deca, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decakelvin"};
@@ -5698,9 +5864,9 @@ template <is_unit_value_type_c T>
 decakelvin_t(T) -> decakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectokelvin_t final : public details::unit_t<T, std::hecto, temperature_dimension>
+struct hectokelvin_t final : public unit_t<T, std::hecto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, temperature_dimension>;
+    using _base = unit_t<T, std::hecto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectokelvin"};
@@ -5713,9 +5879,9 @@ template <is_unit_value_type_c T>
 hectokelvin_t(T) -> hectokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct kilokelvin_t final : public details::unit_t<T, std::kilo, temperature_dimension>
+struct kilokelvin_t final : public unit_t<T, std::kilo, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, temperature_dimension>;
+    using _base = unit_t<T, std::kilo, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilokelvin"};
@@ -5728,9 +5894,9 @@ template <is_unit_value_type_c T>
 kilokelvin_t(T) -> kilokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct megakelvin_t final : public details::unit_t<T, std::mega, temperature_dimension>
+struct megakelvin_t final : public unit_t<T, std::mega, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::mega, temperature_dimension>;
+    using _base = unit_t<T, std::mega, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megakelvin"};
@@ -5743,9 +5909,9 @@ template <is_unit_value_type_c T>
 megakelvin_t(T) -> megakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct gigakelvin_t final : public details::unit_t<T, std::giga, temperature_dimension>
+struct gigakelvin_t final : public unit_t<T, std::giga, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::giga, temperature_dimension>;
+    using _base = unit_t<T, std::giga, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigakelvin"};
@@ -5758,9 +5924,9 @@ template <is_unit_value_type_c T>
 gigakelvin_t(T) -> gigakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct terakelvin_t final : public details::unit_t<T, std::tera, temperature_dimension>
+struct terakelvin_t final : public unit_t<T, std::tera, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::tera, temperature_dimension>;
+    using _base = unit_t<T, std::tera, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terakelvin"};
@@ -5773,9 +5939,9 @@ template <is_unit_value_type_c T>
 terakelvin_t(T) -> terakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct petakelvin_t final : public details::unit_t<T, std::peta, temperature_dimension>
+struct petakelvin_t final : public unit_t<T, std::peta, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::peta, temperature_dimension>;
+    using _base = unit_t<T, std::peta, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petakelvin"};
@@ -5788,9 +5954,9 @@ template <is_unit_value_type_c T>
 petakelvin_t(T) -> petakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct exakelvin_t final : public details::unit_t<T, std::exa, temperature_dimension>
+struct exakelvin_t final : public unit_t<T, std::exa, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::exa, temperature_dimension>;
+    using _base = unit_t<T, std::exa, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exakelvin"};
@@ -5803,103 +5969,103 @@ template <is_unit_value_type_c T>
 exakelvin_t(T) -> exakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, temperature_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, temperature_dimension>
 {
     using type = kelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, temperature_dimension>
+struct derived_unit_type_t<T, std::atto, temperature_dimension>
 {
     using type = attokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, temperature_dimension>
+struct derived_unit_type_t<T, std::femto, temperature_dimension>
 {
     using type = femtokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, temperature_dimension>
+struct derived_unit_type_t<T, std::pico, temperature_dimension>
 {
     using type = picokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, temperature_dimension>
+struct derived_unit_type_t<T, std::nano, temperature_dimension>
 {
     using type = nanokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, temperature_dimension>
+struct derived_unit_type_t<T, std::micro, temperature_dimension>
 {
     using type = microkelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, temperature_dimension>
+struct derived_unit_type_t<T, std::milli, temperature_dimension>
 {
     using type = millikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, temperature_dimension>
+struct derived_unit_type_t<T, std::centi, temperature_dimension>
 {
     using type = centikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, temperature_dimension>
+struct derived_unit_type_t<T, std::deci, temperature_dimension>
 {
     using type = decikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, temperature_dimension>
+struct derived_unit_type_t<T, std::deca, temperature_dimension>
 {
     using type = decakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, temperature_dimension>
+struct derived_unit_type_t<T, std::hecto, temperature_dimension>
 {
     using type = hectokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, temperature_dimension>
+struct derived_unit_type_t<T, std::kilo, temperature_dimension>
 {
     using type = kilokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, temperature_dimension>
+struct derived_unit_type_t<T, std::mega, temperature_dimension>
 {
     using type = megakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, temperature_dimension>
+struct derived_unit_type_t<T, std::giga, temperature_dimension>
 {
     using type = gigakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, temperature_dimension>
+struct derived_unit_type_t<T, std::tera, temperature_dimension>
 {
     using type = terakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, temperature_dimension>
+struct derived_unit_type_t<T, std::peta, temperature_dimension>
 {
     using type = petakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, temperature_dimension>
+struct derived_unit_type_t<T, std::exa, temperature_dimension>
 {
     using type = exakelvin_t<T>;
 };
@@ -5909,9 +6075,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct mole_t final : public details::unit_t<T, std::ratio<1, 1>, amount_dimension>
+struct mole_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, amount_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole"};
@@ -5928,9 +6094,9 @@ template <is_pkr_unit_c U>
 mole_t(const U&) -> mole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attomole_t final : public details::unit_t<T, std::atto, amount_dimension>
+struct attomole_t final : public unit_t<T, std::atto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::atto, amount_dimension>;
+    using _base = unit_t<T, std::atto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attomole"};
@@ -5947,9 +6113,9 @@ template <is_pkr_unit_c U>
 attomole_t(const U&) -> attomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtomole_t final : public details::unit_t<T, std::femto, amount_dimension>
+struct femtomole_t final : public unit_t<T, std::femto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::femto, amount_dimension>;
+    using _base = unit_t<T, std::femto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtomole"};
@@ -5966,9 +6132,9 @@ template <is_pkr_unit_c U>
 femtomole_t(const U&) -> femtomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picomole_t final : public details::unit_t<T, std::pico, amount_dimension>
+struct picomole_t final : public unit_t<T, std::pico, amount_dimension>
 {
-    using _base = details::unit_t<T, std::pico, amount_dimension>;
+    using _base = unit_t<T, std::pico, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picomole"};
@@ -5985,9 +6151,9 @@ template <is_pkr_unit_c U>
 picomole_t(const U&) -> picomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanomole_t final : public details::unit_t<T, std::nano, amount_dimension>
+struct nanomole_t final : public unit_t<T, std::nano, amount_dimension>
 {
-    using _base = details::unit_t<T, std::nano, amount_dimension>;
+    using _base = unit_t<T, std::nano, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanomole"};
@@ -6004,9 +6170,9 @@ template <is_pkr_unit_c U>
 nanomole_t(const U&) -> nanomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micromole_t final : public details::unit_t<T, std::micro, amount_dimension>
+struct micromole_t final : public unit_t<T, std::micro, amount_dimension>
 {
-    using _base = details::unit_t<T, std::micro, amount_dimension>;
+    using _base = unit_t<T, std::micro, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micromole"};
@@ -6023,9 +6189,9 @@ template <is_pkr_unit_c U>
 micromole_t(const U&) -> micromole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimole_t final : public details::unit_t<T, std::milli, amount_dimension>
+struct millimole_t final : public unit_t<T, std::milli, amount_dimension>
 {
-    using _base = details::unit_t<T, std::milli, amount_dimension>;
+    using _base = unit_t<T, std::milli, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimole"};
@@ -6042,9 +6208,9 @@ template <is_pkr_unit_c U>
 millimole_t(const U&) -> millimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimole_t final : public details::unit_t<T, std::centi, amount_dimension>
+struct centimole_t final : public unit_t<T, std::centi, amount_dimension>
 {
-    using _base = details::unit_t<T, std::centi, amount_dimension>;
+    using _base = unit_t<T, std::centi, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimole"};
@@ -6061,9 +6227,9 @@ template <is_pkr_unit_c U>
 centimole_t(const U&) -> centimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decimole_t final : public details::unit_t<T, std::deci, amount_dimension>
+struct decimole_t final : public unit_t<T, std::deci, amount_dimension>
 {
-    using _base = details::unit_t<T, std::deci, amount_dimension>;
+    using _base = unit_t<T, std::deci, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decimole"};
@@ -6080,9 +6246,9 @@ template <is_pkr_unit_c U>
 decimole_t(const U&) -> decimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decamole_t final : public details::unit_t<T, std::deca, amount_dimension>
+struct decamole_t final : public unit_t<T, std::deca, amount_dimension>
 {
-    using _base = details::unit_t<T, std::deca, amount_dimension>;
+    using _base = unit_t<T, std::deca, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decamole"};
@@ -6095,9 +6261,9 @@ template <is_unit_value_type_c T>
 decamole_t(T) -> decamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectomole_t final : public details::unit_t<T, std::hecto, amount_dimension>
+struct hectomole_t final : public unit_t<T, std::hecto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, amount_dimension>;
+    using _base = unit_t<T, std::hecto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectomole"};
@@ -6110,9 +6276,9 @@ template <is_unit_value_type_c T>
 hectomole_t(T) -> hectomole_t<T>;
 
 template <is_unit_value_type_c T>
-struct kilomole_t final : public details::unit_t<T, std::kilo, amount_dimension>
+struct kilomole_t final : public unit_t<T, std::kilo, amount_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, amount_dimension>;
+    using _base = unit_t<T, std::kilo, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilomole"};
@@ -6125,9 +6291,9 @@ template <is_unit_value_type_c T>
 kilomole_t(T) -> kilomole_t<T>;
 
 template <is_unit_value_type_c T>
-struct megamole_t final : public details::unit_t<T, std::mega, amount_dimension>
+struct megamole_t final : public unit_t<T, std::mega, amount_dimension>
 {
-    using _base = details::unit_t<T, std::mega, amount_dimension>;
+    using _base = unit_t<T, std::mega, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megamole"};
@@ -6140,9 +6306,9 @@ template <is_unit_value_type_c T>
 megamole_t(T) -> megamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct gigamole_t final : public details::unit_t<T, std::giga, amount_dimension>
+struct gigamole_t final : public unit_t<T, std::giga, amount_dimension>
 {
-    using _base = details::unit_t<T, std::giga, amount_dimension>;
+    using _base = unit_t<T, std::giga, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigamole"};
@@ -6155,9 +6321,9 @@ template <is_unit_value_type_c T>
 gigamole_t(T) -> gigamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct teramole_t final : public details::unit_t<T, std::tera, amount_dimension>
+struct teramole_t final : public unit_t<T, std::tera, amount_dimension>
 {
-    using _base = details::unit_t<T, std::tera, amount_dimension>;
+    using _base = unit_t<T, std::tera, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teramole"};
@@ -6170,9 +6336,9 @@ template <is_unit_value_type_c T>
 teramole_t(T) -> teramole_t<T>;
 
 template <is_unit_value_type_c T>
-struct petamole_t final : public details::unit_t<T, std::peta, amount_dimension>
+struct petamole_t final : public unit_t<T, std::peta, amount_dimension>
 {
-    using _base = details::unit_t<T, std::peta, amount_dimension>;
+    using _base = unit_t<T, std::peta, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petamole"};
@@ -6185,9 +6351,9 @@ template <is_unit_value_type_c T>
 petamole_t(T) -> petamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct examole_t final : public details::unit_t<T, std::exa, amount_dimension>
+struct examole_t final : public unit_t<T, std::exa, amount_dimension>
 {
-    using _base = details::unit_t<T, std::exa, amount_dimension>;
+    using _base = unit_t<T, std::exa, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"examole"};
@@ -6200,103 +6366,103 @@ template <is_unit_value_type_c T>
 examole_t(T) -> examole_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension>
 {
     using type = mole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, amount_dimension>
+struct derived_unit_type_t<T, std::atto, amount_dimension>
 {
     using type = attomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, amount_dimension>
+struct derived_unit_type_t<T, std::femto, amount_dimension>
 {
     using type = femtomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, amount_dimension>
+struct derived_unit_type_t<T, std::pico, amount_dimension>
 {
     using type = picomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, amount_dimension>
+struct derived_unit_type_t<T, std::nano, amount_dimension>
 {
     using type = nanomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, amount_dimension>
+struct derived_unit_type_t<T, std::micro, amount_dimension>
 {
     using type = micromole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, amount_dimension>
+struct derived_unit_type_t<T, std::milli, amount_dimension>
 {
     using type = millimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, amount_dimension>
+struct derived_unit_type_t<T, std::centi, amount_dimension>
 {
     using type = centimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, amount_dimension>
+struct derived_unit_type_t<T, std::deci, amount_dimension>
 {
     using type = decimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, amount_dimension>
+struct derived_unit_type_t<T, std::deca, amount_dimension>
 {
     using type = decamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, amount_dimension>
+struct derived_unit_type_t<T, std::hecto, amount_dimension>
 {
     using type = hectomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, amount_dimension>
+struct derived_unit_type_t<T, std::kilo, amount_dimension>
 {
     using type = kilomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, amount_dimension>
+struct derived_unit_type_t<T, std::mega, amount_dimension>
 {
     using type = megamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, amount_dimension>
+struct derived_unit_type_t<T, std::giga, amount_dimension>
 {
     using type = gigamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, amount_dimension>
+struct derived_unit_type_t<T, std::tera, amount_dimension>
 {
     using type = teramole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, amount_dimension>
+struct derived_unit_type_t<T, std::peta, amount_dimension>
 {
     using type = petamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, amount_dimension>
+struct derived_unit_type_t<T, std::exa, amount_dimension>
 {
     using type = examole_t<T>;
 };
@@ -6306,9 +6472,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct candela_t final : public details::unit_t<T, std::ratio<1, 1>, intensity_dimension>
+struct candela_t final : public unit_t<T, std::ratio<1, 1>, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, intensity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"candela"};
@@ -6325,9 +6491,9 @@ template <is_pkr_unit_c U>
 candela_t(const U&) -> candela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attocandela_t final : public details::unit_t<T, std::atto, intensity_dimension>
+struct attocandela_t final : public unit_t<T, std::atto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::atto, intensity_dimension>;
+    using _base = unit_t<T, std::atto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attocandela"};
@@ -6344,9 +6510,9 @@ template <is_pkr_unit_c U>
 attocandela_t(const U&) -> attocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtocandela_t final : public details::unit_t<T, std::femto, intensity_dimension>
+struct femtocandela_t final : public unit_t<T, std::femto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::femto, intensity_dimension>;
+    using _base = unit_t<T, std::femto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtocandela"};
@@ -6363,9 +6529,9 @@ template <is_pkr_unit_c U>
 femtocandela_t(const U&) -> femtocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picocandela_t final : public details::unit_t<T, std::pico, intensity_dimension>
+struct picocandela_t final : public unit_t<T, std::pico, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::pico, intensity_dimension>;
+    using _base = unit_t<T, std::pico, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picocandela"};
@@ -6382,9 +6548,9 @@ template <is_pkr_unit_c U>
 picocandela_t(const U&) -> picocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanocandela_t final : public details::unit_t<T, std::nano, intensity_dimension>
+struct nanocandela_t final : public unit_t<T, std::nano, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::nano, intensity_dimension>;
+    using _base = unit_t<T, std::nano, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanocandela"};
@@ -6401,9 +6567,9 @@ template <is_pkr_unit_c U>
 nanocandela_t(const U&) -> nanocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microcandela_t final : public details::unit_t<T, std::micro, intensity_dimension>
+struct microcandela_t final : public unit_t<T, std::micro, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::micro, intensity_dimension>;
+    using _base = unit_t<T, std::micro, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microcandela"};
@@ -6420,9 +6586,9 @@ template <is_pkr_unit_c U>
 microcandela_t(const U&) -> microcandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millicandela_t final : public details::unit_t<T, std::milli, intensity_dimension>
+struct millicandela_t final : public unit_t<T, std::milli, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::milli, intensity_dimension>;
+    using _base = unit_t<T, std::milli, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millicandela"};
@@ -6439,9 +6605,9 @@ template <is_pkr_unit_c U>
 millicandela_t(const U&) -> millicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centicandela_t final : public details::unit_t<T, std::centi, intensity_dimension>
+struct centicandela_t final : public unit_t<T, std::centi, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::centi, intensity_dimension>;
+    using _base = unit_t<T, std::centi, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centicandela"};
@@ -6458,9 +6624,9 @@ template <is_pkr_unit_c U>
 centicandela_t(const U&) -> centicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decicandela_t final : public details::unit_t<T, std::deci, intensity_dimension>
+struct decicandela_t final : public unit_t<T, std::deci, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::deci, intensity_dimension>;
+    using _base = unit_t<T, std::deci, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decicandela"};
@@ -6477,9 +6643,9 @@ template <is_pkr_unit_c U>
 decicandela_t(const U&) -> decicandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decacandela_t final : public details::unit_t<T, std::deca, intensity_dimension>
+struct decacandela_t final : public unit_t<T, std::deca, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::deca, intensity_dimension>;
+    using _base = unit_t<T, std::deca, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decacandela"};
@@ -6496,9 +6662,9 @@ template <is_pkr_unit_c U>
 decacandela_t(const U&) -> decacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectocandela_t final : public details::unit_t<T, std::hecto, intensity_dimension>
+struct hectocandela_t final : public unit_t<T, std::hecto, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, intensity_dimension>;
+    using _base = unit_t<T, std::hecto, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectocandela"};
@@ -6515,9 +6681,9 @@ template <is_pkr_unit_c U>
 hectocandela_t(const U&) -> hectocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilocandela_t final : public details::unit_t<T, std::kilo, intensity_dimension>
+struct kilocandela_t final : public unit_t<T, std::kilo, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, intensity_dimension>;
+    using _base = unit_t<T, std::kilo, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilocandela"};
@@ -6534,9 +6700,9 @@ template <is_pkr_unit_c U>
 kilocandela_t(const U&) -> kilocandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megacandela_t final : public details::unit_t<T, std::mega, intensity_dimension>
+struct megacandela_t final : public unit_t<T, std::mega, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::mega, intensity_dimension>;
+    using _base = unit_t<T, std::mega, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megacandela"};
@@ -6553,9 +6719,9 @@ template <is_pkr_unit_c U>
 megacandela_t(const U&) -> megacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigacandela_t final : public details::unit_t<T, std::giga, intensity_dimension>
+struct gigacandela_t final : public unit_t<T, std::giga, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::giga, intensity_dimension>;
+    using _base = unit_t<T, std::giga, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigacandela"};
@@ -6572,9 +6738,9 @@ template <is_pkr_unit_c U>
 gigacandela_t(const U&) -> gigacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct teracandela_t final : public details::unit_t<T, std::tera, intensity_dimension>
+struct teracandela_t final : public unit_t<T, std::tera, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::tera, intensity_dimension>;
+    using _base = unit_t<T, std::tera, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teracandela"};
@@ -6591,9 +6757,9 @@ template <is_pkr_unit_c U>
 teracandela_t(const U&) -> teracandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petacandela_t final : public details::unit_t<T, std::peta, intensity_dimension>
+struct petacandela_t final : public unit_t<T, std::peta, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::peta, intensity_dimension>;
+    using _base = unit_t<T, std::peta, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petacandela"};
@@ -6610,9 +6776,9 @@ template <is_pkr_unit_c U>
 petacandela_t(const U&) -> petacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exacandela_t final : public details::unit_t<T, std::exa, intensity_dimension>
+struct exacandela_t final : public unit_t<T, std::exa, intensity_dimension>
 {
-    using _base = details::unit_t<T, std::exa, intensity_dimension>;
+    using _base = unit_t<T, std::exa, intensity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exacandela"};
@@ -6629,103 +6795,103 @@ template <is_pkr_unit_c U>
 exacandela_t(const U&) -> exacandela_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, intensity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, intensity_dimension>
 {
     using type = candela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, intensity_dimension>
+struct derived_unit_type_t<T, std::atto, intensity_dimension>
 {
     using type = attocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, intensity_dimension>
+struct derived_unit_type_t<T, std::femto, intensity_dimension>
 {
     using type = femtocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, intensity_dimension>
+struct derived_unit_type_t<T, std::pico, intensity_dimension>
 {
     using type = picocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, intensity_dimension>
+struct derived_unit_type_t<T, std::nano, intensity_dimension>
 {
     using type = nanocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, intensity_dimension>
+struct derived_unit_type_t<T, std::micro, intensity_dimension>
 {
     using type = microcandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, intensity_dimension>
+struct derived_unit_type_t<T, std::milli, intensity_dimension>
 {
     using type = millicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, intensity_dimension>
+struct derived_unit_type_t<T, std::centi, intensity_dimension>
 {
     using type = centicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, intensity_dimension>
+struct derived_unit_type_t<T, std::deci, intensity_dimension>
 {
     using type = decicandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, intensity_dimension>
+struct derived_unit_type_t<T, std::deca, intensity_dimension>
 {
     using type = decacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, intensity_dimension>
+struct derived_unit_type_t<T, std::hecto, intensity_dimension>
 {
     using type = hectocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, intensity_dimension>
+struct derived_unit_type_t<T, std::kilo, intensity_dimension>
 {
     using type = kilocandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, intensity_dimension>
+struct derived_unit_type_t<T, std::mega, intensity_dimension>
 {
     using type = megacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, intensity_dimension>
+struct derived_unit_type_t<T, std::giga, intensity_dimension>
 {
     using type = gigacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, intensity_dimension>
+struct derived_unit_type_t<T, std::tera, intensity_dimension>
 {
     using type = teracandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, intensity_dimension>
+struct derived_unit_type_t<T, std::peta, intensity_dimension>
 {
     using type = petacandela_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, intensity_dimension>
+struct derived_unit_type_t<T, std::exa, intensity_dimension>
 {
     using type = exacandela_t<T>;
 };
@@ -6735,9 +6901,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct radian_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct radian_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"radian"};
@@ -6754,9 +6920,9 @@ template <is_pkr_unit_c U>
 radian_t(const U&) -> radian_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct degree_t final : public details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct degree_t final : public unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"degree"};
@@ -6773,9 +6939,9 @@ template <is_pkr_unit_c U>
 degree_t(const U&) -> degree_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gradian_t final : public details::unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>
+struct gradian_t final : public unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gradian"};
@@ -6788,19 +6954,19 @@ template <is_unit_value_type_c T>
 gradian_t(T) -> gradian_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, angle_dimension>
 {
     using type = radian_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
     using type = degree_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1570796, 100000000>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1570796, 100000000>, angle_dimension>
 {
     using type = gradian_t<T>;
 };
@@ -6811,9 +6977,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct steradian_t final : public details::unit_t<T, std::ratio<1, 1>, solid_angle_dimension>
+struct steradian_t final : public unit_t<T, std::ratio<1, 1>, solid_angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, solid_angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, solid_angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"steradian"};
@@ -6830,7 +6996,7 @@ template <is_pkr_unit_c U>
 steradian_t(const U&) -> steradian_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, solid_angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, solid_angle_dimension>
 {
     using type = steradian_t<T>;
 };
@@ -6843,9 +7009,9 @@ namespace pkr::units
 inline constexpr dimension_t power_dimension{2, 1, -3, 0, 0, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct watt_t final : public details::unit_t<T, std::ratio<1, 1>, power_dimension>
+struct watt_t final : public unit_t<T, std::ratio<1, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt"};
@@ -6862,9 +7028,9 @@ template <is_pkr_unit_c U>
 watt_t(const U&) -> watt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilowatt_t final : public details::unit_t<T, std::ratio<1000, 1>, power_dimension>
+struct kilowatt_t final : public unit_t<T, std::ratio<1000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilowatt"};
@@ -6881,9 +7047,9 @@ template <is_pkr_unit_c U>
 kilowatt_t(const U&) -> kilowatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megawatt_t final : public details::unit_t<T, std::ratio<1000000, 1>, power_dimension>
+struct megawatt_t final : public unit_t<T, std::ratio<1000000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megawatt"};
@@ -6900,9 +7066,9 @@ template <is_pkr_unit_c U>
 megawatt_t(const U&) -> megawatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigawatt_t final : public details::unit_t<T, std::ratio<1000000000, 1>, power_dimension>
+struct gigawatt_t final : public unit_t<T, std::ratio<1000000000, 1>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigawatt"};
@@ -6919,9 +7085,9 @@ template <is_pkr_unit_c U>
 gigawatt_t(const U&) -> gigawatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microwatt_t final : public details::unit_t<T, std::ratio<1, 1000000>, power_dimension>
+struct microwatt_t final : public unit_t<T, std::ratio<1, 1000000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microwatt"};
@@ -6938,9 +7104,9 @@ template <is_pkr_unit_c U>
 microwatt_t(const U&) -> microwatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliwatt_t final : public details::unit_t<T, std::ratio<1, 1000>, power_dimension>
+struct milliwatt_t final : public unit_t<T, std::ratio<1, 1000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliwatt"};
@@ -6957,9 +7123,9 @@ template <is_pkr_unit_c U>
 milliwatt_t(const U&) -> milliwatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanowatt_t final : public details::unit_t<T, std::ratio<1, 1000000000>, power_dimension>
+struct nanowatt_t final : public unit_t<T, std::ratio<1, 1000000000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanowatt"};
@@ -6976,43 +7142,43 @@ template <is_pkr_unit_c U>
 nanowatt_t(const U&) -> nanowatt_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, power_dimension>
 {
     using type = watt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, power_dimension>
 {
     using type = kilowatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, power_dimension>
 {
     using type = megawatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000000, 1>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, power_dimension>
 {
     using type = gigawatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, power_dimension>
 {
     using type = microwatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, power_dimension>
 {
     using type = milliwatt_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, power_dimension>
 {
     using type = nanowatt_t<T>;
 };
@@ -7022,9 +7188,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct kilogram_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1>, density_dimension>
+struct kilogram_per_cubic_meter_t final : public unit_t<T, std::ratio<1, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram per cubic meter"};
@@ -7041,9 +7207,9 @@ template <is_pkr_unit_c U>
 kilogram_per_cubic_meter_t(const U&) -> kilogram_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1000>, density_dimension>
+struct gram_per_cubic_meter_t final : public unit_t<T, std::ratio<1, 1000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_cubic_meter"};
@@ -7060,9 +7226,9 @@ template <is_pkr_unit_c U>
 gram_per_cubic_meter_t(const U&) -> gram_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_cubic_centimeter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct gram_per_cubic_centimeter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_cubic_centimeter"};
@@ -7079,9 +7245,9 @@ template <is_pkr_unit_c U>
 gram_per_cubic_centimeter_t(const U&) -> gram_per_cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_milliliter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct gram_per_milliliter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_milliliter"};
@@ -7098,9 +7264,9 @@ template <is_pkr_unit_c U>
 gram_per_milliliter_t(const U&) -> gram_per_milliliter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilogram_per_liter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct kilogram_per_liter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram_per_liter"};
@@ -7117,9 +7283,9 @@ template <is_pkr_unit_c U>
 kilogram_per_liter_t(const U&) -> kilogram_per_liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_liter_t final : public details::unit_t<T, std::ratio<1, 1>, density_dimension>
+struct gram_per_liter_t final : public unit_t<T, std::ratio<1, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_liter"};
@@ -7136,9 +7302,9 @@ template <is_pkr_unit_c U>
 gram_per_liter_t(const U&) -> gram_per_liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_per_cubic_centimeter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct milligram_per_cubic_centimeter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram_per_cubic_centimeter"};
@@ -7155,9 +7321,9 @@ template <is_pkr_unit_c U>
 milligram_per_cubic_centimeter_t(const U&) -> milligram_per_cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_per_milliliter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct milligram_per_milliliter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram_per_milliliter"};
@@ -7174,9 +7340,9 @@ template <is_pkr_unit_c U>
 milligram_per_milliliter_t(const U&) -> milligram_per_milliliter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ton_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct ton_per_cubic_meter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ton_per_cubic_meter"};
@@ -7193,9 +7359,9 @@ template <is_pkr_unit_c U>
 ton_per_cubic_meter_t(const U&) -> ton_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct atomic_mass_unit_per_cubic_angstrom_t final : public details::unit_t<T, std::ratio<166054, 1>, density_dimension>
+struct atomic_mass_unit_per_cubic_angstrom_t final : public unit_t<T, std::ratio<166054, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<166054, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<166054, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"atomic_mass_unit_per_cubic_angstrom"};
@@ -7208,31 +7374,31 @@ template <is_unit_value_type_c T>
 atomic_mass_unit_per_cubic_angstrom_t(T) -> atomic_mass_unit_per_cubic_angstrom_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, density_dimension>
 {
     using type = kilogram_per_cubic_meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, density_dimension>
 {
     using type = gram_per_cubic_meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, density_dimension>
 {
     using type = gram_per_cubic_centimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, density_dimension>
 {
     using type = kilogram_per_liter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<166054, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<166054, 1>, density_dimension>
 {
     using type = atomic_mass_unit_per_cubic_angstrom_t<T>;
 };
@@ -7242,9 +7408,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct mole_per_cubic_meter_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct mole_per_cubic_meter_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_cubic_meter_concentration"};
@@ -7257,9 +7423,9 @@ template <is_unit_value_type_c T>
 mole_per_cubic_meter_concentration_t(T) -> mole_per_cubic_meter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct mole_per_liter_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_liter_concentration"};
@@ -7272,9 +7438,9 @@ template <is_unit_value_type_c T>
 mole_per_liter_concentration_t(T) -> mole_per_liter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct molar_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct molar_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"molar_concentration"};
@@ -7287,9 +7453,9 @@ template <is_unit_value_type_c T>
 molar_concentration_t(T) -> molar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct millimolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct millimolar_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimolar_concentration"};
@@ -7302,9 +7468,9 @@ template <is_unit_value_type_c T>
 millimolar_concentration_t(T) -> millimolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct micromolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000>, molar_concentration_v>
+struct micromolar_concentration_t final : public unit_t<T, std::ratio<1, 1000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micromolar_concentration"};
@@ -7317,9 +7483,9 @@ template <is_unit_value_type_c T>
 micromolar_concentration_t(T) -> micromolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanomolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>
+struct nanomolar_concentration_t final : public unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanomolar_concentration"};
@@ -7332,9 +7498,9 @@ template <is_unit_value_type_c T>
 nanomolar_concentration_t(T) -> nanomolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct picomolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>
+struct picomolar_concentration_t final : public unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picomolar_concentration"};
@@ -7347,9 +7513,9 @@ template <is_unit_value_type_c T>
 picomolar_concentration_t(T) -> picomolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_cubic_centimeter_concentration_t final : public details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct mole_per_cubic_centimeter_concentration_t final : public unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_cubic_centimeter_concentration"};
@@ -7362,9 +7528,9 @@ template <is_unit_value_type_c T>
 mole_per_cubic_centimeter_concentration_t(T) -> mole_per_cubic_centimeter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_milliliter_concentration_t final : public details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct mole_per_milliliter_concentration_t final : public unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_milliliter_concentration"};
@@ -7377,9 +7543,9 @@ template <is_unit_value_type_c T>
 mole_per_milliliter_concentration_t(T) -> mole_per_milliliter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct osmole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct osmole_per_liter_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"osmole_per_liter_concentration"};
@@ -7392,9 +7558,9 @@ template <is_unit_value_type_c T>
 osmole_per_liter_concentration_t(T) -> osmole_per_liter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct milliosmole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct milliosmole_per_liter_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliosmole_per_liter_concentration"};
@@ -7407,61 +7573,61 @@ template <is_unit_value_type_c T>
 milliosmole_per_liter_concentration_t(T) -> milliosmole_per_liter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
     using type = mole_per_liter_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
     using type = millimolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, molar_concentration_v>
 {
     using type = micromolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, molar_concentration_v>
 {
     using type = nanomolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
     using type = mole_per_cubic_centimeter_concentration_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
 {
     using type = mole_per_liter_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
 {
     using type = millimolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
 {
     using type = micromolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
 {
     using type = nanomolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
 {
     using type = mole_per_cubic_centimeter_concentration_t<double>;
 };
@@ -7473,9 +7639,9 @@ namespace pkr::units
 inline constexpr dimension_t specific_heat_capacity_dimension{2, 0, -2, 0, -1, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct specific_heat_capacity_t final : public details::unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct specific_heat_capacity_t final : public unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"specific_heat_capacity"};
@@ -7488,13 +7654,13 @@ template <is_unit_value_type_c T>
 specific_heat_capacity_t(T) -> specific_heat_capacity_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
     using type = specific_heat_capacity_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, specific_heat_capacity_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, specific_heat_capacity_dimension>
 {
     using type = specific_heat_capacity_t<double>;
 };
@@ -7506,9 +7672,9 @@ namespace pkr::units
 inline constexpr dimension_t thermal_conductivity_dimension{1, 1, -3, 0, -1, 0, 0, 0};
 
 template <is_unit_value_type_c T>
-struct thermal_conductivity_t final : public details::unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct thermal_conductivity_t final : public unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"thermal_conductivity"};
@@ -7521,13 +7687,13 @@ template <is_unit_value_type_c T>
 thermal_conductivity_t(T) -> thermal_conductivity_t<T>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
     using type = thermal_conductivity_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, thermal_conductivity_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, thermal_conductivity_dimension>
 {
     using type = thermal_conductivity_t<double>;
 };
@@ -7537,9 +7703,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct pascal_second_t final : public details::unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
+struct pascal_second_t final : public unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pascal_second"};
@@ -7556,9 +7722,9 @@ template <is_pkr_unit_c U>
 pascal_second_t(const U&) -> pascal_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_meter_per_second_t final : public details::unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
+struct square_meter_per_second_t final : public unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square_meter_per_second"};
@@ -7575,13 +7741,13 @@ template <is_pkr_unit_c U>
 square_meter_per_second_t(const U&) -> square_meter_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dynamic_viscosity_dimension>
 {
     using type = pascal_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, kinematic_viscosity_dimension>
 {
     using type = square_meter_per_second_t<T>;
 };
@@ -7590,9 +7756,9 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, kinematic_viscosity_dim
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct lumen_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct lumen_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"lumen"};
@@ -7609,7 +7775,7 @@ template <is_pkr_unit_c U>
 lumen_t(const U&) -> lumen_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
     using type = lumen_t<T>;
 };
@@ -7618,9 +7784,9 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{0, 0, 0, 0,
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct lux_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct lux_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"lux"};
@@ -7637,7 +7803,7 @@ template <is_pkr_unit_c U>
 lux_t(const U&) -> lux_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
     using type = lux_t<T>;
 };
@@ -7645,9 +7811,9 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct watt_per_steradian_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct watt_per_steradian_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_steradian"};
@@ -7664,13 +7830,13 @@ template <is_pkr_unit_c U>
 watt_per_steradian_t(const U&) -> watt_per_steradian_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = watt_per_steradian_t<T>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, 2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = watt_per_steradian_t<double>;
 };
@@ -7678,9 +7844,9 @@ struct details::derived_unit_type_t<double, std::ratio<1, 1>, dimension_t{1, 2, 
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct watt_per_square_meter_per_steradian_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct watt_per_square_meter_per_steradian_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter_per_steradian"};
@@ -7697,9 +7863,9 @@ template <is_pkr_unit_c U>
 watt_per_square_meter_per_steradian_t(const U&) -> watt_per_square_meter_per_steradian_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct radiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct radiance_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"radiance"};
@@ -7716,7 +7882,7 @@ template <is_pkr_unit_c U>
 radiance_t(const U&) -> radiance_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = radiance_t<T>;
 };
@@ -7725,9 +7891,9 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct watt_per_square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct watt_per_square_meter_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter"};
@@ -7744,9 +7910,9 @@ template <is_pkr_unit_c U>
 watt_per_square_meter_t(const U&) -> watt_per_square_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct irradiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct irradiance_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"irradiance"};
@@ -7763,7 +7929,7 @@ template <is_pkr_unit_c U>
 irradiance_t(const U&) -> irradiance_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, 0}>
 {
     using type = irradiance_t<T>;
 };
@@ -7772,9 +7938,9 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 
 namespace pkr::units
 {
 template <is_unit_value_type_c T>
-struct scalar_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+struct scalar_t final : public unit_t<T, std::ratio<1, 1>, scalar_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"scalar"};
@@ -7791,7 +7957,7 @@ template <is_pkr_unit_c U>
 scalar_t(const U&) -> scalar_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, scalar_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, scalar_dimension>
 {
     using type = scalar_t<T>;
 };
@@ -7800,44 +7966,44 @@ struct details::derived_unit_type_t<T, std::ratio<1, 1>, scalar_dimension>
 namespace pkr::units
 {
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto add(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b)
+constexpr auto add(const unit_t<T, Ratio1, Dim>& a, const unit_t<T, Ratio2, Dim>& b)
 {
     return a + b;
 }
 
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto subtract(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b)
+constexpr auto subtract(const unit_t<T, Ratio1, Dim>& a, const unit_t<T, Ratio2, Dim>& b)
 {
     return a - b;
 }
 
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto multiply(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
+constexpr auto multiply(const unit_t<T, Ratio1, Dim1>& a, const unit_t<T, Ratio2, Dim2>& b)
 {
     return a * b;
 }
 
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
+constexpr auto divide(const unit_t<T, Ratio1, Dim1>& a, const unit_t<T, Ratio2, Dim2>& b)
 {
     return a / b;
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto multiply_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
+constexpr auto multiply_scalar(const unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a * scalar;
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
+constexpr auto divide_scalar(const unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a / scalar;
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
     requires pkr_unit_can_take_square_root_c<Dim>
-auto sqrt(const details::unit_t<T, Ratio, Dim>& a)
+auto sqrt(const unit_t<T, Ratio, Dim>& a)
 {
 
     using result_ratio = Ratio;
@@ -7850,57 +8016,64 @@ auto sqrt(const details::unit_t<T, Ratio, Dim>& a)
         Dim.amount / 2,
         Dim.intensity / 2,
         Dim.angle / 2};
-    return details::unit_t<T, result_ratio, result_dim>{std::sqrt(a.value())};
+    return unit_t<T, result_ratio, result_dim>{std::sqrt(a.value())};
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto square(const details::unit_t<T, Ratio, Dim>& a)
+    requires(!pkr_unit_can_take_square_root_c<Dim>)
+auto sqrt(const unit_t<T, Ratio, Dim>&)
+{
+    static_assert(pkr_unit_can_take_square_root_c<Dim>, "sqrt() requires unit dimensions that are even and non-negative");
+}
+
+template <typename T, typename Ratio, dimension_t Dim>
+constexpr auto square(const unit_t<T, Ratio, Dim>& a)
 {
 
     using result_ratio = Ratio;
     constexpr dimension_t result_dim = {
         Dim.length * 2, Dim.mass * 2, Dim.time * 2, Dim.current * 2, Dim.temperature * 2, Dim.amount * 2, Dim.intensity * 2, Dim.angle * 2};
-    return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
+    return unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto cube(const details::unit_t<T, Ratio, Dim>& a)
+constexpr auto cube(const unit_t<T, Ratio, Dim>& a)
 {
     using result_ratio = Ratio;
     constexpr dimension_t result_dim = {
         Dim.length * 3, Dim.mass * 3, Dim.time * 3, Dim.current * 3, Dim.temperature * 3, Dim.amount * 3, Dim.intensity * 3, Dim.angle * 3};
-    return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
+    return unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-auto exp(const details::unit_t<T, Ratio, Dim>& a)
+auto exp(const unit_t<T, Ratio, Dim>& a)
 {
     static_assert(
         Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 && Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 && Dim.intensity == 0 &&
             Dim.angle == 0,
         "exp() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::exp(a.value())};
+    return unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::exp(a.value())};
 }
 
 template <typename T, typename Ratio, dimension_t Dim>
-auto log(const details::unit_t<T, Ratio, Dim>& a)
+auto log(const unit_t<T, Ratio, Dim>& a)
 {
     static_assert(
         Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 && Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 && Dim.intensity == 0 &&
             Dim.angle == 0,
         "log() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::log(a.value())};
+    return unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::log(a.value())};
 }
 
 template <typename T, typename Ratio, dimension_t Dim, typename ExpT, typename ExpRatio>
-auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
+auto pow(const unit_t<T, Ratio, Dim>& base, const unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
 {
 
-    return details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
+    return unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
 }
 
 template <int N, typename T, typename Ratio, dimension_t Dim>
-auto pow(const details::unit_t<T, Ratio, Dim>& base)
+auto pow(const unit_t<T, Ratio, Dim>& base)
 {
 
     constexpr dimension_t powered_dim{
@@ -7915,7 +8088,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
 
     if constexpr (std::is_same_v<Ratio, std::ratio<1, 1>>)
     {
-        using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
+        using result_type = typename derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
         if constexpr (N == 0)
         {
             return result_type{1.0};
@@ -7946,7 +8119,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     else
     {
 
-        using result_type = details::unit_t<T, Ratio, powered_dim>;
+        using result_type = unit_t<T, Ratio, powered_dim>;
         if constexpr (N == 0)
         {
             return result_type{1.0};
@@ -8000,10 +8173,11 @@ auto log(const T& x)
         throw std::invalid_argument("log of non-positive value");
     }
 
-    return details::unit_t<typename details::is_pkr_unit<T>::value_type, std::ratio<1, 1>, dimension_t{}>{std::log(x.value())};
+    return unit_t<typename details::is_pkr_unit<T>::value_type, std::ratio<1, 1>, dimension_t{}>{std::log(x.value())};
 }
 
 template <is_base_pkr_unit_c T>
+    requires pkr_unit_sqrt_valid_c<T>
 auto sqrt(const T& x)
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
@@ -8025,7 +8199,14 @@ auto sqrt(const T& x)
     {
         throw std::invalid_argument("sqrt of negative value");
     }
-    return details::unit_t<value_type, sqrt_ratio, sqrt_dim>{std::sqrt(x.value())};
+    return unit_t<value_type, sqrt_ratio, sqrt_dim>{std::sqrt(x.value())};
+}
+
+template <is_base_pkr_unit_c T>
+    requires pkr_unit_sqrt_invalid_c<T>
+auto sqrt(const T&)
+{
+    static_assert(pkr_unit_sqrt_valid_c<T>, "sqrt() requires unit dimensions that are even and non-negative");
 }
 
 template <is_base_pkr_unit_c T>
@@ -8040,16 +8221,37 @@ auto sin(const T& angle) noexcept
     return scalar_t{std::sin(angle.value())};
 }
 
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto sin(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "sin() requires an angle unit");
+}
+
 template <is_angle_unit_c T>
 auto cos(const T& angle) noexcept
 {
     return scalar_t{std::cos(angle.value())};
 }
 
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto cos(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "cos() requires an angle unit");
+}
+
 template <is_angle_unit_c T>
 auto tan(const T& angle) noexcept
 {
     return scalar_t{std::tan(angle.value())};
+}
+
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto tan(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "tan() requires an angle unit");
 }
 }
 
@@ -8088,7 +8290,7 @@ constexpr auto gravitational_constant_value = details::gravitational_constant_va
 inline constexpr dimension_t gravitational_constant_dimension{3, -1, -2, 0, 0, 0, 0, 0};
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using gravitational_constant_unit_t = ::pkr::units::details::unit_t<type_t, ratio_t, gravitational_constant_dimension>;
+using gravitational_constant_unit_t = ::pkr::units::unit_t<type_t, ratio_t, gravitational_constant_dimension>;
 
 constexpr auto gravitational_constant = gravitational_constant_unit_t<>{gravitational_constant_value};
 
@@ -8194,9 +8396,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct josephson_t final : public details::unit_t<T, std::ratio<1, 1>, josephson_dimension>
+struct josephson_t final : public unit_t<T, std::ratio<1, 1>, josephson_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, josephson_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, josephson_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"josephson"};
@@ -8265,9 +8467,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, area_dimension>
+struct square_meter_t final : public unit_t<T, std::ratio<1, 1>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square meter"};
@@ -8284,9 +8486,9 @@ template <is_pkr_unit_c U>
 square_meter_t(const U&) -> square_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_kilometer_t final : public details::unit_t<T, std::ratio<1000000, 1>, area_dimension>
+struct square_kilometer_t final : public unit_t<T, std::ratio<1000000, 1>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square kilometer"};
@@ -8303,9 +8505,9 @@ template <is_pkr_unit_c U>
 square_kilometer_t(const U&) -> square_kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_centimeter_t final : public details::unit_t<T, std::ratio<1, 10000>, area_dimension>
+struct square_centimeter_t final : public unit_t<T, std::ratio<1, 10000>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square centimeter"};
@@ -8322,9 +8524,9 @@ template <is_pkr_unit_c U>
 square_centimeter_t(const U&) -> square_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_millimeter_t final : public details::unit_t<T, std::ratio<1, 1000000>, area_dimension>
+struct square_millimeter_t final : public unit_t<T, std::ratio<1, 1000000>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square millimeter"};
@@ -9228,7 +9430,7 @@ inline void format_to_stack_buffer(pkr::units::impl::format_buffer<CharT>& buf, 
 }
 
 template <typename Real, typename ratio_t, pkr::units::dimension_t dim_v, typename CharT>
-struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
+struct formatter<pkr::units::unit_t<std::complex<Real>, ratio_t, dim_v>, CharT>
 {
     std::formatter<Real, CharT> value_formatter;
     mutable std::basic_string_view<CharT> saved_format_spec;
@@ -9243,7 +9445,7 @@ struct formatter<pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>
     }
 
     template <typename FormatContext>
-    auto format(const pkr::units::details::unit_t<std::complex<Real>, ratio_t, dim_v>& unit, FormatContext& ctx) const
+    auto format(const pkr::units::unit_t<std::complex<Real>, ratio_t, dim_v>& unit, FormatContext& ctx) const
     {
         auto out = ctx.out();
         const auto v = unit.value();
@@ -9619,9 +9821,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct inch_t final : public details::unit_t<T, std::ratio<254, 10000>, length_dimension>
+struct inch_t final : public unit_t<T, std::ratio<254, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<254, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<254, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"inch"};
@@ -9638,9 +9840,9 @@ template <is_pkr_unit_c U>
 inch_t(const U&) -> inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct mil_t final : public details::unit_t<T, std::ratio<254, 10000000>, length_dimension>
+struct mil_t final : public unit_t<T, std::ratio<254, 10000000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<254, 10000000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<254, 10000000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mil"};
@@ -9657,9 +9859,9 @@ template <is_pkr_unit_c U>
 mil_t(const U&) -> mil_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct foot_t final : public details::unit_t<T, std::ratio<3048, 10000>, length_dimension>
+struct foot_t final : public unit_t<T, std::ratio<3048, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3048, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<3048, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"foot"};
@@ -9676,9 +9878,9 @@ template <is_pkr_unit_c U>
 foot_t(const U&) -> foot_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct yard_t final : public details::unit_t<T, std::ratio<9144, 10000>, length_dimension>
+struct yard_t final : public unit_t<T, std::ratio<9144, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<9144, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<9144, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"yard"};
@@ -9695,9 +9897,9 @@ template <is_pkr_unit_c U>
 yard_t(const U&) -> yard_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct fathom_t final : public details::unit_t<T, std::ratio<18288, 10000>, length_dimension>
+struct fathom_t final : public unit_t<T, std::ratio<18288, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<18288, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<18288, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"fathom"};
@@ -9714,9 +9916,9 @@ template <is_pkr_unit_c U>
 fathom_t(const U&) -> fathom_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct rod_t final : public details::unit_t<T, std::ratio<50292, 10000>, length_dimension>
+struct rod_t final : public unit_t<T, std::ratio<50292, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<50292, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<50292, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"rod"};
@@ -9733,9 +9935,9 @@ template <is_pkr_unit_c U>
 rod_t(const U&) -> rod_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct chain_t final : public details::unit_t<T, std::ratio<201168, 10000>, length_dimension>
+struct chain_t final : public unit_t<T, std::ratio<201168, 10000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<201168, 10000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<201168, 10000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"chain"};
@@ -9752,9 +9954,9 @@ template <is_pkr_unit_c U>
 chain_t(const U&) -> chain_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct furlong_t final : public details::unit_t<T, std::ratio<201168, 1000>, length_dimension>
+struct furlong_t final : public unit_t<T, std::ratio<201168, 1000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<201168, 1000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<201168, 1000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"furlong"};
@@ -9771,9 +9973,9 @@ template <is_pkr_unit_c U>
 furlong_t(const U&) -> furlong_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct mile_t final : public details::unit_t<T, std::ratio<1609344, 1000>, length_dimension>
+struct mile_t final : public unit_t<T, std::ratio<1609344, 1000>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1609344, 1000>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1609344, 1000>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mile"};
@@ -9790,9 +9992,9 @@ template <is_pkr_unit_c U>
 mile_t(const U&) -> mile_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nautical_mile_t final : public details::unit_t<T, std::ratio<1852, 1>, length_dimension>
+struct nautical_mile_t final : public unit_t<T, std::ratio<1852, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1852, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1852, 1>, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nautical_mile"};
@@ -9813,9 +10015,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct grain_t final : public details::unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>
+struct grain_t final : public unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<64799, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"grain"};
@@ -9832,9 +10034,9 @@ template <is_pkr_unit_c U>
 grain_t(const U&) -> grain_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct dram_t final : public details::unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>
+struct dram_t final : public unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1771845, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"dram"};
@@ -9851,9 +10053,9 @@ template <is_pkr_unit_c U>
 dram_t(const U&) -> dram_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_t final : public details::unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>
+struct ounce_t final : public unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<28349523, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce"};
@@ -9870,9 +10072,9 @@ template <is_pkr_unit_c U>
 ounce_t(const U&) -> ounce_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_t final : public details::unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>
+struct pound_t final : public unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<453592370, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound"};
@@ -9889,9 +10091,9 @@ template <is_pkr_unit_c U>
 pound_t(const U&) -> pound_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct stone_t final : public details::unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>
+struct stone_t final : public unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<6350293180, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"stone"};
@@ -9908,9 +10110,9 @@ template <is_pkr_unit_c U>
 stone_t(const U&) -> stone_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hundredweight_t final : public details::unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>
+struct hundredweight_t final : public unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<50802345, 1000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hundredweight"};
@@ -9927,9 +10129,9 @@ template <is_pkr_unit_c U>
 hundredweight_t(const U&) -> hundredweight_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct us_ton_t final : public details::unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>
+struct us_ton_t final : public unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<907184740, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"us_ton"};
@@ -9946,9 +10148,9 @@ template <is_pkr_unit_c U>
 us_ton_t(const U&) -> us_ton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct long_ton_t final : public details::unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>
+struct long_ton_t final : public unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>;
+    using _base = unit_t<T, std::ratio<1016046909, 1000000000>, mass_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"long_ton"};
@@ -9969,9 +10171,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct miles_per_hour_t final : public details::unit_t<T, std::ratio<1609344, 3600000>, velocity_dimension>
+struct miles_per_hour_t final : public unit_t<T, std::ratio<1609344, 3600000>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1609344, 3600000>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1609344, 3600000>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"miles per hour"};
@@ -9988,9 +10190,9 @@ template <is_pkr_unit_c U>
 miles_per_hour_t(const U&) -> miles_per_hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct feet_per_second_t final : public details::unit_t<T, std::ratio<3048, 10000>, velocity_dimension>
+struct feet_per_second_t final : public unit_t<T, std::ratio<3048, 10000>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3048, 10000>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<3048, 10000>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"feet per second"};
@@ -10007,9 +10209,9 @@ template <is_pkr_unit_c U>
 feet_per_second_t(const U&) -> feet_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct inches_per_second_t final : public details::unit_t<T, std::ratio<254, 10000>, velocity_dimension>
+struct inches_per_second_t final : public unit_t<T, std::ratio<254, 10000>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<254, 10000>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<254, 10000>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"inches per second"};
@@ -10026,9 +10228,9 @@ template <is_pkr_unit_c U>
 inches_per_second_t(const U&) -> inches_per_second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct knots_t final : public details::unit_t<T, std::ratio<1852, 3600>, velocity_dimension>
+struct knots_t final : public unit_t<T, std::ratio<1852, 3600>, velocity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1852, 3600>, velocity_dimension>;
+    using _base = unit_t<T, std::ratio<1852, 3600>, velocity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"knots"};
@@ -10045,25 +10247,25 @@ template <is_pkr_unit_c U>
 knots_t(const U&) -> knots_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1609344, 3600000>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1609344, 3600000>, velocity_dimension>
 {
     using type = miles_per_hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<3048, 10000>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<3048, 10000>, velocity_dimension>
 {
     using type = feet_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<254, 10000>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<254, 10000>, velocity_dimension>
 {
     using type = inches_per_second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1852, 3600>, velocity_dimension>
+struct derived_unit_type_t<T, std::ratio<1852, 3600>, velocity_dimension>
 {
     using type = knots_t<T>;
 };
@@ -10073,9 +10275,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct feet_per_second_squared_t final : public details::unit_t<T, std::ratio<3048, 10000>, acceleration_v>
+struct feet_per_second_squared_t final : public unit_t<T, std::ratio<3048, 10000>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<3048, 10000>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<3048, 10000>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"feet per second squared"};
@@ -10096,9 +10298,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct poundal_t final : public details::unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>
+struct poundal_t final : public unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"poundal"};
@@ -10115,9 +10317,9 @@ template <is_pkr_unit_c U>
 poundal_t(const U&) -> poundal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_force_t final : public details::unit_t<T, std::ratio<4448222, 1000000>, force_dimension>
+struct pound_force_t final : public unit_t<T, std::ratio<4448222, 1000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<4448222, 1000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<4448222, 1000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_force"};
@@ -10138,9 +10340,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct psi_t final : public details::unit_t<T, std::ratio<6894757, 1000>, pressure_dimension>
+struct psi_t final : public unit_t<T, std::ratio<6894757, 1000>, pressure_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<6894757, 1000>, pressure_dimension>;
+    using _base = unit_t<T, std::ratio<6894757, 1000>, pressure_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"psi"};
@@ -10157,7 +10359,7 @@ template <is_pkr_unit_c U>
 psi_t(const U&) -> psi_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<6894757, 1000>, pressure_dimension>
+struct derived_unit_type_t<T, std::ratio<6894757, 1000>, pressure_dimension>
 {
     using type = psi_t<T>;
 };
@@ -10167,9 +10369,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct horsepower_t final : public details::unit_t<T, std::ratio<745700, 1000>, power_dimension>
+struct horsepower_t final : public unit_t<T, std::ratio<745700, 1000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<745700, 1000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<745700, 1000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"horsepower"};
@@ -10186,7 +10388,7 @@ template <is_pkr_unit_c U>
 horsepower_t(const U&) -> horsepower_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<745700, 1000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<745700, 1000>, power_dimension>
 {
     using type = horsepower_t<T>;
 };
@@ -10196,9 +10398,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct pound_per_cubic_inch_t final : public details::unit_t<T, std::ratio<27679904, 1000000>, density_dimension>
+struct pound_per_cubic_inch_t final : public unit_t<T, std::ratio<27679904, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<27679904, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<27679904, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_cubic_inch"};
@@ -10215,9 +10417,9 @@ template <is_pkr_unit_c U>
 pound_per_cubic_inch_t(const U&) -> pound_per_cubic_inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_per_cubic_foot_t final : public details::unit_t<T, std::ratio<16018, 1000000>, density_dimension>
+struct pound_per_cubic_foot_t final : public unit_t<T, std::ratio<16018, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<16018, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<16018, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_cubic_foot"};
@@ -10234,9 +10436,9 @@ template <is_pkr_unit_c U>
 pound_per_cubic_foot_t(const U&) -> pound_per_cubic_foot_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_per_gallon_t final : public details::unit_t<T, std::ratio<119826, 1000000>, density_dimension>
+struct pound_per_gallon_t final : public unit_t<T, std::ratio<119826, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<119826, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<119826, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_gallon"};
@@ -10253,9 +10455,9 @@ template <is_pkr_unit_c U>
 pound_per_gallon_t(const U&) -> pound_per_gallon_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_per_cubic_inch_t final : public details::unit_t<T, std::ratio<1729994, 1000000>, density_dimension>
+struct ounce_per_cubic_inch_t final : public unit_t<T, std::ratio<1729994, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1729994, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1729994, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce_per_cubic_inch"};
@@ -10272,9 +10474,9 @@ template <is_pkr_unit_c U>
 ounce_per_cubic_inch_t(const U&) -> ounce_per_cubic_inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_per_fluid_ounce_t final : public details::unit_t<T, std::ratio<33814, 1000>, density_dimension>
+struct ounce_per_fluid_ounce_t final : public unit_t<T, std::ratio<33814, 1000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<33814, 1000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<33814, 1000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce_per_fluid_ounce"};
@@ -10291,31 +10493,31 @@ template <is_pkr_unit_c U>
 ounce_per_fluid_ounce_t(const U&) -> ounce_per_fluid_ounce_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<27679904, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<27679904, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_inch_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<16018, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<16018, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_foot_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<119826, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<119826, 1000000>, density_dimension>
 {
     using type = pound_per_gallon_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1729994, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1729994, 1000000>, density_dimension>
 {
     using type = ounce_per_cubic_inch_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<33814, 1000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<33814, 1000>, density_dimension>
 {
     using type = ounce_per_fluid_ounce_t<T>;
 };
@@ -10366,7 +10568,7 @@ struct power_of
 
     using powered_ratio = std::ratio<powered_num, powered_den>;
 
-    using type = details::unit_t<value_type, powered_ratio, powered_dim>;
+    using type = unit_t<value_type, powered_ratio, powered_dim>;
 };
 
 template <typename unit_type, int power_v>
@@ -10584,7 +10786,7 @@ constexpr auto
     using result_ratio = typename after_den::ratio;
     constexpr dimension_t result_dim = after_den::dim;
 
-    using result_unit = details::unit_t<source_value_type, result_ratio, result_dim>;
+    using result_unit = unit_t<source_value_type, result_ratio, result_dim>;
     constexpr source_value_type conversion_factor = compute_conversion_factor<source_value_type, source_ratio, result_ratio>();
     return result_unit(source.value() * conversion_factor);
 }
@@ -10745,7 +10947,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 
@@ -10756,7 +10958,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 
@@ -10767,7 +10969,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, num3_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 
@@ -12247,12 +12449,16 @@ constexpr nanowatt_t<double> operator""_nW(long double value) noexcept
 
 namespace pkr::units
 {
+struct celsius_tag_t
+{
+};
+
 template <is_unit_value_type_c T>
-struct celsius_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
+struct celsius_t final : public unit_t<T, std::ratio<1, 1>, temperature_dimension, celsius_tag_t>
 {
 
-    using base = details::unit_t<T, std::ratio<1, 1>, temperature_dimension>;
-    using base::base;
+    using _base = unit_t<T, std::ratio<1, 1>, temperature_dimension, celsius_tag_t>;
+    using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"celsius"};
     [[maybe_unused]] static constexpr std::string_view symbol{"C"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b0C"};
@@ -12265,12 +12471,16 @@ celsius_t(T) -> celsius_t<T>;
 
 namespace pkr::units
 {
-template <is_unit_value_type_c T>
-struct fahrenheit_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
-{
 
-    using base = details::unit_t<T, std::ratio<1, 1>, temperature_dimension>;
-    using base::base;
+struct fahrenheit_tag_t
+{
+};
+
+template <is_unit_value_type_c T>
+struct fahrenheit_t final : public unit_t<T, std::ratio<1, 1>, temperature_dimension, fahrenheit_tag_t>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, temperature_dimension, fahrenheit_tag_t>;
+    using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"fahrenheit"};
     [[maybe_unused]] static constexpr std::string_view symbol{"F"};
     [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"\u00b0F"};
@@ -13021,7 +13231,7 @@ auto operator/(T lhs, const measurement_rss_t<UnitT>& rhs)
     constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
     constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
     using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
-    using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
+    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_rss_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
 
@@ -13331,7 +13541,7 @@ auto operator/(T lhs, const measurement_lin_t<UnitT>& rhs)
     constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
     constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
     using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
-    using InvUnit = details::unit_t<value_type, inv_ratio, inv_dim>;
+    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
     return measurement_lin_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
 }
 
@@ -14286,7 +14496,11 @@ struct stack_storage
     using value_type = T;
     using array_type = std::array<std::array<T, 4>, 4>;
 
-    array_type data{};
+    array_type data;
+
+    stack_storage() = delete;
+
+    explicit constexpr stack_storage(const array_type& init_data) : data(init_data) {}
 
     constexpr T& get(std::size_t row, std::size_t col)
     {
@@ -14317,20 +14531,27 @@ struct arena_storage
     static_assert(POOL_SIZE > 0, "POOL_SIZE must be greater than 0");
 
     std::size_t arena_index;
-    array_type stack_fallback{};
+    array_type stack_fallback;
     bool using_arena{false};
 
     static inline std::size_t peak_usage = 0;
     static inline std::size_t fallback_count = 0;
 
 private:
-    static inline std::array<array_type, POOL_SIZE> s_pool{};
+
+    static inline std::array<std::byte, sizeof(array_type) * POOL_SIZE> s_pool_buffer;
     static inline std::bitset<POOL_SIZE> s_in_use{};
+    static inline bool s_pool_initialized{false};
+
+    static array_type* get_pool_ptr()
+    {
+        return reinterpret_cast<array_type*>(s_pool_buffer.data());
+    }
 
 public:
-    arena_storage()
-        : arena_index(POOL_SIZE)
 
+    explicit constexpr arena_storage(const array_type& init_fallback)
+        : arena_index(POOL_SIZE), stack_fallback(init_fallback), using_arena(false)
     {
 
         for (std::size_t i = 0; i < POOL_SIZE; ++i)
@@ -14396,22 +14617,22 @@ public:
 
     T& get(std::size_t row, std::size_t col)
     {
-        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
     }
 
     const T& get(std::size_t row, std::size_t col) const
     {
-        return using_arena ? s_pool[arena_index][row][col] : stack_fallback[row][col];
+        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
     }
 
     std::array<T, 4>& operator[](std::size_t row)
     {
-        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+        return using_arena ? get_pool_ptr()[arena_index][row] : stack_fallback[row];
     }
 
     const std::array<T, 4>& operator[](std::size_t row) const
     {
-        return using_arena ? s_pool[arena_index][row] : stack_fallback[row];
+        return using_arena ? get_pool_ptr()[arena_index][row] : stack_fallback[row];
     }
 
     static constexpr std::size_t pool_size()
@@ -14589,17 +14810,10 @@ public:
 
     storage_type storage;
 
-    constexpr matrix_measurement_rss_4d_t() = default;
+    matrix_measurement_rss_4d_t() = delete;
 
-    constexpr matrix_measurement_rss_4d_t(const array_type& arr)
+    explicit matrix_measurement_rss_4d_t(const array_type& arr) : storage(arr)
     {
-        for (std::size_t r = 0; r < 4; ++r)
-        {
-            for (std::size_t c = 0; c < 4; ++c)
-            {
-                storage.get(r, c) = arr[r][c];
-            }
-        }
     }
 
     constexpr value_type& operator()(std::size_t row, std::size_t col)
@@ -14651,14 +14865,637 @@ constexpr vec_measurement_rss_4d_t<T> operator*(const matrix_measurement_rss_4d_
 }
 
 }
+struct bit_tag
+{
+};
 
 namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1>, volume_dimension>
+struct bit_t final : public unit_t<T, std::ratio<1, 8>, amount_dimension, bit_tag>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 8>, amount_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"bit"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"b"};
+};
+
+template <is_unit_value_type_c T>
+bit_t(T) -> bit_t<T>;
+
+template <is_unit_value_type_c T>
+struct kilobit_t final : public unit_t<T, std::ratio<1000, 8>, amount_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000, 8>, amount_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"kilobit"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kb"};
+};
+
+template <is_unit_value_type_c T>
+kilobit_t(T) -> kilobit_t<T>;
+
+template <is_unit_value_type_c T>
+struct megabit_t final : public unit_t<T, std::ratio<1000000, 8>, amount_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000, 8>, amount_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megabit"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Mb"};
+};
+
+template <is_unit_value_type_c T>
+megabit_t(T) -> megabit_t<T>;
+
+template <is_unit_value_type_c T>
+struct gigabit_t final : public unit_t<T, std::ratio<1000000000, 8>, amount_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000000, 8>, amount_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"gigabit"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gb"};
+};
+
+template <is_unit_value_type_c T>
+struct bit_per_second_t final : public unit_t<T, std::ratio<1, 8>, amount_rate_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 8>, amount_rate_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"bit per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"b/s"};
+};
+
+template <is_unit_value_type_c T>
+bit_per_second_t(T) -> bit_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct kilobit_per_second_t final : public unit_t<T, std::ratio<1000, 8>, amount_rate_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000, 8>, amount_rate_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"kilobit per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kb/s"};
+};
+
+template <is_unit_value_type_c T>
+kilobit_per_second_t(T) -> kilobit_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct megabit_per_second_t final : public unit_t<T, std::ratio<1000000, 8>, amount_rate_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000, 8>, amount_rate_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megabit per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Mb/s"};
+};
+
+template <is_unit_value_type_c T>
+megabit_per_second_t(T) -> megabit_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct gigabit_per_second_t final : public unit_t<T, std::ratio<1000000000, 8>, amount_rate_dimension, bit_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000000, 8>, amount_rate_dimension, bit_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"gigabit per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"Gb/s"};
+};
+
+template <is_unit_value_type_c T>
+gigabit_per_second_t(T) -> gigabit_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+gigabit_t(T) -> gigabit_t<T>;
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 8>, amount_dimension, bit_tag>
+{
+    using type = bit_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000, 8>, amount_dimension, bit_tag>
+{
+    using type = kilobit_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000, 8>, amount_dimension, bit_tag>
+{
+    using type = megabit_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000000, 8>, amount_dimension, bit_tag>
+{
+    using type = gigabit_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 8>, amount_rate_dimension, bit_tag>
+{
+    using type = bit_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000, 8>, amount_rate_dimension, bit_tag>
+{
+    using type = kilobit_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000, 8>, amount_rate_dimension, bit_tag>
+{
+    using type = megabit_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000000, 8>, amount_rate_dimension, bit_tag>
+{
+    using type = gigabit_per_second_t<T>;
+};
+
+}
+
+struct byte_tag
+{
+};
+
+namespace pkr::units
+{
+
+template <is_unit_value_type_c T>
+struct byte_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+
+    [[maybe_unused]] static constexpr std::string_view name{"byte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"B"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"B"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"B"};
+};
+
+template <is_unit_value_type_c T>
+byte_t(T) -> byte_t<T>;
+
+template <is_unit_value_type_c T>
+struct kilobyte_t final : public unit_t<T, std::ratio<1024, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1024, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"kilobyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"kB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"kB"};
+};
+
+template <is_unit_value_type_c T>
+kilobyte_t(T) -> kilobyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct megabyte_t final : public unit_t<T, std::mega, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::mega, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megabyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MB"};
+};
+
+template <is_unit_value_type_c T>
+megabyte_t(T) -> megabyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct gigabyte_t final : public unit_t<T, std::ratio<1000000000, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000000, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"gigabyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"GB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GB"};
+};
+
+template <is_unit_value_type_c T>
+gigabyte_t(T) -> gigabyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct byte_per_second_t final : public unit_t<T, std::ratio<1, 1>, amount_rate_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_rate_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"byte per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"B/s"};
+};
+
+template <is_unit_value_type_c T>
+byte_per_second_t(T) -> byte_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct kilobyte_per_second_t final : public unit_t<T, std::ratio<1024, 1>, amount_rate_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1024, 1>, amount_rate_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"kilobyte per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"kB/s"};
+};
+
+template <is_unit_value_type_c T>
+kilobyte_per_second_t(T) -> kilobyte_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct megabyte_per_second_t final : public unit_t<T, std::mega, amount_rate_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::mega, amount_rate_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megabyte per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MB/s"};
+};
+
+template <is_unit_value_type_c T>
+megabyte_per_second_t(T) -> megabyte_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct gigabyte_per_second_t final : public unit_t<T, std::ratio<1000000000, 1>, amount_rate_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1000000000, 1>, amount_rate_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"gigabyte per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"GB/s"};
+};
+
+template <is_unit_value_type_c T>
+gigabyte_per_second_t(T) -> gigabyte_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct kibibyte_t final : public unit_t<T, std::ratio<1024, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1024, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"kibibyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"KiB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"KiB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"KiB"};
+};
+
+template <is_unit_value_type_c T>
+kibibyte_t(T) -> kibibyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct mebibyte_t final : public unit_t<T, std::ratio<1048576, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1048576, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"mebibyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MiB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"MiB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"MiB"};
+};
+
+template <is_unit_value_type_c T>
+mebibyte_t(T) -> mebibyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct gibibyte_t final : public unit_t<T, std::ratio<1073741824, 1>, amount_dimension, byte_tag>
+{
+    using _base = unit_t<T, std::ratio<1073741824, 1>, amount_dimension, byte_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"gibibyte"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"GiB"};
+    [[maybe_unused]] static constexpr std::wstring_view w_symbol{L"GiB"};
+    [[maybe_unused]] static constexpr std::u8string_view u8_symbol{u8"GiB"};
+};
+
+template <is_unit_value_type_c T>
+gibibyte_t(T) -> gibibyte_t<T>;
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension, byte_tag>
+{
+    using type = byte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1024, 1>, amount_dimension, byte_tag>
+{
+    using type = kilobyte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_dimension, byte_tag>
+{
+    using type = megabyte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, amount_dimension, byte_tag>
+{
+    using type = gigabyte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1048576, 1>, amount_dimension, byte_tag>
+{
+    using type = mebibyte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1073741824, 1>, amount_dimension, byte_tag>
+{
+    using type = gibibyte_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_rate_dimension, byte_tag>
+{
+    using type = byte_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1024, 1>, amount_rate_dimension, byte_tag>
+{
+    using type = kilobyte_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_rate_dimension, byte_tag>
+{
+    using type = megabyte_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1000000000, 1>, amount_rate_dimension, byte_tag>
+{
+    using type = gigabyte_per_second_t<T>;
+};
+
+}
+
+struct flop_amount_tag
+{
+};
+
+struct flop_rate_tag
+{
+};
+
+namespace pkr::units
+{
+
+template <is_unit_value_type_c T>
+struct flop_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"floating-point operation"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"FLOP"};
+};
+
+template <is_unit_value_type_c T>
+flop_t(T) -> flop_t<T>;
+
+template <is_unit_value_type_c T>
+struct megaflop_t final : public unit_t<T, std::mega, amount_dimension, flop_amount_tag>
+{
+    using _base = unit_t<T, std::mega, amount_dimension, flop_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megaflop"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MFLOP"};
+};
+
+template <is_unit_value_type_c T>
+megaflop_t(T) -> megaflop_t<T>;
+
+template <is_unit_value_type_c T>
+struct flop_per_second_t final : public unit_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"flop per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"flop/s"};
+};
+
+template <is_unit_value_type_c T>
+flop_per_second_t(T) -> flop_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct megaflop_per_second_t final : public unit_t<T, std::mega, amount_rate_dimension, flop_rate_tag>
+{
+    using _base = unit_t<T, std::mega, amount_rate_dimension, flop_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megaflop per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MFLOP/s"};
+};
+
+template <is_unit_value_type_c T>
+megaflop_per_second_t(T) -> megaflop_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>
+{
+    using type = flop_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_dimension, flop_amount_tag>
+{
+    using type = megaflop_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>
+{
+    using type = flop_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_rate_dimension, flop_rate_tag>
+{
+    using type = megaflop_per_second_t<T>;
+};
+
+}
+
+struct flop_amount_tag
+{
+};
+
+struct flop_rate_tag
+{
+};
+
+namespace pkr::units
+{
+
+template <is_unit_value_type_c T>
+struct flop_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"floating-point operation"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"FLOP"};
+};
+
+template <is_unit_value_type_c T>
+flop_t(T) -> flop_t<T>;
+
+template <is_unit_value_type_c T>
+struct megaflop_t final : public unit_t<T, std::mega, amount_dimension, flop_amount_tag>
+{
+    using _base = unit_t<T, std::mega, amount_dimension, flop_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megaflop"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MFLOP"};
+};
+
+template <is_unit_value_type_c T>
+struct flop_per_second_t final : public unit_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"flop per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"flop/s"};
+};
+
+template <is_unit_value_type_c T>
+flop_per_second_t(T) -> flop_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct megaflop_per_second_t final : public unit_t<T, std::mega, amount_rate_dimension, flop_rate_tag>
+{
+    using _base = unit_t<T, std::mega, amount_rate_dimension, flop_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"megaflop per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MFLOP/s"};
+};
+
+template <is_unit_value_type_c T>
+megaflop_per_second_t(T) -> megaflop_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+megaflop_t(T) -> megaflop_t<T>;
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension, flop_amount_tag>
+{
+    using type = flop_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_dimension, flop_amount_tag>
+{
+    using type = megaflop_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_rate_dimension, flop_rate_tag>
+{
+    using type = flop_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_rate_dimension, flop_rate_tag>
+{
+    using type = megaflop_per_second_t<T>;
+};
+
+}
+
+struct neural_amount_tag
+{
+};
+
+struct neural_rate_tag
+{
+};
+
+namespace pkr::units
+{
+
+template <is_unit_value_type_c T>
+struct neural_op_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension, neural_amount_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension, neural_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"neural operation"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"NOP"};
+};
+
+template <is_unit_value_type_c T>
+neural_op_t(T) -> neural_op_t<T>;
+
+template <is_unit_value_type_c T>
+struct meganeural_op_t final : public unit_t<T, std::mega, amount_dimension, neural_amount_tag>
+{
+    using _base = unit_t<T, std::mega, amount_dimension, neural_amount_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"meganeural operation"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MNOP"};
+};
+
+template <is_unit_value_type_c T>
+struct neural_op_per_second_t final : public unit_t<T, std::ratio<1, 1>, amount_rate_dimension, neural_rate_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, amount_rate_dimension, neural_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"neural ops per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"NOP/s"};
+};
+
+template <is_unit_value_type_c T>
+neural_op_per_second_t(T) -> neural_op_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+struct meganeural_op_per_second_t final : public unit_t<T, std::mega, amount_rate_dimension, neural_rate_tag>
+{
+    using _base = unit_t<T, std::mega, amount_rate_dimension, neural_rate_tag>;
+    using _base::_base;
+    [[maybe_unused]] static constexpr std::string_view name{"meganeural ops per second"};
+    [[maybe_unused]] static constexpr std::string_view symbol{"MNOP/s"};
+};
+
+template <is_unit_value_type_c T>
+meganeural_op_per_second_t(T) -> meganeural_op_per_second_t<T>;
+
+template <is_unit_value_type_c T>
+meganeural_op_t(T) -> meganeural_op_t<T>;
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension, neural_amount_tag>
+{
+    using type = neural_op_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_dimension, neural_amount_tag>
+{
+    using type = meganeural_op_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_rate_dimension, neural_rate_tag>
+{
+    using type = neural_op_per_second_t<T>;
+};
+
+template <is_unit_value_type_c T>
+struct derived_unit_type_t<T, std::mega, amount_rate_dimension, neural_rate_tag>
+{
+    using type = meganeural_op_per_second_t<T>;
+};
+
+}
+
+namespace pkr::units
+{
+
+template <is_unit_value_type_c T>
+struct cubic_meter_t final : public unit_t<T, std::ratio<1, 1>, volume_dimension>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic meter"};
@@ -14675,9 +15512,9 @@ template <is_pkr_unit_c U>
 cubic_meter_t(const U&) -> cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_kilometer_t final : public details::unit_t<T, std::ratio<1000000000, 1>, volume_dimension>
+struct cubic_kilometer_t final : public unit_t<T, std::ratio<1000000000, 1>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic kilometer"};
@@ -14694,9 +15531,9 @@ template <is_pkr_unit_c U>
 cubic_kilometer_t(const U&) -> cubic_kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_centimeter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
+struct cubic_centimeter_t final : public unit_t<T, std::ratio<1, 1000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic centimeter"};
@@ -14713,9 +15550,9 @@ template <is_pkr_unit_c U>
 cubic_centimeter_t(const U&) -> cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_millimeter_t final : public details::unit_t<T, std::ratio<1, 1000000000>, volume_dimension>
+struct cubic_millimeter_t final : public unit_t<T, std::ratio<1, 1000000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic millimeter"};
@@ -14732,9 +15569,9 @@ template <is_pkr_unit_c U>
 cubic_millimeter_t(const U&) -> cubic_millimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct liter_t final : public details::unit_t<T, std::ratio<1, 1000>, volume_dimension>
+struct liter_t final : public unit_t<T, std::ratio<1, 1000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"liter"};
@@ -14751,9 +15588,9 @@ template <is_pkr_unit_c U>
 liter_t(const U&) -> liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliliter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
+struct milliliter_t final : public unit_t<T, std::ratio<1, 1000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliliter"};
@@ -14773,10 +15610,21 @@ milliliter_t(const U&) -> milliliter_t<typename details::is_pkr_unit<U>::value_t
 namespace pkr::units
 {
 
-template <is_unit_value_type_c T>
-struct decibel_power_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+struct decibel_power_tag
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+};
+
+struct decibel_amplitude_tag
+{
+};
+
+template <is_unit_value_type_c T, typename Tag>
+struct decibel_t;
+
+template <is_unit_value_type_c T>
+struct decibel_t<T, decibel_power_tag> final : public unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_power_tag>
+{
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_power_tag>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_power"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -14785,16 +15633,9 @@ struct decibel_power_t final : public details::unit_t<T, std::ratio<1, 1>, scala
 };
 
 template <is_unit_value_type_c T>
-decibel_power_t(T) -> decibel_power_t<T>;
-
-template <is_pkr_unit_c U>
-    requires(details::is_pkr_unit<U>::value_dimension == scalar_dimension)
-decibel_power_t(const U&) -> decibel_power_t<typename details::is_pkr_unit<U>::value_type>;
-
-template <is_unit_value_type_c T>
-struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+struct decibel_t<T, decibel_amplitude_tag> final : public unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_amplitude_tag>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension, decibel_amplitude_tag>;
     using _base::_base;
     [[maybe_unused]] static constexpr std::string_view name{"decibel_amplitude"};
     [[maybe_unused]] static constexpr std::string_view symbol{"dB"};
@@ -14803,7 +15644,13 @@ struct decibel_amplitude_t final : public details::unit_t<T, std::ratio<1, 1>, s
 };
 
 template <is_unit_value_type_c T>
-decibel_amplitude_t(T) -> decibel_amplitude_t<T>;
+decibel_t(T) -> decibel_t<T, decibel_power_tag>;
+
+template <is_unit_value_type_c T>
+using decibel_power_t = decibel_t<T, decibel_power_tag>;
+
+template <is_unit_value_type_c T>
+using decibel_amplitude_t = decibel_t<T, decibel_amplitude_tag>;
 }
 
 namespace std
@@ -14885,9 +15732,9 @@ namespace pkr::units
 {
 
 template <is_unit_value_type_c T>
-struct ratio_t final : public details::unit_t<T, std::ratio<1, 1>, scalar_dimension>
+struct ratio_t final : public unit_t<T, std::ratio<1, 1>, scalar_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, scalar_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, scalar_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ratio"};
@@ -14902,11 +15749,81 @@ ratio_t(T) -> ratio_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == scalar_dimension)
 ratio_t(const U&) -> ratio_t<typename details::is_pkr_unit<U>::value_type>;
+}
+
+namespace pkr::units
+{
+namespace details
+{
+template <typename T, typename = void>
+struct is_dimensionless_unit : std::false_type
+{
+};
+
+template <typename T>
+struct is_dimensionless_unit<T, std::void_t<decltype(::pkr::units::details::is_pkr_unit<T>::value_dimension)>>
+    : std::bool_constant<(::pkr::units::details::is_pkr_unit<T>::value_dimension == scalar_dimension)>
+{
+};
+
+template <typename T>
+inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit<T>::value;
+}
+
+template <typename target_unit_t, typename source_unit_t>
+    requires std::is_same_v<typename details::is_pkr_unit<target_unit_t>::tag_type, decibel_power_tag> && details::is_dimensionless_unit_v<source_unit_t>
+inline target_unit_t unit_cast(const source_unit_t& source)
+{
+    auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
+    auto value = static_cast<double>(canonical.value());
+    if (value <= 0.0)
+    {
+        throw std::invalid_argument("decibel_power conversion requires positive linear ratio");
+    }
+    return target_unit_t{10.0 * std::log10(value)};
+}
+
+template <typename target_unit_t, typename source_unit_t>
+    requires std::is_same_v<typename details::is_pkr_unit<target_unit_t>::tag_type, decibel_amplitude_tag> && details::is_dimensionless_unit_v<source_unit_t>
+inline target_unit_t unit_cast(const source_unit_t& source)
+{
+    auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
+    auto value = static_cast<double>(canonical.value());
+    if (value <= 0.0)
+    {
+        throw std::invalid_argument("decibel_amplitude conversion requires positive linear ratio");
+    }
+    return target_unit_t{20.0 * std::log10(value)};
+}
+
+template <pkr::units::is_unit_value_type_c SourceT, typename target_unit_t>
+    requires details::is_dimensionless_unit_v<target_unit_t>
+inline target_unit_t unit_cast(const decibel_t<SourceT, decibel_power_tag>& source)
+{
+    double linear = std::pow(10.0, source.value() / 10.0);
+    unit_t<double, std::ratio<1, 1>, scalar_dimension> base{linear};
+    auto converted = ::pkr::units::details::unit_cast_impl<typename ::pkr::units::details::is_pkr_unit<target_unit_t>::ratio_type>(base);
+    return target_unit_t{converted.value()};
+}
+
+template <pkr::units::is_unit_value_type_c SourceT, typename target_unit_t>
+    requires details::is_dimensionless_unit_v<target_unit_t>
+inline target_unit_t unit_cast(const decibel_t<SourceT, decibel_amplitude_tag>& source)
+{
+    double linear = std::pow(10.0, source.value() / 20.0);
+    unit_t<double, std::ratio<1, 1>, scalar_dimension> base{linear};
+    auto converted = ::pkr::units::details::unit_cast_impl<typename ::pkr::units::details::is_pkr_unit<target_unit_t>::ratio_type>(base);
+    return target_unit_t{converted.value()};
+}
+}
+
+namespace pkr::units
+{
 
 template <is_unit_value_type_c T>
-struct percentage_t final : public details::unit_t<T, std::ratio<1, 100>, scalar_dimension>
+struct percentage_t final : public unit_t<T, std::ratio<1, 100>, scalar_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 100>, scalar_dimension>;
+    using _base = unit_t<T, std::ratio<1, 100>, scalar_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"percent"};
@@ -14921,72 +15838,6 @@ percentage_t(T) -> percentage_t<T>;
 template <is_pkr_unit_c U>
     requires(details::is_pkr_unit<U>::value_dimension == scalar_dimension)
 percentage_t(const U&) -> percentage_t<typename details::is_pkr_unit<U>::value_type>;
-}
-
-namespace pkr::units
-{
-namespace details
-{
-template <typename T, typename = void>
-struct is_dimensionless_unit : std::false_type
-{
-};
-
-template <typename T>
-struct is_dimensionless_unit<T, std::void_t<decltype(details::is_pkr_unit<T>::value_dimension)>>
-    : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == scalar_dimension)>
-{
-};
-
-template <typename T>
-inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit<T>::value;
-}
-
-template <typename target_unit_t, typename source_unit_t>
-    requires std::is_same_v<target_unit_t, decibel_power_t<double>> && details::is_dimensionless_unit_v<source_unit_t>
-inline decibel_power_t<double> unit_cast(const source_unit_t& source)
-{
-    auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    auto value = static_cast<double>(canonical.value());
-    if (value <= 0.0)
-    {
-        throw std::invalid_argument("decibel_power conversion requires positive linear ratio");
-    }
-    return decibel_power_t<double>{10.0 * std::log10(value)};
-}
-
-template <typename target_unit_t, typename source_unit_t>
-    requires std::is_same_v<target_unit_t, decibel_amplitude_t<double>> && details::is_dimensionless_unit_v<source_unit_t>
-inline decibel_amplitude_t<double> unit_cast(const source_unit_t& source)
-{
-    auto canonical = details::unit_cast_impl<std::ratio<1, 1>>(source);
-    auto value = static_cast<double>(canonical.value());
-    if (value <= 0.0)
-    {
-        throw std::invalid_argument("decibel_amplitude conversion requires positive linear ratio");
-    }
-    return decibel_amplitude_t<double>{20.0 * std::log10(value)};
-}
-
-template <pkr::units::is_unit_value_type_c SourceT, typename target_unit_t>
-    requires details::is_dimensionless_unit_v<target_unit_t>
-inline target_unit_t unit_cast(const decibel_power_t<SourceT>& source)
-{
-    double linear = std::pow(10.0, source.value() / 10.0);
-    details::unit_t<double, std::ratio<1, 1>, scalar_dimension> base{linear};
-    auto converted = details::unit_cast_impl<typename details::is_pkr_unit<target_unit_t>::ratio_type>(base);
-    return target_unit_t{converted.value()};
-}
-
-template <pkr::units::is_unit_value_type_c SourceT, typename target_unit_t>
-    requires details::is_dimensionless_unit_v<target_unit_t>
-inline target_unit_t unit_cast(const decibel_amplitude_t<SourceT>& source)
-{
-    double linear = std::pow(10.0, source.value() / 20.0);
-    details::unit_t<double, std::ratio<1, 1>, scalar_dimension> base{linear};
-    auto converted = details::unit_cast_impl<typename details::is_pkr_unit<target_unit_t>::ratio_type>(base);
-    return target_unit_t{converted.value()};
-}
 }
 
 namespace pkr::units
@@ -15070,7 +15921,7 @@ constexpr vec_3d_units_t<T> operator*(const matrix_3d_units_t<T>& m, const vec_3
 namespace pkr::units
 {
 
-template <is_base_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
+template <is_pkr_unit_c T, typename StoragePolicy = stack_storage<T>>
 class matrix_4d_units_t
 {
 public:
@@ -15080,17 +15931,10 @@ public:
 
     storage_type storage;
 
-    constexpr matrix_4d_units_t() = default;
+    matrix_4d_units_t() = delete;
 
-    constexpr matrix_4d_units_t(const array_type& arr)
+    explicit matrix_4d_units_t(const array_type& arr) : storage(arr)
     {
-        for (std::size_t r = 0; r < 4; ++r)
-        {
-            for (std::size_t c = 0; c < 4; ++c)
-            {
-                storage.get(r, c) = arr[r][c];
-            }
-        }
     }
 
     constexpr T& operator()(std::size_t row, std::size_t col)
@@ -15146,100 +15990,79 @@ namespace pkr::units
 
 inline constexpr double KELVIN_OFFSET = 273.15;
 
-template <typename T>
-struct temperature_affine_traits
+template <typename U, bool = is_pkr_unit_c<U>>
+struct affine_temp_unit_helper : std::false_type
 {
-    static constexpr bool is_affine = false;
 };
 
-template <is_unit_value_type_c T>
-struct temperature_affine_traits<celsius_t<T>>
+template <typename U>
+struct affine_temp_unit_helper<U, true>
+    : std::bool_constant<
+          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, celsius_tag_t> ||
+          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, fahrenheit_tag_t>>
 {
-    static constexpr bool is_affine = true;
-    using value_type = T;
-
-    static constexpr value_type to_kelvin(value_type value) noexcept
-    {
-        return value + static_cast<value_type>(KELVIN_OFFSET);
-    }
-
-    static constexpr value_type from_kelvin(value_type value) noexcept
-    {
-        return value - static_cast<value_type>(KELVIN_OFFSET);
-    }
 };
 
-template <is_unit_value_type_c T>
-struct temperature_affine_traits<fahrenheit_t<T>>
-{
-    static constexpr bool is_affine = true;
-    using value_type = T;
+template <typename U>
+inline constexpr bool is_affine_temp_unit_v = affine_temp_unit_helper<U>::value;
 
-    static constexpr value_type to_kelvin(value_type value) noexcept
-    {
-        return ((value - static_cast<value_type>(32.0)) * static_cast<value_type>(5.0) / static_cast<value_type>(9.0)) + static_cast<value_type>(KELVIN_OFFSET);
-    }
-
-    static constexpr value_type from_kelvin(value_type value) noexcept
-    {
-        return ((value - static_cast<value_type>(KELVIN_OFFSET)) * static_cast<value_type>(9.0) / static_cast<value_type>(5.0)) + static_cast<value_type>(32.0);
-    }
-};
-
-template <typename T, typename = void>
-struct is_temperature_pkr_unit : std::false_type
+template <typename T, bool = is_pkr_unit_c<T>>
+struct temperature_like_helper : std::false_type
 {
 };
 
 template <typename T>
-struct is_temperature_pkr_unit<T, std::enable_if_t<is_pkr_unit_c<T>>> : std::bool_constant<(details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
+struct temperature_like_helper<T, true> : std::bool_constant<is_affine_temp_unit_v<T> || (details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
 {
 };
 
 template <typename T>
-inline constexpr bool is_temperature_like_v = temperature_affine_traits<T>::is_affine || is_temperature_pkr_unit<T>::value;
-
-template <typename target_unit_t, typename source_unit_t>
-    requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
-             (temperature_affine_traits<target_unit_t>::is_affine || temperature_affine_traits<source_unit_t>::is_affine)
-constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
-{
-    double kelvin_value = 0.0;
-    if constexpr (temperature_affine_traits<source_unit_t>::is_affine)
-    {
-        kelvin_value = temperature_affine_traits<source_unit_t>::to_kelvin(source.value());
-    }
-    else
-    {
-        auto kelvin_unit = details::unit_cast_impl<std::ratio<1, 1>>(source);
-        kelvin_value = static_cast<double>(kelvin_unit.value());
-    }
-    if constexpr (temperature_affine_traits<target_unit_t>::is_affine)
-    {
-        return target_unit_t{temperature_affine_traits<target_unit_t>::from_kelvin(kelvin_value)};
-    }
-    else
-    {
-        using ratio_type = typename details::is_pkr_unit<target_unit_t>::ratio_type;
-        using value_type = typename details::is_pkr_unit<target_unit_t>::value_type;
-        details::unit_t<value_type, std::ratio<1, 1>, temperature_dimension> base_kelvin{static_cast<value_type>(kelvin_value)};
-        auto converted = details::unit_cast_impl<ratio_type>(base_kelvin);
-        return target_unit_t{converted.value()};
-    }
-}
+inline constexpr bool is_temperature_like_v = temperature_like_helper<T>::value;
 
 template <typename T>
     requires is_temperature_like_v<T>
 constexpr double to_kelvin_for_comparison(const T& temp) noexcept
 {
-    if constexpr (temperature_affine_traits<T>::is_affine)
+    if constexpr (std::is_same_v<unit_tag_t<T>, celsius_tag_t>)
     {
-        return temperature_affine_traits<T>::to_kelvin(temp.value());
+        return static_cast<double>(temp.value()) + KELVIN_OFFSET;
+    }
+    else if constexpr (std::is_same_v<unit_tag_t<T>, fahrenheit_tag_t>)
+    {
+        return ((static_cast<double>(temp.value()) - 32.0) * 5.0 / 9.0) + KELVIN_OFFSET;
     }
     else
     {
+        auto kelvin_unit = details::unit_cast_impl<std::ratio<1, 1>>(temp);
+        return static_cast<double>(kelvin_unit.value());
+    }
+}
 
-        return static_cast<double>(temp.value());
+template <typename target_unit_t, typename source_unit_t>
+    requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
+             (is_affine_temp_unit_v<target_unit_t> || is_affine_temp_unit_v<source_unit_t>)
+constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
+{
+    double kelvin_value = to_kelvin_for_comparison(source);
+    if constexpr (is_affine_temp_unit_v<target_unit_t>)
+    {
+        if constexpr (std::is_same_v<unit_tag_t<target_unit_t>, celsius_tag_t>)
+        {
+            return target_unit_t{static_cast<unit_value_t<target_unit_t>>(kelvin_value - KELVIN_OFFSET)};
+        }
+        else
+        {
+            double f = ((kelvin_value - KELVIN_OFFSET) * 9.0 / 5.0) + 32.0;
+            return target_unit_t{static_cast<unit_value_t<target_unit_t>>(f)};
+        }
+    }
+    else
+    {
+        using ratio_type = unit_ratio_t<target_unit_t>;
+        using value_type = unit_value_t<target_unit_t>;
+        unit_t<value_type, std::ratio<1, 1>, temperature_dimension> base_kelvin{static_cast<value_type>(kelvin_value)};
+        auto converted = details::unit_cast_impl<ratio_type>(base_kelvin);
+        return target_unit_t{converted.value()};
     }
 }
 

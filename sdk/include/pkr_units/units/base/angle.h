@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for radian (SI base unit for plane angle)
 template <is_unit_value_type_c T>
-struct radian_t final : public details::unit_t<T, std::ratio<1, 1>, angle_dimension>
+struct radian_t final : public unit_t<T, std::ratio<1, 1>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"radian"};
@@ -27,9 +27,9 @@ radian_t(const U&) -> radian_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for degree (plane angle)
 template <is_unit_value_type_c T>
-struct degree_t final : public details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct degree_t final : public unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1745329, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"degree"};
@@ -47,9 +47,9 @@ degree_t(const U&) -> degree_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Strong type for gradian (plane angle unit, also called gon)
 template <is_unit_value_type_c T>
-struct gradian_t final : public details::unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>
+struct gradian_t final : public unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>;
+    using _base = unit_t<T, std::ratio<1570796, 100000000>, angle_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gradian"};
@@ -65,19 +65,19 @@ gradian_t(T) -> gradian_t<T>;
 // Most derived unit type specializations
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, angle_dimension>
 {
     using type = radian_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1745329, 100000000>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1745329, 100000000>, angle_dimension>
 {
     using type = degree_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1570796, 100000000>, angle_dimension>
+struct derived_unit_type_t<T, std::ratio<1570796, 100000000>, angle_dimension>
 {
     using type = gradian_t<T>;
 };

@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // Density units (mass per volume)
 // Base unit: kilogram per cubic meter (kg/mÂ³)
 template <is_unit_value_type_c T>
-struct kilogram_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1>, density_dimension>
+struct kilogram_per_cubic_meter_t final : public unit_t<T, std::ratio<1, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram per cubic meter"};
@@ -27,9 +27,9 @@ template <is_pkr_unit_c U>
 kilogram_per_cubic_meter_t(const U&) -> kilogram_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1000>, density_dimension>
+struct gram_per_cubic_meter_t final : public unit_t<T, std::ratio<1, 1000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_cubic_meter"};
@@ -46,9 +46,9 @@ template <is_pkr_unit_c U>
 gram_per_cubic_meter_t(const U&) -> gram_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_cubic_centimeter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct gram_per_cubic_centimeter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_cubic_centimeter"};
@@ -65,9 +65,9 @@ template <is_pkr_unit_c U>
 gram_per_cubic_centimeter_t(const U&) -> gram_per_cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_milliliter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct gram_per_milliliter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_milliliter"};
@@ -84,9 +84,9 @@ template <is_pkr_unit_c U>
 gram_per_milliliter_t(const U&) -> gram_per_milliliter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilogram_per_liter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct kilogram_per_liter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilogram_per_liter"};
@@ -103,9 +103,9 @@ template <is_pkr_unit_c U>
 kilogram_per_liter_t(const U&) -> kilogram_per_liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gram_per_liter_t final : public details::unit_t<T, std::ratio<1, 1>, density_dimension>
+struct gram_per_liter_t final : public unit_t<T, std::ratio<1, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gram_per_liter"};
@@ -122,9 +122,9 @@ template <is_pkr_unit_c U>
 gram_per_liter_t(const U&) -> gram_per_liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_per_cubic_centimeter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct milligram_per_cubic_centimeter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram_per_cubic_centimeter"};
@@ -141,9 +141,9 @@ template <is_pkr_unit_c U>
 milligram_per_cubic_centimeter_t(const U&) -> milligram_per_cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milligram_per_milliliter_t final : public details::unit_t<T, std::ratio<1000, 1>, density_dimension>
+struct milligram_per_milliliter_t final : public unit_t<T, std::ratio<1000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milligram_per_milliliter"};
@@ -161,9 +161,9 @@ milligram_per_milliliter_t(const U&) -> milligram_per_milliliter_t<typename deta
 
 // Other common density units
 template <is_unit_value_type_c T>
-struct ton_per_cubic_meter_t final : public details::unit_t<T, std::ratio<1000000, 1>, density_dimension>
+struct ton_per_cubic_meter_t final : public unit_t<T, std::ratio<1000000, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ton_per_cubic_meter"};
@@ -180,9 +180,9 @@ template <is_pkr_unit_c U>
 ton_per_cubic_meter_t(const U&) -> ton_per_cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct atomic_mass_unit_per_cubic_angstrom_t final : public details::unit_t<T, std::ratio<166054, 1>, density_dimension>
+struct atomic_mass_unit_per_cubic_angstrom_t final : public unit_t<T, std::ratio<166054, 1>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<166054, 1>, density_dimension>;
+    using _base = unit_t<T, std::ratio<166054, 1>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"atomic_mass_unit_per_cubic_angstrom"};
@@ -198,31 +198,31 @@ atomic_mass_unit_per_cubic_angstrom_t(T) -> atomic_mass_unit_per_cubic_angstrom_
 // Most derived unit type specializations for density units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, density_dimension>
 {
     using type = kilogram_per_cubic_meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, density_dimension>
 {
     using type = gram_per_cubic_meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, density_dimension>
 {
     using type = gram_per_cubic_centimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, density_dimension>
 {
     using type = kilogram_per_liter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<166054, 1>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<166054, 1>, density_dimension>
 {
     using type = atomic_mass_unit_per_cubic_angstrom_t<T>;
 };

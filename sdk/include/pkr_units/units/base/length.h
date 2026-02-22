@@ -7,10 +7,18 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for meter (SI base unit)
 template <is_unit_value_type_c T>
-struct meter_t final : public details::unit_t<T, std::ratio<1, 1>, length_dimension>
+struct meter_t final : public unit_t<T, std::ratio<1, 1>, length_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, length_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, length_dimension>;
     using _base::_base;
+
+    // Diagnostic overload when attempting to construct meter_t from a non-length pkr unit
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != length_dimension)
+    explicit meter_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == length_dimension, "meter_t: expected a length unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"meter"};
     [[maybe_unused]] static constexpr std::string_view symbol{"m"};
@@ -27,9 +35,9 @@ meter_t(const U&) -> meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric length prefixes (strong types)
 template <is_unit_value_type_c T>
-struct attometer_t final : public details::unit_t<T, std::atto, length_dimension>
+struct attometer_t final : public unit_t<T, std::atto, length_dimension>
 {
-    using _base = details::unit_t<T, std::atto, length_dimension>;
+    using _base = unit_t<T, std::atto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attometer"};
@@ -46,9 +54,9 @@ template <is_pkr_unit_c U>
 attometer_t(const U&) -> attometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtometer_t final : public details::unit_t<T, std::femto, length_dimension>
+struct femtometer_t final : public unit_t<T, std::femto, length_dimension>
 {
-    using _base = details::unit_t<T, std::femto, length_dimension>;
+    using _base = unit_t<T, std::femto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtometer"};
@@ -65,9 +73,9 @@ template <is_pkr_unit_c U>
 femtometer_t(const U&) -> femtometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picometer_t final : public details::unit_t<T, std::pico, length_dimension>
+struct picometer_t final : public unit_t<T, std::pico, length_dimension>
 {
-    using _base = details::unit_t<T, std::pico, length_dimension>;
+    using _base = unit_t<T, std::pico, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picometer"};
@@ -84,9 +92,9 @@ template <is_pkr_unit_c U>
 picometer_t(const U&) -> picometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanometer_t final : public details::unit_t<T, std::nano, length_dimension>
+struct nanometer_t final : public unit_t<T, std::nano, length_dimension>
 {
-    using _base = details::unit_t<T, std::nano, length_dimension>;
+    using _base = unit_t<T, std::nano, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanometer"};
@@ -103,9 +111,9 @@ template <is_pkr_unit_c U>
 nanometer_t(const U&) -> nanometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micrometer_t final : public details::unit_t<T, std::micro, length_dimension>
+struct micrometer_t final : public unit_t<T, std::micro, length_dimension>
 {
-    using _base = details::unit_t<T, std::micro, length_dimension>;
+    using _base = unit_t<T, std::micro, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micrometer"};
@@ -122,9 +130,9 @@ template <is_pkr_unit_c U>
 micrometer_t(const U&) -> micrometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimeter_t final : public details::unit_t<T, std::milli, length_dimension>
+struct millimeter_t final : public unit_t<T, std::milli, length_dimension>
 {
-    using _base = details::unit_t<T, std::milli, length_dimension>;
+    using _base = unit_t<T, std::milli, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimeter"};
@@ -141,9 +149,9 @@ template <is_pkr_unit_c U>
 millimeter_t(const U&) -> millimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimeter_t final : public details::unit_t<T, std::centi, length_dimension>
+struct centimeter_t final : public unit_t<T, std::centi, length_dimension>
 {
-    using _base = details::unit_t<T, std::centi, length_dimension>;
+    using _base = unit_t<T, std::centi, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimeter"};
@@ -160,9 +168,9 @@ template <is_pkr_unit_c U>
 centimeter_t(const U&) -> centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decimeter_t final : public details::unit_t<T, std::deci, length_dimension>
+struct decimeter_t final : public unit_t<T, std::deci, length_dimension>
 {
-    using _base = details::unit_t<T, std::deci, length_dimension>;
+    using _base = unit_t<T, std::deci, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decimeter"};
@@ -179,9 +187,9 @@ template <is_pkr_unit_c U>
 decimeter_t(const U&) -> decimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decameter_t final : public details::unit_t<T, std::deca, length_dimension>
+struct decameter_t final : public unit_t<T, std::deca, length_dimension>
 {
-    using _base = details::unit_t<T, std::deca, length_dimension>;
+    using _base = unit_t<T, std::deca, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decameter"};
@@ -198,9 +206,9 @@ template <is_pkr_unit_c U>
 decameter_t(const U&) -> decameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectometer_t final : public details::unit_t<T, std::hecto, length_dimension>
+struct hectometer_t final : public unit_t<T, std::hecto, length_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, length_dimension>;
+    using _base = unit_t<T, std::hecto, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectometer"};
@@ -217,9 +225,9 @@ template <is_pkr_unit_c U>
 hectometer_t(const U&) -> hectometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilometer_t final : public details::unit_t<T, std::kilo, length_dimension>
+struct kilometer_t final : public unit_t<T, std::kilo, length_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, length_dimension>;
+    using _base = unit_t<T, std::kilo, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilometer"};
@@ -236,9 +244,9 @@ template <is_pkr_unit_c U>
 kilometer_t(const U&) -> kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megameter_t final : public details::unit_t<T, std::mega, length_dimension>
+struct megameter_t final : public unit_t<T, std::mega, length_dimension>
 {
-    using _base = details::unit_t<T, std::mega, length_dimension>;
+    using _base = unit_t<T, std::mega, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megameter"};
@@ -255,9 +263,9 @@ template <is_pkr_unit_c U>
 megameter_t(const U&) -> megameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigameter_t final : public details::unit_t<T, std::giga, length_dimension>
+struct gigameter_t final : public unit_t<T, std::giga, length_dimension>
 {
-    using _base = details::unit_t<T, std::giga, length_dimension>;
+    using _base = unit_t<T, std::giga, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigameter"};
@@ -274,9 +282,9 @@ template <is_pkr_unit_c U>
 gigameter_t(const U&) -> gigameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct terameter_t final : public details::unit_t<T, std::tera, length_dimension>
+struct terameter_t final : public unit_t<T, std::tera, length_dimension>
 {
-    using _base = details::unit_t<T, std::tera, length_dimension>;
+    using _base = unit_t<T, std::tera, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terameter"};
@@ -293,9 +301,9 @@ template <is_pkr_unit_c U>
 terameter_t(const U&) -> terameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petameter_t final : public details::unit_t<T, std::peta, length_dimension>
+struct petameter_t final : public unit_t<T, std::peta, length_dimension>
 {
-    using _base = details::unit_t<T, std::peta, length_dimension>;
+    using _base = unit_t<T, std::peta, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petameter"};
@@ -312,9 +320,9 @@ template <is_pkr_unit_c U>
 petameter_t(const U&) -> petameter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exameter_t final : public details::unit_t<T, std::exa, length_dimension>
+struct exameter_t final : public unit_t<T, std::exa, length_dimension>
 {
-    using _base = details::unit_t<T, std::exa, length_dimension>;
+    using _base = unit_t<T, std::exa, length_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exameter"};
@@ -334,103 +342,103 @@ exameter_t(const U&) -> exameter_t<typename details::is_pkr_unit<U>::value_type>
 // Derived unit type specializations for length units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, length_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, length_dimension>
 {
     using type = meter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, length_dimension>
+struct derived_unit_type_t<T, std::atto, length_dimension>
 {
     using type = attometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, length_dimension>
+struct derived_unit_type_t<T, std::femto, length_dimension>
 {
     using type = femtometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, length_dimension>
+struct derived_unit_type_t<T, std::pico, length_dimension>
 {
     using type = picometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, length_dimension>
+struct derived_unit_type_t<T, std::nano, length_dimension>
 {
     using type = nanometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, length_dimension>
+struct derived_unit_type_t<T, std::micro, length_dimension>
 {
     using type = micrometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, length_dimension>
+struct derived_unit_type_t<T, std::milli, length_dimension>
 {
     using type = millimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, length_dimension>
+struct derived_unit_type_t<T, std::centi, length_dimension>
 {
     using type = centimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, length_dimension>
+struct derived_unit_type_t<T, std::deci, length_dimension>
 {
     using type = decimeter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, length_dimension>
+struct derived_unit_type_t<T, std::deca, length_dimension>
 {
     using type = decameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, length_dimension>
+struct derived_unit_type_t<T, std::hecto, length_dimension>
 {
     using type = hectometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, length_dimension>
+struct derived_unit_type_t<T, std::kilo, length_dimension>
 {
     using type = kilometer_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, length_dimension>
+struct derived_unit_type_t<T, std::mega, length_dimension>
 {
     using type = megameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, length_dimension>
+struct derived_unit_type_t<T, std::giga, length_dimension>
 {
     using type = gigameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, length_dimension>
+struct derived_unit_type_t<T, std::tera, length_dimension>
 {
     using type = terameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, length_dimension>
+struct derived_unit_type_t<T, std::peta, length_dimension>
 {
     using type = petameter_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, length_dimension>
+struct derived_unit_type_t<T, std::exa, length_dimension>
 {
     using type = exameter_t<T>;
 };

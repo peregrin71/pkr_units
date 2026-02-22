@@ -11,17 +11,17 @@ inline constexpr dimension_t magnetic_flux_dimension{2, 1, -2, -1, 0, 0, 0, 0};
 inline constexpr dimension_t magnetic_flux_density_dimension{0, 1, -2, -1, 0, 0, 0, 0};
 // Magnetic flux quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux = details::unit_t<type_t, ratio_t, magnetic_flux_dimension>;
+using magnetic_flux = unit_t<type_t, ratio_t, magnetic_flux_dimension>;
 // Magnetic flux density quantity template
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using magnetic_flux_density = details::unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
+using magnetic_flux_density = unit_t<type_t, ratio_t, magnetic_flux_density_dimension>;
 
 // Magnetic flux units (Weber and derived)
 // Base unit: Weber (Wb) = kgÂ·mÂ²Â·sâ»Â²Â·Aâ»Â¹
 template <is_unit_value_type_c T>
-struct weber_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
+struct weber_t final : public unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"weber"};
@@ -38,9 +38,9 @@ template <is_pkr_unit_c U>
 weber_t(const U&) -> weber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliweber_t final : public details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
+struct milliweber_t final : public unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliweber"};
@@ -57,9 +57,9 @@ template <is_pkr_unit_c U>
 milliweber_t(const U&) -> milliweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microweber_t final : public details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
+struct microweber_t final : public unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microweber"};
@@ -76,9 +76,9 @@ template <is_pkr_unit_c U>
 microweber_t(const U&) -> microweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanoweber_t final : public details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+struct nanoweber_t final : public unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanoweber"};
@@ -95,9 +95,9 @@ template <is_pkr_unit_c U>
 nanoweber_t(const U&) -> nanoweber_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloweber_t final : public details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
+struct kiloweber_t final : public unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloweber"};
@@ -116,9 +116,9 @@ kiloweber_t(const U&) -> kiloweber_t<typename details::is_pkr_unit<U>::value_typ
 // Magnetic flux density units (Tesla and derived)
 // Base unit: Tesla (T) = kgÂ·sâ»Â²Â·Aâ»Â¹
 template <is_unit_value_type_c T>
-struct tesla_t final : public details::unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
+struct tesla_t final : public unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"tesla"};
@@ -135,9 +135,9 @@ template <is_pkr_unit_c U>
 tesla_t(const U&) -> tesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millitesla_t final : public details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+struct millitesla_t final : public unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millitesla"};
@@ -154,9 +154,9 @@ template <is_pkr_unit_c U>
 millitesla_t(const U&) -> millitesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microtesla_t final : public details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+struct microtesla_t final : public unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microtesla"};
@@ -173,9 +173,9 @@ template <is_pkr_unit_c U>
 microtesla_t(const U&) -> microtesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanotesla_t final : public details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+struct nanotesla_t final : public unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanotesla"};
@@ -192,9 +192,9 @@ template <is_pkr_unit_c U>
 nanotesla_t(const U&) -> nanotesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilotesla_t final : public details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+struct kilotesla_t final : public unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilotesla"};
@@ -211,9 +211,9 @@ template <is_pkr_unit_c U>
 kilotesla_t(const U&) -> kilotesla_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megatesla_t final : public details::unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+struct megatesla_t final : public unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megatesla"};
@@ -226,68 +226,68 @@ struct megatesla_t final : public details::unit_t<T, std::ratio<1000000, 1>, mag
 // Most derived unit type specializations for magnetic flux units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_dimension>
 {
     using type = weber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_dimension>
 {
     using type = milliweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_dimension>
 {
     using type = microweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_dimension>
 {
     using type = nanoweber_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_dimension>
 {
     using type = kiloweber_t<T>;
 };
 
 // Magnetic flux density units
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, magnetic_flux_density_dimension>
 {
     using type = tesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, magnetic_flux_density_dimension>
 {
     using type = millitesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, magnetic_flux_density_dimension>
 {
     using type = microtesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, magnetic_flux_density_dimension>
 {
     using type = nanotesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, magnetic_flux_density_dimension>
 {
     using type = kilotesla_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, magnetic_flux_density_dimension>
 {
     using type = megatesla_t<T>;
 };

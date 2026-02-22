@@ -61,9 +61,9 @@ namespace PKR_UNITS_NAMESPACE
 // Radiance treats all wavelengths equally; luminance weights by eye sensitivity.
 // Strong type for watt_per_square_meter_per_steradian (radiance)
 template <is_unit_value_type_c T>
-struct watt_per_square_meter_per_steradian_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct watt_per_square_meter_per_steradian_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"watt_per_square_meter_per_steradian"};
@@ -81,9 +81,9 @@ watt_per_square_meter_per_steradian_t(const U&) -> watt_per_square_meter_per_ste
 
 // Shorter alias for radiance
 template <is_unit_value_type_c T>
-struct radiance_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct radiance_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"radiance"};
@@ -103,7 +103,7 @@ radiance_t(const U&) -> radiance_t<typename details::is_pkr_unit<U>::value_type>
 // Derived unit type specializations
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{1, -2, -3, 0, 0, 0, 0, 0, -1}>
 {
     using type = radiance_t<T>;
 };

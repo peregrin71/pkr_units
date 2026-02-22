@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial power units
 template <is_unit_value_type_c T>
-struct horsepower_t final : public details::unit_t<T, std::ratio<745700, 1000>, power_dimension>
+struct horsepower_t final : public unit_t<T, std::ratio<745700, 1000>, power_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<745700, 1000>, power_dimension>;
+    using _base = unit_t<T, std::ratio<745700, 1000>, power_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"horsepower"};
@@ -30,7 +30,7 @@ horsepower_t(const U&) -> horsepower_t<typename details::is_pkr_unit<U>::value_t
 // Most derived unit type specializations for imperial power units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<745700, 1000>, power_dimension>
+struct derived_unit_type_t<T, std::ratio<745700, 1000>, power_dimension>
 {
     using type = horsepower_t<T>;
 };

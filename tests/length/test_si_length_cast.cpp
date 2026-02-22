@@ -109,7 +109,7 @@ TEST_F(SiLengthCastTest, unit_cast_same_derived_type)
 
 TEST_F(SiLengthCastTest, unit_cast_unit_t_same_ratio_no_conversion)
 {
-    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    using length_unit_t = pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
     length_unit_t length{42.0};
 
     auto same = pkr::units::unit_cast<double, std::ratio<1, 1>, pkr::units::length_dimension>(length);
@@ -118,7 +118,7 @@ TEST_F(SiLengthCastTest, unit_cast_unit_t_same_ratio_no_conversion)
 
 TEST_F(SiLengthCastTest, unit_cast_unit_t_ratio_conversion)
 {
-    using length_unit_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
+    using length_unit_t = pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
     length_unit_t length{2.0};
 
     auto millimeters = pkr::units::unit_cast<double, std::milli, pkr::units::length_dimension>(length);

@@ -64,6 +64,46 @@ struct meter : public unit_t<double, std::ratio<1, 1>, length_dimension>
 - Inheriting constructors (`using _base::_base`) provides clean initialization
 - Allows derived unit specializations while maintaining a common base
 
+#### 1.2.1 Tags and untagged behavior
+
+To support domains where certain quantities carry an extra semantic "tag" (e.g.
+bytes vs. FLOPs vs. neural ops) the primary `unit_t` template accepts an optional
+fourth parameter.  Tags are user-defined empty structs that are treated as part
+of the type:
+
+```cpp
+struct byte_tag {};
+using byte_t = unit_t<double, std::ratio<1>, amount_dimension, byte_tag>;
+```
+
+**Tag semantics**:
+1. `void` is the canonical *no-tag* value.  operations on two units with `void`
+   tags stay untagged.
+2. To avoid complications with default template arguments the library introduces
+a private helper `details::untagged_t`.
+   - `unit_t` defaults to `untagged_t` when the caller omits a tag.
+   - Internally, the type is normalized to `void` via `normalize_tag_t` whenever
+     arithmetic or conversions are performed.
+   - This guarantees that two units created without explicit tags will compare
+     equal and propagate `void`, which simplifies generic code.
+
+```cpp
+// construct with no explicit tag
+meter_t m{1.0};              // tag = details::untagged_t --> normalized to void
+second_t s{2.0};             // tag = details::untagged_t --> normalized to void
+auto rate = m / s;           // resulting tag = void (not untagged_t)
+static_assert(std::is_same_v<decltype(rate)::tag_type, void>);
+```
+
+If a unit is given a concrete tag (e.g. `byte_tag`), mismatched tags prevent
+operations unless explicitly converted via `unit_cast`.  Tags allow the library
+and user code to enforce domain-specific constraints without polluting the
+underlying dimension system.
+
+**Note**: details::untagged_t is intentionally not exposed in the public API
+and may change; users should always use `void` when specifying or testing for
+"no tag".
+
 **Class Hierarchy (example)**
 
 ```mermaid

@@ -3,6 +3,7 @@
 
 #include <pkr_units/impl/cast/unit_cast.h>
 #include <pkr_units/units/dimensionless/ratio.h>
+#include <pkr_units/units/dimensionless/percentage.h>
 #include <pkr_units/units/dimensionless/decibel_cast.h>
 
 using namespace ::testing;

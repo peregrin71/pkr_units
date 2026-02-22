@@ -289,7 +289,7 @@ TEST_F(MultiCastTest, velocity_derived_unit_via_multi_cast)
 
     auto kmh = pkr::units::multi_unit_cast<pkr::units::kilometer_t<double>, pkr::units::per<pkr::units::hour_t<double>>>(mps);
 
-    static_assert(std::is_same_v<decltype(kmh), pkr::units::details::unit_t<double, std::ratio<5, 18>, pkr::units::velocity_dimension>>);
+    static_assert(std::is_same_v<decltype(kmh), pkr::units::unit_t<double, std::ratio<5, 18>, pkr::units::velocity_dimension>>);
     ASSERT_DOUBLE_EQ(kmh.value(), 72.0);
 }
 

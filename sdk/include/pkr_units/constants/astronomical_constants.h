@@ -44,7 +44,7 @@ constexpr auto gravitational_constant_value = details::gravitational_constant_va
 inline constexpr dimension_t gravitational_constant_dimension{3, -1, -2, 0, 0, 0, 0, 0};
 
 template <typename type_t = double, typename ratio_t = std::ratio<1, 1>>
-using gravitational_constant_unit_t = ::PKR_UNITS_NAMESPACE::details::unit_t<type_t, ratio_t, gravitational_constant_dimension>;
+using gravitational_constant_unit_t = ::PKR_UNITS_NAMESPACE::unit_t<type_t, ratio_t, gravitational_constant_dimension>;
 
 // Unit-typed gravitational constant (SI)
 constexpr auto gravitational_constant = gravitational_constant_unit_t<>{gravitational_constant_value};

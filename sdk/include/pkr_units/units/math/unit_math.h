@@ -18,28 +18,28 @@ namespace PKR_UNITS_NAMESPACE
 // ============================================================================
 // Addition with automatic ratio conversion
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto add(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b)
+constexpr auto add(const unit_t<T, Ratio1, Dim>& a, const unit_t<T, Ratio2, Dim>& b)
 {
     return a + b;
 }
 
 // Subtraction with automatic ratio conversion
 template <typename T, typename Ratio1, dimension_t Dim, typename Ratio2>
-constexpr auto subtract(const details::unit_t<T, Ratio1, Dim>& a, const details::unit_t<T, Ratio2, Dim>& b)
+constexpr auto subtract(const unit_t<T, Ratio1, Dim>& a, const unit_t<T, Ratio2, Dim>& b)
 {
     return a - b;
 }
 
 // Multiplication (combines dimensions)
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto multiply(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
+constexpr auto multiply(const unit_t<T, Ratio1, Dim1>& a, const unit_t<T, Ratio2, Dim2>& b)
 {
     return a * b;
 }
 
 // Division (combines dimensions)
 template <typename T, typename Ratio1, dimension_t Dim1, typename Ratio2, dimension_t Dim2>
-constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::unit_t<T, Ratio2, Dim2>& b)
+constexpr auto divide(const unit_t<T, Ratio1, Dim1>& a, const unit_t<T, Ratio2, Dim2>& b)
 {
     return a / b;
 }
@@ -49,14 +49,14 @@ constexpr auto divide(const details::unit_t<T, Ratio1, Dim1>& a, const details::
 // ============================================================================
 // Multiply unit_t by scalar
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto multiply_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
+constexpr auto multiply_scalar(const unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a * scalar;
 }
 
 // Divide unit_t by scalar
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
+constexpr auto divide_scalar(const unit_t<T, Ratio, Dim>& a, T scalar)
 {
     return a / scalar;
 }
@@ -68,7 +68,7 @@ constexpr auto divide_scalar(const details::unit_t<T, Ratio, Dim>& a, T scalar)
 // sqrt(unit_t) produces a unit_t with half the dimensional exponents
 template <typename T, typename Ratio, dimension_t Dim>
     requires pkr_unit_can_take_square_root_c<Dim>
-auto sqrt(const details::unit_t<T, Ratio, Dim>& a)
+auto sqrt(const unit_t<T, Ratio, Dim>& a)
 {
     // For dimensional analysis, we need to handle the exponents
     // This is a simplified implementation - full version would need
@@ -83,13 +83,21 @@ auto sqrt(const details::unit_t<T, Ratio, Dim>& a)
         Dim.amount / 2,
         Dim.intensity / 2,
         Dim.angle / 2};
-    return details::unit_t<T, result_ratio, result_dim>{std::sqrt(a.value())};
+    return unit_t<T, result_ratio, result_dim>{std::sqrt(a.value())};
+}
+
+// Diagnostic overload: sqrt with odd-exponent dimensions
+template <typename T, typename Ratio, dimension_t Dim>
+    requires(!pkr_unit_can_take_square_root_c<Dim>)
+auto sqrt(const unit_t<T, Ratio, Dim>&)
+{
+    static_assert(pkr_unit_can_take_square_root_c<Dim>, "sqrt() requires unit dimensions that are even and non-negative");
 }
 
 // Square function with dimensional analysis
 // square(unit_t) produces a unit_t with double the dimensional exponents
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto square(const details::unit_t<T, Ratio, Dim>& a)
+constexpr auto square(const unit_t<T, Ratio, Dim>& a)
 {
     // For dimensional analysis, we need to handle the exponents
     // This is a simplified implementation - full version would need
@@ -97,49 +105,49 @@ constexpr auto square(const details::unit_t<T, Ratio, Dim>& a)
     using result_ratio = Ratio; // Simplified - should compute square of ratio
     constexpr dimension_t result_dim = {
         Dim.length * 2, Dim.mass * 2, Dim.time * 2, Dim.current * 2, Dim.temperature * 2, Dim.amount * 2, Dim.intensity * 2, Dim.angle * 2};
-    return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
+    return unit_t<T, result_ratio, result_dim>{a.value() * a.value()};
 }
 
 // Cube function with dimensional analysis
 // cube(unit_t) produces a unit_t with triple the dimensional exponents
 template <typename T, typename Ratio, dimension_t Dim>
-constexpr auto cube(const details::unit_t<T, Ratio, Dim>& a)
+constexpr auto cube(const unit_t<T, Ratio, Dim>& a)
 {
     using result_ratio = Ratio;
     constexpr dimension_t result_dim = {
         Dim.length * 3, Dim.mass * 3, Dim.time * 3, Dim.current * 3, Dim.temperature * 3, Dim.amount * 3, Dim.intensity * 3, Dim.angle * 3};
-    return details::unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
+    return unit_t<T, result_ratio, result_dim>{a.value() * a.value() * a.value()};
 }
 
 // Exponential function (result is dimensionless)
 template <typename T, typename Ratio, dimension_t Dim>
-auto exp(const details::unit_t<T, Ratio, Dim>& a)
+auto exp(const unit_t<T, Ratio, Dim>& a)
 {
     static_assert(
         Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 && Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 && Dim.intensity == 0 &&
             Dim.angle == 0,
         "exp() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::exp(a.value())};
+    return unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::exp(a.value())};
 }
 
 // Natural logarithm (result is dimensionless)
 template <typename T, typename Ratio, dimension_t Dim>
-auto log(const details::unit_t<T, Ratio, Dim>& a)
+auto log(const unit_t<T, Ratio, Dim>& a)
 {
     static_assert(
         Dim.length == 0 && Dim.mass == 0 && Dim.time == 0 && Dim.current == 0 && Dim.temperature == 0 && Dim.amount == 0 && Dim.intensity == 0 &&
             Dim.angle == 0,
         "log() requires dimensionless input");
-    return details::unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::log(a.value())};
+    return unit_t<T, std::ratio<1, 1>, scalar_dimension>{std::log(a.value())};
 }
 
 // Power function (exponent must be dimensionless)
 template <typename T, typename Ratio, dimension_t Dim, typename ExpT, typename ExpRatio>
-auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
+auto pow(const unit_t<T, Ratio, Dim>& base, const unit_t<ExpT, ExpRatio, scalar_dimension>& exponent)
 {
     // This would need full dimensional exponent manipulation
     // Simplified implementation for now
-    return details::unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
+    return unit_t<T, Ratio, Dim>{std::pow(base.value(), exponent.value())};
 }
 
 // Compile-time power function with integer exponent (for measurement math)
@@ -147,7 +155,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base, const details::unit_t<ExpT,
 // Returns the most specific derived unit type for the powered dimensions, or unit_t if no specialization exists
 // Base template - default for any N (requires specialization for actual ratios)
 template <int N, typename T, typename Ratio, dimension_t Dim>
-auto pow(const details::unit_t<T, Ratio, Dim>& base)
+auto pow(const unit_t<T, Ratio, Dim>& base)
 {
     // For general case, compute powered dimensions
     constexpr dimension_t powered_dim{
@@ -162,7 +170,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     // For ratio<1,1>, the powered ratio is also ratio<1,1>
     if constexpr (std::is_same_v<Ratio, std::ratio<1, 1>>)
     {
-        using result_type = typename details::derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
+        using result_type = typename derived_unit_type_t<T, std::ratio<1, 1>, powered_dim>::type;
         if constexpr (N == 0)
         {
             return result_type{1.0};
@@ -193,7 +201,7 @@ auto pow(const details::unit_t<T, Ratio, Dim>& base)
     else
     {
         // For other ratios, just return generic unit_t (specializations would be needed for derived types)
-        using result_type = details::unit_t<T, Ratio, powered_dim>;
+        using result_type = unit_t<T, Ratio, powered_dim>;
         if constexpr (N == 0)
         {
             return result_type{1.0};
@@ -252,16 +260,18 @@ auto log(const T& x)
         throw std::invalid_argument("log of non-positive value");
     }
     // Return a dimensionless unit (all dimensions zero)
-    return details::unit_t<typename details::is_pkr_unit<T>::value_type, std::ratio<1, 1>, dimension_t{}>{std::log(x.value())};
+    return unit_t<typename details::is_pkr_unit<T>::value_type, std::ratio<1, 1>, dimension_t{}>{std::log(x.value())};
 }
 
 // sqrt() - returns unit with square root dimensions
 template <is_base_pkr_unit_c T>
+    requires pkr_unit_sqrt_valid_c<T>
 auto sqrt(const T& x)
 {
     using value_type = typename details::is_pkr_unit<T>::value_type;
     using ratio = typename details::is_pkr_unit<T>::ratio_type;
     constexpr auto dim = details::is_pkr_unit<T>::value_dimension;
+
     // Square root of ratio - ratio does not change, only value and dimensions
     using sqrt_ratio = ratio;
     // Square root of dimensions (divide by 2)
@@ -278,7 +288,15 @@ auto sqrt(const T& x)
     {
         throw std::invalid_argument("sqrt of negative value");
     }
-    return details::unit_t<value_type, sqrt_ratio, sqrt_dim>{std::sqrt(x.value())};
+    return unit_t<value_type, sqrt_ratio, sqrt_dim>{std::sqrt(x.value())};
+}
+
+// Diagnostic overload: sqrt with odd-exponent dimensions
+template <is_base_pkr_unit_c T>
+    requires pkr_unit_sqrt_invalid_c<T>
+auto sqrt(const T&)
+{
+    static_assert(pkr_unit_sqrt_valid_c<T>, "sqrt() requires unit dimensions that are even and non-negative");
 }
 
 // Normalize a unit_t to its canonical SI form (ratio 1/1)
@@ -298,6 +316,14 @@ auto sin(const T& angle) noexcept
     return scalar_t{std::sin(angle.value())};
 }
 
+// Diagnostic overload when a pkr unit (non-angle) is passed to sin()
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto sin(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "sin() requires an angle unit");
+}
+
 // Cosine function - only works on angle units
 template <is_angle_unit_c T>
 auto cos(const T& angle) noexcept
@@ -305,10 +331,26 @@ auto cos(const T& angle) noexcept
     return scalar_t{std::cos(angle.value())};
 }
 
+// Diagnostic overload when a pkr unit (non-angle) is passed to cos()
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto cos(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "cos() requires an angle unit");
+}
+
 // Tangent function - only works on angle units
 template <is_angle_unit_c T>
 auto tan(const T& angle) noexcept
 {
     return scalar_t{std::tan(angle.value())};
+}
+
+// Diagnostic overload when a pkr unit (non-angle) is passed to tan()
+template <is_pkr_unit_c T>
+    requires(!is_angle_unit_c<T>)
+auto tan(const T&)
+{
+    static_assert(is_angle_unit_c<T>, "tan() requires an angle unit");
 }
 } // namespace PKR_UNITS_NAMESPACE

@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // Area units (square meter and derived)
 // Base unit: square meter (m^2)
 template <is_unit_value_type_c T>
-struct square_meter_t final : public details::unit_t<T, std::ratio<1, 1>, area_dimension>
+struct square_meter_t final : public unit_t<T, std::ratio<1, 1>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square meter"};
@@ -27,9 +27,9 @@ template <is_pkr_unit_c U>
 square_meter_t(const U&) -> square_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_kilometer_t final : public details::unit_t<T, std::ratio<1000000, 1>, area_dimension>
+struct square_kilometer_t final : public unit_t<T, std::ratio<1000000, 1>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square kilometer"};
@@ -46,9 +46,9 @@ template <is_pkr_unit_c U>
 square_kilometer_t(const U&) -> square_kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_centimeter_t final : public details::unit_t<T, std::ratio<1, 10000>, area_dimension>
+struct square_centimeter_t final : public unit_t<T, std::ratio<1, 10000>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square centimeter"};
@@ -65,9 +65,9 @@ template <is_pkr_unit_c U>
 square_centimeter_t(const U&) -> square_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct square_millimeter_t final : public details::unit_t<T, std::ratio<1, 1000000>, area_dimension>
+struct square_millimeter_t final : public unit_t<T, std::ratio<1, 1000000>, area_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, area_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, area_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"square millimeter"};

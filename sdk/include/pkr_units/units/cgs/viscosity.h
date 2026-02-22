@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 // CGS dynamic viscosity unit
 // Poise = 0.1 Pa*s
 template <is_unit_value_type_c T>
-struct poise_t final : public details::unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
+struct poise_t final : public unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"poise"};
@@ -28,9 +28,9 @@ poise_t(const U&) -> poise_t<typename details::is_pkr_unit<U>::value_type>;
 // CGS kinematic viscosity unit
 // Stokes = 1e-4 m^2/s
 template <is_unit_value_type_c T>
-struct stokes_t final : public details::unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
+struct stokes_t final : public unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>;
+    using _base = unit_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"stokes"};
@@ -47,13 +47,13 @@ template <is_pkr_unit_c U>
 stokes_t(const U&) -> stokes_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10>, dynamic_viscosity_dimension>
 {
     using type = poise_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 10000>, kinematic_viscosity_dimension>
 {
     using type = stokes_t<T>;
 };

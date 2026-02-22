@@ -11,9 +11,9 @@ inline constexpr dimension_t force_dimension{1, 1, -2, 0, 0, 0, 0, 0};
 // Base unit: Newton (N) = kgÂ·mÂ·sâ»Â²
 
 template <is_unit_value_type_c T>
-struct newton_t final : public details::unit_t<T, std::ratio<1, 1>, force_dimension>
+struct newton_t final : public unit_t<T, std::ratio<1, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"newton"};
@@ -30,9 +30,9 @@ template <is_pkr_unit_c U>
 newton_t(const U&) -> newton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilonewton_t final : public details::unit_t<T, std::ratio<1000, 1>, force_dimension>
+struct kilonewton_t final : public unit_t<T, std::ratio<1000, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1000, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilonewton"};
@@ -49,9 +49,9 @@ template <is_pkr_unit_c U>
 kilonewton_t(const U&) -> kilonewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct meganewton_t final : public details::unit_t<T, std::ratio<1000000, 1>, force_dimension>
+struct meganewton_t final : public unit_t<T, std::ratio<1000000, 1>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"meganewton"};
@@ -68,9 +68,9 @@ template <is_pkr_unit_c U>
 meganewton_t(const U&) -> meganewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micronewton_t final : public details::unit_t<T, std::ratio<1, 1000000>, force_dimension>
+struct micronewton_t final : public unit_t<T, std::ratio<1, 1000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micronewton"};
@@ -87,9 +87,9 @@ template <is_pkr_unit_c U>
 micronewton_t(const U&) -> micronewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millinewton_t final : public details::unit_t<T, std::ratio<1, 1000>, force_dimension>
+struct millinewton_t final : public unit_t<T, std::ratio<1, 1000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millinewton"};
@@ -106,9 +106,9 @@ template <is_pkr_unit_c U>
 millinewton_t(const U&) -> millinewton_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanonewton_t final : public details::unit_t<T, std::ratio<1, 1000000000>, force_dimension>
+struct nanonewton_t final : public unit_t<T, std::ratio<1, 1000000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanonewton"};
@@ -126,37 +126,37 @@ nanonewton_t(const U&) -> nanonewton_t<typename details::is_pkr_unit<U>::value_t
 
 // Force units
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, force_dimension>
 {
     using type = newton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, force_dimension>
 {
     using type = kilonewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, force_dimension>
 {
     using type = meganewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, force_dimension>
 {
     using type = micronewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, force_dimension>
 {
     using type = millinewton_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000000>, force_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000000>, force_dimension>
 {
     using type = nanonewton_t<T>;
 };

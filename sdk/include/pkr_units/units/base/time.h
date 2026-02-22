@@ -6,10 +6,18 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for second (SI base unit)
 template <is_unit_value_type_c T>
-struct second_t final : public details::unit_t<T, std::ratio<1, 1>, time_dimension>
+struct second_t final : public unit_t<T, std::ratio<1, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, time_dimension>;
     using _base::_base;
+
+    // Diagnostic overload when attempting to construct second_t from a non-time pkr unit
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != time_dimension)
+    explicit second_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == time_dimension, "second_t: expected a time unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"second"};
     [[maybe_unused]] static constexpr std::string_view symbol{"s"};
@@ -25,9 +33,9 @@ template <is_pkr_unit_c U>
 second_t(const U&) -> second_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct attosecond_t final : public details::unit_t<T, std::atto, time_dimension>
+struct attosecond_t final : public unit_t<T, std::atto, time_dimension>
 {
-    using _base = details::unit_t<T, std::atto, time_dimension>;
+    using _base = unit_t<T, std::atto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attosecond"};
@@ -44,9 +52,9 @@ template <is_pkr_unit_c U>
 attosecond_t(const U&) -> attosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtosecond_t final : public details::unit_t<T, std::femto, time_dimension>
+struct femtosecond_t final : public unit_t<T, std::femto, time_dimension>
 {
-    using _base = details::unit_t<T, std::femto, time_dimension>;
+    using _base = unit_t<T, std::femto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtosecond"};
@@ -63,9 +71,9 @@ template <is_pkr_unit_c U>
 femtosecond_t(const U&) -> femtosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picosecond_t final : public details::unit_t<T, std::pico, time_dimension>
+struct picosecond_t final : public unit_t<T, std::pico, time_dimension>
 {
-    using _base = details::unit_t<T, std::pico, time_dimension>;
+    using _base = unit_t<T, std::pico, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picosecond"};
@@ -82,9 +90,9 @@ template <is_pkr_unit_c U>
 picosecond_t(const U&) -> picosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanosecond_t final : public details::unit_t<T, std::nano, time_dimension>
+struct nanosecond_t final : public unit_t<T, std::nano, time_dimension>
 {
-    using _base = details::unit_t<T, std::nano, time_dimension>;
+    using _base = unit_t<T, std::nano, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanosecond"};
@@ -101,9 +109,9 @@ template <is_pkr_unit_c U>
 nanosecond_t(const U&) -> nanosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microsecond_t final : public details::unit_t<T, std::micro, time_dimension>
+struct microsecond_t final : public unit_t<T, std::micro, time_dimension>
 {
-    using _base = details::unit_t<T, std::micro, time_dimension>;
+    using _base = unit_t<T, std::micro, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microsecond"};
@@ -120,9 +128,9 @@ template <is_pkr_unit_c U>
 microsecond_t(const U&) -> microsecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millisecond_t final : public details::unit_t<T, std::milli, time_dimension>
+struct millisecond_t final : public unit_t<T, std::milli, time_dimension>
 {
-    using _base = details::unit_t<T, std::milli, time_dimension>;
+    using _base = unit_t<T, std::milli, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millisecond"};
@@ -139,9 +147,9 @@ template <is_pkr_unit_c U>
 millisecond_t(const U&) -> millisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centisecond_t final : public details::unit_t<T, std::centi, time_dimension>
+struct centisecond_t final : public unit_t<T, std::centi, time_dimension>
 {
-    using _base = details::unit_t<T, std::centi, time_dimension>;
+    using _base = unit_t<T, std::centi, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centisecond"};
@@ -158,9 +166,9 @@ template <is_pkr_unit_c U>
 centisecond_t(const U&) -> centisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decisecond_t final : public details::unit_t<T, std::deci, time_dimension>
+struct decisecond_t final : public unit_t<T, std::deci, time_dimension>
 {
-    using _base = details::unit_t<T, std::deci, time_dimension>;
+    using _base = unit_t<T, std::deci, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decisecond"};
@@ -177,9 +185,9 @@ template <is_pkr_unit_c U>
 decisecond_t(const U&) -> decisecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decasecond_t final : public details::unit_t<T, std::deca, time_dimension>
+struct decasecond_t final : public unit_t<T, std::deca, time_dimension>
 {
-    using _base = details::unit_t<T, std::deca, time_dimension>;
+    using _base = unit_t<T, std::deca, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decasecond"};
@@ -196,9 +204,9 @@ template <is_pkr_unit_c U>
 decasecond_t(const U&) -> decasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectosecond_t final : public details::unit_t<T, std::hecto, time_dimension>
+struct hectosecond_t final : public unit_t<T, std::hecto, time_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, time_dimension>;
+    using _base = unit_t<T, std::hecto, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectosecond"};
@@ -215,9 +223,9 @@ template <is_pkr_unit_c U>
 hectosecond_t(const U&) -> hectosecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kilosecond_t final : public details::unit_t<T, std::kilo, time_dimension>
+struct kilosecond_t final : public unit_t<T, std::kilo, time_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, time_dimension>;
+    using _base = unit_t<T, std::kilo, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilosecond"};
@@ -230,9 +238,9 @@ template <is_unit_value_type_c T>
 kilosecond_t(T) -> kilosecond_t<T>;
 
 template <is_unit_value_type_c T>
-struct megasecond_t final : public details::unit_t<T, std::mega, time_dimension>
+struct megasecond_t final : public unit_t<T, std::mega, time_dimension>
 {
-    using _base = details::unit_t<T, std::mega, time_dimension>;
+    using _base = unit_t<T, std::mega, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megasecond"};
@@ -249,9 +257,9 @@ template <is_pkr_unit_c U>
 megasecond_t(const U&) -> megasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigasecond_t final : public details::unit_t<T, std::giga, time_dimension>
+struct gigasecond_t final : public unit_t<T, std::giga, time_dimension>
 {
-    using _base = details::unit_t<T, std::giga, time_dimension>;
+    using _base = unit_t<T, std::giga, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigasecond"};
@@ -268,9 +276,9 @@ template <is_pkr_unit_c U>
 gigasecond_t(const U&) -> gigasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct terasecond_t final : public details::unit_t<T, std::tera, time_dimension>
+struct terasecond_t final : public unit_t<T, std::tera, time_dimension>
 {
-    using _base = details::unit_t<T, std::tera, time_dimension>;
+    using _base = unit_t<T, std::tera, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terasecond"};
@@ -287,9 +295,9 @@ template <is_pkr_unit_c U>
 terasecond_t(const U&) -> terasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petasecond_t final : public details::unit_t<T, std::peta, time_dimension>
+struct petasecond_t final : public unit_t<T, std::peta, time_dimension>
 {
-    using _base = details::unit_t<T, std::peta, time_dimension>;
+    using _base = unit_t<T, std::peta, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petasecond"};
@@ -306,9 +314,9 @@ template <is_pkr_unit_c U>
 petasecond_t(const U&) -> petasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exasecond_t final : public details::unit_t<T, std::exa, time_dimension>
+struct exasecond_t final : public unit_t<T, std::exa, time_dimension>
 {
-    using _base = details::unit_t<T, std::exa, time_dimension>;
+    using _base = unit_t<T, std::exa, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exasecond"};
@@ -325,9 +333,9 @@ template <is_pkr_unit_c U>
 exasecond_t(const U&) -> exasecond_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct minute_t final : public details::unit_t<T, std::ratio<60, 1>, time_dimension>
+struct minute_t final : public unit_t<T, std::ratio<60, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<60, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<60, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"minute"};
@@ -344,9 +352,9 @@ template <is_pkr_unit_c U>
 minute_t(const U&) -> minute_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hour_t final : public details::unit_t<T, std::ratio<3600, 1>, time_dimension>
+struct hour_t final : public unit_t<T, std::ratio<3600, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<3600, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<3600, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hour"};
@@ -363,9 +371,9 @@ template <is_pkr_unit_c U>
 hour_t(const U&) -> hour_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct day_t final : public details::unit_t<T, std::ratio<86400, 1>, time_dimension>
+struct day_t final : public unit_t<T, std::ratio<86400, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<86400, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<86400, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"day"};
@@ -382,9 +390,9 @@ template <is_pkr_unit_c U>
 day_t(const U&) -> day_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct week_t final : public details::unit_t<T, std::ratio<604800, 1>, time_dimension>
+struct week_t final : public unit_t<T, std::ratio<604800, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<604800, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<604800, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"week"};
@@ -402,9 +410,9 @@ week_t(const U&) -> week_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Month and year use the Julian year: 365.25 days.
 template <is_unit_value_type_c T>
-struct month_t final : public details::unit_t<T, std::ratio<2629800, 1>, time_dimension>
+struct month_t final : public unit_t<T, std::ratio<2629800, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<2629800, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<2629800, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"month"};
@@ -421,9 +429,9 @@ template <is_pkr_unit_c U>
 month_t(const U&) -> month_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct year_t final : public details::unit_t<T, std::ratio<31557600, 1>, time_dimension>
+struct year_t final : public unit_t<T, std::ratio<31557600, 1>, time_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<31557600, 1>, time_dimension>;
+    using _base = unit_t<T, std::ratio<31557600, 1>, time_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"year"};
@@ -439,139 +447,139 @@ year_t(T) -> year_t<T>;
 // Most derived unit type specializations for time units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, time_dimension>
 {
     using type = second_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, time_dimension>
+struct derived_unit_type_t<T, std::atto, time_dimension>
 {
     using type = attosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, time_dimension>
+struct derived_unit_type_t<T, std::femto, time_dimension>
 {
     using type = femtosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, time_dimension>
+struct derived_unit_type_t<T, std::pico, time_dimension>
 {
     using type = picosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, time_dimension>
+struct derived_unit_type_t<T, std::nano, time_dimension>
 {
     using type = nanosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, time_dimension>
+struct derived_unit_type_t<T, std::micro, time_dimension>
 {
     using type = microsecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, time_dimension>
+struct derived_unit_type_t<T, std::milli, time_dimension>
 {
     using type = millisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, time_dimension>
+struct derived_unit_type_t<T, std::centi, time_dimension>
 {
     using type = centisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, time_dimension>
+struct derived_unit_type_t<T, std::deci, time_dimension>
 {
     using type = decisecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, time_dimension>
+struct derived_unit_type_t<T, std::deca, time_dimension>
 {
     using type = decasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, time_dimension>
+struct derived_unit_type_t<T, std::hecto, time_dimension>
 {
     using type = hectosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, time_dimension>
+struct derived_unit_type_t<T, std::kilo, time_dimension>
 {
     using type = kilosecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, time_dimension>
+struct derived_unit_type_t<T, std::mega, time_dimension>
 {
     using type = megasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, time_dimension>
+struct derived_unit_type_t<T, std::giga, time_dimension>
 {
     using type = gigasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, time_dimension>
+struct derived_unit_type_t<T, std::tera, time_dimension>
 {
     using type = terasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, time_dimension>
+struct derived_unit_type_t<T, std::peta, time_dimension>
 {
     using type = petasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, time_dimension>
+struct derived_unit_type_t<T, std::exa, time_dimension>
 {
     using type = exasecond_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<60, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<60, 1>, time_dimension>
 {
     using type = minute_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<3600, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<3600, 1>, time_dimension>
 {
     using type = hour_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<86400, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<86400, 1>, time_dimension>
 {
     using type = day_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<604800, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<604800, 1>, time_dimension>
 {
     using type = week_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<2629800, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<2629800, 1>, time_dimension>
 {
     using type = month_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<31557600, 1>, time_dimension>
+struct derived_unit_type_t<T, std::ratio<31557600, 1>, time_dimension>
 {
     using type = year_t<T>;
 };

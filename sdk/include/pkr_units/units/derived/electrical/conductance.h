@@ -10,9 +10,9 @@ inline constexpr dimension_t conductance_dimension{-2, -1, 3, 2, 0, 0, 0, 0};
 
 // Conductance units (Siemens and derived)
 template <is_unit_value_type_c T>
-struct siemens_t final : public details::unit_t<T, std::ratio<1, 1>, conductance_dimension>
+struct siemens_t final : public unit_t<T, std::ratio<1, 1>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"siemens"};
@@ -25,9 +25,9 @@ template <is_unit_value_type_c T>
 siemens_t(T) -> siemens_t<T>;
 
 template <is_unit_value_type_c T>
-struct millisiemens_t final : public details::unit_t<T, std::ratio<1, 1000>, conductance_dimension>
+struct millisiemens_t final : public unit_t<T, std::ratio<1, 1000>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millisiemens"};
@@ -40,9 +40,9 @@ template <is_unit_value_type_c T>
 millisiemens_t(T) -> millisiemens_t<T>;
 
 template <is_unit_value_type_c T>
-struct microsiemens_t final : public details::unit_t<T, std::ratio<1, 1000000>, conductance_dimension>
+struct microsiemens_t final : public unit_t<T, std::ratio<1, 1000000>, conductance_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, conductance_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, conductance_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microsiemens"};
@@ -58,38 +58,38 @@ microsiemens_t(T) -> microsiemens_t<T>;
 // Most derived unit type specializations for conductance units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, conductance_dimension>
 {
     using type = siemens_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, conductance_dimension>
 {
     using type = millisiemens_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, conductance_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, conductance_dimension>
 {
     using type = microsiemens_t<T>;
 };
 
 // Explicit double instantiations for ABI / UDL stability
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1>, conductance_dimension>
 {
     using type = siemens_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, conductance_dimension>
 {
     using type = millisiemens_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, conductance_dimension>
 {
     using type = microsiemens_t<double>;
 };

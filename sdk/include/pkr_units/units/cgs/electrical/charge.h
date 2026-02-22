@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // CGS electrostatic unit of charge
 // Statcoulomb = 1 / (10 * c) coulomb (c in m/s, exact)
 template <is_unit_value_type_c T>
-struct statcoulomb_t final : public details::unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
+struct statcoulomb_t final : public unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>;
+    using _base = unit_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"statcoulomb"};
@@ -27,7 +27,7 @@ template <is_pkr_unit_c U>
 statcoulomb_t(const U&) -> statcoulomb_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 2997924580>, electric_charge_dimension>
 {
     using type = statcoulomb_t<T>;
 };

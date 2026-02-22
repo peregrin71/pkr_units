@@ -11,9 +11,9 @@ class CgsUnitsTest : public ::testing::Test
 
 namespace
 {
-struct ampere_per_meter_t final : public pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::magnetic_field_strength_dimension>
+struct ampere_per_meter_t final : public pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::magnetic_field_strength_dimension>
 {
-    using _base = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::magnetic_field_strength_dimension>;
+    using _base = pkr::units::unit_t<double, std::ratio<1, 1>, pkr::units::magnetic_field_strength_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ampere_per_meter"};

@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // Volume units (cubic meter and derived)
 // Base unit: cubic meter (m^3)
 template <is_unit_value_type_c T>
-struct cubic_meter_t final : public details::unit_t<T, std::ratio<1, 1>, volume_dimension>
+struct cubic_meter_t final : public unit_t<T, std::ratio<1, 1>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic meter"};
@@ -27,9 +27,9 @@ template <is_pkr_unit_c U>
 cubic_meter_t(const U&) -> cubic_meter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_kilometer_t final : public details::unit_t<T, std::ratio<1000000000, 1>, volume_dimension>
+struct cubic_kilometer_t final : public unit_t<T, std::ratio<1000000000, 1>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1000000000, 1>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1000000000, 1>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic kilometer"};
@@ -46,9 +46,9 @@ template <is_pkr_unit_c U>
 cubic_kilometer_t(const U&) -> cubic_kilometer_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_centimeter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
+struct cubic_centimeter_t final : public unit_t<T, std::ratio<1, 1000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic centimeter"};
@@ -65,9 +65,9 @@ template <is_pkr_unit_c U>
 cubic_centimeter_t(const U&) -> cubic_centimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct cubic_millimeter_t final : public details::unit_t<T, std::ratio<1, 1000000000>, volume_dimension>
+struct cubic_millimeter_t final : public unit_t<T, std::ratio<1, 1000000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"cubic millimeter"};
@@ -84,9 +84,9 @@ template <is_pkr_unit_c U>
 cubic_millimeter_t(const U&) -> cubic_millimeter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct liter_t final : public details::unit_t<T, std::ratio<1, 1000>, volume_dimension>
+struct liter_t final : public unit_t<T, std::ratio<1, 1000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"liter"};
@@ -103,9 +103,9 @@ template <is_pkr_unit_c U>
 liter_t(const U&) -> liter_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliliter_t final : public details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>
+struct milliliter_t final : public unit_t<T, std::ratio<1, 1000000>, volume_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, volume_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliliter"};

@@ -42,9 +42,9 @@ namespace PKR_UNITS_NAMESPACE
 // which reflects the full dimensional relationship.
 // Strong type for lux (illuminance)
 template <is_unit_value_type_c T>
-struct lux_t final : public details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct lux_t final : public unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
+    using _base = unit_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"lux"};
@@ -64,7 +64,7 @@ lux_t(const U&) -> lux_t<typename details::is_pkr_unit<U>::value_type>;
 // Derived unit type specialization
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
+struct derived_unit_type_t<T, std::ratio<1, 1>, dimension_t{-2, 0, 0, 0, 0, 0, 1, 0, 1}>
 {
     using type = lux_t<T>;
 };

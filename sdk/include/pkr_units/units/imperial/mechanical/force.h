@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial force units
 template <is_unit_value_type_c T>
-struct poundal_t final : public details::unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>
+struct poundal_t final : public unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<45359237, 1000000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"poundal"};
@@ -27,9 +27,9 @@ template <is_pkr_unit_c U>
 poundal_t(const U&) -> poundal_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_force_t final : public details::unit_t<T, std::ratio<4448222, 1000000>, force_dimension>
+struct pound_force_t final : public unit_t<T, std::ratio<4448222, 1000000>, force_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<4448222, 1000000>, force_dimension>;
+    using _base = unit_t<T, std::ratio<4448222, 1000000>, force_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_force"};

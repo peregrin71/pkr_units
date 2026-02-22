@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial acceleration units
 template <is_unit_value_type_c T>
-struct feet_per_second_squared_t final : public details::unit_t<T, std::ratio<3048, 10000>, acceleration_v>
+struct feet_per_second_squared_t final : public unit_t<T, std::ratio<3048, 10000>, acceleration_v>
 {
-    using _base = details::unit_t<T, std::ratio<3048, 10000>, acceleration_v>;
+    using _base = unit_t<T, std::ratio<3048, 10000>, acceleration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"feet per second squared"};

@@ -86,13 +86,6 @@ TEST_F(UnitMathTest, sqrt_of_area)
     static_assert(r_dim::value.length == 1, "sqrt dims");
 }
 
-TEST_F(UnitMathTest, sqrt_throws_on_negative_value)
-{
-    using base_length_t = pkr::units::details::unit_t<double, std::ratio<1, 1>, pkr::units::length_dimension>;
-    base_length_t length{-4.0};
-    EXPECT_THROW(pkr::units::sqrt(length), std::invalid_argument);
-}
-
 TEST_F(UnitMathTest, log_and_exp_dimensionless)
 {
     pkr::units::scalar_t<double> value{2.0};

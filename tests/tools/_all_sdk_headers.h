@@ -100,9 +100,15 @@
 #include <pkr_units/units/cgs/mechanical/force.h>
 #include <pkr_units/units/cgs/mechanical/pressure.h>
 #include <pkr_units/units/cgs/viscosity.h>
+#include <pkr_units/units/computer_science/bits.h>
+#include <pkr_units/units/computer_science/bytes.h>
+#include <pkr_units/units/computer_science/flop.h>
+#include <pkr_units/units/computer_science/flops.h>
+#include <pkr_units/units/computer_science/neural.h>
 #include <pkr_units/units/derived/acceleration.h>
 #include <pkr_units/units/derived/area/area_units.h>
 #include <pkr_units/units/derived/concentration.h>
+#include <pkr_units/units/derived/count.h>
 #include <pkr_units/units/derived/density.h>
 #include <pkr_units/units/derived/electrical.h>
 #include <pkr_units/units/derived/electrical/capacitance.h>
@@ -132,6 +138,7 @@
 #include <pkr_units/units/derived/volume/volume_units.h>
 #include <pkr_units/units/dimensionless/decibel.h>
 #include <pkr_units/units/dimensionless/decibel_cast.h>
+#include <pkr_units/units/dimensionless/percentage.h>
 #include <pkr_units/units/dimensionless/ratio.h>
 #include <pkr_units/units/dimensionless/scalar.h>
 #include <pkr_units/units/imperial/acceleration.h>

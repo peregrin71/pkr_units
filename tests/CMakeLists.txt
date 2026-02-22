@@ -17,6 +17,10 @@ set(TEST_SOURCES
   amount/test_si_amount_formatting.cpp
   amount/test_si_amount_operators.cpp
   amount/test_si_amount.cpp
+  computer_science/test_bits_bytes.cpp
+  computer_science/test_flops.cpp
+  computer_science/test_neural_ops.cpp
+  computer_science/test_rates.cpp
   angle/test_si_angle_formatting.cpp
   angle/test_si_angle.cpp
   area/test_si_area_formatting.cpp
@@ -74,6 +78,7 @@ set(TEST_SOURCES
   measurements/test_rk4_calculation_patterns_rss.cpp
   impl/test_unit_pow.cpp
   multi_cast/test_multi_unit_cast.cpp
+  storage/test_matrix_storage_policies.cpp
   power/test_imperial_power_formatting.cpp
   power/test_si_power_formatting.cpp
   pressure/test_imperial_pressure_formatting.cpp
@@ -109,6 +114,20 @@ target_link_libraries(si_units_test PRIVATE GTest::gtest GTest::gtest_main)
 # Register the test executable as a test that CTest will run
 # add_test(NAME si_units_test COMMAND si_units_test --gtest_filter=MultiCastTest.*)
 add_test(NAME si_units_test_all COMMAND si_units_test)
+
+# ---------------------------------------------------------------------------
+# Compile-fail tests (verify concise static_assert diagnostics for invalid use)
+# These run the compiler in syntax-check mode and grep for the expected message.
+# Only enabled on Unix-like environments where /bin/sh is available.
+# ---------------------------------------------------------------------------
+if(UNIX)
+  add_test(NAME cf_operator_plus COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_operator_plus.cpp 2>&1 | grep -F \"invalid operands to operator+ : operands must have the same dimensions\"")
+  add_test(NAME cf_operator_minus COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_operator_minus.cpp 2>&1 | grep -F \"invalid operands to operator- : operands must have the same dimensions\"")
+  add_test(NAME cf_sqrt COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_sqrt.cpp 2>&1 | grep -F \"sqrt() requires unit dimensions that are even and non-negative\"")
+  add_test(NAME cf_sin COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_sin.cpp 2>&1 | grep -F \"sin() requires an angle unit\"")
+  add_test(NAME cf_unit_t_ctor COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_unit_t_ctor.cpp 2>&1 | grep -F \"unit_t: cannot construct from unit with different dimensions\"")
+  add_test(NAME cf_meter_ctor COMMAND /bin/sh -c "${CMAKE_CXX_COMPILER} -fsyntax-only -std=c++${CMAKE_CXX_STANDARD} -I${CMAKE_SOURCE_DIR}/sdk/include ${CMAKE_SOURCE_DIR}/tests/compile_fail/cf_meter_ctor.cpp 2>&1 | grep -F \"meter_t: expected a length unit\"")
+endif()
 
 # Option to generate a single preprocessed header from all SDK headers.
 option(GENERATE_SINGLE_HEADER "Generate a single preprocessed header" OFF)

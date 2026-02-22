@@ -154,6 +154,32 @@ auto v_kmh = unit_cast<kilometer_per_hour_t>(v);
 
 ## Automatic conversion when passing units with the same dimensions
 
+### Computer-science quantities and tags
+The library also supports units for computing domains (bytes, bits, FLOPs, neural
+ops).  These types are *tagged* to prevent accidental mixing of unrelated
+quantities.  For example, bits and bytes are conceptually different even though
+they share the same dimension and a fixed ratio; converting between them must
+be done explicitly.
+
+```cpp
+using namespace pkr::units;
+
+byte_t<double> b{1.0};
+bit_t<double> eight{8.0};
+
+// error: incompatible tags
+// auto sum = b + eight;
+
+// explicit cast required
+auto bytes = unit_cast<byte_t<double>>(eight); // 1 byte
+```
+
+Tags are propagated through arithmetic and normalized so that units created
+without an explicit tag share a common `void` tag internally.  See the design
+documentation for more details on the tag system.
+
+## Automatic conversion when passing units with the same dimensions
+
 You can have different parts of the software that uses different units of
 measurement "talk" safely with each other.
 

@@ -6,10 +6,18 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for kelvin (SI base unit)
 template <is_unit_value_type_c T>
-struct kelvin_t final : public details::unit_t<T, std::ratio<1, 1>, temperature_dimension>
+struct kelvin_t final : public unit_t<T, std::ratio<1, 1>, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, temperature_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, temperature_dimension>;
     using _base::_base;
+
+    // Diagnostic overload when attempting to construct kelvin_t from a non-temperature pkr unit
+    template <is_pkr_unit_c U>
+        requires(details::is_pkr_unit<U>::value_dimension != temperature_dimension)
+    explicit kelvin_t(const U&)
+    {
+        static_assert(details::is_pkr_unit<U>::value_dimension == temperature_dimension, "kelvin_t: expected a temperature unit");
+    }
 
     [[maybe_unused]] static constexpr std::string_view name{"kelvin"};
     [[maybe_unused]] static constexpr std::string_view symbol{"K"};
@@ -26,9 +34,9 @@ kelvin_t(const U&) -> kelvin_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric temperature prefixes (strong types)
 template <is_unit_value_type_c T>
-struct attokelvin_t final : public details::unit_t<T, std::atto, temperature_dimension>
+struct attokelvin_t final : public unit_t<T, std::atto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::atto, temperature_dimension>;
+    using _base = unit_t<T, std::atto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attokelvin"};
@@ -41,9 +49,9 @@ template <is_unit_value_type_c T>
 attokelvin_t(T) -> attokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct femtokelvin_t final : public details::unit_t<T, std::femto, temperature_dimension>
+struct femtokelvin_t final : public unit_t<T, std::femto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::femto, temperature_dimension>;
+    using _base = unit_t<T, std::femto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtokelvin"};
@@ -56,9 +64,9 @@ template <is_unit_value_type_c T>
 femtokelvin_t(T) -> femtokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct picokelvin_t final : public details::unit_t<T, std::pico, temperature_dimension>
+struct picokelvin_t final : public unit_t<T, std::pico, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::pico, temperature_dimension>;
+    using _base = unit_t<T, std::pico, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picokelvin"};
@@ -71,9 +79,9 @@ template <is_unit_value_type_c T>
 picokelvin_t(T) -> picokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanokelvin_t final : public details::unit_t<T, std::nano, temperature_dimension>
+struct nanokelvin_t final : public unit_t<T, std::nano, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::nano, temperature_dimension>;
+    using _base = unit_t<T, std::nano, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanokelvin"};
@@ -86,9 +94,9 @@ template <is_unit_value_type_c T>
 nanokelvin_t(T) -> nanokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct microkelvin_t final : public details::unit_t<T, std::micro, temperature_dimension>
+struct microkelvin_t final : public unit_t<T, std::micro, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::micro, temperature_dimension>;
+    using _base = unit_t<T, std::micro, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microkelvin"};
@@ -101,9 +109,9 @@ template <is_unit_value_type_c T>
 microkelvin_t(T) -> microkelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct millikelvin_t final : public details::unit_t<T, std::milli, temperature_dimension>
+struct millikelvin_t final : public unit_t<T, std::milli, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::milli, temperature_dimension>;
+    using _base = unit_t<T, std::milli, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millikelvin"};
@@ -116,9 +124,9 @@ template <is_unit_value_type_c T>
 millikelvin_t(T) -> millikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct centikelvin_t final : public details::unit_t<T, std::centi, temperature_dimension>
+struct centikelvin_t final : public unit_t<T, std::centi, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::centi, temperature_dimension>;
+    using _base = unit_t<T, std::centi, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centikelvin"};
@@ -131,9 +139,9 @@ template <is_unit_value_type_c T>
 centikelvin_t(T) -> centikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct decikelvin_t final : public details::unit_t<T, std::deci, temperature_dimension>
+struct decikelvin_t final : public unit_t<T, std::deci, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::deci, temperature_dimension>;
+    using _base = unit_t<T, std::deci, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decikelvin"};
@@ -146,9 +154,9 @@ template <is_unit_value_type_c T>
 decikelvin_t(T) -> decikelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct decakelvin_t final : public details::unit_t<T, std::deca, temperature_dimension>
+struct decakelvin_t final : public unit_t<T, std::deca, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::deca, temperature_dimension>;
+    using _base = unit_t<T, std::deca, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decakelvin"};
@@ -161,9 +169,9 @@ template <is_unit_value_type_c T>
 decakelvin_t(T) -> decakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectokelvin_t final : public details::unit_t<T, std::hecto, temperature_dimension>
+struct hectokelvin_t final : public unit_t<T, std::hecto, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, temperature_dimension>;
+    using _base = unit_t<T, std::hecto, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectokelvin"};
@@ -176,9 +184,9 @@ template <is_unit_value_type_c T>
 hectokelvin_t(T) -> hectokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct kilokelvin_t final : public details::unit_t<T, std::kilo, temperature_dimension>
+struct kilokelvin_t final : public unit_t<T, std::kilo, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, temperature_dimension>;
+    using _base = unit_t<T, std::kilo, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilokelvin"};
@@ -191,9 +199,9 @@ template <is_unit_value_type_c T>
 kilokelvin_t(T) -> kilokelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct megakelvin_t final : public details::unit_t<T, std::mega, temperature_dimension>
+struct megakelvin_t final : public unit_t<T, std::mega, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::mega, temperature_dimension>;
+    using _base = unit_t<T, std::mega, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megakelvin"};
@@ -206,9 +214,9 @@ template <is_unit_value_type_c T>
 megakelvin_t(T) -> megakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct gigakelvin_t final : public details::unit_t<T, std::giga, temperature_dimension>
+struct gigakelvin_t final : public unit_t<T, std::giga, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::giga, temperature_dimension>;
+    using _base = unit_t<T, std::giga, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigakelvin"};
@@ -221,9 +229,9 @@ template <is_unit_value_type_c T>
 gigakelvin_t(T) -> gigakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct terakelvin_t final : public details::unit_t<T, std::tera, temperature_dimension>
+struct terakelvin_t final : public unit_t<T, std::tera, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::tera, temperature_dimension>;
+    using _base = unit_t<T, std::tera, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"terakelvin"};
@@ -236,9 +244,9 @@ template <is_unit_value_type_c T>
 terakelvin_t(T) -> terakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct petakelvin_t final : public details::unit_t<T, std::peta, temperature_dimension>
+struct petakelvin_t final : public unit_t<T, std::peta, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::peta, temperature_dimension>;
+    using _base = unit_t<T, std::peta, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petakelvin"};
@@ -251,9 +259,9 @@ template <is_unit_value_type_c T>
 petakelvin_t(T) -> petakelvin_t<T>;
 
 template <is_unit_value_type_c T>
-struct exakelvin_t final : public details::unit_t<T, std::exa, temperature_dimension>
+struct exakelvin_t final : public unit_t<T, std::exa, temperature_dimension>
 {
-    using _base = details::unit_t<T, std::exa, temperature_dimension>;
+    using _base = unit_t<T, std::exa, temperature_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exakelvin"};
@@ -269,103 +277,103 @@ exakelvin_t(T) -> exakelvin_t<T>;
 // Most derived unit type specializations for temperature units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, temperature_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, temperature_dimension>
 {
     using type = kelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, temperature_dimension>
+struct derived_unit_type_t<T, std::atto, temperature_dimension>
 {
     using type = attokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, temperature_dimension>
+struct derived_unit_type_t<T, std::femto, temperature_dimension>
 {
     using type = femtokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, temperature_dimension>
+struct derived_unit_type_t<T, std::pico, temperature_dimension>
 {
     using type = picokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, temperature_dimension>
+struct derived_unit_type_t<T, std::nano, temperature_dimension>
 {
     using type = nanokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, temperature_dimension>
+struct derived_unit_type_t<T, std::micro, temperature_dimension>
 {
     using type = microkelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, temperature_dimension>
+struct derived_unit_type_t<T, std::milli, temperature_dimension>
 {
     using type = millikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, temperature_dimension>
+struct derived_unit_type_t<T, std::centi, temperature_dimension>
 {
     using type = centikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, temperature_dimension>
+struct derived_unit_type_t<T, std::deci, temperature_dimension>
 {
     using type = decikelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, temperature_dimension>
+struct derived_unit_type_t<T, std::deca, temperature_dimension>
 {
     using type = decakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, temperature_dimension>
+struct derived_unit_type_t<T, std::hecto, temperature_dimension>
 {
     using type = hectokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, temperature_dimension>
+struct derived_unit_type_t<T, std::kilo, temperature_dimension>
 {
     using type = kilokelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, temperature_dimension>
+struct derived_unit_type_t<T, std::mega, temperature_dimension>
 {
     using type = megakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, temperature_dimension>
+struct derived_unit_type_t<T, std::giga, temperature_dimension>
 {
     using type = gigakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, temperature_dimension>
+struct derived_unit_type_t<T, std::tera, temperature_dimension>
 {
     using type = terakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, temperature_dimension>
+struct derived_unit_type_t<T, std::peta, temperature_dimension>
 {
     using type = petakelvin_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, temperature_dimension>
+struct derived_unit_type_t<T, std::exa, temperature_dimension>
 {
     using type = exakelvin_t<T>;
 };

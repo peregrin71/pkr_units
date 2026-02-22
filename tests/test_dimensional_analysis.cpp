@@ -187,10 +187,11 @@ TEST_F(DimensionalAnalysisTest, pressure_times_time_squared)
     static_assert(
         std::is_same_v<
             decltype(energy_density.in_base_si_units()),
-            pkr::units::details::unit_t<
+            pkr::units::unit_t<
                 double,
                 std::ratio<1, 1>,
-                pkr::units::dimension_t{.length = -1, .mass = 1, .time = 0, .current = 0, .temperature = 0, .amount = 0, .intensity = 0, .angle = 0}>>,
+                pkr::units::dimension_t{.length = -1, .mass = 1, .time = 0, .current = 0, .temperature = 0, .amount = 0, .intensity = 0, .angle = 0},
+                void>>,
         "Resulting type should be kg/m");
 
     // Verify dimensions: [M]/[L][T]² * [T]² = [M]/[L] (mass per length = energy density)

@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Imperial density units
 template <is_unit_value_type_c T>
-struct pound_per_cubic_inch_t final : public details::unit_t<T, std::ratio<27679904, 1000000>, density_dimension>
+struct pound_per_cubic_inch_t final : public unit_t<T, std::ratio<27679904, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<27679904, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<27679904, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_cubic_inch"};
@@ -26,9 +26,9 @@ template <is_pkr_unit_c U>
 pound_per_cubic_inch_t(const U&) -> pound_per_cubic_inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_per_cubic_foot_t final : public details::unit_t<T, std::ratio<16018, 1000000>, density_dimension>
+struct pound_per_cubic_foot_t final : public unit_t<T, std::ratio<16018, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<16018, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<16018, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_cubic_foot"};
@@ -45,9 +45,9 @@ template <is_pkr_unit_c U>
 pound_per_cubic_foot_t(const U&) -> pound_per_cubic_foot_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct pound_per_gallon_t final : public details::unit_t<T, std::ratio<119826, 1000000>, density_dimension>
+struct pound_per_gallon_t final : public unit_t<T, std::ratio<119826, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<119826, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<119826, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"pound_per_gallon"};
@@ -64,9 +64,9 @@ template <is_pkr_unit_c U>
 pound_per_gallon_t(const U&) -> pound_per_gallon_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_per_cubic_inch_t final : public details::unit_t<T, std::ratio<1729994, 1000000>, density_dimension>
+struct ounce_per_cubic_inch_t final : public unit_t<T, std::ratio<1729994, 1000000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1729994, 1000000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<1729994, 1000000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce_per_cubic_inch"};
@@ -83,9 +83,9 @@ template <is_pkr_unit_c U>
 ounce_per_cubic_inch_t(const U&) -> ounce_per_cubic_inch_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct ounce_per_fluid_ounce_t final : public details::unit_t<T, std::ratio<33814, 1000>, density_dimension>
+struct ounce_per_fluid_ounce_t final : public unit_t<T, std::ratio<33814, 1000>, density_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<33814, 1000>, density_dimension>;
+    using _base = unit_t<T, std::ratio<33814, 1000>, density_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ounce_per_fluid_ounce"};
@@ -105,31 +105,31 @@ ounce_per_fluid_ounce_t(const U&) -> ounce_per_fluid_ounce_t<typename details::i
 // Most derived unit type specializations for imperial density units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<27679904, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<27679904, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_inch_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<16018, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<16018, 1000000>, density_dimension>
 {
     using type = pound_per_cubic_foot_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<119826, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<119826, 1000000>, density_dimension>
 {
     using type = pound_per_gallon_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1729994, 1000000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<1729994, 1000000>, density_dimension>
 {
     using type = ounce_per_cubic_inch_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<33814, 1000>, density_dimension>
+struct derived_unit_type_t<T, std::ratio<33814, 1000>, density_dimension>
 {
     using type = ounce_per_fluid_ounce_t<T>;
 };

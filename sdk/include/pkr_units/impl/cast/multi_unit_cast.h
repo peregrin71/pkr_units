@@ -237,7 +237,7 @@ constexpr auto
     using result_ratio = typename after_den::ratio;
     constexpr dimension_t result_dim = after_den::dim;
 
-    using result_unit = details::unit_t<source_value_type, result_ratio, result_dim>;
+    using result_unit = unit_t<source_value_type, result_ratio, result_dim>;
     constexpr source_value_type conversion_factor = compute_conversion_factor<source_value_type, source_ratio, result_ratio>();
     return result_unit(source.value() * conversion_factor);
 }
@@ -434,7 +434,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 
@@ -445,7 +445,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 
@@ -456,7 +456,7 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
     auto base = multi_unit_cast_to_base_units<num1_t, num2_t, num3_t, per_unit>(source);
     using base_unit = std::decay_t<decltype(base)>;
     using value_type = typename base_unit::value_type;
-    using derived_type = typename details::derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
+    using derived_type = typename derived_unit_type_t<value_type, std::ratio<1, 1>, base_unit::dimension::value>::type;
     return derived_type{base.value()};
 }
 

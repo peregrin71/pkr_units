@@ -8,9 +8,9 @@ namespace PKR_UNITS_NAMESPACE
 // Molar concentration units (amount of substance per volume)
 // Base unit: mole per cubic meter (mol/m^3)
 template <is_unit_value_type_c T>
-struct mole_per_cubic_meter_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct mole_per_cubic_meter_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_cubic_meter_concentration"};
@@ -23,9 +23,9 @@ template <is_unit_value_type_c T>
 mole_per_cubic_meter_concentration_t(T) -> mole_per_cubic_meter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct mole_per_liter_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_liter_concentration"};
@@ -38,9 +38,9 @@ template <is_unit_value_type_c T>
 mole_per_liter_concentration_t(T) -> mole_per_liter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct molar_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct molar_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"molar_concentration"};
@@ -53,9 +53,9 @@ template <is_unit_value_type_c T>
 molar_concentration_t(T) -> molar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct millimolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct millimolar_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimolar_concentration"};
@@ -68,9 +68,9 @@ template <is_unit_value_type_c T>
 millimolar_concentration_t(T) -> millimolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct micromolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000>, molar_concentration_v>
+struct micromolar_concentration_t final : public unit_t<T, std::ratio<1, 1000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micromolar_concentration"};
@@ -83,9 +83,9 @@ template <is_unit_value_type_c T>
 micromolar_concentration_t(T) -> micromolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct nanomolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>
+struct nanomolar_concentration_t final : public unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanomolar_concentration"};
@@ -98,9 +98,9 @@ template <is_unit_value_type_c T>
 nanomolar_concentration_t(T) -> nanomolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct picomolar_concentration_t final : public details::unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>
+struct picomolar_concentration_t final : public unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1000000000>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picomolar_concentration"};
@@ -113,9 +113,9 @@ template <is_unit_value_type_c T>
 picomolar_concentration_t(T) -> picomolar_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_cubic_centimeter_concentration_t final : public details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct mole_per_cubic_centimeter_concentration_t final : public unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_cubic_centimeter_concentration"};
@@ -128,9 +128,9 @@ template <is_unit_value_type_c T>
 mole_per_cubic_centimeter_concentration_t(T) -> mole_per_cubic_centimeter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct mole_per_milliliter_concentration_t final : public details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct mole_per_milliliter_concentration_t final : public unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole_per_milliliter_concentration"};
@@ -144,9 +144,9 @@ mole_per_milliliter_concentration_t(T) -> mole_per_milliliter_concentration_t<T>
 
 // Osmolarity units (moles of osmotically active particles per liter)
 template <is_unit_value_type_c T>
-struct osmole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct osmole_per_liter_concentration_t final : public unit_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1000, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"osmole_per_liter_concentration"};
@@ -159,9 +159,9 @@ template <is_unit_value_type_c T>
 osmole_per_liter_concentration_t(T) -> osmole_per_liter_concentration_t<T>;
 
 template <is_unit_value_type_c T>
-struct milliosmole_per_liter_concentration_t final : public details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct milliosmole_per_liter_concentration_t final : public unit_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
+    using _base = unit_t<T, std::ratio<1, 1>, molar_concentration_v>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliosmole_per_liter_concentration"};
@@ -178,62 +178,62 @@ milliosmole_per_liter_concentration_t(T) -> milliosmole_per_liter_concentration_
 // ============================================================================
 // Molar concentration units (templated mapping)
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1000, 1>, molar_concentration_v>
 {
     using type = mole_per_liter_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1>, molar_concentration_v>
 {
     using type = millimolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000>, molar_concentration_v>
 {
     using type = micromolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1000000>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1, 1000000>, molar_concentration_v>
 {
     using type = nanomolar_concentration_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1000000, 1>, molar_concentration_v>
+struct derived_unit_type_t<T, std::ratio<1000000, 1>, molar_concentration_v>
 {
     using type = mole_per_cubic_centimeter_concentration_t<T>;
 };
 
 // Explicit double instantiations
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1000, 1>, molar_concentration_v>
 {
     using type = mole_per_liter_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1>, molar_concentration_v>
 {
     using type = millimolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000>, molar_concentration_v>
 {
     using type = micromolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1, 1000000>, molar_concentration_v>
 {
     using type = nanomolar_concentration_t<double>;
 };
 
 template <>
-struct details::derived_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
+struct derived_unit_type_t<double, std::ratio<1000000, 1>, molar_concentration_v>
 {
     using type = mole_per_cubic_centimeter_concentration_t<double>;
 };

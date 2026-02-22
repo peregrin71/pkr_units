@@ -7,9 +7,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for mole (SI base unit)
 template <is_unit_value_type_c T>
-struct mole_t final : public details::unit_t<T, std::ratio<1, 1>, amount_dimension>
+struct mole_t final : public unit_t<T, std::ratio<1, 1>, amount_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, amount_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"mole"};
@@ -27,9 +27,9 @@ mole_t(const U&) -> mole_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric amount prefixes (strong types)
 template <is_unit_value_type_c T>
-struct attomole_t final : public details::unit_t<T, std::atto, amount_dimension>
+struct attomole_t final : public unit_t<T, std::atto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::atto, amount_dimension>;
+    using _base = unit_t<T, std::atto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attomole"};
@@ -46,9 +46,9 @@ template <is_pkr_unit_c U>
 attomole_t(const U&) -> attomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtomole_t final : public details::unit_t<T, std::femto, amount_dimension>
+struct femtomole_t final : public unit_t<T, std::femto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::femto, amount_dimension>;
+    using _base = unit_t<T, std::femto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtomole"};
@@ -65,9 +65,9 @@ template <is_pkr_unit_c U>
 femtomole_t(const U&) -> femtomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picomole_t final : public details::unit_t<T, std::pico, amount_dimension>
+struct picomole_t final : public unit_t<T, std::pico, amount_dimension>
 {
-    using _base = details::unit_t<T, std::pico, amount_dimension>;
+    using _base = unit_t<T, std::pico, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picomole"};
@@ -84,9 +84,9 @@ template <is_pkr_unit_c U>
 picomole_t(const U&) -> picomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanomole_t final : public details::unit_t<T, std::nano, amount_dimension>
+struct nanomole_t final : public unit_t<T, std::nano, amount_dimension>
 {
-    using _base = details::unit_t<T, std::nano, amount_dimension>;
+    using _base = unit_t<T, std::nano, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanomole"};
@@ -103,9 +103,9 @@ template <is_pkr_unit_c U>
 nanomole_t(const U&) -> nanomole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct micromole_t final : public details::unit_t<T, std::micro, amount_dimension>
+struct micromole_t final : public unit_t<T, std::micro, amount_dimension>
 {
-    using _base = details::unit_t<T, std::micro, amount_dimension>;
+    using _base = unit_t<T, std::micro, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"micromole"};
@@ -122,9 +122,9 @@ template <is_pkr_unit_c U>
 micromole_t(const U&) -> micromole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct millimole_t final : public details::unit_t<T, std::milli, amount_dimension>
+struct millimole_t final : public unit_t<T, std::milli, amount_dimension>
 {
-    using _base = details::unit_t<T, std::milli, amount_dimension>;
+    using _base = unit_t<T, std::milli, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"millimole"};
@@ -141,9 +141,9 @@ template <is_pkr_unit_c U>
 millimole_t(const U&) -> millimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centimole_t final : public details::unit_t<T, std::centi, amount_dimension>
+struct centimole_t final : public unit_t<T, std::centi, amount_dimension>
 {
-    using _base = details::unit_t<T, std::centi, amount_dimension>;
+    using _base = unit_t<T, std::centi, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centimole"};
@@ -160,9 +160,9 @@ template <is_pkr_unit_c U>
 centimole_t(const U&) -> centimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decimole_t final : public details::unit_t<T, std::deci, amount_dimension>
+struct decimole_t final : public unit_t<T, std::deci, amount_dimension>
 {
-    using _base = details::unit_t<T, std::deci, amount_dimension>;
+    using _base = unit_t<T, std::deci, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decimole"};
@@ -179,9 +179,9 @@ template <is_pkr_unit_c U>
 decimole_t(const U&) -> decimole_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decamole_t final : public details::unit_t<T, std::deca, amount_dimension>
+struct decamole_t final : public unit_t<T, std::deca, amount_dimension>
 {
-    using _base = details::unit_t<T, std::deca, amount_dimension>;
+    using _base = unit_t<T, std::deca, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decamole"};
@@ -194,9 +194,9 @@ template <is_unit_value_type_c T>
 decamole_t(T) -> decamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct hectomole_t final : public details::unit_t<T, std::hecto, amount_dimension>
+struct hectomole_t final : public unit_t<T, std::hecto, amount_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, amount_dimension>;
+    using _base = unit_t<T, std::hecto, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectomole"};
@@ -209,9 +209,9 @@ template <is_unit_value_type_c T>
 hectomole_t(T) -> hectomole_t<T>;
 
 template <is_unit_value_type_c T>
-struct kilomole_t final : public details::unit_t<T, std::kilo, amount_dimension>
+struct kilomole_t final : public unit_t<T, std::kilo, amount_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, amount_dimension>;
+    using _base = unit_t<T, std::kilo, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kilomole"};
@@ -224,9 +224,9 @@ template <is_unit_value_type_c T>
 kilomole_t(T) -> kilomole_t<T>;
 
 template <is_unit_value_type_c T>
-struct megamole_t final : public details::unit_t<T, std::mega, amount_dimension>
+struct megamole_t final : public unit_t<T, std::mega, amount_dimension>
 {
-    using _base = details::unit_t<T, std::mega, amount_dimension>;
+    using _base = unit_t<T, std::mega, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megamole"};
@@ -239,9 +239,9 @@ template <is_unit_value_type_c T>
 megamole_t(T) -> megamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct gigamole_t final : public details::unit_t<T, std::giga, amount_dimension>
+struct gigamole_t final : public unit_t<T, std::giga, amount_dimension>
 {
-    using _base = details::unit_t<T, std::giga, amount_dimension>;
+    using _base = unit_t<T, std::giga, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigamole"};
@@ -254,9 +254,9 @@ template <is_unit_value_type_c T>
 gigamole_t(T) -> gigamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct teramole_t final : public details::unit_t<T, std::tera, amount_dimension>
+struct teramole_t final : public unit_t<T, std::tera, amount_dimension>
 {
-    using _base = details::unit_t<T, std::tera, amount_dimension>;
+    using _base = unit_t<T, std::tera, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teramole"};
@@ -269,9 +269,9 @@ template <is_unit_value_type_c T>
 teramole_t(T) -> teramole_t<T>;
 
 template <is_unit_value_type_c T>
-struct petamole_t final : public details::unit_t<T, std::peta, amount_dimension>
+struct petamole_t final : public unit_t<T, std::peta, amount_dimension>
 {
-    using _base = details::unit_t<T, std::peta, amount_dimension>;
+    using _base = unit_t<T, std::peta, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petamole"};
@@ -284,9 +284,9 @@ template <is_unit_value_type_c T>
 petamole_t(T) -> petamole_t<T>;
 
 template <is_unit_value_type_c T>
-struct examole_t final : public details::unit_t<T, std::exa, amount_dimension>
+struct examole_t final : public unit_t<T, std::exa, amount_dimension>
 {
-    using _base = details::unit_t<T, std::exa, amount_dimension>;
+    using _base = unit_t<T, std::exa, amount_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"examole"};
@@ -302,103 +302,103 @@ examole_t(T) -> examole_t<T>;
 // Most derived unit type specializations for amount units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, amount_dimension>
 {
     using type = mole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, amount_dimension>
+struct derived_unit_type_t<T, std::atto, amount_dimension>
 {
     using type = attomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, amount_dimension>
+struct derived_unit_type_t<T, std::femto, amount_dimension>
 {
     using type = femtomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, amount_dimension>
+struct derived_unit_type_t<T, std::pico, amount_dimension>
 {
     using type = picomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, amount_dimension>
+struct derived_unit_type_t<T, std::nano, amount_dimension>
 {
     using type = nanomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, amount_dimension>
+struct derived_unit_type_t<T, std::micro, amount_dimension>
 {
     using type = micromole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, amount_dimension>
+struct derived_unit_type_t<T, std::milli, amount_dimension>
 {
     using type = millimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, amount_dimension>
+struct derived_unit_type_t<T, std::centi, amount_dimension>
 {
     using type = centimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, amount_dimension>
+struct derived_unit_type_t<T, std::deci, amount_dimension>
 {
     using type = decimole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, amount_dimension>
+struct derived_unit_type_t<T, std::deca, amount_dimension>
 {
     using type = decamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, amount_dimension>
+struct derived_unit_type_t<T, std::hecto, amount_dimension>
 {
     using type = hectomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, amount_dimension>
+struct derived_unit_type_t<T, std::kilo, amount_dimension>
 {
     using type = kilomole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, amount_dimension>
+struct derived_unit_type_t<T, std::mega, amount_dimension>
 {
     using type = megamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, amount_dimension>
+struct derived_unit_type_t<T, std::giga, amount_dimension>
 {
     using type = gigamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, amount_dimension>
+struct derived_unit_type_t<T, std::tera, amount_dimension>
 {
     using type = teramole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, amount_dimension>
+struct derived_unit_type_t<T, std::peta, amount_dimension>
 {
     using type = petamole_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, amount_dimension>
+struct derived_unit_type_t<T, std::exa, amount_dimension>
 {
     using type = examole_t<T>;
 };

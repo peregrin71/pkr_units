@@ -6,9 +6,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Strong type for ampere (SI base unit)
 template <is_unit_value_type_c T>
-struct ampere_t final : public details::unit_t<T, std::ratio<1, 1>, current_dimension>
+struct ampere_t final : public unit_t<T, std::ratio<1, 1>, current_dimension>
 {
-    using _base = details::unit_t<T, std::ratio<1, 1>, current_dimension>;
+    using _base = unit_t<T, std::ratio<1, 1>, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"ampere"};
@@ -26,9 +26,9 @@ ampere_t(const U&) -> ampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 // Metric current prefixes (strong types)
 template <is_unit_value_type_c T>
-struct attoampere_t final : public details::unit_t<T, std::atto, current_dimension>
+struct attoampere_t final : public unit_t<T, std::atto, current_dimension>
 {
-    using _base = details::unit_t<T, std::atto, current_dimension>;
+    using _base = unit_t<T, std::atto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"attoampere"};
@@ -45,9 +45,9 @@ template <is_pkr_unit_c U>
 attoampere_t(const U&) -> attoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct femtoampere_t final : public details::unit_t<T, std::femto, current_dimension>
+struct femtoampere_t final : public unit_t<T, std::femto, current_dimension>
 {
-    using _base = details::unit_t<T, std::femto, current_dimension>;
+    using _base = unit_t<T, std::femto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"femtoampere"};
@@ -64,9 +64,9 @@ template <is_pkr_unit_c U>
 femtoampere_t(const U&) -> femtoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct deciampere_t final : public details::unit_t<T, std::deci, current_dimension>
+struct deciampere_t final : public unit_t<T, std::deci, current_dimension>
 {
-    using _base = details::unit_t<T, std::deci, current_dimension>;
+    using _base = unit_t<T, std::deci, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"deciampere"};
@@ -83,9 +83,9 @@ template <is_pkr_unit_c U>
 deciampere_t(const U&) -> deciampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct decaampere_t final : public details::unit_t<T, std::deca, current_dimension>
+struct decaampere_t final : public unit_t<T, std::deca, current_dimension>
 {
-    using _base = details::unit_t<T, std::deca, current_dimension>;
+    using _base = unit_t<T, std::deca, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"decaampere"};
@@ -102,9 +102,9 @@ template <is_pkr_unit_c U>
 decaampere_t(const U&) -> decaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct hectoampere_t final : public details::unit_t<T, std::hecto, current_dimension>
+struct hectoampere_t final : public unit_t<T, std::hecto, current_dimension>
 {
-    using _base = details::unit_t<T, std::hecto, current_dimension>;
+    using _base = unit_t<T, std::hecto, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"hectoampere"};
@@ -121,9 +121,9 @@ template <is_pkr_unit_c U>
 hectoampere_t(const U&) -> hectoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct kiloampere_t final : public details::unit_t<T, std::kilo, current_dimension>
+struct kiloampere_t final : public unit_t<T, std::kilo, current_dimension>
 {
-    using _base = details::unit_t<T, std::kilo, current_dimension>;
+    using _base = unit_t<T, std::kilo, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"kiloampere"};
@@ -140,9 +140,9 @@ template <is_pkr_unit_c U>
 kiloampere_t(const U&) -> kiloampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct megaampere_t final : public details::unit_t<T, std::mega, current_dimension>
+struct megaampere_t final : public unit_t<T, std::mega, current_dimension>
 {
-    using _base = details::unit_t<T, std::mega, current_dimension>;
+    using _base = unit_t<T, std::mega, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"megaampere"};
@@ -159,9 +159,9 @@ template <is_pkr_unit_c U>
 megaampere_t(const U&) -> megaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct gigaampere_t final : public details::unit_t<T, std::giga, current_dimension>
+struct gigaampere_t final : public unit_t<T, std::giga, current_dimension>
 {
-    using _base = details::unit_t<T, std::giga, current_dimension>;
+    using _base = unit_t<T, std::giga, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"gigaampere"};
@@ -178,9 +178,9 @@ template <is_pkr_unit_c U>
 gigaampere_t(const U&) -> gigaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct teraampere_t final : public details::unit_t<T, std::tera, current_dimension>
+struct teraampere_t final : public unit_t<T, std::tera, current_dimension>
 {
-    using _base = details::unit_t<T, std::tera, current_dimension>;
+    using _base = unit_t<T, std::tera, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"teraampere"};
@@ -197,9 +197,9 @@ template <is_pkr_unit_c U>
 teraampere_t(const U&) -> teraampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct petaampere_t final : public details::unit_t<T, std::peta, current_dimension>
+struct petaampere_t final : public unit_t<T, std::peta, current_dimension>
 {
-    using _base = details::unit_t<T, std::peta, current_dimension>;
+    using _base = unit_t<T, std::peta, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"petaampere"};
@@ -216,9 +216,9 @@ template <is_pkr_unit_c U>
 petaampere_t(const U&) -> petaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct exaampere_t final : public details::unit_t<T, std::exa, current_dimension>
+struct exaampere_t final : public unit_t<T, std::exa, current_dimension>
 {
-    using _base = details::unit_t<T, std::exa, current_dimension>;
+    using _base = unit_t<T, std::exa, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"exaampere"};
@@ -235,9 +235,9 @@ template <is_pkr_unit_c U>
 exaampere_t(const U&) -> exaampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct picoampere_t final : public details::unit_t<T, std::pico, current_dimension>
+struct picoampere_t final : public unit_t<T, std::pico, current_dimension>
 {
-    using _base = details::unit_t<T, std::pico, current_dimension>;
+    using _base = unit_t<T, std::pico, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"picoampere"};
@@ -254,9 +254,9 @@ template <is_pkr_unit_c U>
 picoampere_t(const U&) -> picoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct nanoampere_t final : public details::unit_t<T, std::nano, current_dimension>
+struct nanoampere_t final : public unit_t<T, std::nano, current_dimension>
 {
-    using _base = details::unit_t<T, std::nano, current_dimension>;
+    using _base = unit_t<T, std::nano, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"nanoampere"};
@@ -273,9 +273,9 @@ template <is_pkr_unit_c U>
 nanoampere_t(const U&) -> nanoampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct microampere_t final : public details::unit_t<T, std::micro, current_dimension>
+struct microampere_t final : public unit_t<T, std::micro, current_dimension>
 {
-    using _base = details::unit_t<T, std::micro, current_dimension>;
+    using _base = unit_t<T, std::micro, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"microampere"};
@@ -292,9 +292,9 @@ template <is_pkr_unit_c U>
 microampere_t(const U&) -> microampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct milliampere_t final : public details::unit_t<T, std::milli, current_dimension>
+struct milliampere_t final : public unit_t<T, std::milli, current_dimension>
 {
-    using _base = details::unit_t<T, std::milli, current_dimension>;
+    using _base = unit_t<T, std::milli, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"milliampere"};
@@ -311,9 +311,9 @@ template <is_pkr_unit_c U>
 milliampere_t(const U&) -> milliampere_t<typename details::is_pkr_unit<U>::value_type>;
 
 template <is_unit_value_type_c T>
-struct centiampere_t final : public details::unit_t<T, std::centi, current_dimension>
+struct centiampere_t final : public unit_t<T, std::centi, current_dimension>
 {
-    using _base = details::unit_t<T, std::centi, current_dimension>;
+    using _base = unit_t<T, std::centi, current_dimension>;
     using _base::_base;
 
     [[maybe_unused]] static constexpr std::string_view name{"centiampere"};
@@ -333,103 +333,103 @@ centiampere_t(const U&) -> centiampere_t<typename details::is_pkr_unit<U>::value
 // Most derived unit type specializations for current units
 // ============================================================================
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::ratio<1, 1>, current_dimension>
+struct derived_unit_type_t<T, std::ratio<1, 1>, current_dimension>
 {
     using type = ampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::atto, current_dimension>
+struct derived_unit_type_t<T, std::atto, current_dimension>
 {
     using type = attoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::femto, current_dimension>
+struct derived_unit_type_t<T, std::femto, current_dimension>
 {
     using type = femtoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::pico, current_dimension>
+struct derived_unit_type_t<T, std::pico, current_dimension>
 {
     using type = picoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::nano, current_dimension>
+struct derived_unit_type_t<T, std::nano, current_dimension>
 {
     using type = nanoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::micro, current_dimension>
+struct derived_unit_type_t<T, std::micro, current_dimension>
 {
     using type = microampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::milli, current_dimension>
+struct derived_unit_type_t<T, std::milli, current_dimension>
 {
     using type = milliampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::centi, current_dimension>
+struct derived_unit_type_t<T, std::centi, current_dimension>
 {
     using type = centiampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deci, current_dimension>
+struct derived_unit_type_t<T, std::deci, current_dimension>
 {
     using type = deciampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::deca, current_dimension>
+struct derived_unit_type_t<T, std::deca, current_dimension>
 {
     using type = decaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::hecto, current_dimension>
+struct derived_unit_type_t<T, std::hecto, current_dimension>
 {
     using type = hectoampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::kilo, current_dimension>
+struct derived_unit_type_t<T, std::kilo, current_dimension>
 {
     using type = kiloampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::mega, current_dimension>
+struct derived_unit_type_t<T, std::mega, current_dimension>
 {
     using type = megaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::giga, current_dimension>
+struct derived_unit_type_t<T, std::giga, current_dimension>
 {
     using type = gigaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::tera, current_dimension>
+struct derived_unit_type_t<T, std::tera, current_dimension>
 {
     using type = teraampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::peta, current_dimension>
+struct derived_unit_type_t<T, std::peta, current_dimension>
 {
     using type = petaampere_t<T>;
 };
 
 template <is_unit_value_type_c T>
-struct details::derived_unit_type_t<T, std::exa, current_dimension>
+struct derived_unit_type_t<T, std::exa, current_dimension>
 {
     using type = exaampere_t<T>;
 };
