@@ -9,8 +9,7 @@ class AccelerationFormattingTest : public Test
 {
 };
 
-/*
-// ============================================================================
+/*// ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
 
@@ -18,7 +17,7 @@ TEST_F(AccelerationFormattingTest, meter_per_second_squared_ascii_formatting)
 {
     pkr::units::meter_per_second_squared_t accel{9.81};
     std::string result = std::format("{}", accel);
-    ASSERT_EQ(result, "9.81 m/s^2");
+    ASSERT_EQ(result, "9.81 m/sÂ²");
 }
 
 TEST_F(AccelerationFormattingTest, meter_per_second_squared_ascii_with_precision)
@@ -125,6 +124,5 @@ TEST_F(AccelerationFormattingTest, value_preservation)
 {
     pkr::units::meter_per_second_squared_t accel{123.456};
     std::string result = std::format("{}", accel);
-    ASSERT_EQ(result, "123.456 m/s^2");
-}
-*/
+    ASSERT_EQ(result, "123.456 m/sÂ²");
+}*/

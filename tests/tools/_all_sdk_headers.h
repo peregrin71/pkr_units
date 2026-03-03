@@ -18,6 +18,7 @@
 #include <pkr_units/constants/electromagnetic_constants.h>
 #include <pkr_units/constants/nuclear_constants.h>
 #include <pkr_units/constants/particle_constants.h>
+#include <pkr_units/expected.h>
 #include <pkr_units/format/astronomical.h>
 #include <pkr_units/format/cgs.h>
 #include <pkr_units/format/electrical_engineering.h>
@@ -30,12 +31,17 @@
 #include <pkr_units/impl/cast/unit_pow.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/dimension.h>
+#include <pkr_units/impl/formatting/measurement_formatter.h>
 #include <pkr_units/impl/formatting/unit_formatter.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
 #include <pkr_units/impl/formatting/vector_unit_3d.h>
 #include <pkr_units/impl/formatting/vector_unit_4d.h>
 #include <pkr_units/impl/formatting/vector_unit_formatting_traits.h>
 #include <pkr_units/impl/namespace_config.h>
+#include <pkr_units/impl/parsing/parse.h>
+#include <pkr_units/impl/parsing/parse_error.h>
+#include <pkr_units/impl/parsing/parse_impl.h>
+#include <pkr_units/impl/parsing/parse_measurement_impl.h>
 #include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/unit_t_core.h>
 #include <pkr_units/impl/unit_t_operators.h>

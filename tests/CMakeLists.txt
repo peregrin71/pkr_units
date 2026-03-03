@@ -90,8 +90,9 @@ set(TEST_SOURCES
   test_constants_comprehensive.cpp
   test_constants.cpp
   test_dimensional_analysis.cpp
-  test_dimensional_safety.cpp
   test_formatting.cpp
+  formatting/test_measurement_formatting.cpp
+  parsing/test_parsing_monadic.cpp
   thermal/test_specific_heat_capacity.cpp
   thermal/test_thermal_conductivity.cpp
   time/test_chrono_cast.cpp

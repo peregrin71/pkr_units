@@ -25,7 +25,8 @@ public:
     matrix_4d_units_t() = delete;
 
     // Construct from an array by passing it to storage
-    explicit matrix_4d_units_t(const array_type& arr) : storage(arr)
+    explicit matrix_4d_units_t(const array_type& arr)
+        : storage(arr)
     {
     }
 

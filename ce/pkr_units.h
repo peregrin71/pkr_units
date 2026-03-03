@@ -9,6 +9,7 @@
 #include <complex>
 #include <cmath>
 #include <format>
+#include <optional>
 #include <ratio>
 #include <string_view>
 #include <string>
@@ -96,11 +97,11 @@ constexpr type_t multiply_values(type_t val1, type_t val2) noexcept
 }
 
 template <typename type_t>
+
 constexpr type_t divide_values(type_t val1, type_t val2) noexcept
 {
     return val1 / val2;
 }
-
 template <typename T>
 concept complex_type_c = (std::same_as<T, std::complex<float>> || std::same_as<T, std::complex<double>>);
 
@@ -8644,6 +8645,172 @@ constexpr kilogram_t alpha_particle_mass{details::alpha_particle_mass<double>()}
 namespace pkr::units
 {
 
+template <typename T, typename E>
+class expected_t
+{
+    std::variant<T, E> m_data;
+
+public:
+
+    expected_t(const T& value)
+        : m_data(value)
+    {
+    }
+
+    expected_t(T&& value) noexcept(std::is_nothrow_move_constructible_v<T>)
+        : m_data(std::move(value))
+    {
+    }
+
+    explicit expected_t(const E& error)
+        : m_data(error)
+    {
+    }
+
+    explicit expected_t(E&& error) noexcept(std::is_nothrow_move_constructible_v<E>)
+        : m_data(std::move(error))
+    {
+    }
+
+    template <typename... Args>
+    expected_t(std::in_place_index_t<0>, Args&&... args)
+        : m_data(std::in_place_index<0>, std::forward<Args>(args)...)
+    {
+    }
+
+    template <typename... Args>
+    expected_t(std::in_place_index_t<1>, Args&&... args)
+        : m_data(std::in_place_index<1>, std::forward<Args>(args)...)
+    {
+    }
+
+    expected_t(const expected_t&) = default;
+    expected_t(expected_t&&) noexcept(std::is_nothrow_move_constructible_v<T> && std::is_nothrow_move_constructible_v<E>) = default;
+    expected_t& operator=(const expected_t&) = default;
+    expected_t& operator=(expected_t&&) noexcept = default;
+
+    ~expected_t() = default;
+
+    [[nodiscard]] bool has_value() const noexcept
+    {
+        return std::holds_alternative<T>(m_data);
+    }
+
+    [[nodiscard]] explicit operator bool() const noexcept
+    {
+        return has_value();
+    }
+
+    T& operator*()
+    {
+        return std::get<T>(m_data);
+    }
+
+    const T& operator*() const
+    {
+        return std::get<T>(m_data);
+    }
+
+    T* operator->()
+    {
+        return &std::get<T>(m_data);
+    }
+
+    const T* operator->() const
+    {
+        return &std::get<T>(m_data);
+    }
+
+    T& value()
+    {
+        return std::get<T>(m_data);
+    }
+
+    const T& value() const
+    {
+        return std::get<T>(m_data);
+    }
+
+    E& error() &
+    {
+        return std::get<E>(m_data);
+    }
+
+    const E& error() const&
+    {
+        return std::get<E>(m_data);
+    }
+
+    E error() &&
+    {
+        return std::get<E>(std::move(m_data));
+    }
+
+    E error() const&&
+    {
+        return std::get<E>(std::move(m_data));
+    }
+
+    template <typename F>
+    auto map(F&& f) const
+    {
+        using new_value_type = std::invoke_result_t<F, const T&>;
+        if (has_value())
+        {
+            return expected_t<new_value_type, E>{std::invoke(std::forward<F>(f), **this)};
+        }
+        return expected_t<new_value_type, E>{error()};
+    }
+
+    template <typename F>
+    auto map_error(F&& f) const
+    {
+        using new_error_type = std::invoke_result_t<F, const E&>;
+        if (has_value())
+        {
+            return expected_t<T, new_error_type>{**this};
+        }
+        return expected_t<T, new_error_type>{std::invoke(std::forward<F>(f), error())};
+    }
+
+    template <typename F>
+    auto and_then(F&& f) const
+    {
+        if (has_value())
+        {
+            return std::invoke(std::forward<F>(f), **this);
+        }
+        using result_type = std::invoke_result_t<F, const T&>;
+        return result_type{error()};
+    }
+
+    template <typename F>
+    auto or_else(F&& f) const
+    {
+        if (has_value())
+        {
+            return expected_t{**this};
+        }
+        return std::invoke(std::forward<F>(f), error());
+    }
+
+    T value_or(T default_val) const
+    {
+        return has_value() ? **this : std::move(default_val);
+    }
+
+    template <typename F>
+    T value_or_else(F&& f) const
+    {
+        return has_value() ? **this : std::invoke(std::forward<F>(f), error());
+    }
+};
+
+}
+
+namespace pkr::units
+{
+
 struct dimension_t;
 }
 
@@ -10974,6 +11141,107 @@ constexpr auto multi_unit_cast_to_derived(const source_t& source) noexcept
 }
 
 }
+namespace pkr::units
+{
+template <is_pkr_unit_c UnitT>
+class measurement_lin_t;
+
+template <is_pkr_unit_c UnitT>
+class measurement_rss_t;
+}
+
+namespace std
+{
+
+template <pkr::units::is_pkr_unit_c UnitT, typename CharT>
+struct formatter<pkr::units::measurement_lin_t<UnitT>, CharT>
+{
+private:
+    std::formatter<typename UnitT::value_type, CharT> value_formatter;
+
+public:
+    constexpr auto parse(std::basic_format_parse_context<CharT>& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::measurement_lin_t<UnitT>& m, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        out = value_formatter.format(m.value(), ctx);
+
+        if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            auto sep = std::basic_string_view<CharT>(L" \u00b1 ");
+            out = std::copy(sep.begin(), sep.end(), out);
+        }
+        else
+        {
+            auto sep = std::basic_string_view<CharT>(" +/- ");
+            out = std::copy(sep.begin(), sep.end(), out);
+        }
+
+        out = value_formatter.format(m.uncertainty(), ctx);
+
+        *out++ = static_cast<CharT>(' ');
+
+        std::basic_string_view<CharT> sym;
+        if constexpr (std::is_same_v<CharT, wchar_t>)
+            sym = UnitT::w_symbol;
+        else
+            sym = UnitT::symbol;
+
+        return std::copy(sym.begin(), sym.end(), out);
+    }
+};
+
+template <pkr::units::is_pkr_unit_c UnitT, typename CharT>
+struct formatter<pkr::units::measurement_rss_t<UnitT>, CharT>
+{
+private:
+    std::formatter<typename UnitT::value_type, CharT> value_formatter;
+
+public:
+    constexpr auto parse(std::basic_format_parse_context<CharT>& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::measurement_rss_t<UnitT>& m, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        out = value_formatter.format(m.value(), ctx);
+
+        if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            auto sep = std::basic_string_view<CharT>(L" \u00b1 ");
+            out = std::copy(sep.begin(), sep.end(), out);
+        }
+        else
+        {
+            auto sep = std::basic_string_view<CharT>(" +/- ");
+            out = std::copy(sep.begin(), sep.end(), out);
+        }
+
+        out = value_formatter.format(m.uncertainty(), ctx);
+
+        *out++ = static_cast<CharT>(' ');
+
+        std::basic_string_view<CharT> sym;
+        if constexpr (std::is_same_v<CharT, wchar_t>)
+            sym = UnitT::w_symbol;
+        else
+            sym = UnitT::symbol;
+
+        return std::copy(sym.begin(), sym.end(), out);
+    }
+};
+
+}
 
 namespace pkr::units
 {
@@ -11475,6 +11743,1302 @@ struct formatter<pkr::units::vec_4d_units_t<T>, CharT>
         return out;
     }
 };
+
+}
+
+namespace pkr::units
+{
+
+enum class parse_error
+{
+    numeric_parse_error,
+    symbol_mismatch,
+    unknown_symbol,
+};
+
+}
+namespace pkr::units::impl
+{
+
+template <typename UnitT, typename CharT>
+struct get_symbol_for_char;
+
+template <typename UnitT>
+struct get_symbol_for_char<UnitT, char>
+{
+    static constexpr auto value()
+    {
+        return UnitT::symbol;
+    }
+};
+
+template <typename UnitT>
+struct get_symbol_for_char<UnitT, wchar_t>
+{
+    static constexpr auto value()
+    {
+        return UnitT::w_symbol;
+    }
+};
+
+enum class numeric_type
+{
+    DOUBLE,
+    FLOAT
+};
+
+constexpr numeric_type deduce_numeric_type(std::string_view input)
+{
+    if (input.empty())
+        return numeric_type::DOUBLE;
+
+    size_t last_non_ws = input.find_last_not_of(" \t\n\r");
+    if (last_non_ws == std::string_view::npos)
+        return numeric_type::DOUBLE;
+
+    char last_char = input[last_non_ws];
+    if (last_char == 'f' || last_char == 'F')
+        return numeric_type::FLOAT;
+
+    return numeric_type::DOUBLE;
+}
+
+constexpr numeric_type deduce_numeric_type(std::wstring_view input)
+{
+    if (input.empty())
+        return numeric_type::DOUBLE;
+
+    size_t last_non_ws = input.find_last_not_of(L" \t\n\r");
+    if (last_non_ws == std::wstring_view::npos)
+        return numeric_type::DOUBLE;
+
+    wchar_t last_char = input[last_non_ws];
+    if (last_char == L'f' || last_char == L'F')
+        return numeric_type::FLOAT;
+
+    return numeric_type::DOUBLE;
+}
+
+template <typename CharT>
+struct split_result
+{
+    std::basic_string_view<CharT> numeric;
+    std::basic_string_view<CharT> symbol;
+};
+
+template <typename CharT>
+constexpr split_result<CharT> split_value_symbol(std::basic_string_view<CharT> input)
+{
+
+    auto pos = input.rfind(static_cast<CharT>(' '));
+    if (pos == std::basic_string_view<CharT>::npos)
+    {
+
+        return {input, std::basic_string_view<CharT>{}};
+    }
+    return {input.substr(0, pos), input.substr(pos + 1)};
+}
+
+template <typename CharT>
+constexpr std::basic_string_view<CharT> trim_right(std::basic_string_view<CharT> str)
+{
+    while (!str.empty() && (str.back() == static_cast<CharT>(' ') || str.back() == static_cast<CharT>('\t') || str.back() == static_cast<CharT>('\n') ||
+                            str.back() == static_cast<CharT>('\r')))
+    {
+        str.remove_suffix(1);
+    }
+    return str;
+}
+
+namespace
+{
+
+template <typename CharT>
+constexpr std::basic_string_view<CharT> remove_float_suffix(std::basic_string_view<CharT> input)
+{
+    if (!input.empty())
+    {
+        CharT last = input.back();
+        if (last == static_cast<CharT>('f') || last == static_cast<CharT>('F'))
+        {
+            return input.substr(0, input.size() - 1);
+        }
+    }
+    return input;
+}
+}
+
+template <typename ValueType>
+std::optional<ValueType> parse_numeric_char(std::string_view numeric_str)
+{
+    try
+    {
+        std::string num_str(numeric_str);
+
+        if (!num_str.empty() && (num_str.back() == 'f' || num_str.back() == 'F'))
+        {
+            num_str.pop_back();
+        }
+
+        if constexpr (std::is_floating_point_v<ValueType>)
+        {
+            char* endptr = nullptr;
+            double value = std::strtod(num_str.c_str(), &endptr);
+            if (endptr == num_str.c_str() || endptr == nullptr)
+            {
+                return std::nullopt;
+            }
+            return static_cast<ValueType>(value);
+        }
+        else
+        {
+
+            char* endptr = nullptr;
+            long value = std::strtol(num_str.c_str(), &endptr, 10);
+            if (endptr == num_str.c_str() || endptr == nullptr)
+            {
+                return std::nullopt;
+            }
+            return static_cast<ValueType>(value);
+        }
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+
+template <typename ValueType>
+std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
+{
+    try
+    {
+
+        std::string narrow_str(numeric_str.begin(), numeric_str.end());
+
+        if (!narrow_str.empty() && (narrow_str.back() == 'f' || narrow_str.back() == 'F'))
+        {
+            narrow_str.pop_back();
+        }
+
+        if constexpr (std::is_floating_point_v<ValueType>)
+        {
+            char* endptr = nullptr;
+            double value = std::strtod(narrow_str.c_str(), &endptr);
+            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            {
+                return std::nullopt;
+            }
+            return static_cast<ValueType>(value);
+        }
+        else
+        {
+
+            char* endptr = nullptr;
+            long value = std::strtol(narrow_str.c_str(), &endptr, 10);
+            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            {
+                return std::nullopt;
+            }
+            return static_cast<ValueType>(value);
+        }
+    }
+    catch (...)
+    {
+        return std::nullopt;
+    }
+}
+
+template <typename CharT, typename ValueType>
+std::optional<ValueType> parse_numeric(std::basic_string_view<CharT> numeric_str)
+{
+    if constexpr (std::is_same_v<CharT, char>)
+    {
+        return parse_numeric_char<ValueType>(numeric_str);
+    }
+    else if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        return parse_numeric_wchar<ValueType>(numeric_str);
+    }
+    else
+    {
+
+        std::string narrow(numeric_str.begin(), numeric_str.end());
+        return parse_numeric_char<ValueType>(narrow);
+    }
+}
+
+template <is_pkr_unit_c TargetUnit, typename CharT>
+constexpr bool symbol_matches(std::basic_string_view<CharT> symbol)
+{
+    return symbol == get_symbol_for_char<TargetUnit, CharT>::value();
+}
+
+}
+
+namespace pkr::units::impl
+{
+
+template <is_pkr_unit_c UnitT>
+class measurement_lin_t;
+
+template <is_pkr_unit_c UnitT>
+class measurement_rss_t;
+
+template <typename MeasurementT>
+struct measurement_unit_traits;
+
+template <is_pkr_unit_c UnitT>
+struct measurement_unit_traits<measurement_lin_t<UnitT>>
+{
+    using type = UnitT;
+    using value_type = typename UnitT::value_type;
+};
+
+template <is_pkr_unit_c UnitT>
+struct measurement_unit_traits<measurement_rss_t<UnitT>>
+{
+    using type = UnitT;
+    using value_type = typename UnitT::value_type;
+};
+
+template <typename MeasurementT>
+using measurement_unit_t = typename measurement_unit_traits<MeasurementT>::type;
+
+template <typename MeasurementT>
+using measurement_value_t = typename measurement_unit_traits<MeasurementT>::value_type;
+template <typename CharT>
+struct measurement_parts
+{
+    std::basic_string_view<CharT> value;
+    std::basic_string_view<CharT> uncertainty;
+    std::basic_string_view<CharT> symbol;
+};
+
+template <typename CharT>
+inline auto split_measurement_components(std::basic_string_view<CharT> input) -> std::optional<measurement_parts<CharT>>
+{
+
+    size_t sep_pos = input.npos;
+    size_t sep_len = 0;
+
+    if constexpr (std::is_same_v<CharT, char>)
+    {
+        const auto sep_str = std::string_view("+/-");
+        sep_pos = input.find(sep_str);
+        if (sep_pos != input.npos)
+        {
+            sep_len = 3;
+        }
+    }
+    else if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+
+        const auto sep_str = std::wstring_view(L"\u00b1");
+        sep_pos = input.find(sep_str);
+        if (sep_pos != input.npos)
+        {
+            sep_len = 1;
+        }
+    }
+
+    if (sep_pos == input.npos)
+    {
+        return std::nullopt;
+    }
+
+    auto value_part = input.substr(0, sep_pos);
+    value_part = trim_right(value_part);
+
+    auto remainder = input.substr(sep_pos + sep_len);
+    remainder = trim_left(remainder);
+
+    auto [uncertainty_part, symbol_part] = split_value_symbol<CharT>(remainder);
+    uncertainty_part = trim_right(uncertainty_part);
+
+    return measurement_parts<CharT>{value_part, uncertainty_part, symbol_part};
+}
+
+template <typename CharT>
+inline std::basic_string_view<CharT> trim_left(std::basic_string_view<CharT> str)
+{
+    while (!str.empty() && (str.front() == static_cast<CharT>(' ') || str.front() == static_cast<CharT>('\t')))
+    {
+        str.remove_prefix(1);
+    }
+    return str;
+}
+
+}
+
+namespace pkr::units
+{
+namespace details
+{
+
+struct is_measurement_lin_t_tag
+{
+};
+
+}
+
+template <typename T>
+concept is_measurement_lin_c = std::is_base_of_v<details::is_measurement_lin_t_tag, T>;
+
+template <is_pkr_unit_c UnitT>
+class measurement_lin_t : public details::is_measurement_lin_t_tag
+{
+private:
+    UnitT m_value;
+    UnitT m_uncertainty;
+
+public:
+
+    constexpr measurement_lin_t() = default;
+
+    constexpr measurement_lin_t(UnitT value, UnitT uncertainty)
+        : m_value(value)
+        , m_uncertainty(uncertainty)
+    {
+
+        if (uncertainty.value() < 0)
+        {
+            m_uncertainty = UnitT{0};
+        }
+    }
+
+    constexpr measurement_lin_t(typename UnitT::value_type value, typename UnitT::value_type uncertainty)
+        : m_value(UnitT{value})
+        , m_uncertainty(UnitT{uncertainty})
+    {
+
+        if (uncertainty < 0)
+        {
+            m_uncertainty = UnitT{0};
+        }
+    }
+
+    constexpr measurement_lin_t(const measurement_lin_t&) = default;
+
+    constexpr measurement_lin_t(measurement_lin_t&&) = default;
+
+    constexpr measurement_lin_t& operator=(const measurement_lin_t&) = default;
+
+    constexpr measurement_lin_t& operator=(measurement_lin_t&&) = default;
+    template <typename OtherUnitT>
+        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
+    constexpr auto operator+(const measurement_lin_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = m_value + other.unit_value();
+
+        auto uncertainty1_value = m_uncertainty.value();
+        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
+
+        auto total_uncertainty_value = uncertainty1_value + uncertainty2_value;
+
+        return measurement_lin_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
+    constexpr auto operator-(const measurement_lin_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = m_value - other.unit_value();
+
+        auto uncertainty1_value = m_uncertainty.value();
+        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
+
+        auto total_uncertainty_value = uncertainty1_value + uncertainty2_value;
+
+        return measurement_lin_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+    constexpr auto operator*(const measurement_lin_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = (m_value * other.unit_value()).in_base_si_units();
+        using result_type = decltype(result_value);
+
+        auto rel_uncertainty1 = relative_uncertainty().value();
+
+        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
+        {
+            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
+            {
+
+                auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
+                return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
+            }
+        }
+
+        auto rel_uncertainty2 = other.relative_uncertainty().value();
+        auto total_rel_uncertainty = rel_uncertainty1 + rel_uncertainty2;
+        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
+
+        return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+    constexpr auto operator/(const measurement_lin_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = (m_value / other.unit_value()).in_base_si_units();
+        using result_type = decltype(result_value);
+
+        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
+        {
+            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
+            {
+
+                return measurement_lin_t<result_type>{result_type{1.0}, result_type{0.0}};
+            }
+        }
+
+        auto rel_uncertainty1 = relative_uncertainty().value();
+        auto rel_uncertainty2 = other.relative_uncertainty().value();
+
+        auto total_rel_uncertainty = rel_uncertainty1 + rel_uncertainty2;
+        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
+
+        return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
+    }
+
+    constexpr measurement_lin_t operator-() const noexcept
+    {
+        return measurement_lin_t{-m_value, m_uncertainty};
+    }
+
+    constexpr auto value() const
+    {
+        return m_value.value();
+    }
+
+    constexpr auto uncertainty() const
+    {
+        return m_uncertainty.value();
+    }
+
+    constexpr const UnitT& unit_value() const
+    {
+        return m_value;
+    }
+
+    constexpr const UnitT& unit_uncertainty() const
+    {
+        return m_uncertainty;
+    }
+
+    constexpr auto relative_uncertainty() const
+    {
+
+        if (m_value.value() == static_cast<typename UnitT::value_type>(0))
+        {
+            using result_type = decltype(m_uncertainty / m_value);
+            return result_type{static_cast<typename UnitT::value_type>(0)};
+        }
+        return m_uncertainty / m_value;
+    }
+
+    constexpr const UnitT& combined_uncertainty() const
+    {
+        return m_uncertainty;
+    }
+
+    [[nodiscard]] constexpr bool is_valid() const
+    {
+        return m_uncertainty.value() >= 0;
+    }
+
+    [[nodiscard]] std::string to_string() const
+    {
+        std::stringstream ss;
+        ss << m_value.value() << " +/- " << m_uncertainty.value();
+        return ss.str();
+    }
+};
+
+template <typename UnitT>
+constexpr bool operator==(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
+{
+    return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
+}
+
+template <typename UnitT>
+constexpr bool operator!=(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <typename CharT, typename Traits, typename UnitT>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_lin_t<UnitT>& measurement)
+{
+    std::basic_string<CharT> formatted;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        formatted = std::format(L"{}", measurement);
+    }
+    else
+    {
+        formatted = std::format("{}", measurement);
+    }
+    os << formatted;
+    return os;
+}
+
+template <typename UnitT, typename T>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(const measurement_lin_t<UnitT>& lhs, T rhs)
+{
+    return measurement_lin_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(T lhs, const measurement_lin_t<UnitT>& rhs)
+{
+    return rhs * lhs;
+}
+
+template <typename UnitT, typename T>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator/(const measurement_lin_t<UnitT>& lhs, T rhs)
+{
+    return measurement_lin_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+    requires is_unit_value_type_c<T>
+auto operator/(T lhs, const measurement_lin_t<UnitT>& rhs)
+{
+
+    using stored_t = std::remove_cv_t<UnitT>;
+    using value_type = typename details::is_pkr_unit<stored_t>::value_type;
+    using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
+    constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
+    constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
+    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
+    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
+    return measurement_lin_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
+}
+
+template <typename UnitT>
+constexpr auto square_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto x = measurement.unit_value();
+    auto result_value = x * x;
+
+    auto relative_uncertainty = 2.0 * measurement.relative_uncertainty().value();
+    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
+
+    using ResultUnitT = decltype(result_value);
+    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+}
+
+template <typename UnitT>
+constexpr auto sum_of_squares_lin(const measurement_lin_t<UnitT>& x, const measurement_lin_t<UnitT>& y, const measurement_lin_t<UnitT>& z)
+{
+    auto x_sq = square_lin(x);
+    auto y_sq = square_lin(y);
+    auto z_sq = square_lin(z);
+    auto xy_sum = x_sq + y_sq;
+    return xy_sum + z_sq;
+}
+
+template <typename UnitT>
+    requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<UnitT>::value_dimension>
+constexpr auto sqrt_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto result_value = sqrt(measurement.unit_value());
+
+    auto relative_uncertainty = measurement.relative_uncertainty().value() / 2.0;
+    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
+
+    return measurement_lin_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
+}
+
+template <typename UnitT>
+constexpr auto cube_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto x = measurement.unit_value();
+    auto result_value = x * x * x;
+
+    auto relative_uncertainty = 3.0 * measurement.relative_uncertainty().value();
+    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
+
+    using ResultUnitT = decltype(result_value);
+    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+}
+
+template <int N, typename UnitT>
+constexpr auto pow_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto result_value = pow<N>(measurement.unit_value());
+
+    auto relative_uncertainty = static_cast<typename UnitT::value_type>(std::abs(N)) * measurement.relative_uncertainty().value();
+    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
+
+    using ResultUnitT = decltype(result_value);
+    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+}
+
+template <typename UnitT>
+    requires pkr::units::is_angle_unit_c<UnitT>
+auto sin_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto result_value = pkr::units::scalar_t{std::sin(measurement.value())};
+
+    auto cos_x = std::cos(measurement.value());
+    auto result_uncertainty_value = std::abs(cos_x) * measurement.uncertainty();
+
+    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+}
+
+template <typename UnitT>
+    requires pkr::units::is_angle_unit_c<UnitT>
+auto cos_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto result_value = pkr::units::scalar_t{std::cos(measurement.value())};
+
+    auto sin_x = std::sin(measurement.value());
+    auto result_uncertainty_value = std::abs(sin_x) * measurement.uncertainty();
+
+    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+}
+
+template <typename UnitT>
+    requires pkr::units::is_angle_unit_c<UnitT>
+auto tan_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    auto result_value = pkr::units::scalar_t{std::tan(measurement.value())};
+
+    auto cos_x = std::cos(measurement.value());
+    auto sec_squared = 1.0 / (cos_x * cos_x);
+    auto result_uncertainty_value = sec_squared * measurement.uncertainty();
+
+    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
+}
+
+template <typename UnitT>
+constexpr auto combined_uncertainty_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    return measurement.uncertainty();
+}
+
+template <typename UnitT>
+constexpr typename UnitT::value_type relative_uncertainty_percent_lin(const measurement_lin_t<UnitT>& measurement)
+{
+    return measurement.relative_uncertainty().value() * 100.0;
+}
+
+}
+
+namespace std
+{
+
+template <typename UnitT, typename CharT>
+struct formatter<pkr::units::measurement_lin_t<UnitT>, CharT>
+{
+    using stored_t = std::remove_cv_t<UnitT>;
+    std::formatter<typename stored_t::value_type, CharT> value_formatter;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::measurement_lin_t<UnitT>& measurement, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        out = value_formatter.format(measurement.value(), ctx);
+
+        auto pm_symbol = pkr::units::impl::char_traits_dispatch<CharT>::plus_minus();
+        out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
+        out = value_formatter.format(measurement.uncertainty(), ctx);
+
+        *out++ = static_cast<CharT>(' ');
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
+            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
+        else
+        {
+            for (char ch : stored_t::symbol)
+            {
+                *out++ = static_cast<CharT>(ch);
+            }
+            return out;
+        }
+    }
+};
+
+}
+
+namespace pkr::units
+{
+namespace details
+{
+
+struct is_measurement_rss_t_tag
+{
+};
+
+}
+
+template <typename T>
+concept is_measurement_rss_c = std::is_base_of_v<details::is_measurement_rss_t_tag, T>;
+
+template <is_pkr_unit_c UnitT>
+class measurement_rss_t : public details::is_measurement_rss_t_tag
+{
+private:
+    UnitT m_value;
+    UnitT m_uncertainty;
+
+public:
+
+    constexpr measurement_rss_t() = default;
+
+    constexpr measurement_rss_t(UnitT value, UnitT uncertainty)
+        : m_value(value)
+        , m_uncertainty(uncertainty)
+    {
+
+        if (uncertainty.value() < 0)
+        {
+            m_uncertainty = UnitT{0};
+        }
+    }
+
+    constexpr measurement_rss_t(typename UnitT::value_type value, typename UnitT::value_type uncertainty)
+        : m_value(UnitT{value})
+        , m_uncertainty(UnitT{uncertainty})
+    {
+
+        if (uncertainty < 0)
+        {
+            m_uncertainty = UnitT{0};
+        }
+    }
+
+    constexpr measurement_rss_t(const measurement_rss_t&) = default;
+
+    constexpr measurement_rss_t(measurement_rss_t&&) = default;
+
+    constexpr measurement_rss_t& operator=(const measurement_rss_t&) = default;
+
+    constexpr measurement_rss_t& operator=(measurement_rss_t&&) = default;
+    template <typename OtherUnitT>
+        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
+    constexpr auto operator+(const measurement_rss_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = m_value + other.unit_value();
+
+        auto uncertainty1_value = m_uncertainty.value();
+        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
+
+        auto u1_squared = uncertainty1_value * uncertainty1_value;
+        auto u2_squared = uncertainty2_value * uncertainty2_value;
+        auto total_uncertainty_value = std::sqrt(u1_squared + u2_squared);
+
+        return measurement_rss_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
+    constexpr auto operator-(const measurement_rss_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = m_value - other.unit_value();
+
+        auto uncertainty1_value = m_uncertainty.value();
+        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
+
+        auto u1_squared = uncertainty1_value * uncertainty1_value;
+        auto u2_squared = uncertainty2_value * uncertainty2_value;
+        auto total_uncertainty_value = std::sqrt(u1_squared + u2_squared);
+
+        return measurement_rss_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+    constexpr auto operator*(const measurement_rss_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = (m_value * other.unit_value()).in_base_si_units();
+        using result_type = decltype(result_value);
+
+        auto rel_uncertainty1 = relative_uncertainty().value();
+
+        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
+        {
+            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            {
+
+                auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
+                return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
+            }
+        }
+
+        auto rel_uncertainty2 = other.relative_uncertainty().value();
+        auto total_rel_uncertainty = std::sqrt(rel_uncertainty1 * rel_uncertainty1 + rel_uncertainty2 * rel_uncertainty2);
+        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
+
+        return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
+    }
+
+    template <typename OtherUnitT>
+    constexpr auto operator/(const measurement_rss_t<OtherUnitT>& other) const
+    {
+
+        auto result_value = (m_value / other.unit_value()).in_base_si_units();
+        using result_type = decltype(result_value);
+
+        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
+        {
+            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            {
+
+                return measurement_rss_t<result_type>{result_type{1.0}, result_type{0.0}};
+            }
+        }
+
+        auto rel_uncertainty1 = relative_uncertainty().value();
+        auto rel_uncertainty2 = other.relative_uncertainty().value();
+
+        auto total_rel_uncertainty = std::sqrt(rel_uncertainty1 * rel_uncertainty1 + rel_uncertainty2 * rel_uncertainty2);
+        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
+
+        return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
+    }
+
+    constexpr measurement_rss_t operator-() const noexcept
+    {
+        return measurement_rss_t{-m_value, m_uncertainty};
+    }
+
+    constexpr auto value() const
+    {
+        return m_value.value();
+    }
+
+    constexpr auto uncertainty() const
+    {
+        return m_uncertainty.value();
+    }
+
+    constexpr const UnitT& unit_value() const
+    {
+        return m_value;
+    }
+
+    constexpr const UnitT& unit_uncertainty() const
+    {
+        return m_uncertainty;
+    }
+
+    constexpr auto relative_uncertainty() const
+    {
+
+        if (m_value.value() == static_cast<typename UnitT::value_type>(0))
+        {
+            using result_type = decltype(m_uncertainty / m_value);
+            return result_type{static_cast<typename UnitT::value_type>(0)};
+        }
+        return m_uncertainty / m_value;
+    }
+
+    constexpr const UnitT& combined_uncertainty() const
+    {
+        return m_uncertainty;
+    }
+
+    constexpr auto squared() const
+    {
+        auto x = unit_value();
+        auto result_value = x * x;
+
+        auto rel_unc = 2.0 * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    constexpr auto cubed() const
+    {
+        auto x = unit_value();
+        auto result_value = x * x * x;
+
+        auto rel_unc = 3.0 * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    template <int N>
+    constexpr auto pow() const
+    {
+        static_assert(N >= 0, "measurement_rss_t::pow<N>: N must be non-negative (use reciprocal for negative powers)");
+
+        auto result_value = pkr::units::pow<N>(unit_value());
+
+        auto rel_unc = static_cast<typename UnitT::value_type>(N) * relative_uncertainty().value();
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        using ResultUnitT = decltype(result_value);
+        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<U>::value_dimension>
+    constexpr auto sqrt() const
+    {
+        auto result_value = pkr::units::sqrt(unit_value());
+
+        auto rel_unc = relative_uncertainty().value() / 2.0;
+        auto result_uncertainty_value = result_value.value() * rel_unc;
+
+        return measurement_rss_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires pkr::units::is_angle_unit_c<U>
+    auto sin() const
+    {
+        auto result_value = pkr::units::scalar_t{std::sin(value())};
+
+        auto cos_x = std::cos(value());
+        auto result_uncertainty_value = std::abs(cos_x) * uncertainty();
+
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires pkr::units::is_angle_unit_c<U>
+    auto cos() const
+    {
+        auto result_value = pkr::units::scalar_t{std::cos(value())};
+
+        auto sin_x = std::sin(value());
+        auto result_uncertainty_value = std::abs(sin_x) * uncertainty();
+
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
+    }
+
+    template <typename U = UnitT>
+        requires pkr::units::is_angle_unit_c<U>
+    auto tan() const
+    {
+        auto result_value = pkr::units::scalar_t{std::tan(value())};
+
+        auto cos_x = std::cos(value());
+        auto sec_squared = 1.0 / (cos_x * cos_x);
+        auto result_uncertainty_value = sec_squared * uncertainty();
+
+        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
+            result_value, pkr::units::scalar_t{result_uncertainty_value}};
+    }
+
+    [[nodiscard]] constexpr bool is_valid() const
+    {
+        return m_uncertainty.value() >= 0;
+    }
+
+    [[nodiscard]] std::string to_string() const
+    {
+        std::stringstream ss;
+        ss << m_value.value() << " +/- " << m_uncertainty.value();
+        return ss.str();
+    }
+};
+
+template <typename UnitT>
+constexpr bool operator==(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
+{
+    return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
+}
+
+template <typename UnitT>
+constexpr bool operator!=(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <typename CharT, typename Traits, typename UnitT>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_rss_t<UnitT>& measurement)
+{
+    std::basic_string<CharT> formatted;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        formatted = std::format(L"{}", measurement);
+    }
+    else
+    {
+        formatted = std::format("{}", measurement);
+    }
+    os << formatted;
+    return os;
+}
+
+template <typename UnitT, typename T>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(const measurement_rss_t<UnitT>& lhs, T rhs)
+{
+    return measurement_rss_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator*(T lhs, const measurement_rss_t<UnitT>& rhs)
+{
+    return rhs * lhs;
+}
+
+template <typename UnitT, typename T>
+    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
+auto operator/(const measurement_rss_t<UnitT>& lhs, T rhs)
+{
+    return measurement_rss_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
+}
+
+template <typename T, typename UnitT>
+    requires is_unit_value_type_c<T>
+auto operator/(T lhs, const measurement_rss_t<UnitT>& rhs)
+{
+
+    using stored_t = std::remove_cv_t<UnitT>;
+    using value_type = typename details::is_pkr_unit<stored_t>::value_type;
+    using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
+    constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
+    constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
+    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
+    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
+    return measurement_rss_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
+}
+
+template <typename UnitT>
+constexpr auto combined_uncertainty_rss(const measurement_rss_t<UnitT>& measurement)
+{
+    return measurement.uncertainty();
+}
+
+template <typename UnitT>
+constexpr typename UnitT::value_type relative_uncertainty_percent_rss(const measurement_rss_t<UnitT>& measurement)
+{
+    return measurement.relative_uncertainty().value() * 100.0;
+}
+
+}
+
+namespace std
+{
+
+template <typename UnitT, typename CharT>
+struct formatter<pkr::units::measurement_rss_t<UnitT>, CharT>
+{
+    using stored_t = std::remove_cv_t<UnitT>;
+    std::formatter<typename stored_t::value_type, CharT> value_formatter;
+
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext& ctx)
+    {
+        return value_formatter.parse(ctx);
+    }
+
+    template <typename FormatContext>
+    auto format(const pkr::units::measurement_rss_t<UnitT>& measurement, FormatContext& ctx) const
+    {
+        auto out = ctx.out();
+
+        out = value_formatter.format(measurement.value(), ctx);
+
+        auto pm_symbol = pkr::units::impl::char_traits_dispatch<CharT>::plus_minus();
+        out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
+        out = value_formatter.format(measurement.uncertainty(), ctx);
+
+        *out++ = static_cast<CharT>(' ');
+        if constexpr (std::is_same_v<CharT, char>)
+        {
+            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, char8_t>)
+        {
+            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
+        }
+        else if constexpr (std::is_same_v<CharT, wchar_t>)
+        {
+            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
+        }
+        else
+        {
+            for (char ch : stored_t::symbol)
+            {
+                *out++ = static_cast<CharT>(ch);
+            }
+            return out;
+        }
+    }
+};
+
+}
+
+namespace pkr::units
+{
+template <is_pkr_unit_c TargetUnit, typename CharT = char>
+auto parse(std::basic_string_view<CharT> input) -> expected_t<TargetUnit, parse_error>
+{
+
+    while (!input.empty() && (input.front() == static_cast<CharT>(' ') || input.front() == static_cast<CharT>('\t')))
+    {
+        input.remove_prefix(1);
+    }
+    input = impl::trim_right(input);
+
+    auto [numeric_part, symbol_part] = impl::split_value_symbol<CharT>(input);
+
+    numeric_part = impl::trim_right(numeric_part);
+
+    auto numeric_value = impl::parse_numeric<CharT, typename TargetUnit::value_type>(numeric_part);
+    if (!numeric_value)
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    if (!symbol_part.empty() && !impl::symbol_matches<TargetUnit, CharT>(symbol_part))
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    return expected_t<TargetUnit, parse_error>{TargetUnit{*numeric_value}};
+}
+
+template <is_pkr_unit_c TargetUnit, typename CharT = char>
+inline auto parse(const CharT* input) -> expected_t<TargetUnit, parse_error>
+{
+    return parse<TargetUnit, CharT>(std::basic_string_view<CharT>{input});
+}
+template <typename TargetMeasurement, typename CharT = char>
+    requires is_measurement_lin_c<TargetMeasurement>
+auto parse_linear(std::basic_string_view<CharT> input) -> expected_t<TargetMeasurement, parse_error>
+{
+    using unit_type = impl::measurement_unit_t<TargetMeasurement>;
+    using value_type = impl::measurement_value_t<TargetMeasurement>;
+
+    while (!input.empty() && (input.front() == static_cast<CharT>(' ') || input.front() == static_cast<CharT>('\t')))
+    {
+        input.remove_prefix(1);
+    }
+    input = impl::trim_right(input);
+
+    auto parts = impl::split_measurement_components<CharT>(input);
+    if (!parts)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    auto value_result = impl::parse_numeric<CharT, value_type>(parts->value);
+    if (!value_result)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    auto uncertainty_result = impl::parse_numeric<CharT, value_type>(parts->uncertainty);
+    if (!uncertainty_result)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    if (parts->symbol.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::unknown_symbol};
+    }
+
+    if (!impl::symbol_matches<unit_type, CharT>(parts->symbol))
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto value_unit = unit_type{*value_result};
+    auto uncertainty_unit = unit_type{*uncertainty_result};
+    return expected_t<TargetMeasurement, parse_error>{TargetMeasurement{value_unit, uncertainty_unit}};
+}
+
+template <typename TargetMeasurement, typename CharT = char>
+    requires is_measurement_lin_c<TargetMeasurement>
+inline auto parse_linear(const CharT* input) -> expected_t<TargetMeasurement, parse_error>
+{
+    return parse_linear<TargetMeasurement, CharT>(std::basic_string_view<CharT>{input});
+}
+template <typename TargetMeasurement, typename CharT = char>
+    requires is_measurement_rss_c<TargetMeasurement>
+auto parse_rss(std::basic_string_view<CharT> input) -> expected_t<TargetMeasurement, parse_error>
+{
+    using unit_type = impl::measurement_unit_t<TargetMeasurement>;
+    using value_type = impl::measurement_value_t<TargetMeasurement>;
+
+    while (!input.empty() && (input.front() == static_cast<CharT>(' ') || input.front() == static_cast<CharT>('\t')))
+    {
+        input.remove_prefix(1);
+    }
+    input = impl::trim_right(input);
+
+    auto parts = impl::split_measurement_components<CharT>(input);
+    if (!parts)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    auto value_result = impl::parse_numeric<CharT, value_type>(parts->value);
+    if (!value_result)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    auto uncertainty_result = impl::parse_numeric<CharT, value_type>(parts->uncertainty);
+    if (!uncertainty_result)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    if (parts->symbol.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::unknown_symbol};
+    }
+
+    if (!impl::symbol_matches<unit_type, CharT>(parts->symbol))
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto value_unit = unit_type{*value_result};
+    auto uncertainty_unit = unit_type{*uncertainty_result};
+    return expected_t<TargetMeasurement, parse_error>{TargetMeasurement{value_unit, uncertainty_unit}};
+}
+
+template <typename TargetMeasurement, typename CharT = char>
+    requires is_measurement_rss_c<TargetMeasurement>
+inline auto parse_rss(const CharT* input) -> expected_t<TargetMeasurement, parse_error>
+{
+    return parse_rss<TargetMeasurement, CharT>(std::basic_string_view<CharT>{input});
+}
 
 }
 
@@ -12898,818 +14462,6 @@ constexpr vec_3d_t<T> operator*(const matrix_3d_t<T>& m, const vec_3d_t<T>& v)
 
 namespace pkr::units
 {
-namespace details
-{
-
-struct is_measurement_rss_t_tag
-{
-};
-
-}
-
-template <typename T>
-concept is_measurement_rss_c = std::is_base_of_v<details::is_measurement_rss_t_tag, T>;
-
-template <is_pkr_unit_c UnitT>
-class measurement_rss_t : public details::is_measurement_rss_t_tag
-{
-private:
-    UnitT m_value;
-    UnitT m_uncertainty;
-
-public:
-
-    constexpr measurement_rss_t() = default;
-
-    constexpr measurement_rss_t(UnitT value, UnitT uncertainty)
-        : m_value(value)
-        , m_uncertainty(uncertainty)
-    {
-
-        if (uncertainty.value() < 0)
-        {
-            m_uncertainty = UnitT{0};
-        }
-    }
-
-    constexpr measurement_rss_t(typename UnitT::value_type value, typename UnitT::value_type uncertainty)
-        : m_value(UnitT{value})
-        , m_uncertainty(UnitT{uncertainty})
-    {
-
-        if (uncertainty < 0)
-        {
-            m_uncertainty = UnitT{0};
-        }
-    }
-
-    constexpr measurement_rss_t(const measurement_rss_t&) = default;
-
-    constexpr measurement_rss_t(measurement_rss_t&&) = default;
-
-    constexpr measurement_rss_t& operator=(const measurement_rss_t&) = default;
-
-    constexpr measurement_rss_t& operator=(measurement_rss_t&&) = default;
-    template <typename OtherUnitT>
-        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
-    constexpr auto operator+(const measurement_rss_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = m_value + other.unit_value();
-
-        auto uncertainty1_value = m_uncertainty.value();
-        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
-
-        auto u1_squared = uncertainty1_value * uncertainty1_value;
-        auto u2_squared = uncertainty2_value * uncertainty2_value;
-        auto total_uncertainty_value = std::sqrt(u1_squared + u2_squared);
-
-        return measurement_rss_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
-    constexpr auto operator-(const measurement_rss_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = m_value - other.unit_value();
-
-        auto uncertainty1_value = m_uncertainty.value();
-        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
-
-        auto u1_squared = uncertainty1_value * uncertainty1_value;
-        auto u2_squared = uncertainty2_value * uncertainty2_value;
-        auto total_uncertainty_value = std::sqrt(u1_squared + u2_squared);
-
-        return measurement_rss_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-    constexpr auto operator*(const measurement_rss_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = (m_value * other.unit_value()).in_base_si_units();
-        using result_type = decltype(result_value);
-
-        auto rel_uncertainty1 = relative_uncertainty().value();
-
-        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
-        {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
-            {
-
-                auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
-                return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
-            }
-        }
-
-        auto rel_uncertainty2 = other.relative_uncertainty().value();
-        auto total_rel_uncertainty = std::sqrt(rel_uncertainty1 * rel_uncertainty1 + rel_uncertainty2 * rel_uncertainty2);
-        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
-
-        return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-    constexpr auto operator/(const measurement_rss_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = (m_value / other.unit_value()).in_base_si_units();
-        using result_type = decltype(result_value);
-
-        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
-        {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
-            {
-
-                return measurement_rss_t<result_type>{result_type{1.0}, result_type{0.0}};
-            }
-        }
-
-        auto rel_uncertainty1 = relative_uncertainty().value();
-        auto rel_uncertainty2 = other.relative_uncertainty().value();
-
-        auto total_rel_uncertainty = std::sqrt(rel_uncertainty1 * rel_uncertainty1 + rel_uncertainty2 * rel_uncertainty2);
-        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
-
-        return measurement_rss_t<result_type>{result_value, result_type{result_uncertainty_value}};
-    }
-
-    constexpr measurement_rss_t operator-() const noexcept
-    {
-        return measurement_rss_t{-m_value, m_uncertainty};
-    }
-
-    constexpr auto value() const
-    {
-        return m_value.value();
-    }
-
-    constexpr auto uncertainty() const
-    {
-        return m_uncertainty.value();
-    }
-
-    constexpr const UnitT& unit_value() const
-    {
-        return m_value;
-    }
-
-    constexpr const UnitT& unit_uncertainty() const
-    {
-        return m_uncertainty;
-    }
-
-    constexpr auto relative_uncertainty() const
-    {
-
-        if (m_value.value() == static_cast<typename UnitT::value_type>(0))
-        {
-            using result_type = decltype(m_uncertainty / m_value);
-            return result_type{static_cast<typename UnitT::value_type>(0)};
-        }
-        return m_uncertainty / m_value;
-    }
-
-    constexpr const UnitT& combined_uncertainty() const
-    {
-        return m_uncertainty;
-    }
-
-    constexpr auto squared() const
-    {
-        auto x = unit_value();
-        auto result_value = x * x;
-
-        auto rel_unc = 2.0 * relative_uncertainty().value();
-        auto result_uncertainty_value = result_value.value() * rel_unc;
-
-        using ResultUnitT = decltype(result_value);
-        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-    }
-
-    constexpr auto cubed() const
-    {
-        auto x = unit_value();
-        auto result_value = x * x * x;
-
-        auto rel_unc = 3.0 * relative_uncertainty().value();
-        auto result_uncertainty_value = result_value.value() * rel_unc;
-
-        using ResultUnitT = decltype(result_value);
-        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-    }
-
-    template <int N>
-    constexpr auto pow() const
-    {
-        static_assert(N >= 0, "measurement_rss_t::pow<N>: N must be non-negative (use reciprocal for negative powers)");
-
-        auto result_value = pkr::units::pow<N>(unit_value());
-
-        auto rel_unc = static_cast<typename UnitT::value_type>(N) * relative_uncertainty().value();
-        auto result_uncertainty_value = result_value.value() * rel_unc;
-
-        using ResultUnitT = decltype(result_value);
-        return measurement_rss_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-    }
-
-    template <typename U = UnitT>
-        requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<U>::value_dimension>
-    constexpr auto sqrt() const
-    {
-        auto result_value = pkr::units::sqrt(unit_value());
-
-        auto rel_unc = relative_uncertainty().value() / 2.0;
-        auto result_uncertainty_value = result_value.value() * rel_unc;
-
-        return measurement_rss_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
-    }
-
-    template <typename U = UnitT>
-        requires pkr::units::is_angle_unit_c<U>
-    auto sin() const
-    {
-        auto result_value = pkr::units::scalar_t{std::sin(value())};
-
-        auto cos_x = std::cos(value());
-        auto result_uncertainty_value = std::abs(cos_x) * uncertainty();
-
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
-            result_value, pkr::units::scalar_t{result_uncertainty_value}};
-    }
-
-    template <typename U = UnitT>
-        requires pkr::units::is_angle_unit_c<U>
-    auto cos() const
-    {
-        auto result_value = pkr::units::scalar_t{std::cos(value())};
-
-        auto sin_x = std::sin(value());
-        auto result_uncertainty_value = std::abs(sin_x) * uncertainty();
-
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
-            result_value, pkr::units::scalar_t{result_uncertainty_value}};
-    }
-
-    template <typename U = UnitT>
-        requires pkr::units::is_angle_unit_c<U>
-    auto tan() const
-    {
-        auto result_value = pkr::units::scalar_t{std::tan(value())};
-
-        auto cos_x = std::cos(value());
-        auto sec_squared = 1.0 / (cos_x * cos_x);
-        auto result_uncertainty_value = sec_squared * uncertainty();
-
-        return measurement_rss_t<pkr::units::scalar_t<typename UnitT::value_type>>{
-            result_value, pkr::units::scalar_t{result_uncertainty_value}};
-    }
-
-    [[nodiscard]] constexpr bool is_valid() const
-    {
-        return m_uncertainty.value() >= 0;
-    }
-
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << m_value.value() << " +/- " << m_uncertainty.value();
-        return ss.str();
-    }
-};
-
-template <typename UnitT>
-constexpr bool operator==(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
-{
-    return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
-}
-
-template <typename UnitT>
-constexpr bool operator!=(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template <typename UnitT>
-std::ostream& operator<<(std::ostream& os, const measurement_rss_t<UnitT>& measurement)
-{
-    using stored_t = std::remove_cv_t<UnitT>;
-    os << measurement.value() << " +/- " << measurement.uncertainty() << " " << stored_t::symbol;
-    return os;
-}
-
-template <typename UnitT, typename T>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator*(const measurement_rss_t<UnitT>& lhs, T rhs)
-{
-    return measurement_rss_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
-}
-
-template <typename T, typename UnitT>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator*(T lhs, const measurement_rss_t<UnitT>& rhs)
-{
-    return rhs * lhs;
-}
-
-template <typename UnitT, typename T>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator/(const measurement_rss_t<UnitT>& lhs, T rhs)
-{
-    return measurement_rss_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
-}
-
-template <typename T, typename UnitT>
-    requires is_unit_value_type_c<T>
-auto operator/(T lhs, const measurement_rss_t<UnitT>& rhs)
-{
-
-    using stored_t = std::remove_cv_t<UnitT>;
-    using value_type = typename details::is_pkr_unit<stored_t>::value_type;
-    using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
-    constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
-    constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
-    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
-    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
-    return measurement_rss_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
-}
-
-template <typename UnitT>
-constexpr auto combined_uncertainty_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    return measurement.uncertainty();
-}
-
-template <typename UnitT>
-constexpr typename UnitT::value_type relative_uncertainty_percent_rss(const measurement_rss_t<UnitT>& measurement)
-{
-    return measurement.relative_uncertainty().value() * 100.0;
-}
-
-}
-
-namespace std
-{
-
-template <typename UnitT, typename CharT>
-struct formatter<pkr::units::measurement_rss_t<UnitT>, CharT>
-{
-    using stored_t = std::remove_cv_t<UnitT>;
-    std::formatter<typename stored_t::value_type, CharT> value_formatter;
-
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        return value_formatter.parse(ctx);
-    }
-
-    template <typename FormatContext>
-    auto format(const pkr::units::measurement_rss_t<UnitT>& measurement, FormatContext& ctx) const
-    {
-        auto out = ctx.out();
-
-        out = value_formatter.format(measurement.value(), ctx);
-
-        auto pm_symbol = pkr::units::impl::char_traits_dispatch<CharT>::plus_minus();
-        out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
-        out = value_formatter.format(measurement.uncertainty(), ctx);
-
-        *out++ = static_cast<CharT>(' ');
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
-        }
-        else if constexpr (std::is_same_v<CharT, char8_t>)
-        {
-            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
-        }
-        else
-        {
-            for (char ch : stored_t::symbol)
-            {
-                *out++ = static_cast<CharT>(ch);
-            }
-            return out;
-        }
-    }
-};
-
-}
-namespace pkr::units
-{
-namespace details
-{
-
-struct is_measurement_lin_t_tag
-{
-};
-
-}
-
-template <typename T>
-concept is_measurement_lin_c = std::is_base_of_v<details::is_measurement_lin_t_tag, T>;
-
-template <is_pkr_unit_c UnitT>
-class measurement_lin_t : public details::is_measurement_lin_t_tag
-{
-private:
-    UnitT m_value;
-    UnitT m_uncertainty;
-
-public:
-
-    constexpr measurement_lin_t() = default;
-
-    constexpr measurement_lin_t(UnitT value, UnitT uncertainty)
-        : m_value(value)
-        , m_uncertainty(uncertainty)
-    {
-
-        if (uncertainty.value() < 0)
-        {
-            m_uncertainty = UnitT{0};
-        }
-    }
-
-    constexpr measurement_lin_t(typename UnitT::value_type value, typename UnitT::value_type uncertainty)
-        : m_value(UnitT{value})
-        , m_uncertainty(UnitT{uncertainty})
-    {
-
-        if (uncertainty < 0)
-        {
-            m_uncertainty = UnitT{0};
-        }
-    }
-
-    constexpr measurement_lin_t(const measurement_lin_t&) = default;
-
-    constexpr measurement_lin_t(measurement_lin_t&&) = default;
-
-    constexpr measurement_lin_t& operator=(const measurement_lin_t&) = default;
-
-    constexpr measurement_lin_t& operator=(measurement_lin_t&&) = default;
-    template <typename OtherUnitT>
-        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
-    constexpr auto operator+(const measurement_lin_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = m_value + other.unit_value();
-
-        auto uncertainty1_value = m_uncertainty.value();
-        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
-
-        auto total_uncertainty_value = uncertainty1_value + uncertainty2_value;
-
-        return measurement_lin_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-        requires is_pkr_unit_c<OtherUnitT> && same_dimensions_c<UnitT, OtherUnitT>
-    constexpr auto operator-(const measurement_lin_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = m_value - other.unit_value();
-
-        auto uncertainty1_value = m_uncertainty.value();
-        auto uncertainty2_value = UnitT{other.unit_uncertainty()}.value();
-
-        auto total_uncertainty_value = uncertainty1_value + uncertainty2_value;
-
-        return measurement_lin_t<UnitT>{result_value, UnitT{total_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-    constexpr auto operator*(const measurement_lin_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = (m_value * other.unit_value()).in_base_si_units();
-        using result_type = decltype(result_value);
-
-        auto rel_uncertainty1 = relative_uncertainty().value();
-
-        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
-        {
-            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
-            {
-
-                auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
-                return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
-            }
-        }
-
-        auto rel_uncertainty2 = other.relative_uncertainty().value();
-        auto total_rel_uncertainty = rel_uncertainty1 + rel_uncertainty2;
-        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
-
-        return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
-    }
-
-    template <typename OtherUnitT>
-    constexpr auto operator/(const measurement_lin_t<OtherUnitT>& other) const
-    {
-
-        auto result_value = (m_value / other.unit_value()).in_base_si_units();
-        using result_type = decltype(result_value);
-
-        if constexpr (std::is_same_v<UnitT, OtherUnitT>)
-        {
-            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
-            {
-
-                return measurement_lin_t<result_type>{result_type{1.0}, result_type{0.0}};
-            }
-        }
-
-        auto rel_uncertainty1 = relative_uncertainty().value();
-        auto rel_uncertainty2 = other.relative_uncertainty().value();
-
-        auto total_rel_uncertainty = rel_uncertainty1 + rel_uncertainty2;
-        auto result_uncertainty_value = result_value.value() * total_rel_uncertainty;
-
-        return measurement_lin_t<result_type>{result_value, result_type{result_uncertainty_value}};
-    }
-
-    constexpr measurement_lin_t operator-() const noexcept
-    {
-        return measurement_lin_t{-m_value, m_uncertainty};
-    }
-
-    constexpr auto value() const
-    {
-        return m_value.value();
-    }
-
-    constexpr auto uncertainty() const
-    {
-        return m_uncertainty.value();
-    }
-
-    constexpr const UnitT& unit_value() const
-    {
-        return m_value;
-    }
-
-    constexpr const UnitT& unit_uncertainty() const
-    {
-        return m_uncertainty;
-    }
-
-    constexpr auto relative_uncertainty() const
-    {
-
-        if (m_value.value() == static_cast<typename UnitT::value_type>(0))
-        {
-            using result_type = decltype(m_uncertainty / m_value);
-            return result_type{static_cast<typename UnitT::value_type>(0)};
-        }
-        return m_uncertainty / m_value;
-    }
-
-    constexpr const UnitT& combined_uncertainty() const
-    {
-        return m_uncertainty;
-    }
-
-    [[nodiscard]] constexpr bool is_valid() const
-    {
-        return m_uncertainty.value() >= 0;
-    }
-
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << m_value.value() << " +/- " << m_uncertainty.value();
-        return ss.str();
-    }
-};
-
-template <typename UnitT>
-constexpr bool operator==(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
-{
-    return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
-}
-
-template <typename UnitT>
-constexpr bool operator!=(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
-{
-    return !(lhs == rhs);
-}
-
-template <typename UnitT>
-std::ostream& operator<<(std::ostream& os, const measurement_lin_t<UnitT>& measurement)
-{
-    using stored_t = std::remove_cv_t<UnitT>;
-    os << measurement.value() << " +/- " << measurement.uncertainty() << " " << stored_t::symbol;
-    return os;
-}
-
-template <typename UnitT, typename T>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator*(const measurement_lin_t<UnitT>& lhs, T rhs)
-{
-    return measurement_lin_t<UnitT>(lhs.value() * rhs, lhs.uncertainty() * std::abs(rhs));
-}
-
-template <typename T, typename UnitT>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator*(T lhs, const measurement_lin_t<UnitT>& rhs)
-{
-    return rhs * lhs;
-}
-
-template <typename UnitT, typename T>
-    requires(std::is_arithmetic_v<T> || pkr::units::is_base_pkr_unit_c<T>)
-auto operator/(const measurement_lin_t<UnitT>& lhs, T rhs)
-{
-    return measurement_lin_t<UnitT>(lhs.value() / rhs, lhs.uncertainty() / std::abs(rhs));
-}
-
-template <typename T, typename UnitT>
-    requires is_unit_value_type_c<T>
-auto operator/(T lhs, const measurement_lin_t<UnitT>& rhs)
-{
-
-    using stored_t = std::remove_cv_t<UnitT>;
-    using value_type = typename details::is_pkr_unit<stored_t>::value_type;
-    using ratio_type = typename details::is_pkr_unit<stored_t>::ratio_type;
-    constexpr auto dim = details::is_pkr_unit<stored_t>::value_dimension;
-    constexpr dimension_t inv_dim{-dim.length, -dim.mass, -dim.time, -dim.current, -dim.temperature, -dim.amount, -dim.intensity, -dim.angle};
-    using inv_ratio = std::ratio_divide<std::ratio<1, 1>, ratio_type>;
-    using InvUnit = unit_t<value_type, inv_ratio, inv_dim>;
-    return measurement_lin_t<InvUnit>(lhs / rhs.value(), lhs * rhs.uncertainty() / (rhs.value() * rhs.value()));
-}
-
-template <typename UnitT>
-constexpr auto square_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto x = measurement.unit_value();
-    auto result_value = x * x;
-
-    auto relative_uncertainty = 2.0 * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-template <typename UnitT>
-constexpr auto sum_of_squares_lin(const measurement_lin_t<UnitT>& x, const measurement_lin_t<UnitT>& y, const measurement_lin_t<UnitT>& z)
-{
-    auto x_sq = square_lin(x);
-    auto y_sq = square_lin(y);
-    auto z_sq = square_lin(z);
-    auto xy_sum = x_sq + y_sq;
-    return xy_sum + z_sq;
-}
-
-template <typename UnitT>
-    requires pkr_unit_can_take_square_root_c<details::is_pkr_unit<UnitT>::value_dimension>
-constexpr auto sqrt_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto result_value = sqrt(measurement.unit_value());
-
-    auto relative_uncertainty = measurement.relative_uncertainty().value() / 2.0;
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    return measurement_lin_t<decltype(result_value)>{result_value, decltype(result_value){result_uncertainty_value}};
-}
-
-template <typename UnitT>
-constexpr auto cube_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto x = measurement.unit_value();
-    auto result_value = x * x * x;
-
-    auto relative_uncertainty = 3.0 * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-template <int N, typename UnitT>
-constexpr auto pow_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto result_value = pow<N>(measurement.unit_value());
-
-    auto relative_uncertainty = static_cast<typename UnitT::value_type>(std::abs(N)) * measurement.relative_uncertainty().value();
-    auto result_uncertainty_value = result_value.value() * relative_uncertainty;
-
-    using ResultUnitT = decltype(result_value);
-    return measurement_lin_t<ResultUnitT>{result_value, ResultUnitT{result_uncertainty_value}};
-}
-
-template <typename UnitT>
-    requires pkr::units::is_angle_unit_c<UnitT>
-auto sin_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto result_value = pkr::units::scalar_t{std::sin(measurement.value())};
-
-    auto cos_x = std::cos(measurement.value());
-    auto result_uncertainty_value = std::abs(cos_x) * measurement.uncertainty();
-
-    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
-}
-
-template <typename UnitT>
-    requires pkr::units::is_angle_unit_c<UnitT>
-auto cos_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto result_value = pkr::units::scalar_t{std::cos(measurement.value())};
-
-    auto sin_x = std::sin(measurement.value());
-    auto result_uncertainty_value = std::abs(sin_x) * measurement.uncertainty();
-
-    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
-}
-
-template <typename UnitT>
-    requires pkr::units::is_angle_unit_c<UnitT>
-auto tan_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    auto result_value = pkr::units::scalar_t{std::tan(measurement.value())};
-
-    auto cos_x = std::cos(measurement.value());
-    auto sec_squared = 1.0 / (cos_x * cos_x);
-    auto result_uncertainty_value = sec_squared * measurement.uncertainty();
-
-    return measurement_lin_t<pkr::units::scalar_t<typename UnitT::value_type>>{result_value, pkr::units::scalar_t{result_uncertainty_value}};
-}
-
-template <typename UnitT>
-constexpr auto combined_uncertainty_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    return measurement.uncertainty();
-}
-
-template <typename UnitT>
-constexpr typename UnitT::value_type relative_uncertainty_percent_lin(const measurement_lin_t<UnitT>& measurement)
-{
-    return measurement.relative_uncertainty().value() * 100.0;
-}
-
-}
-
-namespace std
-{
-
-template <typename UnitT, typename CharT>
-struct formatter<pkr::units::measurement_lin_t<UnitT>, CharT>
-{
-    using stored_t = std::remove_cv_t<UnitT>;
-    std::formatter<typename stored_t::value_type, CharT> value_formatter;
-
-    template <typename ParseContext>
-    constexpr auto parse(ParseContext& ctx)
-    {
-        return value_formatter.parse(ctx);
-    }
-
-    template <typename FormatContext>
-    auto format(const pkr::units::measurement_lin_t<UnitT>& measurement, FormatContext& ctx) const
-    {
-        auto out = ctx.out();
-
-        out = value_formatter.format(measurement.value(), ctx);
-
-        auto pm_symbol = pkr::units::impl::char_traits_dispatch<CharT>::plus_minus();
-        out = std::copy(pm_symbol.begin(), pm_symbol.end(), out);
-        out = value_formatter.format(measurement.uncertainty(), ctx);
-
-        *out++ = static_cast<CharT>(' ');
-        if constexpr (std::is_same_v<CharT, char>)
-        {
-            return std::copy(stored_t::symbol.begin(), stored_t::symbol.end(), out);
-        }
-        else if constexpr (std::is_same_v<CharT, char8_t>)
-        {
-            return std::copy(stored_t::u8_symbol.begin(), stored_t::u8_symbol.end(), out);
-        }
-        else if constexpr (std::is_same_v<CharT, wchar_t>)
-        {
-            return std::copy(stored_t::w_symbol.begin(), stored_t::w_symbol.end(), out);
-        }
-        else
-        {
-            for (char ch : stored_t::symbol)
-            {
-                *out++ = static_cast<CharT>(ch);
-            }
-            return out;
-        }
-    }
-};
-
-}
-
-namespace pkr::units
-{
 
 template <typename T>
 struct vec_4d_t
@@ -14500,7 +15252,10 @@ struct stack_storage
 
     stack_storage() = delete;
 
-    explicit constexpr stack_storage(const array_type& init_data) : data(init_data) {}
+    explicit constexpr stack_storage(const array_type& init_data)
+        : data(init_data)
+    {
+    }
 
     constexpr T& get(std::size_t row, std::size_t col)
     {
@@ -14551,7 +15306,9 @@ private:
 public:
 
     explicit constexpr arena_storage(const array_type& init_fallback)
-        : arena_index(POOL_SIZE), stack_fallback(init_fallback), using_arena(false)
+        : arena_index(POOL_SIZE)
+        , stack_fallback(init_fallback)
+        , using_arena(false)
     {
 
         for (std::size_t i = 0; i < POOL_SIZE; ++i)
@@ -14812,7 +15569,8 @@ public:
 
     matrix_measurement_rss_4d_t() = delete;
 
-    explicit matrix_measurement_rss_4d_t(const array_type& arr) : storage(arr)
+    explicit matrix_measurement_rss_4d_t(const array_type& arr)
+        : storage(arr)
     {
     }
 
@@ -15933,7 +16691,8 @@ public:
 
     matrix_4d_units_t() = delete;
 
-    explicit matrix_4d_units_t(const array_type& arr) : storage(arr)
+    explicit matrix_4d_units_t(const array_type& arr)
+        : storage(arr)
     {
     }
 

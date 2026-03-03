@@ -10,6 +10,7 @@
 #include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/concepts/unit_concepts.h>
 #include <pkr_units/impl/formatting/unit_formatting_traits.h>
+#include <pkr_units/impl/formatting/measurement_formatter.h>
 #include <pkr_units/units/math/unit_math.h>
 
 namespace PKR_UNITS_NAMESPACE
@@ -286,12 +287,20 @@ constexpr bool operator!=(const measurement_lin_t<UnitT>& lhs, const measurement
     return !(lhs == rhs);
 }
 
-// Output stream operator
-template <typename UnitT>
-std::ostream& operator<<(std::ostream& os, const measurement_lin_t<UnitT>& measurement)
+// Output stream operator (generic for any basic_ostream)
+template <typename CharT, typename Traits, typename UnitT>
+std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_lin_t<UnitT>& measurement)
 {
-    using stored_t = std::remove_cv_t<UnitT>;
-    os << measurement.value() << " +/- " << measurement.uncertainty() << " " << stored_t::symbol;
+    std::basic_string<CharT> formatted;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        formatted = std::format(L"{}", measurement);
+    }
+    else
+    {
+        formatted = std::format("{}", measurement);
+    }
+    os << formatted;
     return os;
 }
 
