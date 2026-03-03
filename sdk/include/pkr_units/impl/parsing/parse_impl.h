@@ -185,20 +185,20 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
 {
     try
     {
-        // Convert to narrow for parsing
-        std::string narrow_str(numeric_str.begin(), numeric_str.end());
+        // Create null-terminated wide string for parsing
+        std::wstring wide_str(numeric_str);
 
         // Remove float suffix before parsing
-        if (!narrow_str.empty() && (narrow_str.back() == 'f' || narrow_str.back() == 'F'))
+        if (!wide_str.empty() && (wide_str.back() == L'f' || wide_str.back() == L'F'))
         {
-            narrow_str.pop_back();
+            wide_str.pop_back();
         }
 
         if constexpr (std::is_floating_point_v<ValueType>)
         {
-            char* endptr = nullptr;
-            double value = std::strtod(narrow_str.c_str(), &endptr);
-            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            wchar_t* endptr = nullptr;
+            double value = std::wcstod(wide_str.c_str(), &endptr);
+            if (endptr == wide_str.c_str() || endptr == nullptr)
             {
                 return std::nullopt;
             }
@@ -207,9 +207,9 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
         else
         {
             // For non-floating point types, attempt conversion
-            char* endptr = nullptr;
-            long value = std::strtol(narrow_str.c_str(), &endptr, 10);
-            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            wchar_t* endptr = nullptr;
+            long value = std::wcstol(wide_str.c_str(), &endptr, 10);
+            if (endptr == wide_str.c_str() || endptr == nullptr)
             {
                 return std::nullopt;
             }
