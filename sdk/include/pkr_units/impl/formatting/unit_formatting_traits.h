@@ -18,9 +18,12 @@ namespace PKR_UNITS_NAMESPACE::impl
 {
 
 // ============================================================================
-// Static format buffer storage - truly shared across all character types
+// Static buffer storage - shared across formatting, parsing, and other operations
 // ============================================================================
 // Non-templated base that holds the single unified byte buffer
+// This buffer is shared across all character types to minimize memory footprint
+// Configurable via PKR_UNITS_FORMAT_BUFFER_SIZE (default 4096 bytes)
+// Ideal for resource-constrained systems (embedded processors with limited stack/heap)
 struct format_buffer_storage
 {
     static constexpr std::size_t buffer_size = PKR_UNITS_FORMAT_BUFFER_SIZE;
@@ -29,6 +32,30 @@ struct format_buffer_storage
     {
         static std::array<std::byte, buffer_size> s_data{};
         return s_data;
+    }
+};
+
+// ============================================================================
+// Shared buffer type-safe accessor for formatting and parsing
+// ============================================================================
+// Provides typed access to the shared static storage
+template <typename CharT>
+class shared_buffer
+{
+public:
+    static constexpr std::size_t buffer_size = format_buffer_storage::buffer_size;
+    static constexpr std::size_t max_chars = buffer_size / sizeof(CharT);
+
+    // Get a pointer to the shared buffer as CharT*
+    static CharT* data()
+    {
+        return reinterpret_cast<CharT*>(format_buffer_storage::get_data().data());
+    }
+
+    // Get maximum number of CharT elements that fit
+    static constexpr std::size_t capacity()
+    {
+        return max_chars;
     }
 };
 

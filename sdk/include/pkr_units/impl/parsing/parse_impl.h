@@ -6,7 +6,9 @@
 #include <cctype>
 #include <cstdlib>
 #include <stdexcept>
+#include <algorithm>
 #include <pkr_units/impl/concepts/unit_concepts.h>
+#include <pkr_units/impl/formatting/unit_formatting_traits.h>
 
 namespace pkr::units::impl
 {
@@ -185,20 +187,44 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
 {
     try
     {
-        // Create null-terminated wide string for parsing
-        std::wstring wide_str(numeric_str);
+        // Use shared static buffer for string conversion
+        // Avoids stack allocation, suitable for resource-constrained systems
+        auto* buffer = shared_buffer<wchar_t>::data();
+        const std::size_t capacity = shared_buffer<wchar_t>::capacity();
 
-        // Remove float suffix before parsing
-        if (!wide_str.empty() && (wide_str.back() == L'f' || wide_str.back() == L'F'))
+        const wchar_t* c_str;
+
+        if (numeric_str.size() < capacity - 1) // -1 for null terminator
         {
-            wide_str.pop_back();
+            // Copy to shared buffer
+            std::copy(numeric_str.begin(), numeric_str.end(), buffer);
+            buffer[numeric_str.size()] = L'\0';
+            c_str = buffer;
+        }
+        else
+        {
+            // Fallback to heap only for oversized strings (exceptional case)
+            static thread_local std::wstring overflow_str;
+            overflow_str = std::wstring(numeric_str);
+            c_str = overflow_str.c_str();
+        }
+
+        // Create a view to remove the float suffix before parsing
+        std::wstring_view to_parse{c_str};
+        size_t parse_len = to_parse.size();
+        if (!to_parse.empty() && (to_parse.back() == L'f' || to_parse.back() == L'F'))
+        {
+            parse_len--;
         }
 
         if constexpr (std::is_floating_point_v<ValueType>)
         {
             wchar_t* endptr = nullptr;
-            double value = std::wcstod(wide_str.c_str(), &endptr);
-            if (endptr == wide_str.c_str() || endptr == nullptr)
+            double value = std::wcstod(c_str, &endptr);
+
+            // Verify we consumed at least some characters before any suffix
+            size_t consumed = static_cast<size_t>(endptr - c_str);
+            if (consumed == 0 || consumed > parse_len)
             {
                 return std::nullopt;
             }
@@ -208,8 +234,11 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
         {
             // For non-floating point types, attempt conversion
             wchar_t* endptr = nullptr;
-            long value = std::wcstol(wide_str.c_str(), &endptr, 10);
-            if (endptr == wide_str.c_str() || endptr == nullptr)
+            long value = std::wcstol(c_str, &endptr, 10);
+
+            // Verify we consumed at least some characters
+            size_t consumed = static_cast<size_t>(endptr - c_str);
+            if (consumed == 0 || consumed > parse_len)
             {
                 return std::nullopt;
             }

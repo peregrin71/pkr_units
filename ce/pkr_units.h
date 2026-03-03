@@ -8816,7 +8816,6 @@ struct dimension_t;
 
 namespace pkr::units::impl
 {
-
 struct format_buffer_storage
 {
     static constexpr std::size_t buffer_size = 4096;
@@ -8825,6 +8824,24 @@ struct format_buffer_storage
     {
         static std::array<std::byte, buffer_size> s_data{};
         return s_data;
+    }
+};
+
+template <typename CharT>
+class shared_buffer
+{
+public:
+    static constexpr std::size_t buffer_size = format_buffer_storage::buffer_size;
+    static constexpr std::size_t max_chars = buffer_size / sizeof(CharT);
+
+    static CharT* data()
+    {
+        return reinterpret_cast<CharT*>(format_buffer_storage::get_data().data());
+    }
+
+    static constexpr std::size_t capacity()
+    {
+        return max_chars;
     }
 };
 
@@ -11914,18 +11931,40 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
     try
     {
 
-        std::string narrow_str(numeric_str.begin(), numeric_str.end());
+        auto* buffer = shared_buffer<wchar_t>::data();
+        const std::size_t capacity = shared_buffer<wchar_t>::capacity();
 
-        if (!narrow_str.empty() && (narrow_str.back() == 'f' || narrow_str.back() == 'F'))
+        const wchar_t* c_str;
+
+        if (numeric_str.size() < capacity - 1)
         {
-            narrow_str.pop_back();
+
+            std::copy(numeric_str.begin(), numeric_str.end(), buffer);
+            buffer[numeric_str.size()] = L'\0';
+            c_str = buffer;
+        }
+        else
+        {
+
+            static thread_local std::wstring overflow_str;
+            overflow_str = std::wstring(numeric_str);
+            c_str = overflow_str.c_str();
+        }
+
+        std::wstring_view to_parse{c_str};
+        size_t parse_len = to_parse.size();
+        if (!to_parse.empty() && (to_parse.back() == L'f' || to_parse.back() == L'F'))
+        {
+            parse_len--;
         }
 
         if constexpr (std::is_floating_point_v<ValueType>)
         {
-            char* endptr = nullptr;
-            double value = std::strtod(narrow_str.c_str(), &endptr);
-            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            wchar_t* endptr = nullptr;
+            double value = std::wcstod(c_str, &endptr);
+
+            size_t consumed = static_cast<size_t>(endptr - c_str);
+            if (consumed == 0 || consumed > parse_len)
             {
                 return std::nullopt;
             }
@@ -11934,9 +11973,11 @@ std::optional<ValueType> parse_numeric_wchar(std::wstring_view numeric_str)
         else
         {
 
-            char* endptr = nullptr;
-            long value = std::strtol(narrow_str.c_str(), &endptr, 10);
-            if (endptr == narrow_str.c_str() || endptr == nullptr)
+            wchar_t* endptr = nullptr;
+            long value = std::wcstol(c_str, &endptr, 10);
+
+            size_t consumed = static_cast<size_t>(endptr - c_str);
+            if (consumed == 0 || consumed > parse_len)
             {
                 return std::nullopt;
             }
