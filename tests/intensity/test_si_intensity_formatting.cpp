@@ -10,7 +10,6 @@ class SiIntensityFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -56,4 +55,3 @@ TEST_F(SiIntensityFormattingTest, kilocandela_ascii_formatting)
     std::string result = std::format("{}", kcd);
     ASSERT_EQ(result, "2.5 kcd");
 }
-*/

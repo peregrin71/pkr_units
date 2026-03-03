@@ -10,7 +10,6 @@ class SiAngleFormattingTest : public Test
 {
 };
 
-/*
 // ============================================================================
 // Basic Formatting Tests - char (ASCII)
 // ============================================================================
@@ -42,4 +41,3 @@ TEST_F(SiAngleFormattingTest, gradian_ascii_formatting)
     std::string result = std::format("{}", grad);
     ASSERT_EQ(result, "100 grad");
 }
-*/

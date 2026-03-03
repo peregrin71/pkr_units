@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/time.h>
+#include <pkr_units/impl/parsing/parse.h>
 
 using namespace ::testing;
 
@@ -294,4 +295,83 @@ TEST_F(SiTimeTest, subtract_resulting_in_negative)
     pkr::units::second_t<double> s2{3.0};
     auto result = s1 - s2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
+}
+
+// ============================================================================
+// Parsing Tests
+// ============================================================================
+
+TEST_F(SiTimeTest, parse_second_basic)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("3.5 s");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 3.5);
+}
+
+TEST_F(SiTimeTest, parse_second_integer)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("60 s");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 60.0);
+}
+
+TEST_F(SiTimeTest, parse_millisecond)
+{
+    auto result = pkr::units::parse<pkr::units::millisecond_t<double>>("500 ms");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 500.0);
+}
+
+TEST_F(SiTimeTest, parse_microsecond)
+{
+    auto result = pkr::units::parse<pkr::units::microsecond_t<double>>("1000 us");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 1000.0);
+}
+
+TEST_F(SiTimeTest, parse_nanosecond)
+{
+    auto result = pkr::units::parse<pkr::units::nanosecond_t<double>>("100 ns");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 100.0);
+}
+
+TEST_F(SiTimeTest, parse_second_no_spaces)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("45s");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 45.0);
+}
+
+TEST_F(SiTimeTest, parse_second_scientific_notation)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("1.5e-3 s");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 0.0015);
+}
+
+TEST_F(SiTimeTest, parse_second_negative)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("-2.5 s");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), -2.5);
+}
+
+TEST_F(SiTimeTest, parse_second_wrong_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("5.0 m");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiTimeTest, parse_second_invalid_number)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("not_a_number s");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiTimeTest, parse_second_missing_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::second_t<double>>("5.0");
+    ASSERT_TRUE(result);
+    EXPECT_DOUBLE_EQ(result.value().value(), 5.0);
 }

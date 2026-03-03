@@ -83,7 +83,10 @@ struct stack_storage
     stack_storage() = delete;
 
     // Construct from an existing array
-    explicit constexpr stack_storage(const array_type& init_data) : data(init_data) {}
+    explicit constexpr stack_storage(const array_type& init_data)
+        : data(init_data)
+    {
+    }
 
     constexpr T& get(std::size_t row, std::size_t col)
     {
@@ -165,7 +168,9 @@ private:
 public:
     // Construct arena storage from an array
     explicit constexpr arena_storage(const array_type& init_fallback)
-        : arena_index(POOL_SIZE), stack_fallback(init_fallback), using_arena(false)
+        : arena_index(POOL_SIZE)
+        , stack_fallback(init_fallback)
+        , using_arena(false)
     {
         // Try to allocate from arena
         for (std::size_t i = 0; i < POOL_SIZE; ++i)

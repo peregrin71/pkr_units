@@ -131,7 +131,7 @@ TEST(ComplexUnitFormattingTest, NoScientificSpecifier)
 TEST(ComplexUnitFormattingTest, ScientificDifferentExponents)
 {
     using cplx = std::complex<double>;
-    pkr::units::ohm_t<cplx> Z{cplx{4700.0, 330.0}};  // 4.7e3 vs 3.3e2
+    pkr::units::ohm_t<cplx> Z{cplx{4700.0, 330.0}}; // 4.7e3 vs 3.3e2
     std::string s = std::format("{:.1e}", Z);
     // Different exponents, no factoring applied
     ASSERT_THAT(s, HasSubstr("ohm"));
@@ -169,8 +169,7 @@ TEST(ComplexUnitFormattingTest, SmallValuesWithDimensions)
 TEST(ComplexUnitFormattingTest, LargeDimensionExponents)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>, 
-        pkr::units::dimension_t{3, 2, -2, 1, 0, 0, 0, 0, 0}> u{cplx{1.5, 2.5}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{3, 2, -2, 1, 0, 0, 0, 0, 0}> u{cplx{1.5, 2.5}};
     std::string s = std::format("{}", u);
     // Should contain dimension representations
     ASSERT_THAT(s, HasSubstr("m"));
@@ -181,8 +180,7 @@ TEST(ComplexUnitFormattingTest, NegativeDimensionExponents)
 {
     using cplx = std::complex<double>;
     // Inverse units (negative exponents)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>, 
-        pkr::units::dimension_t{0, -1, 0, -1, 0, 0, 0, 0, 0}> u{cplx{3.0, 4.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -1, 0, -1, 0, 0, 0, 0, 0}> u{cplx{3.0, 4.0}};
     std::string s = std::format("{}", u);
     // Should contain inverse dimension notations (m^-1 and A^-1)
     ASSERT_THAT(s, HasSubstr("-"));
@@ -192,8 +190,7 @@ TEST(ComplexUnitFormattingTest, NegativeDimensionExponents)
 TEST(ComplexUnitFormattingTest, MultipleDimensionsMixed)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 2, -1, 0, 0, 1, -1, 2, 0}> u{cplx{5.0, 6.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 2, -1, 0, 0, 1, -1, 2, 0}> u{cplx{5.0, 6.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("m"));
 }
@@ -267,8 +264,7 @@ TEST(ComplexUnitFormattingTest, DimensionExp2)
 {
     using cplx = std::complex<double>;
     // m^2 (area-like)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -277,8 +273,7 @@ TEST(ComplexUnitFormattingTest, DimensionExp3)
 {
     using cplx = std::complex<double>;
     // m^3 (volume-like)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 3, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 3, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -287,8 +282,7 @@ TEST(ComplexUnitFormattingTest, DimensionExp5)
 {
     using cplx = std::complex<double>;
     // m^5 (higher exponent, tests digit extraction more)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 5, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 5, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -297,8 +291,7 @@ TEST(ComplexUnitFormattingTest, DimensionExp10)
 {
     using cplx = std::complex<double>;
     // m^10 (tests double-digit exponent formatting)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 10, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 10, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -342,8 +335,7 @@ TEST(ComplexUnitFormattingTest, BaseUnitMultiDim)
 {
     using cplx = std::complex<double>;
     // k·m·s (multiple base units)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 1, 1, 0, 0, 0, 0, 0, 0}> u{cplx{2.0, 3.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 1, 1, 0, 0, 0, 0, 0, 0}> u{cplx{2.0, 3.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -352,8 +344,7 @@ TEST(ComplexUnitFormattingTest, MixedPositiveNegativeExp)
 {
     using cplx = std::complex<double>;
     // kg·m^-1·s^-2 (like stress units)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, -1, -2, 0, 0, 0, 0, 0, 0}> u{cplx{50.0, 30.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, -1, -2, 0, 0, 0, 0, 0, 0}> u{cplx{50.0, 30.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -362,8 +353,7 @@ TEST(ComplexUnitFormattingTest, OnlyTimeAndCurrent)
 {
     using cplx = std::complex<double>;
     // s·A (like charge units)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 1, 1, 0, 0, 0, 0, 0}> u{cplx{1.5, 2.5}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 1, 1, 0, 0, 0, 0, 0}> u{cplx{1.5, 2.5}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("s"));
 }
@@ -372,8 +362,7 @@ TEST(ComplexUnitFormattingTest, NegExp1)
 {
     using cplx = std::complex<double>;
     // m^-1 (inverse length)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -1, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 2.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -1, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 2.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -382,8 +371,7 @@ TEST(ComplexUnitFormattingTest, ManySeparators)
 {
     using cplx = std::complex<double>;
     // All dimensions non-zero (stress on separator handling)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 1, 1, 1, 1, 1, 1, 1, 1}> u{cplx{0.1, 0.2}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 1, 1, 1, 1, 1, 1, 1, 1}> u{cplx{0.1, 0.2}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -393,8 +381,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent1)
 {
     using cplx = std::complex<double>;
     // Index 1 = length (meter), so this produces "m" not "kg"
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 0, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 0, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("m"));
 }
@@ -402,8 +389,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent1)
 TEST(ComplexUnitFormattingTest, PositiveExponent4)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 4, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 4, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -411,8 +397,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent4)
 TEST(ComplexUnitFormattingTest, PositiveExponent6)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 6, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 6, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -420,8 +405,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent6)
 TEST(ComplexUnitFormattingTest, PositiveExponent7)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 7, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 7, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -429,8 +413,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent7)
 TEST(ComplexUnitFormattingTest, PositiveExponent11)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 11, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 11, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -438,8 +421,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent11)
 TEST(ComplexUnitFormattingTest, PositiveExponent12)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 12, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 12, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -447,8 +429,7 @@ TEST(ComplexUnitFormattingTest, PositiveExponent12)
 TEST(ComplexUnitFormattingTest, NegativeExponent2)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -456,8 +437,7 @@ TEST(ComplexUnitFormattingTest, NegativeExponent2)
 TEST(ComplexUnitFormattingTest, NegativeExponent3)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -3, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -3, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -466,8 +446,7 @@ TEST(ComplexUnitFormattingTest, DtimeWithExp)
 {
     using cplx = std::complex<double>;
     // Time dimension with exponent 2
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 2, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 2, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("s"));
 }
@@ -476,8 +455,7 @@ TEST(ComplexUnitFormattingTest, CurrentDimension)
 {
     using cplx = std::complex<double>;
     // Current dimension with exponent 1
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 1, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 1, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("A"));
 }
@@ -486,8 +464,7 @@ TEST(ComplexUnitFormattingTest, TemperatureDimension)
 {
     using cplx = std::complex<double>;
     // Temperature dimension
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 1, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 1, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("K"));
 }
@@ -496,8 +473,7 @@ TEST(ComplexUnitFormattingTest, AmountDimension)
 {
     using cplx = std::complex<double>;
     // Amount of substance dimension
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 0, 1, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 0, 1, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("mol"));
 }
@@ -506,8 +482,7 @@ TEST(ComplexUnitFormattingTest, IntensityDimension)
 {
     using cplx = std::complex<double>;
     // Luminous intensity dimension
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 1, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("cd"));
 }
@@ -516,8 +491,7 @@ TEST(ComplexUnitFormattingTest, AngleDimension)
 {
     using cplx = std::complex<double>;
     // Angle dimension
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 0, 1, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 0, 1, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("rad"));
 }
@@ -526,8 +500,7 @@ TEST(ComplexUnitFormattingTest, SolidAngleDimension)
 {
     using cplx = std::complex<double>;
     // Solid angle dimension
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 0, 0, 1}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 0, 0, 0, 0, 1}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("sr"));
 }
@@ -536,8 +509,7 @@ TEST(ComplexUnitFormattingTest, TwoDimensionsNoExponent)
 {
     using cplx = std::complex<double>;
     // Two dimensions, both with exponent 1 (no exponent display)
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 1, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 1, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
     ASSERT_THAT(s, HasSubstr("m"));
@@ -547,8 +519,7 @@ TEST(ComplexUnitFormattingTest, ThreeDimensionsOneWithExpone)
 {
     using cplx = std::complex<double>;
     // Three dimensions with one having exponent != 1
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 2, 1, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 2, 1, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -556,8 +527,7 @@ TEST(ComplexUnitFormattingTest, ThreeDimensionsOneWithExpone)
 TEST(ComplexUnitFormattingTest, VeryLargePositiveExponent)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 99, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 99, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -618,8 +588,7 @@ TEST(ComplexUnitFormattingTest, AllDimensionsWith2)
 {
     using cplx = std::complex<double>;
     // All dimensions with exponent 2
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{2, 2, 2, 2, 2, 2, 2, 2, 2}> u{cplx{0.5, 0.5}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{2, 2, 2, 2, 2, 2, 2, 2, 2}> u{cplx{0.5, 0.5}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -628,8 +597,7 @@ TEST(ComplexUnitFormattingTest, FirstFourDimensions)
 {
     using cplx = std::complex<double>;
     // First four dimensions only
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 2, 3, 4, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 2, 3, 4, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -638,8 +606,7 @@ TEST(ComplexUnitFormattingTest, LastFourDimensions)
 {
     using cplx = std::complex<double>;
     // Last four dimensions only
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 0, 0, 0, 1, 2, 3, 4, 5}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 0, 0, 0, 1, 2, 3, 4, 5}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("K"));
 }
@@ -648,8 +615,7 @@ TEST(ComplexUnitFormattingTest, AlternatingDimensions)
 {
     using cplx = std::complex<double>;
     // Mixed dimensions: mass, length, time, temp, intensity, solid angle
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 1, 1, 0, 1, 0, 1, 0, 1}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 1, 1, 0, 1, 0, 1, 0, 1}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -776,8 +742,7 @@ TEST(ComplexUnitFormattingTest, ExponentNegative99)
 TEST(ComplexUnitFormattingTest, DimensionExponent8)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 8, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 8, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -785,8 +750,7 @@ TEST(ComplexUnitFormattingTest, DimensionExponent8)
 TEST(ComplexUnitFormattingTest, DimensionExponent9)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 9, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 9, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -794,8 +758,7 @@ TEST(ComplexUnitFormattingTest, DimensionExponent9)
 TEST(ComplexUnitFormattingTest, DimensionExponent15)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 15, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 15, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -803,8 +766,7 @@ TEST(ComplexUnitFormattingTest, DimensionExponent15)
 TEST(ComplexUnitFormattingTest, DimensionExponent20)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, 20, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, 20, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -812,8 +774,7 @@ TEST(ComplexUnitFormattingTest, DimensionExponent20)
 TEST(ComplexUnitFormattingTest, DimensionNegExp2)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -2, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -821,8 +782,7 @@ TEST(ComplexUnitFormattingTest, DimensionNegExp2)
 TEST(ComplexUnitFormattingTest, DimensionNegExp5)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -5, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -5, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -830,8 +790,7 @@ TEST(ComplexUnitFormattingTest, DimensionNegExp5)
 TEST(ComplexUnitFormattingTest, DimensionNegExp10)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{0, -10, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{0, -10, 0, 0, 0, 0, 0, 0, 0}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("-"));
 }
@@ -840,8 +799,7 @@ TEST(ComplexUnitFormattingTest, DimensionNegExp10)
 TEST(ComplexUnitFormattingTest, AllDimExp1Each)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{1, 1, 1, 1, 1, 1, 1, 1, 1}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{1, 1, 1, 1, 1, 1, 1, 1, 1}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -849,8 +807,7 @@ TEST(ComplexUnitFormattingTest, AllDimExp1Each)
 TEST(ComplexUnitFormattingTest, AllDimExp3Each)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{3, 3, 3, 3, 3, 3, 3, 3, 3}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{3, 3, 3, 3, 3, 3, 3, 3, 3}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -858,8 +815,7 @@ TEST(ComplexUnitFormattingTest, AllDimExp3Each)
 TEST(ComplexUnitFormattingTest, AllDimExp9Each)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{9, 9, 9, 9, 9, 9, 9, 9, 9}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{9, 9, 9, 9, 9, 9, 9, 9, 9}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }
@@ -867,8 +823,7 @@ TEST(ComplexUnitFormattingTest, AllDimExp9Each)
 TEST(ComplexUnitFormattingTest, AllDimExp15Each)
 {
     using cplx = std::complex<double>;
-    pkr::units::unit_t<cplx, std::ratio<1, 1>,
-        pkr::units::dimension_t{15, 15, 15, 15, 15, 15, 15, 15, 15}> u{cplx{1.0, 1.0}};
+    pkr::units::unit_t<cplx, std::ratio<1, 1>, pkr::units::dimension_t{15, 15, 15, 15, 15, 15, 15, 15, 15}> u{cplx{1.0, 1.0}};
     std::string s = std::format("{}", u);
     ASSERT_THAT(s, HasSubstr("kg"));
 }

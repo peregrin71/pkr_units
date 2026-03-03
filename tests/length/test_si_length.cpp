@@ -2,6 +2,7 @@
 #include <pkr_units/units/base/length.h>
 #include <pkr_units/units/imperial/length.h>
 #include <pkr_units/units/astronomical/length.h>
+#include <pkr_units/impl/parsing/parse.h>
 
 namespace pkr::units
 {
@@ -166,4 +167,103 @@ TEST_F(SiLengthTest, construct_meter_from_centimeter)
     pkr::units::centimeter_t<double> cm{150.0}; // 150 cm
     pkr::units::meter_t<double> m{cm};          // Convert to meters
     ASSERT_DOUBLE_EQ(m.value(), 1.5);
+}
+
+// ============================================================================
+// Parsing Tests
+// ============================================================================
+
+TEST_F(SiLengthTest, parse_meter_basic)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("5.0 m");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 5.0);
+}
+
+TEST_F(SiLengthTest, parse_meter_integer)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("10 m");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 10.0);
+}
+
+TEST_F(SiLengthTest, parse_kilometer)
+{
+    auto result = pkr::units::parse<pkr::units::kilometer_t<double>>("2.5 km");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 2.5);
+}
+
+TEST_F(SiLengthTest, parse_centimeter)
+{
+    auto result = pkr::units::parse<pkr::units::centimeter_t<double>>("150 cm");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 150.0);
+}
+
+TEST_F(SiLengthTest, parse_millimeter)
+{
+    auto result = pkr::units::parse<pkr::units::millimeter_t<double>>("1000 mm");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 1000.0);
+}
+
+TEST_F(SiLengthTest, parse_meter_no_spaces)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("5m");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 5.0);
+}
+
+TEST_F(SiLengthTest, parse_meter_extra_spaces)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("  5.0  m  ");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 5.0);
+}
+
+TEST_F(SiLengthTest, parse_meter_scientific_notation)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("1.5e-3 m");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 0.0015);
+}
+
+TEST_F(SiLengthTest, parse_meter_negative)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("-5.5 m");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), -5.5);
+}
+
+TEST_F(SiLengthTest, parse_meter_wrong_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("5.0 s");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiLengthTest, parse_meter_invalid_number)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("abc m");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiLengthTest, parse_meter_missing_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("5.0");
+    ASSERT_TRUE(result);
+    EXPECT_DOUBLE_EQ(result.value().value(), 5.0);
+}
+
+TEST_F(SiLengthTest, parse_meter_empty_string)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<double>>("");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiLengthTest, parse_meter_float_type)
+{
+    auto result = pkr::units::parse<pkr::units::meter_t<float>>("3.14 m");
+    ASSERT_TRUE(result);
+    ASSERT_FLOAT_EQ(result.value().value(), 3.14f);
 }

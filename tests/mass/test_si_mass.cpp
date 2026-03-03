@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <pkr_units/units/base/mass.h>
+#include <pkr_units/impl/parsing/parse.h>
 
 using namespace ::testing;
 
@@ -300,4 +301,83 @@ TEST_F(SiMassTest, subtract_resulting_in_negative)
     pkr::units::kilogram_t<double> kg2{3.0};
     auto result = kg1 - kg2;
     ASSERT_DOUBLE_EQ(result.value(), -2.0);
+}
+
+// ============================================================================
+// Parsing Tests
+// ============================================================================
+
+TEST_F(SiMassTest, parse_kilogram_basic)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("7.5 kg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 7.5);
+}
+
+TEST_F(SiMassTest, parse_kilogram_integer)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("25 kg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 25.0);
+}
+
+TEST_F(SiMassTest, parse_gram)
+{
+    auto result = pkr::units::parse<pkr::units::gram_t<double>>("500 g");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 500.0);
+}
+
+TEST_F(SiMassTest, parse_milligram)
+{
+    auto result = pkr::units::parse<pkr::units::milligram_t<double>>("250 mg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 250.0);
+}
+
+TEST_F(SiMassTest, parse_metric_ton)
+{
+    auto result = pkr::units::parse<pkr::units::metric_ton_t<double>>("1.5 t");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 1.5);
+}
+
+TEST_F(SiMassTest, parse_kilogram_no_spaces)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("10kg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 10.0);
+}
+
+TEST_F(SiMassTest, parse_kilogram_scientific_notation)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("2.5e2 kg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), 250.0);
+}
+
+TEST_F(SiMassTest, parse_kilogram_negative)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("-15.3 kg");
+    ASSERT_TRUE(result);
+    ASSERT_DOUBLE_EQ(result.value().value(), -15.3);
+}
+
+TEST_F(SiMassTest, parse_kilogram_wrong_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("5.0 m");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiMassTest, parse_kilogram_invalid_number)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("invalid kg");
+    ASSERT_FALSE(result);
+}
+
+TEST_F(SiMassTest, parse_kilogram_missing_symbol)
+{
+    auto result = pkr::units::parse<pkr::units::kilogram_t<double>>("5.0");
+    ASSERT_TRUE(result);
+    EXPECT_DOUBLE_EQ(result.value().value(), 5.0);
 }

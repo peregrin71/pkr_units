@@ -29,7 +29,8 @@ public:
     matrix_measurement_rss_4d_t() = delete;
 
     // Construct from an array by passing it to storage
-    explicit matrix_measurement_rss_4d_t(const array_type& arr) : storage(arr)
+    explicit matrix_measurement_rss_4d_t(const array_type& arr)
+        : storage(arr)
     {
     }
 

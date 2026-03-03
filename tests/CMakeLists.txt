@@ -78,6 +78,7 @@ set(TEST_SOURCES
   measurements/test_rk4_calculation_patterns_rss.cpp
   impl/test_unit_pow.cpp
   multi_cast/test_multi_unit_cast.cpp
+  parsing/test_parsing.cpp
   storage/test_matrix_storage_policies.cpp
   power/test_imperial_power_formatting.cpp
   power/test_si_power_formatting.cpp
@@ -90,8 +91,8 @@ set(TEST_SOURCES
   test_constants_comprehensive.cpp
   test_constants.cpp
   test_dimensional_analysis.cpp
-  test_dimensional_safety.cpp
   test_formatting.cpp
+  formatting/test_measurement_formatting.cpp
   thermal/test_specific_heat_capacity.cpp
   thermal/test_thermal_conductivity.cpp
   time/test_chrono_cast.cpp
