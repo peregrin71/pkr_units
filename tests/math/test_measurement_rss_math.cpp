@@ -67,17 +67,6 @@ TEST_F(MeasurementMathRSSTest, divide_rss)
     EXPECT_DOUBLE_EQ(result.uncertainty(), expected_uncertainty);
 }
 
-// TEST_F(MeasurementMathRSSTest, sqrt_rss)
-// {
-//     using meter_squared_meas = pkr::units::measurement_t<pkr::units::meter_squared_t>;
-//     meter_squared_meas m2{4.0, 0.4};
-//     auto result = pkr::units::sqrt_rss(m2);
-
-//     EXPECT_DOUBLE_EQ(result.value(), 2.0);
-//     // For sqrt, uncertainty is (dm2/(2*sqrt(m2)))
-//     EXPECT_DOUBLE_EQ(result.uncertainty(), 0.4 / (2.0 * 2.0));
-// }
-
 TEST_F(MeasurementMathRSSTest, multiply_rss_measurement_scalar)
 {
     using meter_meas = pkr::units::measurement_rss_t<pkr::units::meter_t<double>>;

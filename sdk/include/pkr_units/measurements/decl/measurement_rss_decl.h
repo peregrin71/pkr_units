@@ -49,8 +49,12 @@ private:
     UnitT m_uncertainty; // Uncertainty as same unit type
 
 public:
-    // Default constructor
-    constexpr measurement_rss_t() = default;
+    // Default constructor - initializes members to zero
+    constexpr measurement_rss_t()
+        : m_value{}
+        , m_uncertainty{}
+    {
+    }
 
     // Construction: uncertainty must be compatible unit type
     constexpr measurement_rss_t(UnitT value, UnitT uncertainty)
@@ -158,7 +162,7 @@ public:
         // Detect self-multiplication only when types match
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
                 // This is m * m (fully correlated) - use square approach
                 auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
@@ -187,7 +191,7 @@ public:
         // Detect self-division only when types match
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
                 // Result is dimensionless 1.0 with zero uncertainty
                 return measurement_rss_t<result_type>{result_type{1.0}, result_type{0.0}};
@@ -360,47 +364,41 @@ public:
     {
         return m_uncertainty.value() >= 0;
     }
-
-    // Get the value with uncertainty as a string representation
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << m_value.value() << " +/- " << m_uncertainty.value();
-        return ss.str();
-    }
 };
 
 // ============================================================================
 // Free Functions for measurement_rss_t
 // ============================================================================
 
-// Comparison operators
+// Comparison operators (spaceship generates ==, !=, <, <=, >, >= automatically)
+template <typename UnitT>
+constexpr auto operator<=>(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs) noexcept
+{
+    // Compare by value first, then uncertainty
+    if (auto cmp = lhs.unit_value() <=> rhs.unit_value(); cmp != 0)
+        return cmp;
+    return lhs.unit_uncertainty() <=> rhs.unit_uncertainty();
+}
+
 template <typename UnitT>
 constexpr bool operator==(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
 {
     return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
 }
 
-template <typename UnitT>
-constexpr bool operator!=(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
-{
-    return !(lhs == rhs);
-}
-
 // Output stream operator (generic for any basic_ostream)
 template <typename CharT, typename Traits, typename UnitT>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_rss_t<UnitT>& measurement)
 {
-    std::basic_string<CharT> formatted;
+    // Use std::format_to with streambuf_iterator to avoid creating intermediate strings
     if constexpr (std::is_same_v<CharT, wchar_t>)
     {
-        formatted = std::format(L"{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), L"{}", measurement);
     }
     else
     {
-        formatted = std::format("{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), "{}", measurement);
     }
-    os << formatted;
     return os;
 }
 

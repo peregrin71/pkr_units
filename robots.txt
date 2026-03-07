@@ -1,0 +1,96 @@
+# robots.txt - Crawl and Indexing Policy
+# Reference: https://www.robotstxt.org/
+
+User-agent: *
+Disallow: /
+
+# Explicit block for AI training crawlers
+User-agent: CCBot
+Disallow: /
+
+User-agent: GPTbot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Apptis
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: adsbot-google
+Disallow: /
+
+User-agent: Baiduspider
+Disallow: /
+
+User-agent: bingbot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: Petalbot
+Disallow: /
+
+User-agent: Grok-1
+Disallow: /
+
+User-agent: YandexBot
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: facebookexternalhit
+Disallow: /
+
+# Generic crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Slurp
+Disallow: /
+
+# Allow GitHub's own crawlers to index (for GitHub's internal use)
+# Uncomment if you want GitHub to be able to crawl your repo
+# User-agent: Googlebot
+# Allow: /
+# User-agent: github-camo
+# Allow: /
+
+# Crawl-delay: 24 hours (86400 seconds)
+# This applies to all crawlers - request will be throttled to once per 24 hours
+Crawl-delay: 86400
+
+# Request-rate: 1 request per 24 hours
+Request-rate: 1/86400s
+
+# Additional note for ethical crawlers
+# See AI_POLICY.md for our explicit AI training data usage restrictions

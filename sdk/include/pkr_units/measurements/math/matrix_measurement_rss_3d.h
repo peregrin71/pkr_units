@@ -21,7 +21,10 @@ public:
 
     array_type data;
 
-    constexpr matrix_measurement_rss_3d_t() = default;
+    constexpr matrix_measurement_rss_3d_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_measurement_rss_3d_t(const array_type& arr)
         : data(arr)

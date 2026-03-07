@@ -17,7 +17,11 @@ public:
     using value_type = T;
     using array_type = std::array<std::array<T, 3>, 3>;
     array_type data;
-    constexpr matrix_3d_units_t() = default;
+
+    constexpr matrix_3d_units_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_3d_units_t(const array_type& arr)
         : data(arr)

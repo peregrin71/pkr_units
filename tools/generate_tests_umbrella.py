@@ -19,6 +19,9 @@ def generate(out_path: Path):
         # skip removed/legacy umbrella header
         if rel == 'units/computer_science/count.h':
             continue
+        # skip optional nlohmann/json integration (has conditional dependency)
+        if rel == 'json/nlohmann_support.h':
+            continue
         entries.append(rel)
     entries.sort()
 

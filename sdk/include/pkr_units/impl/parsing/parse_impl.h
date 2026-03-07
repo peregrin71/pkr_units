@@ -146,19 +146,42 @@ std::optional<ValueType> parse_numeric_char(std::string_view numeric_str)
 {
     try
     {
-        std::string num_str(numeric_str);
+        // Use a stack buffer for small strings to avoid heap allocation in the common case
+        // Most numeric literals are much less than 64 bytes
+        std::array<char, 64> buffer{};
+        std::string_view to_parse = numeric_str;
 
-        // Remove float suffix before parsing
-        if (!num_str.empty() && (num_str.back() == 'f' || num_str.back() == 'F'))
+        if (numeric_str.size() < buffer.size())
         {
-            num_str.pop_back();
+            // Copy to buffer and remove suffix in-place if needed
+            std::copy(numeric_str.begin(), numeric_str.end(), buffer.begin());
+            buffer[numeric_str.size()] = '\0';
+
+            // Check and remove float suffix
+            std::size_t actual_len = numeric_str.size();
+            if (!numeric_str.empty() && (numeric_str.back() == 'f' || numeric_str.back() == 'F'))
+            {
+                actual_len--;
+                buffer[actual_len] = '\0';
+            }
+            to_parse = std::string_view(buffer.data(), actual_len);
+        }
+        else
+        {
+            // Fallback to std::string only for oversized input (edge case)
+            std::string num_str(numeric_str);
+            if (!num_str.empty() && (num_str.back() == 'f' || num_str.back() == 'F'))
+            {
+                num_str.pop_back();
+            }
+            to_parse = num_str;
         }
 
         if constexpr (std::is_floating_point_v<ValueType>)
         {
             char* endptr = nullptr;
-            double value = std::strtod(num_str.c_str(), &endptr);
-            if (endptr == num_str.c_str() || endptr == nullptr)
+            double value = std::strtod(to_parse.data(), &endptr);
+            if (endptr == to_parse.data() || endptr == nullptr)
             {
                 return std::nullopt;
             }
@@ -168,8 +191,8 @@ std::optional<ValueType> parse_numeric_char(std::string_view numeric_str)
         {
             // For non-floating point types, attempt conversion
             char* endptr = nullptr;
-            long value = std::strtol(num_str.c_str(), &endptr, 10);
-            if (endptr == num_str.c_str() || endptr == nullptr)
+            long value = std::strtol(to_parse.data(), &endptr, 10);
+            if (endptr == to_parse.data() || endptr == nullptr)
             {
                 return std::nullopt;
             }
