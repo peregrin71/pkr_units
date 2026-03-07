@@ -106,16 +106,11 @@ constexpr bool is_constructible(args_t...)
 
 } // namespace compile_time_testing
 
-//-----------------------------------------------------------------------------------------------------------------------------------------
-// Define MACROS to setup compile time test code
-// TODO : get macros right for GCC/Clang (only tested msvc so far)
-
 #define COMPILE_STRING_CAT2(a, b) a##b
 #define COMPILE_STRING_CAT(a, b) COMPILE_STRING_CAT2(a, b)
-#define COMPILE_LINE_VAR COMPILE_STRING_CAT(can_compile_line_, __LINE__)      // create a unique boolean variable name (for use in a unit test file)
-#define COMPILE_LINE_LAMBDA COMPILE_STRING_CAT(can_compile_lambda_, __LINE__) // create a unique generic lamabda function name  (for use in a unit test file)
-#define EVAL_COMPILE_LINE_LAMBDA \
-    COMPILE_STRING_CAT(eval_compile_lambda_, __LINE__) // create a unique generic lamabda function name  (for use in a unit test file)
+#define COMPILE_LINE_VAR COMPILE_STRING_CAT(can_compile_line_, __LINE__)
+#define COMPILE_LINE_LAMBDA COMPILE_STRING_CAT(can_compile_lambda_, __LINE__)
+#define EVAL_COMPILE_LINE_LAMBDA COMPILE_STRING_CAT(eval_compile_lambda_, __LINE__)
 #define COMPILE_FORWARD_ARGS(expression) expression(std::forward<decltype(args)>(args)...)
 
 //-----------------------------------------------------------------------------------------------------------------------------------------

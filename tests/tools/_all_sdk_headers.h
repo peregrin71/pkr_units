@@ -45,6 +45,8 @@
 #include <pkr_units/impl/unit_t.h>
 #include <pkr_units/impl/unit_t_core.h>
 #include <pkr_units/impl/unit_t_operators.h>
+#include <pkr_units/json/json.h>
+#include <pkr_units/json/json_support.h>
 #include <pkr_units/literals/acceleration.h>
 #include <pkr_units/literals/amount.h>
 #include <pkr_units/literals/current.h>
@@ -84,6 +86,7 @@
 #include <pkr_units/measurements/measurement_lin_4d.h>
 #include <pkr_units/measurements/measurement_rss_3d.h>
 #include <pkr_units/measurements/measurement_rss_4d.h>
+#include <pkr_units/measurements/unit_series.h>
 #include <pkr_units/si_units.h>
 #include <pkr_units/units/astronomical/angle.h>
 #include <pkr_units/units/astronomical/length.h>
@@ -172,5 +175,6 @@
 #include <pkr_units/units/temperature/temperature_cast.h>
 #include <pkr_units/units/unit_math_3d.h>
 #include <pkr_units/units/unit_math_4d.h>
+#include <pkr_units/units/unit_series.h>
 
 #endif // PKR_UNITS_ALL_SDK_HEADERS_H

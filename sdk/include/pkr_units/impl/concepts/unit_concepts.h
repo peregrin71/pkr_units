@@ -63,4 +63,24 @@ concept pkr_unit_sqrt_invalid_c = is_pkr_unit_c<T> && !pkr_unit_sqrt_valid_c<T>;
 template <typename T>
 concept is_std_complex_c = requires { typename T::value_type; } && std::same_as<T, std::complex<typename T::value_type>>;
 
+// ============================================================================
+// Character type concepts (C++20)
+// ============================================================================
+
+// Concept for narrow character types
+template <typename CharT>
+concept is_narrow_char_c = std::same_as<CharT, char>;
+
+// Concept for wide character types
+template <typename CharT>
+concept is_wide_char_c = std::same_as<CharT, wchar_t>;
+
+// Concept for UTF-8 character types
+template <typename CharT>
+concept is_utf8_char_c = std::same_as<CharT, char8_t>;
+
+// Concept for any character type (narrow, wide, or utf-8)
+template <typename CharT>
+concept is_char_c = is_narrow_char_c<CharT> || is_wide_char_c<CharT> || is_utf8_char_c<CharT>;
+
 } // namespace PKR_UNITS_NAMESPACE

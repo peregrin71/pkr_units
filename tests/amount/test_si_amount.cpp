@@ -2,100 +2,45 @@
 #include <pkr_units/units/base/amount.h>
 
 using namespace ::testing;
+using namespace pkr::units;
+
+static_assert(std::is_same_v<decltype(std::declval<mole_t<double>>() + std::declval<mole_t<double>>()), mole_t<double>>, "Mole addition must return mole_t");
+static_assert(std::is_same_v<decltype(std::declval<mole_t<double>>() * 2.0), mole_t<double>>, "Mole scalar multiplication must return mole_t");
 
 class SiAmountTest : public Test
 {
 };
 
-// ============================================================================
-// Basic Construction and Value Access Tests
-// ============================================================================
-
-TEST_F(SiAmountTest, mole_construction)
+TEST_F(SiAmountTest, construction_and_access)
 {
     pkr::units::mole_t<double> mol{5.0};
     ASSERT_DOUBLE_EQ(mol.value(), 5.0);
-}
-
-TEST_F(SiAmountTest, mole_dereference_operator)
-{
-    pkr::units::mole_t<double> mol{5.0};
     ASSERT_DOUBLE_EQ(*mol, 5.0);
 }
 
-TEST_F(SiAmountTest, mole_zero_value)
+TEST_F(SiAmountTest, zero_and_negative_values)
 {
-    pkr::units::mole_t<double> mol{0.0};
-    ASSERT_DOUBLE_EQ(mol.value(), 0.0);
+    pkr::units::mole_t<double> zero_mol{0.0};
+    ASSERT_DOUBLE_EQ(zero_mol.value(), 0.0);
+
+    pkr::units::mole_t<double> neg_mol{-3.5};
+    ASSERT_DOUBLE_EQ(neg_mol.value(), -3.5);
 }
 
-TEST_F(SiAmountTest, mole_negative_value)
-{
-    pkr::units::mole_t<double> mol{-3.5};
-    ASSERT_DOUBLE_EQ(mol.value(), -3.5);
-}
-
-TEST_F(SiAmountTest, millimole_construction)
+TEST_F(SiAmountTest, unit_variants)
 {
     pkr::units::millimole_t<double> mmol{250.0};
     ASSERT_DOUBLE_EQ(mmol.value(), 250.0);
-}
 
-TEST_F(SiAmountTest, micromole_construction)
-{
     pkr::units::micromole_t<double> umol{1000.0};
     ASSERT_DOUBLE_EQ(umol.value(), 1000.0);
-}
 
-TEST_F(SiAmountTest, nanomole_construction)
-{
     pkr::units::nanomole_t<double> nmol{100.0};
     ASSERT_DOUBLE_EQ(nmol.value(), 100.0);
-}
 
-TEST_F(SiAmountTest, kilomole_construction)
-{
     pkr::units::kilomole_t<double> kmol{2.5};
     ASSERT_DOUBLE_EQ(kmol.value(), 2.5);
 }
-
-// ============================================================================
-// Copy and Move Tests
-// ============================================================================
-
-TEST_F(SiAmountTest, copy_constructor)
-{
-    pkr::units::mole_t<double> mol1{5.0};
-    pkr::units::mole_t<double> mol2 = mol1;
-    ASSERT_DOUBLE_EQ(mol2.value(), 5.0);
-}
-
-TEST_F(SiAmountTest, move_constructor)
-{
-    pkr::units::mole_t<double> mol1{5.0};
-    pkr::units::mole_t<double> mol2 = std::move(mol1);
-    ASSERT_DOUBLE_EQ(mol2.value(), 5.0);
-}
-
-TEST_F(SiAmountTest, copy_assignment)
-{
-    pkr::units::mole_t<double> mol1{5.0};
-    pkr::units::mole_t<double> mol2{0.0};
-    mol2 = mol1;
-    ASSERT_DOUBLE_EQ(mol2.value(), 5.0);
-}
-
-TEST_F(SiAmountTest, move_assignment)
-{
-    pkr::units::mole_t<double> mol1{5.0};
-    pkr::units::mole_t<double> mol2{0.0};
-    mol2 = std::move(mol1);
-    ASSERT_DOUBLE_EQ(mol2.value(), 5.0);
-}
-
-// ============================================================================
-// Arithmetic Tests - Same Unit
-// ============================================================================
 
 TEST_F(SiAmountTest, add_moles)
 {

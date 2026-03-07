@@ -70,16 +70,7 @@ constexpr unit_t<target_type_t, target_ratio_t, target_dim_v> unit_cast(const un
     return unit_cast<target_unit_t>(source);
 }
 
-// Unified casting for any two pkr units with matching dimensions.  This
-// handles plain `unit_t` types, derived strong types, or any mix of the two.
-// The old two-overload design was brittle; overload resolution could fail when
-// one operand was a base type and the other a derived type because the second
-// overload required both arguments to have an `_base` alias.  The result was
-// the caller ending up with a plain `unit_t` when a more specific derived type
-// existed (see examples errors during clang build).  The new implementation
-// computes the conversion via `unit_cast_impl` and then constructs the target
-// type from the converted value, which works uniformly.
-
+// Unified casting for any two pkr units with matching dimensions.
 template <is_pkr_unit_c Target, is_pkr_unit_c Source>
     requires(details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension) &&
             (!std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, celsius_tag_t> &&

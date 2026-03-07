@@ -388,11 +388,11 @@ struct is_pkr_unit<T> : std::true_type
     static constexpr dimension_t value_dimension = T::_base::dimension::value;
 };
 
-// ------------------------------------------------------------------
-// NEW: unified trait helpers for easier access (see design notes)
-// ------------------------------------------------------------------
+// C++20 variable template for cleaner usage
+template <typename T>
+inline constexpr bool is_pkr_unit_v = is_pkr_unit<T>::value;
 
-// Primary template: non-unit by default
+// Trait helpers for unit detection
 template <typename U>
 struct unit_traits
 {

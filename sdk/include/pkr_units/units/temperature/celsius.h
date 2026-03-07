@@ -6,12 +6,9 @@ namespace PKR_UNITS_NAMESPACE
 {
 // Celsius temperature
 //
-// The type is tagged with `celsius_tag_t` so that conversions can be
-// specialized in `temperature_cast.h`.  This replaces the earlier
-// "no _base typedef" marker technique; the unit now simply provides
-// `_base` via `unit_t`, which allows generic helpers to inspect the tag.
-// Conversions requiring an offset (Celsius <-> Fahrenheit) are handled by
-// the custom `unit_cast` overloads in temperature_cast.h.
+// Tagged with `celsius_tag_t` for specialization in temperature_cast.h.
+// Conversions with offset (Celsius <-> Fahrenheit) are handled by
+// custom `unit_cast` overloads in temperature_cast.h.
 // tag to identify affine Celsius-scale units
 struct celsius_tag_t
 {

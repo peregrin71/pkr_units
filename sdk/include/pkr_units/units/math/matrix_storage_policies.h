@@ -239,12 +239,20 @@ public:
 
     T& get(std::size_t row, std::size_t col)
     {
-        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
+        if (using_arena && arena_index < POOL_SIZE)
+        {
+            return get_pool_ptr()[arena_index][row][col];
+        }
+        return stack_fallback[row][col];
     }
 
     const T& get(std::size_t row, std::size_t col) const
     {
-        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
+        if (using_arena && arena_index < POOL_SIZE)
+        {
+            return get_pool_ptr()[arena_index][row][col];
+        }
+        return stack_fallback[row][col];
     }
 
     std::array<T, 4>& operator[](std::size_t row)

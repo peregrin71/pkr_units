@@ -25,6 +25,7 @@ namespace PKR_UNITS_NAMESPACE
 template <typename... Units>
 struct per
 {
+    using per_type = per<Units...>; // Self-reference for concept detection
 };
 
 // Specialized per templates for common powers to avoid explicit integral_constant
@@ -106,18 +107,13 @@ constexpr dimension_t pow_dimension(dimension_t dim, int power) noexcept
 // Type traits helpers
 // ========================================================================
 
+// C++20 Concept: Type is std::integral_constant<T, Value>
 template <typename T>
-struct is_integral_constant : std::false_type
-{
+concept is_integral_constant_c = requires {
+    typename T::value_type;
+    typename std::integral_constant<typename T::value_type, T::value>;
+    std::same_as<std::remove_cvref_t<T>, std::integral_constant<typename T::value_type, T::value>>;
 };
-
-template <typename T, T Value>
-struct is_integral_constant<std::integral_constant<T, Value>> : std::true_type
-{
-};
-
-template <typename T>
-constexpr bool is_integral_constant_v = is_integral_constant<T>::value;
 
 // ========================================================================
 // Ratio helpers
@@ -191,7 +187,7 @@ struct apply_denominators<Ratio, Dim, Unit>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename PowerConst, typename... Rest>
-    requires(is_pkr_unit_c<Unit> && is_integral_constant_v<PowerConst>)
+    requires(is_pkr_unit_c<Unit> && is_integral_constant_c<PowerConst>)
 struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -248,38 +244,23 @@ constexpr auto
 
 namespace _multi_unit_cast_detail
 {
-// Check if type is per<...>
-template <typename T, typename = void>
-struct is_per : std::false_type
-{
-};
-
-template <typename... Units>
-struct is_per<per<Units...>> : std::true_type
-{
-};
-
+// Concept: Type is per<Units...> or has per_type member
 template <typename T>
-struct is_per<T, std::void_t<typename T::per_type>> : is_per<typename T::per_type>
-{
-};
-
-template <typename T>
-constexpr bool is_per_v = is_per<T>::value;
+concept is_per_c = requires { typename T::per_type; };
 
 // ========================================================================
 // Dimension validation concept
 // ========================================================================
 
 template <typename NumUnit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_dual = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+concept valid_multi_unit_cast_dual = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
 concept valid_multi_unit_cast_triple =
-    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_pkr_unit_c<Num3Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_pkr_unit_c<Num3Unit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 // Helper struct for single numerator with per denominator
 template <typename num_t, typename per_wrapper>

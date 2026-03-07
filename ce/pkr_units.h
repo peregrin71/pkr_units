@@ -362,6 +362,9 @@ struct is_pkr_unit<T> : std::true_type
     static constexpr dimension_t value_dimension = T::_base::dimension::value;
 };
 
+template <typename T>
+inline constexpr bool is_pkr_unit_v = is_pkr_unit<T>::value;
+
 template <typename U>
 struct unit_traits
 {
@@ -537,6 +540,18 @@ concept pkr_unit_sqrt_invalid_c = is_pkr_unit_c<T> && !pkr_unit_sqrt_valid_c<T>;
 template <typename T>
 concept is_std_complex_c = requires { typename T::value_type; } && std::same_as<T, std::complex<typename T::value_type>>;
 
+template <typename CharT>
+concept is_narrow_char_c = std::same_as<CharT, char>;
+
+template <typename CharT>
+concept is_wide_char_c = std::same_as<CharT, wchar_t>;
+
+template <typename CharT>
+concept is_utf8_char_c = std::same_as<CharT, char8_t>;
+
+template <typename CharT>
+concept is_char_c = is_narrow_char_c<CharT> || is_wide_char_c<CharT> || is_utf8_char_c<CharT>;
+
 }
 
 namespace pkr::units
@@ -568,53 +583,58 @@ constexpr unit_t<type_t, ratio_t1, dim_v, tag_t>
     type_t converted_rhs = details::convert_ratio_to<type_t, ratio_t2, ratio_t1>(rhs.value());
     return unit_t<type_t, ratio_t1, dim_v, tag_t>{lhs.value() + converted_rhs};
 }
-
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires(same_dimensions_c<T1, T2>)
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 {
 
-    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) + static_cast<const typename T2::_base&>(rhs));
+    return T1{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) + rhs);
+    return T1{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+
+    auto base_result = (lhs + static_cast<const typename T2::_base&>(rhs));
+    return T2{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+
+    if constexpr (std::is_same_v<T1, T2>)
     {
 
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) + static_cast<const typename T2::_base&>(rhs));
-        return T1{base_result.value()};
-    }
-    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
-    {
-
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) + rhs);
-        return T1{base_result.value()};
-    }
-    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
-    {
-
-        auto base_result = (lhs + static_cast<const typename T2::_base&>(rhs));
-        return T2{base_result.value()};
+        return T1{lhs.value() + rhs.value()};
     }
     else
     {
 
-        if constexpr (std::is_same_v<T1, T2>)
+        using value_type = typename details::is_pkr_unit<T1>::value_type;
+        using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+        using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+        if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
         {
             return T1{lhs.value() + rhs.value()};
         }
         else
         {
-
-            using value_type = typename details::is_pkr_unit<T1>::value_type;
-            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
-
-            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
-            {
-                return T1{lhs.value() + rhs.value()};
-            }
-            else
-            {
-                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-                return T1{lhs.value() + converted_rhs};
-            }
+            value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+            return T1{lhs.value() + converted_rhs};
         }
     }
 }
@@ -627,45 +647,51 @@ constexpr auto operator+(const T1&, const T2&) noexcept
 }
 
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires(same_dimensions_c<T1, T2>)
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
 constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
 {
-    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) - static_cast<const typename T2::_base&>(rhs));
+    return T1{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) - rhs);
+    return T1{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    auto base_result = (lhs - static_cast<const typename T2::_base&>(rhs));
+    return T2{base_result.value()};
+}
+
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    if constexpr (std::is_same_v<T1, T2>)
     {
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) - static_cast<const typename T2::_base&>(rhs));
-        return T1{base_result.value()};
-    }
-    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
-    {
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) - rhs);
-        return T1{base_result.value()};
-    }
-    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
-    {
-        auto base_result = (lhs - static_cast<const typename T2::_base&>(rhs));
-        return T2{base_result.value()};
+        return T1{lhs.value() - rhs.value()};
     }
     else
     {
-        if constexpr (std::is_same_v<T1, T2>)
+        using value_type = typename details::is_pkr_unit<T1>::value_type;
+        using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+        using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+        if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
         {
             return T1{lhs.value() - rhs.value()};
         }
         else
         {
-            using value_type = typename details::is_pkr_unit<T1>::value_type;
-            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
-
-            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
-            {
-                return T1{lhs.value() - rhs.value()};
-            }
-            else
-            {
-                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-                return T1{lhs.value() - converted_rhs};
-            }
+            value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+            return T1{lhs.value() - converted_rhs};
         }
     }
 }
@@ -959,76 +985,20 @@ constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
         if constexpr (is_derived_pkr_unit_c<unit_type>)
         {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
+            using base_type = typename unit_type::_base;
+            using ratio_type = typename details::is_pkr_unit<base_type>::ratio_type;
+            const auto& base_unit = static_cast<const base_type&>(unit);
             return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
         else
         {
+            using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
             return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
     };
     return to_canonical(lhs) == to_canonical(rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs == rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
-{
-    auto to_canonical = [](const auto& unit)
-    {
-        using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
-        if constexpr (is_derived_pkr_unit_c<unit_type>)
-        {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
-            return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
-        }
-        else
-        {
-            return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
-        }
-    };
-    return to_canonical(lhs) < to_canonical(rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
-{
-    return lhs < rhs || lhs == rhs;
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs <= rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs < rhs);
 }
 
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
@@ -1039,16 +1009,16 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
         if constexpr (is_derived_pkr_unit_c<unit_type>)
         {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
+            using base_type = typename unit_type::_base;
+            using ratio_type = typename details::is_pkr_unit<base_type>::ratio_type;
+            const auto& base_unit = static_cast<const base_type&>(unit);
             return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
         else
         {
+            using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
             return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
     };
@@ -1351,6 +1321,7 @@ constexpr unit_t<target_type_t, target_ratio_t, target_dim_v> unit_cast(const un
 
     return unit_cast<target_unit_t>(source);
 }
+
 template <is_pkr_unit_c Target, is_pkr_unit_c Source>
     requires(details::is_pkr_unit<Target>::value_dimension == details::is_pkr_unit<Source>::value_dimension) &&
             (!std::is_same_v<typename details::is_pkr_unit<Target>::tag_type, celsius_tag_t> &&
@@ -9534,16 +9505,11 @@ std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>&
 
     if constexpr (std::is_same_v<CharT, wchar_t>)
     {
-
-        std::wstring formatted = std::format(L"{}", unit);
-        os << formatted;
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), L"{}", unit);
     }
-
     else
     {
-
-        std::string formatted = std::format("{}", unit);
-        os << formatted;
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), "{}", unit);
     }
     return os;
 }
@@ -10780,6 +10746,7 @@ namespace pkr::units
 template <typename... Units>
 struct per
 {
+    using per_type = per<Units...>;
 };
 
 template <typename Unit>
@@ -10852,17 +10819,11 @@ constexpr dimension_t pow_dimension(dimension_t dim, int power) noexcept
 }
 
 template <typename T>
-struct is_integral_constant : std::false_type
-{
+concept is_integral_constant_c = requires {
+    typename T::value_type;
+    typename std::integral_constant<typename T::value_type, T::value>;
+    std::same_as<std::remove_cvref_t<T>, std::integral_constant<typename T::value_type, T::value>>;
 };
-
-template <typename T, T Value>
-struct is_integral_constant<std::integral_constant<T, Value>> : std::true_type
-{
-};
-
-template <typename T>
-constexpr bool is_integral_constant_v = is_integral_constant<T>::value;
 
 template <typename Ratio, int power_v>
 struct ratio_pow
@@ -10928,7 +10889,7 @@ struct apply_denominators<Ratio, Dim, Unit>
 };
 
 template <typename Ratio, dimension_t Dim, typename Unit, typename PowerConst, typename... Rest>
-    requires(is_pkr_unit_c<Unit> && is_integral_constant_v<PowerConst>)
+    requires(is_pkr_unit_c<Unit> && is_integral_constant_c<PowerConst>)
 struct apply_denominators<Ratio, Dim, Unit, PowerConst, Rest...>
 {
     using unit_traits = details::is_pkr_unit<Unit>;
@@ -10978,33 +10939,18 @@ constexpr auto
 namespace _multi_unit_cast_detail
 {
 
-template <typename T, typename = void>
-struct is_per : std::false_type
-{
-};
-
-template <typename... Units>
-struct is_per<per<Units...>> : std::true_type
-{
-};
-
 template <typename T>
-struct is_per<T, std::void_t<typename T::per_type>> : is_per<typename T::per_type>
-{
-};
-
-template <typename T>
-constexpr bool is_per_v = is_per<T>::value;
+concept is_per_c = requires { typename T::per_type; };
 
 template <typename NumUnit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+concept valid_multi_unit_cast_single = is_pkr_unit_c<NumUnit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename DenomPer, typename SourceUnit>
-concept valid_multi_unit_cast_dual = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+concept valid_multi_unit_cast_dual = is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename Num1Unit, typename Num2Unit, typename Num3Unit, typename DenomPer, typename SourceUnit>
 concept valid_multi_unit_cast_triple =
-    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_pkr_unit_c<Num3Unit> && is_per_v<DenomPer> && is_pkr_unit_c<SourceUnit>;
+    is_pkr_unit_c<Num1Unit> && is_pkr_unit_c<Num2Unit> && is_pkr_unit_c<Num3Unit> && is_per_c<DenomPer> && is_pkr_unit_c<SourceUnit>;
 
 template <typename num_t, typename per_wrapper>
 struct multi_unit_cast_helper;
@@ -11890,18 +11836,40 @@ std::optional<ValueType> parse_numeric_char(std::string_view numeric_str)
 {
     try
     {
-        std::string num_str(numeric_str);
 
-        if (!num_str.empty() && (num_str.back() == 'f' || num_str.back() == 'F'))
+        std::array<char, 64> buffer{};
+        std::string_view to_parse = numeric_str;
+
+        if (numeric_str.size() < buffer.size())
         {
-            num_str.pop_back();
+
+            std::copy(numeric_str.begin(), numeric_str.end(), buffer.begin());
+            buffer[numeric_str.size()] = '\0';
+
+            std::size_t actual_len = numeric_str.size();
+            if (!numeric_str.empty() && (numeric_str.back() == 'f' || numeric_str.back() == 'F'))
+            {
+                actual_len--;
+                buffer[actual_len] = '\0';
+            }
+            to_parse = std::string_view(buffer.data(), actual_len);
+        }
+        else
+        {
+
+            std::string num_str(numeric_str);
+            if (!num_str.empty() && (num_str.back() == 'f' || num_str.back() == 'F'))
+            {
+                num_str.pop_back();
+            }
+            to_parse = num_str;
         }
 
         if constexpr (std::is_floating_point_v<ValueType>)
         {
             char* endptr = nullptr;
-            double value = std::strtod(num_str.c_str(), &endptr);
-            if (endptr == num_str.c_str() || endptr == nullptr)
+            double value = std::strtod(to_parse.data(), &endptr);
+            if (endptr == to_parse.data() || endptr == nullptr)
             {
                 return std::nullopt;
             }
@@ -11911,8 +11879,8 @@ std::optional<ValueType> parse_numeric_char(std::string_view numeric_str)
         {
 
             char* endptr = nullptr;
-            long value = std::strtol(num_str.c_str(), &endptr, 10);
-            if (endptr == num_str.c_str() || endptr == nullptr)
+            long value = std::strtol(to_parse.data(), &endptr, 10);
+            if (endptr == to_parse.data() || endptr == nullptr)
             {
                 return std::nullopt;
             }
@@ -12135,7 +12103,11 @@ private:
 
 public:
 
-    constexpr measurement_lin_t() = default;
+    constexpr measurement_lin_t()
+        : m_value{}
+        , m_uncertainty{}
+    {
+    }
 
     constexpr measurement_lin_t(UnitT value, UnitT uncertainty)
         : m_value(value)
@@ -12207,7 +12179,7 @@ public:
 
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
 
                 auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
@@ -12231,7 +12203,7 @@ public:
 
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_lin_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
 
                 return measurement_lin_t<result_type>{result_type{1.0}, result_type{0.0}};
@@ -12292,14 +12264,16 @@ public:
     {
         return m_uncertainty.value() >= 0;
     }
-
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << m_value.value() << " +/- " << m_uncertainty.value();
-        return ss.str();
-    }
 };
+
+template <typename UnitT>
+constexpr auto operator<=>(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs) noexcept
+{
+
+    if (auto cmp = lhs.unit_value() <=> rhs.unit_value(); cmp != 0)
+        return cmp;
+    return lhs.unit_uncertainty() <=> rhs.unit_uncertainty();
+}
 
 template <typename UnitT>
 constexpr bool operator==(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
@@ -12307,25 +12281,18 @@ constexpr bool operator==(const measurement_lin_t<UnitT>& lhs, const measurement
     return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
 }
 
-template <typename UnitT>
-constexpr bool operator!=(const measurement_lin_t<UnitT>& lhs, const measurement_lin_t<UnitT>& rhs)
-{
-    return !(lhs == rhs);
-}
-
 template <typename CharT, typename Traits, typename UnitT>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_lin_t<UnitT>& measurement)
 {
-    std::basic_string<CharT> formatted;
+
     if constexpr (std::is_same_v<CharT, wchar_t>)
     {
-        formatted = std::format(L"{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), L"{}", measurement);
     }
     else
     {
-        formatted = std::format("{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), "{}", measurement);
     }
-    os << formatted;
     return os;
 }
 
@@ -12551,7 +12518,11 @@ private:
 
 public:
 
-    constexpr measurement_rss_t() = default;
+    constexpr measurement_rss_t()
+        : m_value{}
+        , m_uncertainty{}
+    {
+    }
 
     constexpr measurement_rss_t(UnitT value, UnitT uncertainty)
         : m_value(value)
@@ -12627,7 +12598,7 @@ public:
 
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
 
                 auto result_uncertainty_value = result_value.value() * (2.0 * rel_uncertainty1);
@@ -12651,7 +12622,7 @@ public:
 
         if constexpr (std::is_same_v<UnitT, OtherUnitT>)
         {
-            if (this == reinterpret_cast<const measurement_rss_t<UnitT>*>(&other))
+            if (std::addressof(other) == this)
             {
 
                 return measurement_rss_t<result_type>{result_type{1.0}, result_type{0.0}};
@@ -12802,14 +12773,16 @@ public:
     {
         return m_uncertainty.value() >= 0;
     }
-
-    [[nodiscard]] std::string to_string() const
-    {
-        std::stringstream ss;
-        ss << m_value.value() << " +/- " << m_uncertainty.value();
-        return ss.str();
-    }
 };
+
+template <typename UnitT>
+constexpr auto operator<=>(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs) noexcept
+{
+
+    if (auto cmp = lhs.unit_value() <=> rhs.unit_value(); cmp != 0)
+        return cmp;
+    return lhs.unit_uncertainty() <=> rhs.unit_uncertainty();
+}
 
 template <typename UnitT>
 constexpr bool operator==(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
@@ -12817,25 +12790,18 @@ constexpr bool operator==(const measurement_rss_t<UnitT>& lhs, const measurement
     return lhs.unit_value() == rhs.unit_value() && lhs.unit_uncertainty() == rhs.unit_uncertainty();
 }
 
-template <typename UnitT>
-constexpr bool operator!=(const measurement_rss_t<UnitT>& lhs, const measurement_rss_t<UnitT>& rhs)
-{
-    return !(lhs == rhs);
-}
-
 template <typename CharT, typename Traits, typename UnitT>
 std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& os, const measurement_rss_t<UnitT>& measurement)
 {
-    std::basic_string<CharT> formatted;
+
     if constexpr (std::is_same_v<CharT, wchar_t>)
     {
-        formatted = std::format(L"{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), L"{}", measurement);
     }
     else
     {
-        formatted = std::format("{}", measurement);
+        std::format_to(std::ostreambuf_iterator<CharT, Traits>(os), "{}", measurement);
     }
-    os << formatted;
     return os;
 }
 
@@ -13079,6 +13045,849 @@ template <typename TargetMeasurement, typename CharT = char>
 inline auto parse_rss(const CharT* input) -> expected_t<TargetMeasurement, parse_error>
 {
     return parse_rss<TargetMeasurement, CharT>(std::basic_string_view<CharT>{input});
+}
+
+}
+namespace pkr::units::json
+{
+template <is_pkr_unit_c UnitT, typename CharT = char>
+auto serialize_unit_to_json_string(const UnitT& unit) -> std::basic_string_view<CharT>
+{
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    auto symbol = impl::get_symbol_for_char<UnitT, CharT>::value();
+
+    std::size_t offset = 0;
+
+    if (offset + 1 > capacity)
+        return {};
+    buffer[offset++] = static_cast<CharT>('{');
+
+    std::basic_string_view<CharT> value_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view value_key_wide = L"\"value\":";
+        value_key = value_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view value_key_ascii = "\"value\":";
+        value_key = value_key_ascii;
+    }
+
+    if (offset + value_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : value_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> num_buf{};
+    auto [ptr, ec] = std::to_chars(num_buf.data(), num_buf.data() + num_buf.size(), unit.value());
+    if (ec != std::errc())
+        return {};
+
+    std::size_t num_len = ptr - num_buf.data();
+    if (offset + num_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < num_len; ++i)
+    {
+        buffer[offset++] = num_buf[i];
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L",\"unit\":\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = ",\"unit\":\"";
+        unit_key = unit_key_ascii;
+    }
+
+    if (offset + unit_key.size() + symbol.size() + 2 > capacity)
+        return {};
+
+    for (CharT c : unit_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : symbol)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::basic_string_view<CharT> close_obj;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view close_obj_wide = L"\"}";
+        close_obj = close_obj_wide;
+    }
+    else
+    {
+        constexpr std::string_view close_obj_ascii = "\"}";
+        close_obj = close_obj_ascii;
+    }
+
+    for (CharT c : close_obj)
+    {
+        buffer[offset++] = c;
+    }
+
+    return std::basic_string_view<CharT>(buffer, offset);
+}
+template <typename MeasT, typename CharT = char>
+auto serialize_measurement_to_json_string(const MeasT& meas) -> std::basic_string_view<CharT>
+{
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    using unit_type = typename MeasT::unit_type;
+    auto symbol = impl::get_symbol_for_char<unit_type, CharT>::value();
+
+    std::size_t offset = 0;
+
+    if (offset + 1 > capacity)
+        return {};
+    buffer[offset++] = static_cast<CharT>('{');
+
+    std::basic_string_view<CharT> value_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view value_key_wide = L"\"value\":";
+        value_key = value_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view value_key_ascii = "\"value\":";
+        value_key = value_key_ascii;
+    }
+
+    if (offset + value_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : value_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> val_buf{};
+    auto [ptr1, ec1] = std::to_chars(val_buf.data(), val_buf.data() + val_buf.size(), meas.value());
+    if (ec1 != std::errc())
+        return {};
+
+    std::size_t val_len = ptr1 - val_buf.data();
+    if (offset + val_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < val_len; ++i)
+    {
+        buffer[offset++] = val_buf[i];
+    }
+
+    std::basic_string_view<CharT> uncert_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view uncert_key_wide = L",\"uncertainty\":";
+        uncert_key = uncert_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view uncert_key_ascii = ",\"uncertainty\":";
+        uncert_key = uncert_key_ascii;
+    }
+
+    if (offset + uncert_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : uncert_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> uncert_buf{};
+    auto [ptr2, ec2] = std::to_chars(uncert_buf.data(), uncert_buf.data() + uncert_buf.size(), meas.uncertainty());
+    if (ec2 != std::errc())
+        return {};
+
+    std::size_t uncert_len = ptr2 - uncert_buf.data();
+    if (offset + uncert_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < uncert_len; ++i)
+    {
+        buffer[offset++] = uncert_buf[i];
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L",\"unit\":\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = ",\"unit\":\"";
+        unit_key = unit_key_ascii;
+    }
+
+    if (offset + unit_key.size() + symbol.size() + 2 > capacity)
+        return {};
+
+    for (CharT c : unit_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : symbol)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::basic_string_view<CharT> close_obj;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view close_obj_wide = L"\"}";
+        close_obj = close_obj_wide;
+    }
+    else
+    {
+        constexpr std::string_view close_obj_ascii = "\"}";
+        close_obj = close_obj_ascii;
+    }
+
+    for (CharT c : close_obj)
+    {
+        buffer[offset++] = c;
+    }
+
+    return std::basic_string_view<CharT>(buffer, offset);
+}
+
+template <typename CharT>
+std::basic_string_view<CharT> extract_json_string(std::basic_string_view<CharT> json, std::basic_string_view<CharT> key)
+{
+    auto key_pos = json.find(key);
+    if (key_pos == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_start = json.find(static_cast<CharT>('"'), key_pos + key.size());
+    if (value_start == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_end = json.find(static_cast<CharT>('"'), value_start + 1);
+    if (value_end == std::basic_string_view<CharT>::npos)
+        return {};
+
+    return json.substr(value_start + 1, value_end - value_start - 1);
+}
+
+template <typename CharT>
+std::basic_string_view<CharT> extract_json_number(std::basic_string_view<CharT> json, std::basic_string_view<CharT> key)
+{
+    auto key_pos = json.find(key);
+    if (key_pos == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_start = key_pos + key.size();
+
+    while (value_start < json.size() && (json[value_start] == static_cast<CharT>(' ') || json[value_start] == static_cast<CharT>('\t')))
+    {
+        ++value_start;
+    }
+
+    auto value_end = value_start;
+    while (value_end < json.size() && (std::isdigit(static_cast<unsigned char>(json[value_end])) || json[value_end] == static_cast<CharT>('.') ||
+                                       json[value_end] == static_cast<CharT>('-') || json[value_end] == static_cast<CharT>('+') ||
+                                       json[value_end] == static_cast<CharT>('e') || json[value_end] == static_cast<CharT>('E')))
+    {
+        ++value_end;
+    }
+
+    return json.substr(value_start, value_end - value_start);
+}
+template <is_pkr_unit_c TargetUnit, typename CharT = char>
+auto deserialize_unit_from_json_string(std::basic_string_view<CharT> json_str) -> expected_t<TargetUnit, parse_error>
+{
+
+    std::basic_string_view<CharT> value_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view value_key_wide = L"\"value\"";
+        value_key = value_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view value_key_ascii = "\"value\"";
+        value_key = value_key_ascii;
+    }
+
+    auto value_part = extract_json_number(json_str, value_key);
+    if (value_part.empty())
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L"\"unit\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = "\"unit\"";
+        unit_key = unit_key_ascii;
+    }
+
+    auto unit_part = extract_json_string(json_str, unit_key);
+    if (unit_part.empty())
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    std::size_t offset = 0;
+
+    if (offset + value_part.size() + 1 + unit_part.size() > capacity)
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    for (CharT c : value_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    buffer[offset++] = static_cast<CharT>(' ');
+
+    for (CharT c : unit_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    return parse<TargetUnit, CharT>(std::basic_string_view<CharT>(buffer, offset));
+}
+template <typename TargetMeasurement, typename CharT = char>
+auto deserialize_measurement_from_json_string(std::basic_string_view<CharT> json_str) -> expected_t<TargetMeasurement, parse_error>
+{
+
+    std::basic_string_view<CharT> value_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view value_key_wide = L"\"value\"";
+        value_key = value_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view value_key_ascii = "\"value\"";
+        value_key = value_key_ascii;
+    }
+
+    auto value_part = extract_json_number(json_str, value_key);
+    if (value_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> uncert_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view uncert_key_wide = L"\"uncertainty\"";
+        uncert_key = uncert_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view uncert_key_ascii = "\"uncertainty\"";
+        uncert_key = uncert_key_ascii;
+    }
+
+    auto uncert_part = extract_json_number(json_str, uncert_key);
+    if (uncert_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L"\"unit\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = "\"unit\"";
+        unit_key = unit_key_ascii;
+    }
+
+    auto unit_part = extract_json_string(json_str, unit_key);
+    if (unit_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto separator = impl::char_traits_dispatch<CharT>::plus_minus();
+
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    std::size_t offset = 0;
+
+    std::size_t needed = value_part.size() + separator.size() + uncert_part.size() + 1 + unit_part.size();
+    if (needed > capacity)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    for (CharT c : value_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : separator)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : uncert_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    buffer[offset++] = static_cast<CharT>(' ');
+
+    for (CharT c : unit_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    return parse_measurement<TargetMeasurement, CharT>(std::basic_string_view<CharT>(buffer, offset));
+}
+
+}
+namespace pkr::units::json
+{
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_value_key()
+{
+    return "\"value\":";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_value_key()
+{
+    return L"\"value\":";
+}
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_unit_key()
+{
+    return ",\"unit\":\"";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_unit_key()
+{
+    return L",\"unit\":\"";
+}
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_close_obj()
+{
+    return "\"}";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_close_obj()
+{
+    return L"\"}";
+}
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_field_sep()
+{
+    return ",";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_field_sep()
+{
+    return L",";
+}
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_open_obj()
+{
+    return "{";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_open_obj()
+{
+    return L"{";
+}
+
+template <is_narrow_char_c CharT>
+[[nodiscard]] constexpr std::string_view get_json_uncertainty_key()
+{
+    return "\"uncertainty\":";
+}
+
+template <is_wide_char_c CharT>
+[[nodiscard]] constexpr std::wstring_view get_json_uncertainty_key()
+{
+    return L"\"uncertainty\":";
+}
+template <is_pkr_unit_c UnitT, typename CharT = char>
+auto serialize_unit_to_json_string(const UnitT& unit) -> std::basic_string_view<CharT>
+{
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    auto symbol = impl::get_symbol_for_char<UnitT, CharT>::value();
+
+    std::size_t offset = 0;
+
+    if (offset + 1 > capacity)
+        return {};
+    buffer[offset++] = static_cast<CharT>('{');
+
+    auto value_key = get_json_value_key<CharT>();
+
+    if (offset + value_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : value_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> num_buf{};
+    auto [ptr, ec] = std::to_chars(num_buf.data(), num_buf.data() + num_buf.size(), unit.value());
+    if (ec != std::errc())
+        return {};
+
+    std::size_t num_len = ptr - num_buf.data();
+    if (offset + num_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < num_len; ++i)
+    {
+        buffer[offset++] = num_buf[i];
+    }
+
+    auto unit_key = get_json_unit_key<CharT>();
+
+    if (offset + unit_key.size() + symbol.size() + 2 > capacity)
+        return {};
+
+    for (CharT c : unit_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : symbol)
+    {
+        buffer[offset++] = c;
+    }
+
+    auto close_obj = get_json_close_obj<CharT>();
+
+    for (CharT c : close_obj)
+    {
+        buffer[offset++] = c;
+    }
+
+    return std::basic_string_view<CharT>(buffer, offset);
+}
+template <typename MeasT, typename CharT = char>
+auto serialize_measurement_to_json_string(const MeasT& meas) -> std::basic_string_view<CharT>
+{
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    using unit_type = typename MeasT::unit_type;
+    auto symbol = impl::get_symbol_for_char<unit_type, CharT>::value();
+
+    std::size_t offset = 0;
+
+    if (offset + 1 > capacity)
+        return {};
+    buffer[offset++] = static_cast<CharT>('{');
+
+    auto value_key = get_json_value_key<CharT>();
+
+    if (offset + value_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : value_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> val_buf{};
+    auto [ptr1, ec1] = std::to_chars(val_buf.data(), val_buf.data() + val_buf.size(), meas.value());
+    if (ec1 != std::errc())
+        return {};
+
+    std::size_t val_len = ptr1 - val_buf.data();
+    if (offset + val_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < val_len; ++i)
+    {
+        buffer[offset++] = val_buf[i];
+    }
+
+    auto uncert_key = get_json_uncertainty_key<CharT>();
+
+    if (offset + uncert_key.size() + 64 > capacity)
+        return {};
+
+    for (CharT c : uncert_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    std::array<CharT, 64> uncert_buf{};
+    auto [ptr2, ec2] = std::to_chars(uncert_buf.data(), uncert_buf.data() + uncert_buf.size(), meas.uncertainty());
+    if (ec2 != std::errc())
+        return {};
+
+    std::size_t uncert_len = ptr2 - uncert_buf.data();
+    if (offset + uncert_len > capacity)
+        return {};
+
+    for (std::size_t i = 0; i < uncert_len; ++i)
+    {
+        buffer[offset++] = uncert_buf[i];
+    }
+
+    auto unit_key = get_json_unit_key<CharT>();
+
+    if (offset + unit_key.size() + symbol.size() + 2 > capacity)
+        return {};
+
+    for (CharT c : unit_key)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : symbol)
+    {
+        buffer[offset++] = c;
+    }
+
+    auto close_obj = get_json_close_obj<CharT>();
+
+    for (CharT c : close_obj)
+    {
+        buffer[offset++] = c;
+    }
+
+    return std::basic_string_view<CharT>(buffer, offset);
+}
+
+template <typename CharT>
+std::basic_string_view<CharT> extract_json_string(std::basic_string_view<CharT> json, std::basic_string_view<CharT> key)
+{
+    auto key_pos = json.find(key);
+    if (key_pos == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_start = json.find(static_cast<CharT>('"'), key_pos + key.size());
+    if (value_start == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_end = json.find(static_cast<CharT>('"'), value_start + 1);
+    if (value_end == std::basic_string_view<CharT>::npos)
+        return {};
+
+    return json.substr(value_start + 1, value_end - value_start - 1);
+}
+
+template <typename CharT>
+std::basic_string_view<CharT> extract_json_number(std::basic_string_view<CharT> json, std::basic_string_view<CharT> key)
+{
+    auto key_pos = json.find(key);
+    if (key_pos == std::basic_string_view<CharT>::npos)
+        return {};
+
+    auto value_start = key_pos + key.size();
+
+    while (value_start < json.size() && (json[value_start] == static_cast<CharT>(' ') || json[value_start] == static_cast<CharT>('\t')))
+    {
+        ++value_start;
+    }
+
+    auto value_end = value_start;
+    while (value_end < json.size() && (std::isdigit(static_cast<unsigned char>(json[value_end])) || json[value_end] == static_cast<CharT>('.') ||
+                                       json[value_end] == static_cast<CharT>('-') || json[value_end] == static_cast<CharT>('+') ||
+                                       json[value_end] == static_cast<CharT>('e') || json[value_end] == static_cast<CharT>('E')))
+    {
+        ++value_end;
+    }
+
+    return json.substr(value_start, value_end - value_start);
+}
+template <is_pkr_unit_c TargetUnit, typename CharT = char>
+auto deserialize_unit_from_json_string(std::basic_string_view<CharT> json_str) -> expected_t<TargetUnit, parse_error>
+{
+
+    auto value_key_str = get_json_value_key<CharT>();
+    auto value_key = std::basic_string_view<CharT>(value_key_str.data(), 7);
+
+    auto value_part = extract_json_number(json_str, value_key);
+    if (value_part.empty())
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L"\"unit\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = "\"unit\"";
+        unit_key = unit_key_ascii;
+    }
+
+    auto unit_part = extract_json_string(json_str, unit_key);
+    if (unit_part.empty())
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    std::size_t offset = 0;
+
+    if (offset + value_part.size() + 1 + unit_part.size() > capacity)
+    {
+        return expected_t<TargetUnit, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    for (CharT c : value_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    buffer[offset++] = static_cast<CharT>(' ');
+
+    for (CharT c : unit_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    return parse<TargetUnit, CharT>(std::basic_string_view<CharT>(buffer, offset));
+}
+template <typename TargetMeasurement, typename CharT = char>
+auto deserialize_measurement_from_json_string(std::basic_string_view<CharT> json_str) -> expected_t<TargetMeasurement, parse_error>
+{
+
+    std::basic_string_view<CharT> value_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view value_key_wide = L"\"value\"";
+        value_key = value_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view value_key_ascii = "\"value\"";
+        value_key = value_key_ascii;
+    }
+
+    auto value_part = extract_json_number(json_str, value_key);
+    if (value_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> uncert_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view uncert_key_wide = L"\"uncertainty\"";
+        uncert_key = uncert_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view uncert_key_ascii = "\"uncertainty\"";
+        uncert_key = uncert_key_ascii;
+    }
+
+    auto uncert_part = extract_json_number(json_str, uncert_key);
+    if (uncert_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    std::basic_string_view<CharT> unit_key;
+    if constexpr (std::is_same_v<CharT, wchar_t>)
+    {
+        constexpr std::wstring_view unit_key_wide = L"\"unit\"";
+        unit_key = unit_key_wide;
+    }
+    else
+    {
+        constexpr std::string_view unit_key_ascii = "\"unit\"";
+        unit_key = unit_key_ascii;
+    }
+
+    auto unit_part = extract_json_string(json_str, unit_key);
+    if (unit_part.empty())
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::symbol_mismatch};
+    }
+
+    auto separator = impl::char_traits_dispatch<CharT>::plus_minus();
+
+    auto& buffer = impl::shared_buffer<CharT>::data();
+    auto capacity = impl::shared_buffer<CharT>::capacity();
+
+    std::size_t offset = 0;
+
+    std::size_t needed = value_part.size() + separator.size() + uncert_part.size() + 1 + unit_part.size();
+    if (needed > capacity)
+    {
+        return expected_t<TargetMeasurement, parse_error>{parse_error::numeric_parse_error};
+    }
+
+    for (CharT c : value_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : separator)
+    {
+        buffer[offset++] = c;
+    }
+
+    for (CharT c : uncert_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    buffer[offset++] = static_cast<CharT>(' ');
+
+    for (CharT c : unit_part)
+    {
+        buffer[offset++] = c;
+    }
+
+    return parse_measurement<TargetMeasurement, CharT>(std::basic_string_view<CharT>(buffer, offset));
 }
 
 }
@@ -14054,6 +14863,7 @@ constexpr nanowatt_t<double> operator""_nW(long double value) noexcept
 
 namespace pkr::units
 {
+
 struct celsius_tag_t
 {
 };
@@ -14819,7 +15629,10 @@ public:
 
     array_type data;
 
-    constexpr matrix_measurement_lin_3d_t() = default;
+    constexpr matrix_measurement_lin_3d_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_measurement_lin_3d_t(const array_type& arr)
         : data(arr)
@@ -15020,7 +15833,10 @@ public:
 
     array_type data;
 
-    constexpr matrix_measurement_lin_4d_t() = default;
+    constexpr matrix_measurement_lin_4d_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_measurement_lin_4d_t(const array_type& arr)
         : data(arr)
@@ -15216,7 +16032,10 @@ public:
 
     array_type data;
 
-    constexpr matrix_measurement_rss_3d_t() = default;
+    constexpr matrix_measurement_rss_3d_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_measurement_rss_3d_t(const array_type& arr)
         : data(arr)
@@ -15415,12 +16234,20 @@ public:
 
     T& get(std::size_t row, std::size_t col)
     {
-        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
+        if (using_arena && arena_index < POOL_SIZE)
+        {
+            return get_pool_ptr()[arena_index][row][col];
+        }
+        return stack_fallback[row][col];
     }
 
     const T& get(std::size_t row, std::size_t col) const
     {
-        return using_arena ? get_pool_ptr()[arena_index][row][col] : stack_fallback[row][col];
+        if (using_arena && arena_index < POOL_SIZE)
+        {
+            return get_pool_ptr()[arena_index][row][col];
+        }
+        return stack_fallback[row][col];
     }
 
     std::array<T, 4>& operator[](std::size_t row)
@@ -15662,6 +16489,1928 @@ constexpr vec_measurement_rss_4d_t<T> operator*(const matrix_measurement_rss_4d_
 {
     return matrix_vector_multiply(m, v);
 }
+
+}
+namespace pkr::units
+{
+
+namespace details
+{
+
+template <typename T>
+struct is_quantity_series_tag
+{
+};
+
+template <typename T>
+concept is_quantity_series_c = std::is_base_of_v<is_quantity_series_tag, T>;
+
+template <typename T>
+struct unit_type_helper
+{
+    using type = T;
+};
+
+template <is_pkr_unit_c UnitT>
+class measurement_lin_t;
+
+template <is_pkr_unit_c UnitT>
+class measurement_rss_t;
+
+template <typename T>
+concept is_measurement_lin_c = requires {
+    typename T::value_type;
+    typename T::uncertainty_type;
+    { std::declval<const T&>().value() } -> std::convertible_to<double>;
+    { std::declval<const T&>().uncertainty() } -> std::convertible_to<double>;
+};
+
+template <typename T>
+concept is_measurement_rss_c = requires {
+    typename T::value_type;
+    typename T::uncertainty_type;
+    { std::declval<const T&>().value() } -> std::convertible_to<double>;
+    { std::declval<const T&>().uncertainty() } -> std::convertible_to<double>;
+};
+
+template <typename T>
+concept is_measurement_c = is_measurement_lin_c<T> || is_measurement_rss_c<T>;
+
+template <typename T>
+concept is_chrono_time_point_c = requires {
+    typename T::clock;
+    typename T::duration;
+    typename T::period;
+    { std::declval<const T&>().time_since_epoch() } -> std::convertible_to<typename T::duration>;
+};
+
+template <typename T>
+concept is_pkr_time_unit = is_pkr_unit_c<T> && details::is_pkr_unit<T>::value_dimension == time_dimension && !is_measurement_lin_c_v<T>;
+template <typename TimeType, typename Quantity>
+struct timed_value
+{
+    TimeType time;
+    Quantity value;
+
+    timed_value() = default;
+    ~timed_value() = default;
+    timed_value(timed_value&&) = default;
+    timed_value& operator=(timed_value&&) = default;
+    timed_value(const timed_value&) = default;
+    timed_value& operator=(const timed_value&) = default;
+
+    timed_value(TimeType t, Quantity v)
+        : time(t)
+        , value(std::move(v))
+    {
+    }
+};
+
+}
+
+template <is_pkr_unit_c UnitT>
+class measurement_lin_t;
+
+template <typename T>
+struct timelike_traits;
+
+template <typename Clock, typename Duration>
+struct timelike_traits<std::chrono::time_point<Clock, Duration>>
+{
+    using duration_type = Duration;
+};
+
+template <is_pkr_unit_c TimeUnit>
+    requires(details::is_pkr_unit<TimeUnit>::value_dimension == time_dimension)
+struct timelike_traits<TimeUnit>
+{
+    using duration_type = TimeUnit;
+};
+
+template <is_pkr_unit_c TimeUnit>
+    requires(details::is_pkr_unit<TimeUnit>::value_dimension == time_dimension)
+struct timelike_traits<measurement_lin_t<TimeUnit>>
+{
+    using duration_type = TimeUnit;
+};
+
+enum class interpolation_method
+{
+    linear,
+    cubic_spline,
+    polynomial
+};
+template <is_pkr_unit_c Quantity, typename Allocator = std::pmr::polymorphic_allocator<std::byte>>
+class quantity_series<Quantity, std::chrono::high_resolution_clock::time_point, Allocator> : public details::is_quantity_series_tag
+{
+public:
+    using quantity_type = Quantity;
+    using value_type = typename Quantity::value_type;
+    using time_type = std::chrono::high_resolution_clock::time_point;
+    using time_point = std::chrono::high_resolution_clock::time_point;
+    using duration = std::chrono::high_resolution_clock::duration;
+    using allocator_type = Allocator;
+
+private:
+    using timed_quantity = details::timed_value<time_type, Quantity>;
+    using deque_type = std::pmr::deque<timed_quantity, Allocator>;
+
+    deque_type data;
+
+public:
+
+    explicit quantity_series(const Allocator& alloc = Allocator())
+        : data(alloc)
+    {
+    }
+
+    quantity_series(const quantity_series&) = default;
+    quantity_series& operator=(const quantity_series&) = default;
+    quantity_series(quantity_series&&) noexcept = default;
+    quantity_series& operator=(quantity_series&&) noexcept = default;
+    ~quantity_series() = default;
+    template <typename T>
+    void add_at(TimeType t, T&& val)
+    {
+        data.emplace_back(t, std::forward<T>(val));
+    }
+    template <typename T>
+    void add_now(T&& val)
+    {
+        add_at(std::chrono::high_resolution_clock::now(), std::forward<T>(val));
+    }
+    const Quantity& operator[](std::size_t index) const noexcept
+    {
+        return data[index].value;
+    }
+    timed_quantity at(std::size_t index) const
+    {
+        if (index >= data.size())
+        {
+            throw std::out_of_range("quantity_series::at index out of range");
+        }
+        return data[index];
+    }
+
+    const Quantity& front() const noexcept
+    {
+        return data.front().value;
+    }
+
+    const Quantity& back() const noexcept
+    {
+        return data.back().value;
+    }
+
+    std::size_t size() const noexcept
+    {
+        return data.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return data.empty();
+    }
+
+    auto begin() const noexcept
+    {
+        return data.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return data.end();
+    }
+
+    auto cbegin() const noexcept
+    {
+        return data.cbegin();
+    }
+
+    auto cend() const noexcept
+    {
+        return data.cend();
+    }
+    Quantity interpolate_at(time_point t, interpolation_method method = interpolation_method::linear) const
+    {
+        switch (method)
+        {
+            case interpolation_method::linear:
+                return interpolate_linear(t);
+            case interpolation_method::cubic_spline:
+                return interpolate_cubic_spline(t);
+            case interpolation_method::polynomial:
+
+                return interpolate_polynomial(t, std::min(3, static_cast<int>(data.size()) - 1));
+        }
+        return interpolate_linear(t);
+    }
+    Quantity interpolate_at_polynomial(time_point t, int order) const
+    {
+        return interpolate_polynomial(t, order);
+    }
+
+private:
+
+    Quantity interpolate_linear(time_point t) const
+    {
+        if (data.empty())
+        {
+            throw std::runtime_error("Cannot interpolate empty series");
+        }
+
+        if (t <= data.front().time)
+        {
+            return data.front().value;
+        }
+        if (t >= data.back().time)
+        {
+            return data.back().value;
+        }
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+
+        if (it == data.begin())
+        {
+            return data.front().value;
+        }
+
+        auto prev = std::prev(it);
+        auto next = it;
+
+        time_point t1 = prev->time;
+        time_point t2 = next->time;
+        Quantity q1 = prev->value;
+        Quantity q2 = next->value;
+
+        double alpha = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(t - t1).count()) /
+                       std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
+
+        alpha = std::clamp(alpha, 0.0, 1.0);
+
+        return Quantity{q1.value() + (q2.value() - q1.value()) * alpha};
+    }
+
+    Quantity interpolate_cubic_spline(time_point t) const
+    {
+        if (data.size() < 2)
+        {
+            throw std::runtime_error("Cubic spline requires at least 2 points");
+        }
+
+        if (t <= data.front().time)
+        {
+            return data.front().value;
+        }
+        if (t >= data.back().time)
+        {
+            return data.back().value;
+        }
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+
+        if (it == data.begin())
+        {
+            return data.front().value;
+        }
+
+        std::size_t i = std::distance(data.begin(), std::prev(it));
+        std::size_t n = data.size();
+
+        double t_i = std::chrono::duration<double>(data[i].time.time_since_epoch()).count();
+        double t_next = std::chrono::duration<double>(data[i + 1].time.time_since_epoch()).count();
+        double t_eval = std::chrono::duration<double>(t.time_since_epoch()).count();
+
+        double h = t_next - t_i;
+        double h_inv = 1.0 / h;
+
+        value_type y_i = data[i].value.value();
+        value_type y_next = data[i + 1].value.value();
+
+        double s = (t_eval - t_i) * h_inv;
+        double s_inv = 1.0 - s;
+
+        value_type result = s_inv * y_i + s * y_next;
+
+        if (i > 0 && i + 1 < n - 1)
+        {
+            value_type y_prev = data[i - 1].value.value();
+            value_type y_next2 = data[i + 2].value.value();
+
+            value_type d2y = (y_next2 - 2 * y_next + y_i) - (y_next - 2 * y_i + y_prev);
+            result += s * s_inv * 0.0833 * d2y;
+        }
+
+        return Quantity{result};
+    }
+    Quantity interpolate_polynomial(time_point t, int order) const
+    {
+        if (data.empty())
+        {
+            throw std::runtime_error("Cannot interpolate empty series");
+        }
+
+        if (t <= data.front().time)
+        {
+            return data.front().value;
+        }
+        if (t >= data.back().time)
+        {
+            return data.back().value;
+        }
+
+        order = std::min(order, static_cast<int>(data.size()) - 1);
+        order = std::max(order, 1);
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+
+        if (it == data.begin())
+        {
+            return data.front().value;
+        }
+
+        std::size_t center = std::distance(data.begin(), std::prev(it));
+        int half_order = order / 2;
+
+        int start = static_cast<int>(center) - half_order;
+        start = std::max(start, 0);
+        start = std::min(start, static_cast<int>(data.size()) - order - 1);
+
+        int end = start + order + 1;
+        end = std::min(end, static_cast<int>(data.size()));
+
+        value_type result = 0;
+        for (int i = start; i < end; ++i)
+        {
+            double t_i = std::chrono::duration<double>(data[i].time.time_since_epoch()).count();
+            value_type y_i = data[i].value.value();
+
+            double L = 1.0;
+            for (int j = start; j < end; ++j)
+            {
+                if (i != j)
+                {
+                    double t_j = std::chrono::duration<double>(data[j].time.time_since_epoch()).count();
+                    double t_eval = std::chrono::duration<double>(t.time_since_epoch()).count();
+                    L *= (t_eval - t_j) / (t_i - t_j);
+                }
+            }
+            result += L * y_i;
+        }
+
+        return Quantity{result};
+    }
+
+public:
+    quantity_series<Quantity, Allocator> resample(duration interval, interpolation_method method = interpolation_method::linear) const
+    {
+        if (data.empty())
+        {
+            return quantity_series<Quantity, Allocator>();
+        }
+
+        quantity_series<Quantity, Allocator> resampled;
+        time_point current = data.front().time;
+        time_point end_time = data.back().time;
+
+        while (current <= end_time)
+        {
+            resampled.add_at(current, interpolate_at(current, method));
+            current += interval;
+        }
+
+        return resampled;
+    }
+    quantity_series<decltype(std::declval<Quantity>() / std::declval<std::chrono::seconds>())> time_derivative() const
+    {
+        using derivative_unit = decltype(std::declval<Quantity>() / std::chrono::seconds{1});
+        quantity_series<derivative_unit> derivative;
+
+        if (data.size() < 2)
+        {
+            return derivative;
+        }
+
+        for (std::size_t i = 1; i < data.size(); ++i)
+        {
+            time_point t1 = data[i - 1].time;
+            time_point t2 = data[i].time;
+            Quantity q1 = data[i - 1].value;
+            Quantity q2 = data[i].value;
+
+            auto dt = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
+            derivative_unit dq_dt = (q2 - q1) / dt;
+
+            derivative.add_at(t2, dq_dt);
+        }
+
+        return derivative;
+    }
+    Quantity mean() const
+    {
+        if (data.empty())
+        {
+            throw std::runtime_error("Cannot compute mean of empty series");
+        }
+
+        value_type sum = 0;
+        for (const auto& [t, q] : data)
+        {
+            sum += q.value();
+        }
+        return Quantity{sum / static_cast<value_type>(data.size())};
+    }
+
+    Quantity std_dev() const
+    {
+        if (data.size() < 2)
+        {
+            return Quantity{0};
+        }
+
+        Quantity m = mean();
+        value_type sum_sq = 0;
+
+        for (const auto& [t, q] : data)
+        {
+            value_type diff = q.value() - m.value();
+            sum_sq += diff * diff;
+        }
+
+        value_type variance = sum_sq / (data.size() - 1);
+        return Quantity{std::sqrt(variance)};
+    }
+
+    Quantity min() const
+    {
+        if (data.empty())
+        {
+            throw std::runtime_error("Cannot compute min of empty series");
+        }
+
+        return std::min_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+            ->value;
+    }
+
+    Quantity max() const
+    {
+        if (data.empty())
+        {
+            throw std::runtime_error("Cannot compute max of empty series");
+        }
+
+        return std::max_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+            ->value;
+    }
+
+    Quantity range() const
+    {
+        return max() - min();
+    }
+    quantity_series<Quantity, Allocator> filter(std::function<bool(const Quantity&)> predicate) const
+    {
+        quantity_series<Quantity, Allocator> filtered;
+
+        for (const auto& [t, q] : data)
+        {
+            if (predicate(q))
+            {
+                filtered.add_at(t, q);
+            }
+        }
+
+        return filtered;
+    }
+
+    quantity_series<Quantity, Allocator> smooth(std::size_t window_size) const
+    {
+        if (window_size < 1)
+        {
+            throw std::invalid_argument("window_size must be >= 1");
+        }
+        if (data.empty())
+        {
+            return quantity_series<Quantity, Allocator>();
+        }
+
+        quantity_series<Quantity, Allocator> smoothed;
+
+        for (std::size_t i = 0; i < data.size(); ++i)
+        {
+            std::size_t start = (i > window_size - 1) ? (i - window_size + 1) : 0;
+            std::size_t end = i + 1;
+            value_type sum = 0;
+
+            for (std::size_t j = start; j < end; ++j)
+            {
+                sum += data[j].value.value();
+            }
+
+            value_type avg = sum / static_cast<value_type>(end - start);
+            smoothed.add_at(data[i].time, Quantity{avg});
+        }
+
+        return smoothed;
+    }
+
+    quantity_series<Quantity, Allocator> decimate(std::size_t ratio) const
+    {
+        if (ratio < 1)
+        {
+            throw std::invalid_argument("ratio must be >= 1");
+        }
+
+        quantity_series<Quantity, Allocator> decimated;
+
+        for (std::size_t i = 0; i < data.size(); i += ratio)
+        {
+            decimated.add_at(data[i].time, data[i].value);
+        }
+
+        return decimated;
+    }
+    quantity_series<Quantity, Allocator> slice(time_point start, time_point end) const
+    {
+        if (start > end)
+        {
+            throw std::invalid_argument("start time must be <= end time");
+        }
+
+        quantity_series<Quantity, Allocator> sliced;
+
+        for (const auto& tq : data)
+        {
+            if (tq.time >= start && tq.time <= end)
+            {
+                sliced.add_at(tq.time, tq.value);
+            }
+        }
+
+        return sliced;
+    }
+    void clear() noexcept
+    {
+        data.clear();
+    }
+
+    void reserve(std::size_t ) noexcept
+    {
+
+    }
+
+    allocator_type get_allocator() const noexcept
+    {
+        return data.get_allocator();
+    }
+};
+
+template <is_pkr_unit_c Quantity, is_pkr_time_unit TimeUnit, typename Allocator = std::pmr::polymorphic_allocator<std::byte>>
+class quantity_series<Quantity, TimeUnit, Allocator> : public details::is_quantity_series_tag
+{
+public:
+    using quantity_type = Quantity;
+    using value_type = typename Quantity::value_type;
+    using time_type = TimeUnit;
+    using time_point = TimeUnit;
+    using duration = TimeUnit;
+    using allocator_type = Allocator;
+
+private:
+    using timed_quantity = details::timed_value<TimeUnit, Quantity>;
+    using deque_type = std::pmr::deque<timed_quantity, Allocator>;
+
+    deque_type data;
+
+public:
+    explicit quantity_series(const Allocator& alloc = Allocator())
+        : data(alloc)
+    {
+    }
+
+    quantity_series(const quantity_series&) = default;
+    quantity_series& operator=(const quantity_series&) = default;
+    quantity_series(quantity_series&&) noexcept = default;
+    quantity_series& operator=(quantity_series&&) noexcept = default;
+    ~quantity_series() = default;
+
+    template <typename T>
+    void add_at(TimeUnit t, T&& val)
+    {
+        data.emplace_back(t, std::forward<T>(val));
+    }
+
+    const Quantity& operator[](std::size_t index) const noexcept
+    {
+        return data[index].value;
+    }
+
+    timed_quantity at(std::size_t index) const
+    {
+        if (index >= data.size())
+        {
+            throw std::out_of_range("quantity_series::at index out of range");
+        }
+        return data[index];
+    }
+
+    const Quantity& front() const noexcept
+    {
+        return data.front().value;
+    }
+
+    const Quantity& back() const noexcept
+    {
+        return data.back().value;
+    }
+
+    std::size_t size() const noexcept
+    {
+        return data.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return data.empty();
+    }
+
+    auto begin() const noexcept
+    {
+        return data.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return data.end();
+    }
+
+    auto cbegin() const noexcept
+    {
+        return data.cbegin();
+    }
+
+    auto cend() const noexcept
+    {
+        return data.cend();
+    }
+
+    Quantity interpolate_at(time_point t, interpolation_method method = interpolation_method::linear) const
+    {
+        switch (method)
+        {
+            case interpolation_method::linear:
+                return interpolate_linear(t);
+            case interpolation_method::cubic_spline:
+                return interpolate_cubic_spline(t);
+            case interpolation_method::polynomial:
+                return interpolate_polynomial(t, std::min(3, static_cast<int>(data.size()) - 1));
+        }
+        return interpolate_linear(t);
+    }
+
+    Quantity interpolate_at_polynomial(time_point t, int order) const
+    {
+        return interpolate_polynomial(t, order);
+    }
+
+private:
+    Quantity interpolate_linear(time_point t) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        if (t <= data.front().time)
+            return data.front().value;
+        if (t >= data.back().time)
+            return data.back().value;
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+
+        if (it == data.begin())
+            return data.front().value;
+
+        auto prev = std::prev(it);
+        auto next = it;
+
+        TimeUnit t1 = prev->time;
+        TimeUnit t2 = next->time;
+        Quantity q1 = prev->value;
+        Quantity q2 = next->value;
+
+        double alpha = static_cast<double>((t - t1).value()) / (t2 - t1).value();
+        alpha = std::clamp(alpha, 0.0, 1.0);
+
+        return Quantity{q1.value() + (q2.value() - q1.value()) * alpha};
+    }
+
+    Quantity interpolate_cubic_spline(time_point t) const
+    {
+        if (data.size() < 2)
+            throw std::runtime_error("Cubic spline requires at least 2 points");
+        if (t <= data.front().time)
+            return data.front().value;
+        if (t >= data.back().time)
+            return data.back().value;
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+        if (it == data.begin())
+            return data.front().value;
+
+        std::size_t i = std::distance(data.begin(), std::prev(it));
+        std::size_t n = data.size();
+
+        double t_i = data[i].time.value();
+        double t_next = data[i + 1].time.value();
+        double t_eval = t.value();
+
+        double h = t_next - t_i;
+        double h_inv = 1.0 / h;
+
+        value_type y_i = data[i].value.value();
+        value_type y_next = data[i + 1].value.value();
+
+        double s = (t_eval - t_i) * h_inv;
+        double s_inv = 1.0 - s;
+
+        value_type result = s_inv * y_i + s * y_next;
+
+        if (i > 0 && i + 1 < n - 1)
+        {
+            value_type y_prev = data[i - 1].value.value();
+            value_type y_next2 = data[i + 2].value.value();
+            value_type d2y = (y_next2 - 2 * y_next + y_i) - (y_next - 2 * y_i + y_prev);
+            result += s * s_inv * 0.0833 * d2y;
+        }
+
+        return Quantity{result};
+    }
+
+    Quantity interpolate_polynomial(time_point t, int order) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        if (t <= data.front().time)
+            return data.front().value;
+        if (t >= data.back().time)
+            return data.back().value;
+
+        order = std::min(order, static_cast<int>(data.size()) - 1);
+        order = std::max(order, 1);
+
+        auto it = std::lower_bound(data.begin(), data.end(), t, [](const timed_quantity& p, time_point tp) { return p.time < tp; });
+        if (it == data.begin())
+            return data.front().value;
+
+        std::size_t center = std::distance(data.begin(), std::prev(it));
+        int half_order = order / 2;
+
+        int start = static_cast<int>(center) - half_order;
+        start = std::max(start, 0);
+        start = std::min(start, static_cast<int>(data.size()) - order - 1);
+
+        int end = start + order + 1;
+        end = std::min(end, static_cast<int>(data.size()));
+
+        value_type result = 0;
+        for (int i = start; i < end; ++i)
+        {
+            double t_i = data[i].time.value();
+            value_type y_i = data[i].value.value();
+
+            double L = 1.0;
+            for (int j = start; j < end; ++j)
+            {
+                if (i != j)
+                {
+                    double t_j = data[j].time.value();
+                    double t_eval = t.value();
+                    L *= (t_eval - t_j) / (t_i - t_j);
+                }
+            }
+            result += L * y_i;
+        }
+
+        return Quantity{result};
+    }
+
+public:
+    quantity_series<Quantity, Allocator> resample(duration interval, interpolation_method method = interpolation_method::linear) const
+    {
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+
+        quantity_series<Quantity, Allocator> resampled;
+        time_point current = data.front().time;
+        time_point end_time = data.back().time;
+
+        while (current <= end_time)
+        {
+            resampled.add_at(current, interpolate_at(current, method));
+            current = current + interval;
+        }
+
+        return resampled;
+    }
+
+    quantity_series<decltype(std::declval<Quantity>() / std::declval<TimeUnit>())> time_derivative() const
+    {
+        using derivative_unit = decltype(std::declval<Quantity>() / std::declval<TimeUnit>());
+        quantity_series<derivative_unit> derivative;
+
+        if (data.size() < 2)
+            return derivative;
+
+        for (std::size_t i = 1; i < data.size(); ++i)
+        {
+            TimeUnit t1 = data[i - 1].time;
+            TimeUnit t2 = data[i].time;
+            Quantity q1 = data[i - 1].value;
+            Quantity q2 = data[i].value;
+
+            derivative_unit dq_dt = (q2 - q1) / (t2 - t1);
+            derivative.add_at(t2, dq_dt);
+        }
+
+        return derivative;
+    }
+
+    Quantity mean() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute mean of empty series");
+
+        value_type sum = 0;
+        for (const auto& [t, q] : data)
+            sum += q.value();
+        return Quantity{sum / static_cast<value_type>(data.size())};
+    }
+
+    Quantity std_dev() const
+    {
+        if (data.size() < 2)
+            return Quantity{0};
+
+        Quantity m = mean();
+        value_type sum_sq = 0;
+
+        for (const auto& [t, q] : data)
+        {
+            value_type diff = q.value() - m.value();
+            sum_sq += diff * diff;
+        }
+
+        value_type variance = sum_sq / (data.size() - 1);
+        return Quantity{std::sqrt(variance)};
+    }
+
+    Quantity min() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute min of empty series");
+
+        return std::min_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+            ->value;
+    }
+
+    Quantity max() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute max of empty series");
+
+        return std::max_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+            ->value;
+    }
+
+    Quantity range() const
+    {
+        return max() - min();
+    }
+
+    quantity_series<Quantity, Allocator> filter(std::function<bool(const Quantity&)> predicate) const
+    {
+        quantity_series<Quantity, Allocator> filtered;
+
+        for (const auto& [t, q] : data)
+        {
+            if (predicate(q))
+                filtered.add_at(t, q);
+        }
+
+        return filtered;
+    }
+
+    quantity_series<Quantity, Allocator> smooth(std::size_t window_size) const
+    {
+        if (window_size < 1)
+            throw std::invalid_argument("window_size must be >= 1");
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+
+        quantity_series<Quantity, Allocator> smoothed;
+
+        for (std::size_t i = 0; i < data.size(); ++i)
+        {
+            std::size_t start = (i > window_size - 1) ? (i - window_size + 1) : 0;
+            std::size_t end = i + 1;
+            value_type sum = 0;
+
+            for (std::size_t j = start; j < end; ++j)
+                sum += data[j].value.value();
+
+            value_type avg = sum / static_cast<value_type>(end - start);
+            smoothed.add_at(data[i].time, Quantity{avg});
+        }
+
+        return smoothed;
+    }
+
+    quantity_series<Quantity, Allocator> decimate(std::size_t ratio) const
+    {
+        if (ratio < 1)
+            throw std::invalid_argument("ratio must be >= 1");
+
+        quantity_series<Quantity, Allocator> decimated;
+
+        for (std::size_t i = 0; i < data.size(); i += ratio)
+            decimated.add_at(data[i].time, data[i].value);
+
+        return decimated;
+    }
+
+    quantity_series<Quantity, Allocator> slice(time_point start, time_point end) const
+    {
+        if (start > end)
+            throw std::invalid_argument("start time must be <= end time");
+
+        quantity_series<Quantity, Allocator> sliced;
+
+        for (const auto& tq : data)
+        {
+            if (tq.time >= start && tq.time <= end)
+                sliced.add_at(tq.time, tq.value);
+        }
+
+        return sliced;
+    }
+
+    void clear() noexcept
+    {
+        data.clear();
+    }
+
+    void reserve(std::size_t) noexcept
+    {
+    }
+
+    allocator_type get_allocator() const noexcept
+    {
+        return data.get_allocator();
+    }
+};
+
+template <is_pkr_unit_c Quantity, is_pkr_unit_c TimeUnit, typename Allocator = std::pmr::polymorphic_allocator<std::byte>>
+    requires(details::is_pkr_unit<TimeUnit>::value_dimension == time_dimension)
+class quantity_series<Quantity, measurement_lin_t<TimeUnit>, Allocator> : public details::is_quantity_series_tag
+{
+public:
+    using quantity_type = Quantity;
+    using value_type = typename Quantity::value_type;
+    using time_type = measurement_lin_t<TimeUnit>;
+    using time_point = measurement_lin_t<TimeUnit>;
+    using duration = TimeUnit;
+    using allocator_type = Allocator;
+    using measurement_type = measurement_lin_t<Quantity>;
+
+private:
+    using timed_quantity = details::timed_value<time_type, Quantity>;
+    using deque_type = std::pmr::deque<timed_quantity, Allocator>;
+
+    deque_type data;
+
+public:
+    explicit quantity_series(const Allocator& alloc = Allocator())
+        : data(alloc)
+    {
+    }
+
+    quantity_series(const quantity_series&) = default;
+    quantity_series& operator=(const quantity_series&) = default;
+    quantity_series(quantity_series&&) noexcept = default;
+    quantity_series& operator=(quantity_series&&) noexcept = default;
+    ~quantity_series() = default;
+
+    template <typename T>
+    void add_at(time_point t, T&& val)
+    {
+        data.emplace_back(t, std::forward<T>(val));
+    }
+
+    const Quantity& operator[](std::size_t index) const noexcept
+    {
+        return data[index].value;
+    }
+
+    timed_quantity at(std::size_t index) const
+    {
+        if (index >= data.size())
+            throw std::out_of_range("quantity_series::at index out of range");
+        return data[index];
+    }
+
+    const Quantity& front() const noexcept
+    {
+        return data.front().value;
+    }
+
+    const Quantity& back() const noexcept
+    {
+        return data.back().value;
+    }
+
+    std::size_t size() const noexcept
+    {
+        return data.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return data.empty();
+    }
+
+    auto begin() const noexcept
+    {
+        return data.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return data.end();
+    }
+
+    auto cbegin() const noexcept
+    {
+        return data.cbegin();
+    }
+
+    auto cend() const noexcept
+    {
+        return data.cend();
+    }
+
+    measurement_lin_t<TimeUnit> get_time_uncertainty() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot get time uncertainty of empty series");
+        return data.front().time;
+    }
+
+    measurement_type interpolate_at(time_point t, interpolation_method method = interpolation_method::linear) const
+    {
+        switch (method)
+        {
+            case interpolation_method::linear:
+                return interpolate_linear(t);
+            case interpolation_method::cubic_spline:
+                return interpolate_cubic_spline(t);
+            case interpolation_method::polynomial:
+                return interpolate_polynomial(t, std::min(3, static_cast<int>(data.size()) - 1));
+        }
+        return interpolate_linear(t);
+    }
+
+    measurement_type interpolate_at_polynomial(time_point t, int order) const
+    {
+        return interpolate_polynomial(t, order);
+    }
+
+private:
+    measurement_type interpolate_linear(time_point t) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        auto prev = std::prev(it), next = it;
+        typename TimeUnit::value_type t1 = prev->time.value(), t2 = next->time.value();
+        Quantity q1 = prev->value, q2 = next->value;
+        double alpha = std::clamp((t_val - t1) / (t2 - t1), 0.0, 1.0);
+        return measurement_type{Quantity{q1.value() + (q2.value() - q1.value()) * alpha}};
+    }
+
+    measurement_type interpolate_cubic_spline(time_point t) const
+    {
+        if (data.size() < 2)
+            throw std::runtime_error("Cubic spline requires at least 2 points");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        std::size_t i = std::distance(data.begin(), std::prev(it)), n = data.size();
+        double t_i = data[i].time.value(), t_next = data[i + 1].time.value();
+        double h = t_next - t_i, s = (t_val - t_i) / h, s_inv = 1.0 - s;
+        value_type y_i = data[i].value.value(), y_next = data[i + 1].value.value();
+        value_type result = s_inv * y_i + s * y_next;
+
+        if (i > 0 && i + 1 < n - 1)
+        {
+            value_type y_prev = data[i - 1].value.value(), y_next2 = data[i + 2].value.value();
+            result += s * s_inv * 0.0833 * ((y_next2 - 2 * y_next + y_i) - (y_next - 2 * y_i + y_prev));
+        }
+
+        return measurement_type{Quantity{result}};
+    }
+
+    measurement_type interpolate_polynomial(time_point t, int order) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        order = std::min(order, static_cast<int>(data.size()) - 1);
+        order = std::max(order, 1);
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        std::size_t center = std::distance(data.begin(), std::prev(it));
+        int start = static_cast<int>(center) - order / 2;
+        start = std::max(start, 0);
+        start = std::min(start, static_cast<int>(data.size()) - order - 1);
+        int end = start + order + 1;
+        end = std::min(end, static_cast<int>(data.size()));
+
+        value_type result = 0;
+        for (int i = start; i < end; ++i)
+        {
+            double t_i = data[i].time.value();
+            value_type y_i = data[i].value.value();
+            double L = 1.0;
+            for (int j = start; j < end; ++j)
+                if (i != j)
+                    L *= (t_val - data[j].time.value()) / (t_i - data[j].time.value());
+            result += L * y_i;
+        }
+
+        return measurement_type{Quantity{result}};
+    }
+
+public:
+    quantity_series<Quantity, Allocator> resample(duration interval, interpolation_method method = interpolation_method::linear) const
+    {
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+        quantity_series<Quantity, Allocator> resampled;
+        typename TimeUnit::value_type current_val = data.front().time.value(), end_val = data.back().time.value(), interval_val = interval.value();
+        while (current_val <= end_val)
+        {
+            resampled.add_at(TimeUnit{current_val}, interpolate_at(measurement_lin_t<TimeUnit>{TimeUnit{current_val}}, method).value());
+            current_val += interval_val;
+        }
+        return resampled;
+    }
+
+    quantity_series<decltype(std::declval<Quantity>() / std::declval<TimeUnit>())> time_derivative() const
+    {
+        using derivative_unit = decltype(std::declval<Quantity>() / std::declval<TimeUnit>());
+        quantity_series<derivative_unit> derivative;
+        if (data.size() < 2)
+            return derivative;
+        for (std::size_t i = 1; i < data.size(); ++i)
+        {
+            TimeUnit dt{data[i].time.value() - data[i - 1].time.value()};
+            derivative.add_at(TimeUnit{data[i].time.value()}, (data[i].value - data[i - 1].value) / dt);
+        }
+        return derivative;
+    }
+
+    measurement_type mean() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute mean of empty series");
+        value_type sum = 0;
+        for (const auto& [t, q] : data)
+            sum += q.value();
+        return measurement_type{Quantity{sum / static_cast<value_type>(data.size())}};
+    }
+
+    measurement_type std_dev() const
+    {
+        if (data.size() < 2)
+            return measurement_type{Quantity{0}};
+        auto m = mean();
+        value_type sum_sq = 0;
+        for (const auto& [t, q] : data)
+        {
+            value_type diff = q.value() - m.value();
+            sum_sq += diff * diff;
+        }
+        return measurement_type{Quantity{std::sqrt(sum_sq / (data.size() - 1))}};
+    }
+
+    measurement_type min() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute min of empty series");
+        return measurement_type{
+            std::min_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+                ->value};
+    }
+
+    measurement_type max() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute max of empty series");
+        return measurement_type{
+            std::max_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+                ->value};
+    }
+
+    measurement_type range() const
+    {
+        return measurement_type{max().value() - min().value()};
+    }
+
+    quantity_series<Quantity, Allocator> filter(std::function<bool(const Quantity&)> predicate) const
+    {
+        quantity_series<Quantity, Allocator> filtered;
+        for (const auto& [t, q] : data)
+            if (predicate(q))
+                filtered.add_at(data[0].time, q);
+        return filtered;
+    }
+
+    quantity_series<Quantity, Allocator> smooth(std::size_t window_size) const
+    {
+        if (window_size < 1)
+            throw std::invalid_argument("window_size must be >= 1");
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+        quantity_series<Quantity, Allocator> smoothed;
+        for (std::size_t i = 0; i < data.size(); ++i)
+        {
+            std::size_t start = (i > window_size - 1) ? (i - window_size + 1) : 0, end = i + 1;
+            value_type sum = 0;
+            for (std::size_t j = start; j < end; ++j)
+                sum += data[j].value.value();
+            smoothed.add_at(data[i].time, Quantity{sum / static_cast<value_type>(end - start)});
+        }
+        return smoothed;
+    }
+
+    quantity_series<Quantity, Allocator> decimate(std::size_t ratio) const
+    {
+        if (ratio < 1)
+            throw std::invalid_argument("ratio must be >= 1");
+        quantity_series<Quantity, Allocator> decimated;
+        for (std::size_t i = 0; i < data.size(); i += ratio)
+            decimated.add_at(data[i].time, data[i].value);
+        return decimated;
+    }
+
+    quantity_series<Quantity, Allocator> slice(time_point start, time_point end) const
+    {
+        typename TimeUnit::value_type start_val = start.value(), end_val = end.value();
+        if (start_val > end_val)
+            throw std::invalid_argument("start time must be <= end time");
+        quantity_series<Quantity, Allocator> sliced;
+        for (const auto& tq : data)
+        {
+            typename TimeUnit::value_type tq_val = tq.time.value();
+            if (tq_val >= start_val && tq_val <= end_val)
+                sliced.add_at(tq.time, tq.value);
+        }
+        return sliced;
+    }
+
+    void clear() noexcept
+    {
+        data.clear();
+    }
+
+    void reserve(std::size_t) noexcept
+    {
+    }
+
+    allocator_type get_allocator() const noexcept
+    {
+        return data.get_allocator();
+    }
+};
+
+template <is_pkr_unit_c Quantity, is_pkr_unit_c TimeUnit, typename Allocator = std::pmr::polymorphic_allocator<std::byte>>
+    requires(details::is_pkr_unit<TimeUnit>::value_dimension == time_dimension)
+class quantity_series<Quantity, measurement_rss_t<TimeUnit>, Allocator> : public details::is_quantity_series_tag
+{
+public:
+    using quantity_type = Quantity;
+    using value_type = typename Quantity::value_type;
+    using time_type = measurement_rss_t<TimeUnit>;
+    using time_point = measurement_rss_t<TimeUnit>;
+    using duration = TimeUnit;
+    using allocator_type = Allocator;
+    using measurement_type = measurement_rss_t<Quantity>;
+
+private:
+    using timed_quantity = details::timed_value<time_type, Quantity>;
+    using deque_type = std::pmr::deque<timed_quantity, Allocator>;
+
+    deque_type data;
+
+public:
+    explicit quantity_series(const Allocator& alloc = Allocator())
+        : data(alloc)
+    {
+    }
+
+    quantity_series(const quantity_series&) = default;
+    quantity_series& operator=(const quantity_series&) = default;
+    quantity_series(quantity_series&&) noexcept = default;
+    quantity_series& operator=(quantity_series&&) noexcept = default;
+    ~quantity_series() = default;
+
+    template <typename T>
+    void add_at(time_point t, T&& val)
+    {
+        data.emplace_back(t, std::forward<T>(val));
+    }
+
+    const Quantity& operator[](std::size_t index) const noexcept
+    {
+        return data[index].value;
+    }
+
+    timed_quantity at(std::size_t index) const
+    {
+        if (index >= data.size())
+            throw std::out_of_range("quantity_series::at index out of range");
+        return data[index];
+    }
+
+    const Quantity& front() const noexcept
+    {
+        return data.front().value;
+    }
+
+    const Quantity& back() const noexcept
+    {
+        return data.back().value;
+    }
+
+    std::size_t size() const noexcept
+    {
+        return data.size();
+    }
+
+    bool empty() const noexcept
+    {
+        return data.empty();
+    }
+
+    auto begin() const noexcept
+    {
+        return data.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return data.end();
+    }
+
+    auto cbegin() const noexcept
+    {
+        return data.cbegin();
+    }
+
+    auto cend() const noexcept
+    {
+        return data.cend();
+    }
+
+    measurement_rss_t<TimeUnit> get_time_uncertainty() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot get time uncertainty of empty series");
+        return data.front().time;
+    }
+
+    measurement_type interpolate_at(time_point t, interpolation_method method = interpolation_method::linear) const
+    {
+        switch (method)
+        {
+            case interpolation_method::linear:
+                return interpolate_linear(t);
+            case interpolation_method::cubic_spline:
+                return interpolate_cubic_spline(t);
+            case interpolation_method::polynomial:
+                return interpolate_polynomial(t, std::min(3, static_cast<int>(data.size()) - 1));
+        }
+        return interpolate_linear(t);
+    }
+
+    measurement_type interpolate_at_polynomial(time_point t, int order) const
+    {
+        return interpolate_polynomial(t, order);
+    }
+
+private:
+    measurement_type interpolate_linear(time_point t) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        auto prev = std::prev(it), next = it;
+        typename TimeUnit::value_type t1 = prev->time.value(), t2 = next->time.value();
+        Quantity q1 = prev->value, q2 = next->value;
+        double alpha = std::clamp((t_val - t1) / (t2 - t1), 0.0, 1.0);
+        return measurement_type{Quantity{q1.value() + (q2.value() - q1.value()) * alpha}};
+    }
+
+    measurement_type interpolate_cubic_spline(time_point t) const
+    {
+        if (data.size() < 2)
+            throw std::runtime_error("Cubic spline requires at least 2 points");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        std::size_t i = std::distance(data.begin(), std::prev(it)), n = data.size();
+        double t_i = data[i].time.value(), t_next = data[i + 1].time.value();
+        double h = t_next - t_i, s = (t_val - t_i) / h, s_inv = 1.0 - s;
+        value_type y_i = data[i].value.value(), y_next = data[i + 1].value.value();
+        value_type result = s_inv * y_i + s * y_next;
+
+        if (i > 0 && i + 1 < n - 1)
+        {
+            value_type y_prev = data[i - 1].value.value(), y_next2 = data[i + 2].value.value();
+            result += s * s_inv * 0.0833 * ((y_next2 - 2 * y_next + y_i) - (y_next - 2 * y_i + y_prev));
+        }
+
+        return measurement_type{Quantity{result}};
+    }
+
+    measurement_type interpolate_polynomial(time_point t, int order) const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot interpolate empty series");
+        typename TimeUnit::value_type t_val = t.value();
+        if (t_val <= data.front().time.value())
+            return measurement_type{data.front().value};
+        if (t_val >= data.back().time.value())
+            return measurement_type{data.back().value};
+
+        order = std::min(order, static_cast<int>(data.size()) - 1);
+        order = std::max(order, 1);
+
+        auto it =
+            std::lower_bound(data.begin(), data.end(), t_val, [](const timed_quantity& p, typename TimeUnit::value_type tp) { return p.time.value() < tp; });
+        if (it == data.begin())
+            return measurement_type{data.front().value};
+
+        std::size_t center = std::distance(data.begin(), std::prev(it));
+        int start = static_cast<int>(center) - order / 2;
+        start = std::max(start, 0);
+        start = std::min(start, static_cast<int>(data.size()) - order - 1);
+        int end = start + order + 1;
+        end = std::min(end, static_cast<int>(data.size()));
+
+        value_type result = 0;
+        for (int i = start; i < end; ++i)
+        {
+            double t_i = data[i].time.value();
+            value_type y_i = data[i].value.value();
+            double L = 1.0;
+            for (int j = start; j < end; ++j)
+                if (i != j)
+                    L *= (t_val - data[j].time.value()) / (t_i - data[j].time.value());
+            result += L * y_i;
+        }
+
+        return measurement_type{Quantity{result}};
+    }
+
+public:
+    quantity_series<Quantity, Allocator> resample(duration interval, interpolation_method method = interpolation_method::linear) const
+    {
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+        quantity_series<Quantity, Allocator> resampled;
+        typename TimeUnit::value_type current_val = data.front().time.value(), end_val = data.back().time.value(), interval_val = interval.value();
+        while (current_val <= end_val)
+        {
+            resampled.add_at(TimeUnit{current_val}, interpolate_at(measurement_rss_t<TimeUnit>{TimeUnit{current_val}}, method).value());
+            current_val += interval_val;
+        }
+        return resampled;
+    }
+
+    quantity_series<decltype(std::declval<Quantity>() / std::declval<TimeUnit>())> time_derivative() const
+    {
+        using derivative_unit = decltype(std::declval<Quantity>() / std::declval<TimeUnit>());
+        quantity_series<derivative_unit> derivative;
+        if (data.size() < 2)
+            return derivative;
+        for (std::size_t i = 1; i < data.size(); ++i)
+        {
+            TimeUnit dt{data[i].time.value() - data[i - 1].time.value()};
+            derivative.add_at(TimeUnit{data[i].time.value()}, (data[i].value - data[i - 1].value) / dt);
+        }
+        return derivative;
+    }
+
+    measurement_type mean() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute mean of empty series");
+        value_type sum = 0;
+        for (const auto& [t, q] : data)
+            sum += q.value();
+        return measurement_type{Quantity{sum / static_cast<value_type>(data.size())}};
+    }
+
+    measurement_type std_dev() const
+    {
+        if (data.size() < 2)
+            return measurement_type{Quantity{0}};
+        auto m = mean();
+        value_type sum_sq = 0;
+        for (const auto& [t, q] : data)
+        {
+            value_type diff = q.value() - m.value();
+            sum_sq += diff * diff;
+        }
+        return measurement_type{Quantity{std::sqrt(sum_sq / (data.size() - 1))}};
+    }
+
+    measurement_type min() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute min of empty series");
+        return measurement_type{
+            std::min_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+                ->value};
+    }
+
+    measurement_type max() const
+    {
+        if (data.empty())
+            throw std::runtime_error("Cannot compute max of empty series");
+        return measurement_type{
+            std::max_element(data.begin(), data.end(), [](const timed_quantity& a, const timed_quantity& b) { return a.value.value() < b.value.value(); })
+                ->value};
+    }
+
+    measurement_type range() const
+    {
+        return measurement_type{max().value() - min().value()};
+    }
+
+    quantity_series<Quantity, Allocator> filter(std::function<bool(const Quantity&)> predicate) const
+    {
+        quantity_series<Quantity, Allocator> filtered;
+        for (const auto& [t, q] : data)
+            if (predicate(q))
+                filtered.add_at(data[0].time, q);
+        return filtered;
+    }
+
+    quantity_series<Quantity, Allocator> smooth(std::size_t window_size) const
+    {
+        if (window_size < 1)
+            throw std::invalid_argument("window_size must be >= 1");
+        if (data.empty())
+            return quantity_series<Quantity, Allocator>();
+        quantity_series<Quantity, Allocator> smoothed;
+        for (std::size_t i = 0; i < data.size(); ++i)
+        {
+            std::size_t start = (i > window_size - 1) ? (i - window_size + 1) : 0, end = i + 1;
+            value_type sum = 0;
+            for (std::size_t j = start; j < end; ++j)
+                sum += data[j].value.value();
+            smoothed.add_at(data[i].time, Quantity{sum / static_cast<value_type>(end - start)});
+        }
+        return smoothed;
+    }
+
+    quantity_series<Quantity, Allocator> decimate(std::size_t ratio) const
+    {
+        if (ratio < 1)
+            throw std::invalid_argument("ratio must be >= 1");
+        quantity_series<Quantity, Allocator> decimated;
+        for (std::size_t i = 0; i < data.size(); i += ratio)
+            decimated.add_at(data[i].time, data[i].value);
+        return decimated;
+    }
+
+    quantity_series<Quantity, Allocator> slice(time_point start, time_point end) const
+    {
+        typename TimeUnit::value_type start_val = start.value(), end_val = end.value();
+        if (start_val > end_val)
+            throw std::invalid_argument("start time must be <= end time");
+        quantity_series<Quantity, Allocator> sliced;
+        for (const auto& tq : data)
+        {
+            typename TimeUnit::value_type tq_val = tq.time.value();
+            if (tq_val >= start_val && tq_val <= end_val)
+                sliced.add_at(tq.time, tq.value);
+        }
+        return sliced;
+    }
+
+    void clear() noexcept
+    {
+        data.clear();
+    }
+
+    void reserve(std::size_t) noexcept
+    {
+    }
+
+    allocator_type get_allocator() const noexcept
+    {
+        return data.get_allocator();
+    }
+};
+
+}
+namespace pkr::units
+{
+template <is_pkr_unit_c Quantity, typename Allocator = std::pmr::polymorphic_allocator<std::byte>>
+class measurement_series : public quantity_series<measurement_lin_t<Quantity>, Allocator>
+{
+private:
+    using base_type = quantity_series<measurement_lin_t<Quantity>, Allocator>;
+    using measurement_type = measurement_lin_t<Quantity>;
+
+public:
+    using quantity_type = Quantity;
+    using value_type = typename Quantity::value_type;
+    using time_point = typename base_type::time_point;
+    using duration = typename base_type::duration;
+    using allocator_type = Allocator;
+    explicit measurement_series(const Allocator& alloc = Allocator())
+        : base_type(alloc)
+    {
+    }
+
+    measurement_series(const measurement_series&) = default;
+    measurement_series& operator=(const measurement_series&) = default;
+    measurement_series(measurement_series&&) noexcept = default;
+    measurement_series& operator=(measurement_series&&) noexcept = default;
+
+    ~measurement_series() = default;
+    void add_at(time_point t, measurement_type val)
+    {
+        base_type::add_at(t, std::move(val));
+    }
+
+    void add_now(measurement_type val)
+    {
+        base_type::add_now(std::move(val));
+    }
+    const measurement_type& operator[](std::size_t index) const noexcept
+    {
+        return base_type::operator[](index);
+    }
+
+    std::pair<time_point, measurement_type> at(std::size_t index) const
+    {
+        return base_type::at(index);
+    }
+
+    const measurement_type& front() const noexcept
+    {
+        return base_type::front();
+    }
+
+    const measurement_type& back() const noexcept
+    {
+        return base_type::back();
+    }
+    measurement_type mean() const
+    {
+        if (this->empty())
+        {
+            throw std::runtime_error("Cannot compute mean of empty series");
+        }
+
+        value_type sum = 0;
+        value_type sum_sq = 0;
+        std::size_t n = this->size();
+
+        for (const auto& [t, m] : *this)
+        {
+            sum += m.value().value();
+            sum_sq += m.uncertainty().value() * m.uncertainty().value();
+        }
+
+        value_type mean_value = sum / static_cast<value_type>(n);
+
+        value_type mean_uncertainty = std::sqrt(sum_sq) / static_cast<value_type>(n);
+
+        return measurement_type(Quantity{mean_value}, Quantity{mean_uncertainty});
+    }
+
+    measurement_type std_dev() const
+    {
+        if (this->size() < 2)
+        {
+            return measurement_type(Quantity{0}, Quantity{0});
+        }
+
+        auto m = mean();
+        value_type sum_sq = 0;
+        value_type sum_uncert_sq = 0;
+
+        for (const auto& [t, meas] : *this)
+        {
+            value_type diff = meas.value().value() - m.value().value();
+            sum_sq += diff * diff;
+
+            value_type uncert = 2.0 * std::abs(diff) * meas.uncertainty().value();
+            sum_uncert_sq += uncert * uncert;
+        }
+
+        value_type n = static_cast<value_type>(this->size());
+        value_type variance = sum_sq / (n - 1);
+        value_type std_dev_val = std::sqrt(variance);
+
+        value_type std_dev_uncert = std::sqrt(sum_uncert_sq) / (2.0 * n);
+
+        return measurement_type(Quantity{std_dev_val}, Quantity{std_dev_uncert});
+    }
+
+    measurement_type min() const
+    {
+        if (this->empty())
+        {
+            throw std::runtime_error("Cannot compute min of empty series");
+        }
+
+        return std::min_element(this->begin(), this->end(), [](const auto& a, const auto& b) { return a.second.value().value() < b.second.value().value(); })
+            ->second;
+    }
+
+    measurement_type max() const
+    {
+        if (this->empty())
+        {
+            throw std::runtime_error("Cannot compute max of empty series");
+        }
+
+        return std::max_element(this->begin(), this->end(), [](const auto& a, const auto& b) { return a.second.value().value() < b.second.value().value(); })
+            ->second;
+    }
+
+    std::pair<Quantity, Quantity> uncertainty_bounds() const
+    {
+        if (this->empty())
+        {
+            throw std::runtime_error("Cannot compute bounds of empty series");
+        }
+
+        auto min_meas = min();
+        auto max_meas = max();
+
+        Quantity lower = min_meas.value() - min_meas.uncertainty();
+        Quantity upper = max_meas.value() + max_meas.uncertainty();
+
+        return {lower, upper};
+    }
+    measurement_series<Quantity, Allocator> filter(std::function<bool(const measurement_type&)> predicate) const
+    {
+        measurement_series<Quantity, Allocator> filtered;
+
+        for (const auto& [t, meas] : *this)
+        {
+            if (predicate(meas))
+            {
+                filtered.add_at(t, meas);
+            }
+        }
+
+        return filtered;
+    }
+    measurement_series<Quantity, Allocator> smooth(std::size_t window_size) const
+    {
+        if (window_size < 1)
+        {
+            throw std::invalid_argument("window_size must be >= 1");
+        }
+        if (this->empty())
+        {
+            return measurement_series<Quantity, Allocator>();
+        }
+
+        measurement_series<Quantity, Allocator> smoothed;
+
+        for (std::size_t i = 0; i < this->size(); ++i)
+        {
+            std::size_t start = (i > window_size - 1) ? (i - window_size + 1) : 0;
+            std::size_t end = i + 1;
+
+            value_type sum = 0;
+            value_type sum_uncert = 0;
+
+            for (std::size_t j = start; j < end; ++j)
+            {
+                auto meas = (*this)[j];
+                sum += meas.value().value();
+                sum_uncert += meas.uncertainty().value();
+            }
+
+            value_type n = static_cast<value_type>(end - start);
+            value_type avg = sum / n;
+            value_type avg_uncert = sum_uncert / n;
+
+            smoothed.add_at(this->begin()[i]->first, measurement_type(Quantity{avg}, Quantity{avg_uncert}));
+        }
+
+        return smoothed;
+    }
+
+    measurement_series<Quantity, Allocator> decimate(std::size_t ratio) const
+    {
+        if (ratio < 1)
+        {
+            throw std::invalid_argument("ratio must be >= 1");
+        }
+
+        measurement_series<Quantity, Allocator> decimated;
+
+        for (std::size_t i = 0; i < this->size(); i += ratio)
+        {
+            auto [t, meas] = this->at(i);
+            decimated.add_at(t, meas);
+        }
+
+        return decimated;
+    }
+    measurement_series<Quantity, Allocator> slice(time_point start, time_point end) const
+    {
+        if (start > end)
+        {
+            throw std::invalid_argument("start time must be <= end time");
+        }
+
+        measurement_series<Quantity, Allocator> sliced;
+
+        for (const auto& [t, meas] : *this)
+        {
+            if (t >= start && t <= end)
+            {
+                sliced.add_at(t, meas);
+            }
+        }
+
+        return sliced;
+    }
+    void clear() noexcept
+    {
+        base_type::clear();
+    }
+
+    allocator_type get_allocator() const noexcept
+    {
+        return base_type::get_allocator();
+    }
+};
 
 }
 struct bit_tag
@@ -16554,19 +19303,21 @@ namespace pkr::units
 {
 namespace details
 {
-template <typename T, typename = void>
-struct is_dimensionless_unit : std::false_type
+
+template <typename T>
+concept is_dimensionless_unit_c = requires {
+    typename details::is_pkr_unit<T>;
+    requires details::is_pkr_unit<T>::value;
+    requires(details::is_pkr_unit<T>::value_dimension == scalar_dimension);
+};
+
+template <typename T>
+struct is_dimensionless_unit : std::bool_constant<is_dimensionless_unit_c<T>>
 {
 };
 
 template <typename T>
-struct is_dimensionless_unit<T, std::void_t<decltype(::pkr::units::details::is_pkr_unit<T>::value_dimension)>>
-    : std::bool_constant<(::pkr::units::details::is_pkr_unit<T>::value_dimension == scalar_dimension)>
-{
-};
-
-template <typename T>
-inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit<T>::value;
+inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit_c<T>;
 }
 
 template <typename target_unit_t, typename source_unit_t>
@@ -16649,7 +19400,11 @@ public:
     using value_type = T;
     using array_type = std::array<std::array<T, 3>, 3>;
     array_type data;
-    constexpr matrix_3d_units_t() = default;
+
+    constexpr matrix_3d_units_t()
+        : data{}
+    {
+    }
 
     constexpr matrix_3d_units_t(const array_type& arr)
         : data(arr)
@@ -16790,37 +19545,14 @@ namespace pkr::units
 
 inline constexpr double KELVIN_OFFSET = 273.15;
 
-template <typename U, bool = is_pkr_unit_c<U>>
-struct affine_temp_unit_helper : std::false_type
-{
-};
-
 template <typename U>
-struct affine_temp_unit_helper<U, true>
-    : std::bool_constant<
-          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, celsius_tag_t> ||
-          std::is_same_v<typename details::is_pkr_unit<U>::tag_type, fahrenheit_tag_t>>
-{
-};
-
-template <typename U>
-inline constexpr bool is_affine_temp_unit_v = affine_temp_unit_helper<U>::value;
-
-template <typename T, bool = is_pkr_unit_c<T>>
-struct temperature_like_helper : std::false_type
-{
-};
+concept is_tagged_temp_unit_c = is_pkr_unit_c<U> && (std::is_same_v<unit_tag_t<U>, celsius_tag_t> || std::is_same_v<unit_tag_t<U>, fahrenheit_tag_t>);
 
 template <typename T>
-struct temperature_like_helper<T, true> : std::bool_constant<is_affine_temp_unit_v<T> || (details::is_pkr_unit<T>::value_dimension == temperature_dimension)>
-{
-};
+concept is_temperature_like_c = is_pkr_unit_c<T> && (is_tagged_temp_unit_c<T> || (details::is_pkr_unit<T>::value_dimension == temperature_dimension));
 
 template <typename T>
-inline constexpr bool is_temperature_like_v = temperature_like_helper<T>::value;
-
-template <typename T>
-    requires is_temperature_like_v<T>
+    requires is_temperature_like_c<T>
 constexpr double to_kelvin_for_comparison(const T& temp) noexcept
 {
     if constexpr (std::is_same_v<unit_tag_t<T>, celsius_tag_t>)
@@ -16839,12 +19571,12 @@ constexpr double to_kelvin_for_comparison(const T& temp) noexcept
 }
 
 template <typename target_unit_t, typename source_unit_t>
-    requires is_temperature_like_v<target_unit_t> && is_temperature_like_v<source_unit_t> &&
-             (is_affine_temp_unit_v<target_unit_t> || is_affine_temp_unit_v<source_unit_t>)
+    requires is_temperature_like_c<target_unit_t> && is_temperature_like_c<source_unit_t> &&
+             (is_tagged_temp_unit_c<target_unit_t> || is_tagged_temp_unit_c<source_unit_t>)
 constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 {
     double kelvin_value = to_kelvin_for_comparison(source);
-    if constexpr (is_affine_temp_unit_v<target_unit_t>)
+    if constexpr (is_tagged_temp_unit_c<target_unit_t>)
     {
         if constexpr (std::is_same_v<unit_tag_t<target_unit_t>, celsius_tag_t>)
         {
@@ -16867,7 +19599,7 @@ constexpr target_unit_t unit_cast(const source_unit_t& source) noexcept
 }
 
 template <typename T1, typename T2>
-    requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+    requires is_temperature_like_c<T1> && is_temperature_like_c<T2>
 constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
 {
     double lhs_kelvin = to_kelvin_for_comparison(lhs);
@@ -16876,7 +19608,7 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
 }
 
 template <typename T1, typename T2>
-    requires is_temperature_like_v<T1> && is_temperature_like_v<T2>
+    requires is_temperature_like_c<T1> && is_temperature_like_c<T2>
 constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
 {
     double lhs_kelvin = to_kelvin_for_comparison(lhs);

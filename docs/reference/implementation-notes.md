@@ -1,53 +1,25 @@
-# Implementation Notes
+# Implementation Notes — Archived
 
-Technical details about the architecture and design of pkr_units.
+**This page has been relocated for better organization.**
 
-## Core Architecture
+For implementation details and architecture information, see:
 
-### The Generic Unit Type
+- **[Architecture Deep Dive](../development/architecture-deep-dive.md)** — Full technical details for contributors
+- **[Architecture Overview](./architecture.md)** — Quick reference for users (this folder)
+- **[Design Decisions](../development/design-decisions.md)** — Rationale for key choices
 
-All units are specializations of a single generic template:
+## Quick Redirect
 
-```cpp
-template <typename ValueType, typename Ratio, dimension_t Dimension>
-class unit_t {
-    ValueType value;  // The numeric value
-public:
-    constexpr unit_t(ValueType v = {}) noexcept : value(v) {}
-    constexpr ValueType count() const noexcept { return value; }
-    // ... operators
-};
-```
+| What you want | Where to go |
+|---|---|
+| Understand how units work internally | [Architecture Deep Dive](../development/architecture-deep-dive.md) |
+| Quick reference for my code | [Architecture Overview](./architecture.md) |
+| Why was this designed this way? | [Design Decisions](../development/design-decisions.md) |
+| Full developer docs | [Developer Documentation](../development/) |
 
-**Parameters:**
-- `ValueType`: `double`, `float`, or custom numeric type—the underlying value
-- `Ratio`: `std::ratio<N, D>`—the conversion factor to SI base unit
-- `Dimension`: 8-integer exponent vector—dimensional information
+---
 
-**Example:** `meter_t` becomes:
-```cpp
-using meter_t = unit_t<double, std::ratio<1, 1>, length_dimension>;
-```
-
-### Dimension Representation
-
-Dimensions use a 9-tuple of integer exponents following SI:
-
-```cpp
-struct dimension_t {
-    int mass;           // Kilogram (M)
-    int length;         // Meter (L)
-    int time;           // Second (T)
-    int current;        // Ampere (I)
-    int temperature;    // Kelvin (Θ)
-    int amount;         // Mole (N)
-    int luminosity;     // Candela (J)
-    int angle;          // Radian (α)
-    int solid_angle;    // Steradian (Ω)
-};
-```
-
-Examples:
+**Note:** The old implementation-notes.md content has been reorganized into developer documentation for clarity and to avoid duplication. All information is still available in the links above.
 - **Length**: `{0, 1, 0, 0, 0, 0, 0, 0, 0}` (L¹)
 - **Velocity**: `{0, 1, -1, 0, 0, 0, 0, 0, 0}` (L¹T⁻¹)
 - **Force**: `{1, 1, -2, 0, 0, 0, 0, 0, 0}` (M¹L¹T⁻²)

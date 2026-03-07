@@ -42,60 +42,74 @@ constexpr unit_t<type_t, ratio_t1, dim_v, tag_t>
 }
 
 // ============================================================================
-// Unified arithmetic operators with if constexpr for base/derived handling
+// Unified arithmetic operators with C++20 concepts for base/derived handling
 // ============================================================================
 
-// Addition operator - handles all combinations of base and derived types
+// ============================================================================
+// Addition operator - separate overloads for different type combinations
+// ============================================================================
+
+// Case 1: Both operands are derived units (C++20 concept-based dispatch)
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires(same_dimensions_c<T1, T2>)
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
 constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
 {
-    // Unwrap derived types to their base for calculation
-    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    // Both derived: delegate to base operators, wrap result in T1
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) + static_cast<const typename T2::_base&>(rhs));
+    return T1{base_result.value()};
+}
+
+// Case 2: T1 is derived, T2 is base (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+    // T1 derived, T2 base: delegate and wrap in T1
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) + rhs);
+    return T1{base_result.value()};
+}
+
+// Case 3: T1 is base, T2 is derived (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+    // T1 base, T2 derived: delegate and wrap in T2
+    auto base_result = (lhs + static_cast<const typename T2::_base&>(rhs));
+    return T2{base_result.value()};
+}
+
+// Case 4: Both operands are base units (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator+(const T1& lhs, const T2& rhs) noexcept
+{
+    // Both base: normal base type logic with optional ratio conversion
+    if constexpr (std::is_same_v<T1, T2>)
     {
-        // Both derived: delegate to base operators, wrap result in T1
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) + static_cast<const typename T2::_base&>(rhs));
-        return T1{base_result.value()};
-    }
-    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
-    {
-        // T1 derived, T2 base: delegate and wrap in T1
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) + rhs);
-        return T1{base_result.value()};
-    }
-    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
-    {
-        // T1 base, T2 derived: delegate and wrap in T2
-        auto base_result = (lhs + static_cast<const typename T2::_base&>(rhs));
-        return T2{base_result.value()};
+        // Same type: simple addition
+        return T1{lhs.value() + rhs.value()};
     }
     else
     {
-        // Both base: normal base type logic
-        if constexpr (std::is_same_v<T1, T2>)
+        // Different base types with same dimension: use LHS ratio
+        using value_type = typename details::is_pkr_unit<T1>::value_type;
+        using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+        using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+        if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
         {
             return T1{lhs.value() + rhs.value()};
         }
         else
         {
-            // Different base types, same dimension: use LHS ratio
-            using value_type = typename details::is_pkr_unit<T1>::value_type;
-            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
-
-            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
-            {
-                return T1{lhs.value() + rhs.value()};
-            }
-            else
-            {
-                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-                return T1{lhs.value() + converted_rhs};
-            }
+            value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+            return T1{lhs.value() + converted_rhs};
         }
     }
 }
 
+// Error case: incompatible dimensions
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires(!same_dimensions_c<T1, T2>)
 constexpr auto operator+(const T1&, const T2&) noexcept
@@ -103,51 +117,65 @@ constexpr auto operator+(const T1&, const T2&) noexcept
     static_assert(same_dimensions_c<T1, T2>, "invalid operands to operator+ : operands must have the same dimensions");
 }
 
-// Subtraction operator - unified for all base/derived combinations
+// ============================================================================
+// Subtraction operator - separate overloads for different type combinations
+// ============================================================================
+
+// Case 1: Both operands are derived units (C++20 concept-based dispatch)
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires(same_dimensions_c<T1, T2>)
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
 constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
 {
-    if constexpr (is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) - static_cast<const typename T2::_base&>(rhs));
+    return T1{base_result.value()};
+}
+
+// Case 2: T1 is derived, T2 is base (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_derived_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    auto base_result = (static_cast<const typename T1::_base&>(lhs) - rhs);
+    return T1{base_result.value()};
+}
+
+// Case 3: T1 is base, T2 is derived (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    auto base_result = (lhs - static_cast<const typename T2::_base&>(rhs));
+    return T2{base_result.value()};
+}
+
+// Case 4: Both operands are base units (C++20 concept-based dispatch)
+template <is_pkr_unit_c T1, is_pkr_unit_c T2>
+    requires(same_dimensions_c<T1, T2> && is_base_pkr_unit_c<T1> && is_base_pkr_unit_c<T2>)
+constexpr auto operator-(const T1& lhs, const T2& rhs) noexcept
+{
+    if constexpr (std::is_same_v<T1, T2>)
     {
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) - static_cast<const typename T2::_base&>(rhs));
-        return T1{base_result.value()};
-    }
-    else if constexpr (is_derived_pkr_unit_c<T1> && !is_derived_pkr_unit_c<T2>)
-    {
-        auto base_result = (static_cast<const typename T1::_base&>(lhs) - rhs);
-        return T1{base_result.value()};
-    }
-    else if constexpr (!is_derived_pkr_unit_c<T1> && is_derived_pkr_unit_c<T2>)
-    {
-        auto base_result = (lhs - static_cast<const typename T2::_base&>(rhs));
-        return T2{base_result.value()};
+        return T1{lhs.value() - rhs.value()};
     }
     else
     {
-        if constexpr (std::is_same_v<T1, T2>)
+        using value_type = typename details::is_pkr_unit<T1>::value_type;
+        using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
+        using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
+
+        if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
         {
             return T1{lhs.value() - rhs.value()};
         }
         else
         {
-            using value_type = typename details::is_pkr_unit<T1>::value_type;
-            using lhs_ratio = typename details::is_pkr_unit<T1>::ratio_type;
-            using rhs_ratio = typename details::is_pkr_unit<T2>::ratio_type;
-
-            if constexpr (std::is_same_v<lhs_ratio, rhs_ratio>)
-            {
-                return T1{lhs.value() - rhs.value()};
-            }
-            else
-            {
-                value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
-                return T1{lhs.value() - converted_rhs};
-            }
+            value_type converted_rhs = details::convert_ratio_to<value_type, rhs_ratio, lhs_ratio>(rhs.value());
+            return T1{lhs.value() - converted_rhs};
         }
     }
 }
 
+// Error case: incompatible dimensions
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires(!same_dimensions_c<T1, T2>)
 constexpr auto operator-(const T1&, const T2&) noexcept
@@ -457,7 +485,7 @@ constexpr auto operator/(const T& unit, const ScalarType& scalar) noexcept
     return result_type(details::divide_values<value_type>(unit.value(), static_cast<value_type>(scalar)));
 }
 
-// Comparison operators
+// Equality comparison operator
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires same_dimensions_c<T1, T2>
 
@@ -466,78 +494,23 @@ constexpr bool operator==(const T1& lhs, const T2& rhs) noexcept
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
         if constexpr (is_derived_pkr_unit_c<unit_type>)
         {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
+            using base_type = typename unit_type::_base;
+            using ratio_type = typename details::is_pkr_unit<base_type>::ratio_type;
+            const auto& base_unit = static_cast<const base_type&>(unit);
             return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
         else
         {
+            using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
             return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
     };
     return to_canonical(lhs) == to_canonical(rhs);
 }
 
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator!=(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs == rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator<(const T1& lhs, const T2& rhs) noexcept
-{
-    auto to_canonical = [](const auto& unit)
-    {
-        using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
-        if constexpr (is_derived_pkr_unit_c<unit_type>)
-        {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
-            return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
-        }
-        else
-        {
-            return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
-        }
-    };
-    return to_canonical(lhs) < to_canonical(rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator<=(const T1& lhs, const T2& rhs) noexcept
-{
-    return lhs < rhs || lhs == rhs;
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator>(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs <= rhs);
-}
-
-template <is_pkr_unit_c T1, is_pkr_unit_c T2>
-    requires same_dimensions_c<T1, T2>
-
-constexpr bool operator>=(const T1& lhs, const T2& rhs) noexcept
-{
-    return !(lhs < rhs);
-}
-
+// Three-way comparison operator (spaceship) - generates other comparison operators
 template <is_pkr_unit_c T1, is_pkr_unit_c T2>
     requires same_dimensions_c<T1, T2>
 
@@ -546,16 +519,16 @@ constexpr auto operator<=>(const T1& lhs, const T2& rhs) noexcept
     auto to_canonical = [](const auto& unit)
     {
         using unit_type = std::remove_cvref_t<decltype(unit)>;
-        using actual_type = std::conditional_t<is_derived_pkr_unit_c<unit_type>, typename unit_type::_base, unit_type>;
-        using ratio_type = typename details::is_pkr_unit<actual_type>::ratio_type;
-
         if constexpr (is_derived_pkr_unit_c<unit_type>)
         {
-            const auto& base_unit = static_cast<const actual_type&>(unit);
+            using base_type = typename unit_type::_base;
+            using ratio_type = typename details::is_pkr_unit<base_type>::ratio_type;
+            const auto& base_unit = static_cast<const base_type&>(unit);
             return static_cast<double>(base_unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
         else
         {
+            using ratio_type = typename details::is_pkr_unit<unit_type>::ratio_type;
             return static_cast<double>(unit.value()) * (static_cast<double>(ratio_type::num) / static_cast<double>(ratio_type::den));
         }
     };

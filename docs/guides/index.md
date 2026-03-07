@@ -26,10 +26,11 @@ Learn how to use pkr_units effectively for your specific use cases.
   - Temperature differences
   - Conversion rules
 
-- **[Symbol Reference](../reference/symbols.md)** — ASCII and Unicode variants 
-  - When to use each
-  - Configuration options
-  - Formatting for output
+- **[Parsing & String Conversion](parsing.md)** — Parse strings into units and measurements
+  - Parsing simple values ("5.2 m")
+  - Parsing measurements with uncertainty ("5.0 ± 0.1 m")
+  - Error handling
+  - Scientific notation and whitespace handling
 
 ## By Use Case
 

@@ -1,9 +1,7 @@
 ﻿#pragma once
 
-// This header contains formatting specializations and helpers
-// for electrical / complex-valued unit types.
-// It was renamed from complex_unit_formatting.h to better
-// reflect its focus on electrical engineering notation (use of 'j', etc.).
+// Formatting for electrical and complex-valued unit types
+// using j-notation (electrical engineering convention).
 
 #include <algorithm>
 #include <format>

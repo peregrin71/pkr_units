@@ -12,19 +12,22 @@ namespace PKR_UNITS_NAMESPACE
 {
 namespace details
 {
-template <typename T, typename = void>
-struct is_dimensionless_unit : std::false_type
+// C++20 Concept: Type is a PKR unit with scalar dimension (dimensionless)
+template <typename T>
+concept is_dimensionless_unit_c = requires {
+    typename details::is_pkr_unit<T>;
+    requires details::is_pkr_unit<T>::value;
+    requires(details::is_pkr_unit<T>::value_dimension == scalar_dimension);
+};
+
+// Legacy type trait for backward compatibility
+template <typename T>
+struct is_dimensionless_unit : std::bool_constant<is_dimensionless_unit_c<T>>
 {
 };
 
 template <typename T>
-struct is_dimensionless_unit<T, std::void_t<decltype(::PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value_dimension)>>
-    : std::bool_constant<(::PKR_UNITS_NAMESPACE::details::is_pkr_unit<T>::value_dimension == scalar_dimension)>
-{
-};
-
-template <typename T>
-inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit<T>::value;
+inline constexpr bool is_dimensionless_unit_v = is_dimensionless_unit_c<T>;
 } // namespace details
 
 // Linear ratio -> decibel (power) via tag dispatch
