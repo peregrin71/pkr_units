@@ -112,7 +112,7 @@ template <typename T>
 concept is_integral_constant_c = requires {
     typename T::value_type;
     typename std::integral_constant<typename T::value_type, T::value>;
-    std::same_as<std::remove_cvref_t<T>, std::integral_constant<typename T::value_type, T::value>>;
+    requires std::same_as<std::remove_cvref_t<T>, std::integral_constant<typename T::value_type, T::value>>;
 };
 
 // ========================================================================
